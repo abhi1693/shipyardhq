@@ -153,7 +153,6 @@ export function ProductMediaGalleryClient({
             item={item}
             index={index}
             isSelected={index === currentIndex}
-            prioritize={index === 0 && !directInitialImage}
             productName={productName}
             onSelect={() => setSelectedIndex(index)}
           />
@@ -167,14 +166,12 @@ function GalleryThumbnailButton({
   item,
   index,
   isSelected,
-  prioritize,
   productName,
   onSelect,
 }: {
   item: ProductMediaGalleryItem
   index: number
   isSelected: boolean
-  prioritize: boolean
   productName: string
   onSelect: () => void
 }) {
@@ -196,8 +193,8 @@ function GalleryThumbnailButton({
         sizes="160px"
         quality={THUMBNAIL_IMAGE_QUALITY}
         className={cn("object-contain", isSelected && "opacity-60 grayscale")}
-        loading={prioritize ? "eager" : "lazy"}
-        fetchPriority={prioritize ? "high" : "low"}
+        loading="lazy"
+        fetchPriority="low"
         placeholder="empty"
       />
     </button>

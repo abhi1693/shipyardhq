@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Rocket } from "lucide-react"
 
-import { Image } from "@/components/atoms/image"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
@@ -11,6 +10,8 @@ import {
   getPublicProductsByCategory,
   getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
+
+const SIMILAR_PRODUCTS_LIMIT = 3
 
 export function ProductUpvoteBadgeServer({
   productSlug,
@@ -53,12 +54,20 @@ export async function SimilarProductsServer({
   if (!useCaseSlug && !categorySlug) return null
 
   const useCaseProducts = useCaseSlug
-    ? await getPublicProductsByUseCase(useCaseSlug, productId, 4)
+    ? await getPublicProductsByUseCase(
+        useCaseSlug,
+        productId,
+        SIMILAR_PRODUCTS_LIMIT,
+      )
     : []
   const similarProducts = useCaseProducts.length
     ? useCaseProducts
     : categorySlug
-      ? await getPublicProductsByCategory(categorySlug, productId, 4)
+      ? await getPublicProductsByCategory(
+          categorySlug,
+          productId,
+          SIMILAR_PRODUCTS_LIMIT,
+        )
       : []
 
   if (!similarProducts.length) return null
@@ -102,12 +111,15 @@ export async function SimilarProductsServer({
           >
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-muted">
               {item.logo ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={item.logo}
                   alt={`${item.name} logo`}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <span className="text-sm font-semibold text-muted-foreground">
@@ -165,12 +177,14 @@ export async function DetailSponsoredProductCard({
       <div className="relative z-10">
         <div className="mb-3 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-[#c0ff00]">
           {product.logo ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={product.logo}
               alt={`${product.name} logo`}
               width={36}
               height={36}
-              sizes="36px"
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (

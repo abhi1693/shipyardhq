@@ -2,6 +2,7 @@ import { format, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import type { ProductInterestSignals } from "@/types/product-interest"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
@@ -161,6 +162,9 @@ export async function getProductInterestSignalsMap(args: {
   products: ProductRef[]
   days?: number
 }): Promise<Map<string, ProductInterestSignals>> {
+  "use cache"
+  applyCache([TAGS.analytics, TAGS.products], DEFAULT_TTL.fast)
+
   const results = new Map<string, ProductInterestSignals>()
   const products = args.products.filter((p) => p?.id)
   if (!products.length) return results

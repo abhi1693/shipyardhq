@@ -286,6 +286,21 @@ type HomepageBuilderSummaryRecord = Omit<
     | null
 }
 
+export async function getHomepageBuilderSummaryPublic(): Promise<HomepageBuilderSummary> {
+  const summary = await getHomepageBuilderSummaryRecord()
+  if (!summary.topFounder) {
+    return summary
+  }
+
+  const { clerkId: _clerkId, ...topFounder } = summary.topFounder
+  void _clerkId
+
+  return {
+    ...summary,
+    topFounder,
+  }
+}
+
 async function getHomepageBuilderSummaryRecord(): Promise<HomepageBuilderSummaryRecord> {
   "use cache"
   applyCache([TAGS.homepage, TAGS.users, TAGS.products], DEFAULT_TTL.slow)

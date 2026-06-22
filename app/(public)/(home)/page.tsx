@@ -1,6 +1,4 @@
 import Link from "next/link"
-import { Suspense } from "react"
-import { connection } from "next/server"
 import { Rocket, TrendingUp } from "lucide-react"
 
 import {
@@ -8,9 +6,8 @@ import {
   getHomepageLaunchOfDay,
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { getHomepageBuilderSummary } from "@/actions/public/users/actions"
+import { getHomepageBuilderSummaryPublic } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
-import { Image } from "@/components/atoms/image"
 import {
   HomepageDropsInfiniteList,
   HomepageUpvoteButton,
@@ -27,6 +24,7 @@ import {
   productPath,
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { siteConfig, siteGrowthMetrics } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
@@ -59,7 +57,7 @@ type DisplayDrop = {
 }
 
 type HomepageBuilderSummary = Awaited<
-  ReturnType<typeof getHomepageBuilderSummary>
+  ReturnType<typeof getHomepageBuilderSummaryPublic>
 >
 
 const fallbackBuilderSummary: HomepageBuilderSummary = {
@@ -146,12 +144,14 @@ function ProductLogo({
       )}
     >
       {product.logo ? (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={product.logo}
           alt={`${product.name} logo`}
           width={80}
           height={80}
-          sizes="80px"
+          loading="eager"
+          decoding="async"
           className="h-full w-full object-cover"
         />
       ) : (
@@ -213,27 +213,18 @@ function HomepageHero({
 }
 
 async function HomepageHeroWithBuilderSummary() {
-  await connection()
-
-  const builderSummary = await getHomepageBuilderSummary().catch(
+  const builderSummary = await getCachedHomepageBuilderSummary().catch(
     () => fallbackBuilderSummary,
   )
 
   return <HomepageHero builderSummary={builderSummary} />
 }
 
-function HomepageDataSectionsSkeleton() {
-  return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6" aria-hidden>
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 h-56 rounded-xl border border-[#E2E8F0] bg-white shadow-sm lg:col-span-8" />
-        <div className="col-span-12 grid grid-cols-1 gap-3 lg:col-span-4">
-          <div className="h-36 rounded-xl border border-[#E2E8F0] bg-white shadow-sm" />
-          <div className="h-16 rounded-xl bg-[#00162a]" />
-        </div>
-      </div>
-    </div>
-  )
+async function getCachedHomepageBuilderSummary() {
+  "use cache"
+  applyCache([TAGS.homepage, TAGS.users, TAGS.products], DEFAULT_TTL.slow)
+
+  return getHomepageBuilderSummaryPublic()
 }
 
 export default function HomePage() {
@@ -247,21 +238,24 @@ export default function HomePage() {
         }}
       />
 
-      <Suspense
-        fallback={<HomepageHero builderSummary={fallbackBuilderSummary} />}
-      >
-        <HomepageHeroWithBuilderSummary />
-      </Suspense>
-
-      <Suspense fallback={<HomepageDataSectionsSkeleton />}>
-        <HomepageDataSections />
-      </Suspense>
+      <HomepageHeroWithBuilderSummary />
+      <HomepageDataSections />
     </div>
   )
 }
 
-async function HomepageDataSections() {
-  await connection()
+async function getCachedHomepageDataSections() {
+  "use cache"
+  applyCache(
+    [
+      TAGS.homepage,
+      TAGS.products,
+      TAGS.leaderboard,
+      TAGS.analytics,
+      TAGS.upvotes,
+    ],
+    DEFAULT_TTL.fast,
+  )
 
   const [feedPage, launchOfDay, homepageStats] = await Promise.all([
     getHomepageFeedPage({
@@ -284,6 +278,18 @@ async function HomepageDataSections() {
     })),
   ])
 
+  return {
+    feedPage,
+    launchOfDay,
+    homepageStats,
+    referenceDateIso: new Date().toISOString(),
+  }
+}
+
+async function HomepageDataSections() {
+  const { feedPage, launchOfDay, homepageStats, referenceDateIso } =
+    await getCachedHomepageDataSections()
+
   const feedProducts = feedPage.items.map(toDisplayDrop)
   const launch: DisplayDrop | null = launchOfDay
     ? {
@@ -305,7 +311,6 @@ async function HomepageDataSections() {
       ),
     ),
   )
-  const referenceDateIso = new Date().toISOString()
   const launchGrowth = launch?.upvoteGrowthPercent
   const launchBuildersClickedCount = launch?.buildersClickedCount ?? 0
   const launchSignalLabel =

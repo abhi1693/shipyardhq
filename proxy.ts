@@ -6,9 +6,18 @@ import {
 } from "next/server"
 import { parseManagedMediaImageUrl } from "@/lib/images/managed-media"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
+import {
+  isMemberPath,
+  resolveSitemapChunkRewritePath,
+  shouldRunClerkMiddleware,
+} from "@/lib/proxy-routing"
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 const PUBLIC_FILE_EXTENSION = /\.[^/]+$/
+const PUBLIC_DOCUMENT_CACHE_CONTROL =
+  "public, s-maxage=60, stale-while-revalidate=31535940"
+const PRIVATE_DOCUMENT_CACHE_CONTROL =
+  "private, no-cache, no-store, max-age=0, must-revalidate"
 
 async function redirectMediaImageOptimizationRequest(req: NextRequest) {
   const url = new URL(req.url)
@@ -96,6 +105,17 @@ function rewriteMarkdownRequest(req: NextRequest) {
   return NextResponse.rewrite(markdownUrl)
 }
 
+function rewriteSitemapChunkRequest(req: NextRequest) {
+  const url = new URL(req.url)
+  const rewritePath = resolveSitemapChunkRewritePath(url.pathname)
+  if (!rewritePath) {
+    return null
+  }
+
+  url.pathname = rewritePath
+  return NextResponse.rewrite(url)
+}
+
 function isPublicDocumentRequest(req: NextRequest) {
   if (req.method !== "GET" && req.method !== "HEAD") {
     return false
@@ -105,6 +125,7 @@ function isPublicDocumentRequest(req: NextRequest) {
   return (
     url.pathname !== "/_next/image" &&
     url.pathname !== "/markdown-for-agents" &&
+    !shouldRunClerkMiddleware(url.pathname) &&
     !url.pathname.startsWith("/api/") &&
     !url.pathname.startsWith("/admin") &&
     !url.pathname.startsWith(MEMBER_BASE_PATH) &&
@@ -138,6 +159,7 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
 
   const url = new URL(req.url)
   const markdownPath = `${url.pathname}${url.search}`
+  response.headers.set("Cache-Control", PUBLIC_DOCUMENT_CACHE_CONTROL)
   appendVary(response, "Accept")
   appendHeaderValue(
     response,
@@ -153,28 +175,6 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
 }
 
 const handleClerkMiddleware = clerkMiddleware(async (auth, req) => {
-  // Rewrite sitemap chunk URLs ending with .xml to existing handler
-  const url = new URL(req.url)
-  const productMatch = url.pathname.match(/^\/sitemap-products\/(\d+)\.xml$/)
-  if (productMatch) {
-    url.pathname = `/sitemap-products/${productMatch[1]}`
-    return NextResponse.rewrite(url)
-  }
-
-  const alternativeMatch = url.pathname.match(
-    /^\/sitemap-alternatives\/(\d+)\.xml$/,
-  )
-  if (alternativeMatch) {
-    url.pathname = `/sitemap-alternatives/${alternativeMatch[1]}`
-    return NextResponse.rewrite(url)
-  }
-
-  const tagMatch = url.pathname.match(/^\/sitemap-tags\/(\d+)\.xml$/)
-  if (tagMatch) {
-    url.pathname = `/sitemap-tags/${tagMatch[1]}`
-    return NextResponse.rewrite(url)
-  }
-
   const memberPathRequested = isMemberRoute(req)
   if (memberPathRequested) {
     await auth.protect()
@@ -194,12 +194,26 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
     return markdownRewrite
   }
 
+  const sitemapRewrite = rewriteSitemapChunkRequest(req)
+  if (sitemapRewrite) {
+    return sitemapRewrite
+  }
+
+  const url = new URL(req.url)
+  if (!shouldRunClerkMiddleware(url.pathname)) {
+    return addAgentDiscoveryHeaders(req, NextResponse.next())
+  }
+
   const response = await handleClerkMiddleware(req, event)
   if (!response) {
     return addAgentDiscoveryHeaders(req, NextResponse.next())
   }
 
   if (response instanceof NextResponse) {
+    if (isMemberPath(url.pathname)) {
+      response.headers.set("Cache-Control", PRIVATE_DOCUMENT_CACHE_CONTROL)
+    }
+
     return addAgentDiscoveryHeaders(req, response)
   }
 

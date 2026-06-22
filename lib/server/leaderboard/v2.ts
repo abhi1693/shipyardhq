@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 type MetricMaps = {
@@ -144,6 +145,9 @@ export async function getProductScoreForCurrentWindow(
   productId: string,
   now: Date = new Date(),
 ) {
+  "use cache"
+  applyCache([TAGS.leaderboard, TAGS.product(productId)], DEFAULT_TTL.fast)
+
   const run = await getCurrentLeaderboardRun(now)
   if (!run) return null
 

@@ -2,6 +2,7 @@ import {
   estimateMarkdownTokens,
   renderMarkdownForPath,
 } from "@/lib/server/markdownForAgents"
+import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
 
 const MARKDOWN_CONTENT_TYPE = "text/markdown; charset=utf-8"
 
@@ -48,6 +49,7 @@ function getTargetUrl(req: Request, pathOverride?: string) {
 function markdownHeaders(markdown: string) {
   return {
     "Content-Type": MARKDOWN_CONTENT_TYPE,
+    "Cache-Control": PUBLIC_CONTENT_CACHE_CONTROL,
     Vary: "Accept",
     "x-markdown-tokens": String(estimateMarkdownTokens(markdown)),
     "X-Robots-Tag": "noindex",
@@ -67,7 +69,10 @@ export async function markdownResponse(
   if (!targetUrl) {
     return new Response("Invalid markdown target\n", {
       status: 400,
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": PUBLIC_CONTENT_CACHE_CONTROL,
+      },
     })
   }
 
@@ -77,6 +82,7 @@ export async function markdownResponse(
       status: 404,
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": PUBLIC_CONTENT_CACHE_CONTROL,
         Vary: "Accept",
         "X-Robots-Tag": "noindex",
       },

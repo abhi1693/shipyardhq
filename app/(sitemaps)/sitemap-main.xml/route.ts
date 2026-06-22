@@ -48,6 +48,7 @@ import {
 } from "@/lib/product-types/models"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { PSEO_MIN_INDEXABLE_PRODUCTS } from "@/lib/pseo/product-slices"
+import { sitemapResponse } from "@/lib/sitemap"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { id: true; slug: true; updatedAt: true }
@@ -930,7 +931,5 @@ export async function GET() {
     </urlset>
   `.trim()
 
-  return new Response(body, {
-    headers: { "Content-Type": "application/xml; charset=utf-8" },
-  })
+  return sitemapResponse(body)
 }

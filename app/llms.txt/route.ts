@@ -1,4 +1,5 @@
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
+import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
 import {
   ALTERNATIVES_PATH,
   BROWSE_PATH,
@@ -58,6 +59,7 @@ export async function GET() {
   return new Response(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": PUBLIC_CONTENT_CACHE_CONTROL,
     },
   })
 }

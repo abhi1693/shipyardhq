@@ -39,7 +39,8 @@ export function PartnerSpotlight({
                 src={logoSrc}
                 alt={product.name}
                 size={36}
-                eager
+                loading="lazy"
+                fetchPriority="low"
                 className="h-full w-full object-contain"
               />
             ) : (

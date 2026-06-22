@@ -6,8 +6,10 @@ import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
   sitemapIndexXml,
+  sitemapResponse,
   urlsetXml,
 } from "@/lib/sitemap"
+import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
 
 describe("sitemap utilities", () => {
   it("escapes XML-sensitive values", () => {
@@ -55,5 +57,16 @@ describe("sitemap utilities", () => {
         },
       ]),
     ).toContain("https://example.com/tags/a&amp;b")
+  })
+
+  it("returns public cache headers for sitemap responses", () => {
+    const response = sitemapResponse("<urlset />")
+
+    expect(response.headers.get("content-type")).toBe(
+      "application/xml; charset=utf-8",
+    )
+    expect(response.headers.get("cache-control")).toBe(
+      PUBLIC_CONTENT_CACHE_CONTROL,
+    )
   })
 })

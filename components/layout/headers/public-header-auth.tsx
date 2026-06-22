@@ -1,20 +1,10 @@
-"use client"
-
-import dynamic from "next/dynamic"
 import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
 import { MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
+import PublicMobileMenu from "./public-mobile-menu"
 
-const PublicHeaderAuthControls = dynamic(
-  () => import("./public-header-auth-controls"),
-  {
-    ssr: false,
-    loading: () => <PublicHeaderAuthFallback />,
-  },
-)
-
-function PublicHeaderAuthFallback() {
+export default function PublicHeaderAuth() {
   return (
     <>
       <div className="hidden items-center gap-3 md:flex">
@@ -35,14 +25,7 @@ function PublicHeaderAuthFallback() {
           <Link href="/login">Login</Link>
         </Button>
       </div>
-      <div
-        className="size-10 rounded-[10px] border border-[#E2E8F0] bg-white md:hidden"
-        aria-hidden
-      />
+      <PublicMobileMenu />
     </>
   )
-}
-
-export default function PublicHeaderAuth() {
-  return <PublicHeaderAuthControls />
 }

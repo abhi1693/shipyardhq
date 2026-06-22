@@ -168,6 +168,13 @@ describe("crawler directives", () => {
     expect(csp).toContain("https://clerk.shipyardhq.dev")
   })
 
+  it("keeps Lighthouse on the cacheable metadata path", () => {
+    expect(nextConfig.htmlLimitedBots).toBeInstanceOf(RegExp)
+    expect(nextConfig.htmlLimitedBots?.test("Chrome-Lighthouse")).toBe(false)
+    expect(nextConfig.htmlLimitedBots?.test("Twitterbot")).toBe(true)
+    expect(nextConfig.htmlLimitedBots?.test("facebookexternalhit")).toBe(true)
+  })
+
   it("keeps canonical browse indexable and marks filtered browse states noindex", () => {
     expect(hasBrowseSearchParams({})).toBe(false)
     expect(isPlainUseCaseBrowseState({ useCase: "launch-marketplace" })).toBe(

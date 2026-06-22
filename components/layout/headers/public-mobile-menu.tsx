@@ -2,17 +2,8 @@
 
 import Link from "next/link"
 import { type SyntheticEvent, useState } from "react"
-import { SignOutButton, useUser } from "@clerk/nextjs"
-import { usePathname, useRouter } from "next/navigation"
-import {
-  LayoutDashboard,
-  LogIn,
-  LogOut,
-  Menu,
-  PackagePlus,
-  Search,
-  UserRound,
-} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { LogIn, Menu, PackagePlus, Search } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import { Input } from "@/components/atoms/input"
@@ -26,18 +17,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/atoms/sheet"
-import {
-  BROWSE_PATH,
-  MEMBER_ACCOUNT_PROFILE_PATH,
-  MEMBER_BASE_PATH,
-  MEMBER_PRODUCTS_ADD_PATH,
-} from "@/lib/routes"
+import { BROWSE_PATH, MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
-import { cn } from "@/lib/utils"
-import {
-  isActivePublicHeaderPath,
-  publicHeaderLinks,
-} from "./public-header-links"
+import { publicHeaderLinks } from "./public-header-links"
 
 function buildBrowseHref(query: string): string {
   const trimmed = query.trim()
@@ -49,8 +31,6 @@ function buildBrowseHref(query: string): string {
 
 export default function PublicMobileMenu() {
   const router = useRouter()
-  const pathname = usePathname()
-  const { isLoaded, isSignedIn } = useUser()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
 
@@ -110,33 +90,20 @@ export default function PublicMobileMenu() {
           </form>
 
           <nav aria-label="Mobile public navigation" className="flex flex-col">
-            {publicHeaderLinks.map((link) => {
-              const isActive = isActivePublicHeaderPath(pathname, link.href)
-
-              return (
-                <SheetClose key={link.href} asChild>
-                  <Link
-                    href={link.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "flex items-center justify-between border-b border-[#EEF2F7] py-4 text-[15px] leading-5 transition-colors",
-                      isActive
-                        ? "font-bold text-[#0051d5]"
-                        : "font-medium text-[#28384d] hover:text-black",
-                    )}
-                  >
-                    {link.label}
-                    <span
-                      className={cn(
-                        "size-2 rounded-full",
-                        isActive ? "bg-[#0051d5]" : "bg-transparent",
-                      )}
-                      aria-hidden
-                    />
-                  </Link>
-                </SheetClose>
-              )
-            })}
+            {publicHeaderLinks.map((link) => (
+              <SheetClose key={link.href} asChild>
+                <Link
+                  href={link.href}
+                  className="flex items-center justify-between border-b border-[#EEF2F7] py-4 text-[15px] font-medium leading-5 text-[#28384d] transition-colors hover:text-black"
+                >
+                  {link.label}
+                  <span
+                    className="size-2 rounded-full bg-transparent"
+                    aria-hidden
+                  />
+                </Link>
+              </SheetClose>
+            ))}
           </nav>
         </div>
 
@@ -153,63 +120,19 @@ export default function PublicMobileMenu() {
             </Button>
           </SheetClose>
 
-          {!isLoaded ? (
-            <div
-              className="h-10 w-full rounded-[6px] border border-[#D8E0EA] bg-[#F8FAFC]"
-              aria-hidden
-            />
-          ) : isSignedIn ? (
-            <div className="grid grid-cols-2 gap-2">
-              <SheetClose asChild>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-10 rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
-                >
-                  <Link href={MEMBER_BASE_PATH}>
-                    <LayoutDashboard className="size-4" aria-hidden />
-                    Dashboard
-                  </Link>
-                </Button>
-              </SheetClose>
-              <SheetClose asChild>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-10 rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
-                >
-                  <Link href={MEMBER_ACCOUNT_PROFILE_PATH}>
-                    <UserRound className="size-4" aria-hidden />
-                    Profile
-                  </Link>
-                </Button>
-              </SheetClose>
-              <SignOutButton>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="col-span-2 h-10 rounded-[6px] text-[#ba1a1a] hover:bg-[#fff4f4] hover:text-[#ba1a1a]"
-                >
-                  <LogOut className="size-4" aria-hidden />
-                  Sign out
-                </Button>
-              </SignOutButton>
-            </div>
-          ) : (
-            <SheetClose asChild>
-              <Button
-                asChild
-                type="button"
-                variant="outline"
-                className="h-10 w-full rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
-              >
-                <Link href="/login">
-                  <LogIn className="size-4" aria-hidden />
-                  Login
-                </Link>
-              </Button>
-            </SheetClose>
-          )}
+          <SheetClose asChild>
+            <Button
+              asChild
+              type="button"
+              variant="outline"
+              className="h-10 w-full rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
+            >
+              <Link href="/login">
+                <LogIn className="size-4" aria-hidden />
+                Login
+              </Link>
+            </Button>
+          </SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>

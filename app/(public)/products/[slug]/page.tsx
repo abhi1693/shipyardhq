@@ -1,13 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  Suspense,
-  type ComponentType,
-  type ComponentPropsWithoutRef,
-} from "react"
+import { type ComponentType, type ComponentPropsWithoutRef } from "react"
 import { preload } from "react-dom"
 import { notFound } from "next/navigation"
-import { connection } from "next/server"
 import { JsonLdScript } from "next-seo"
 import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
@@ -26,7 +21,6 @@ import {
 } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
-import { Image } from "@/components/atoms/image"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
@@ -41,10 +35,6 @@ import {
   ProductUpvoteBadgeServer,
   SimilarProductsServer,
 } from "@/components/templates/public/products/detail/server-components"
-import {
-  ProductUpvoteBadgeFallback,
-  SimilarProductsFallback,
-} from "@/components/templates/public/products/detail/product-fallbacks"
 import {
   getProductStaticParams,
   getPublicProductMetaBySlug,
@@ -378,7 +368,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
-  await connection()
   const [sidebarProduct, leaderboardScore] = await Promise.all([
     getPublicProductBySlug(slug),
     getProductScoreForCurrentWindow(product.id).catch(() => null),
@@ -596,6 +585,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ? Math.max(sidebarUpvotes, analyticsUpvotes)
       : analyticsUpvotes
   const numberFormatter = new Intl.NumberFormat("en-US")
+  const sponsoredProductCard = await DetailSponsoredProductCard({
+    currentProductSlug: product.slug,
+  })
+  const similarProductsContent =
+    primaryUseCaseSlug || primaryCategorySlug
+      ? await SimilarProductsServer({
+          categorySlug: primaryCategorySlug,
+          productId: product.id,
+          useCaseSlug: primaryUseCaseSlug,
+          variant: "compact",
+        })
+      : null
   const productDetailsCard = (
     <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
       {activeBadgeDefs.length ? (
@@ -750,12 +751,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     aria-label={`View ${alternative.name} alternative`}
                     className="group relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-border bg-white shadow-sm transition hover:border-foreground/15"
                   >
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={alternative.logoUrl}
                       alt={`${alternative.name} logo`}
-                      fill
-                      sizes="36px"
-                      className="object-cover"
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
                     />
                   </Link>
                 ),
@@ -822,13 +826,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <div className="flex min-w-0 items-center gap-6">
             {product.logo ? (
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={product.logo}
                   alt={`${product.name} logo`}
-                  fill
-                  sizes="(min-width: 768px) 80px, 64px"
-                  preload
-                  fetchPriority="high"
+                  width={80}
+                  height={80}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -898,14 +903,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 Video
               </a>
             ) : null}
-            <Suspense fallback={<ProductUpvoteBadgeFallback />}>
-              <ProductUpvoteBadgeServer
-                productSlug={product.slug}
-                upvoteCount={upvoteCount}
-                leaderboard={leaderboardPayload}
-                variant="inline"
-              />
-            </Suspense>
+            <ProductUpvoteBadgeServer
+              productSlug={product.slug}
+              upvoteCount={upvoteCount}
+              leaderboard={leaderboardPayload}
+              variant="inline"
+            />
           </div>
         </header>
 
@@ -969,26 +972,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </section>
             ) : null}
             {productDetailsCard}
-            <Suspense
-              fallback={
-                <div className="h-48 animate-pulse rounded-xl bg-[#061d31]/90" />
-              }
-            >
-              <DetailSponsoredProductCard currentProductSlug={product.slug} />
-            </Suspense>
+            {sponsoredProductCard}
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 You may also like
               </h2>
               {primaryUseCaseSlug || primaryCategorySlug ? (
-                <Suspense fallback={<SimilarProductsFallback />}>
-                  <SimilarProductsServer
-                    categorySlug={primaryCategorySlug}
-                    productId={product.id}
-                    useCaseSlug={primaryUseCaseSlug}
-                    variant="compact"
-                  />
-                </Suspense>
+                similarProductsContent
               ) : (
                 <p className="rounded-lg border border-border bg-white p-4 text-sm text-muted-foreground">
                   Related launches will appear as soon as this product has a

@@ -13,7 +13,12 @@ type Props = Omit<
   sizes?: string
 }
 
-export function SquareImage({ size, sizes, ...props }: Props) {
+export function SquareImage({
+  size,
+  sizes,
+  placeholder = "empty",
+  ...props
+}: Props) {
   const { alt, ...rest } = props
 
   return (
@@ -23,6 +28,7 @@ export function SquareImage({ size, sizes, ...props }: Props) {
       width={size}
       height={size}
       sizes={sizes ?? `${size}px`}
+      placeholder={placeholder}
     />
   )
 }

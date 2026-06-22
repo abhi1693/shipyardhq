@@ -77,7 +77,8 @@ export function PartnerSpotlightRotator({
                       src={logoSrc}
                       alt={product.name}
                       size={48}
-                      eager
+                      loading="lazy"
+                      fetchPriority="low"
                       className="h-full w-full object-contain"
                     />
                   ) : (

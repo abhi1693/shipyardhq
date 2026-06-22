@@ -1,3 +1,5 @@
+import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
+
 export const SITEMAP_CHUNK_SIZE = 50000
 
 type SitemapDate = Date | string
@@ -65,6 +67,7 @@ export function sitemapChangefreqForAge(days: number): SitemapChangeFrequency {
 export function sitemapResponse(body: string, init?: ResponseInit) {
   const headers = new Headers(init?.headers)
   headers.set("Content-Type", "application/xml; charset=utf-8")
+  headers.set("Cache-Control", PUBLIC_CONTENT_CACHE_CONTROL)
 
   return new Response(body, {
     ...init,

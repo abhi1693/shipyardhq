@@ -204,8 +204,8 @@ export async function getPublicProductMetaBySlug(slug: string) {
   return product
 }
 
-const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = 50
 const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
+const DEFAULT_PRODUCT_STATIC_PARAMS_LIMIT = MAX_PRODUCT_STATIC_PARAMS_LIMIT
 const HOMEPAGE_PRODUCT_STATIC_PARAMS_SPONSORED_LIMIT = 12
 
 function normalizeProductStaticParamsLimit() {
