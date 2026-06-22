@@ -95,6 +95,28 @@ function planRank(plan: PublicPlan) {
   return 1
 }
 
+function choosePopularPlanId(plans: PublicPlan[], selectedType: PlanType) {
+  const paidPlans = plans.filter((plan) => (plan.price || 0) > 0)
+  if (!paidPlans.length) return undefined
+
+  const preferredName =
+    selectedType === "recurring_price" ? /featured/i : /spotlight/i
+  const preferredPlan = paidPlans.find((plan) => preferredName.test(plan.name))
+  if (preferredPlan) return preferredPlan.id
+
+  const maxCount = Math.max(...paidPlans.map((plan) => plan.productCount || 0))
+  if (maxCount > 0) {
+    return paidPlans
+      .filter((plan) => (plan.productCount || 0) === maxCount)
+      .sort((a, b) => (b.price || 0) - (a.price || 0))[0]?.id
+  }
+
+  const sortedByPrice = [...paidPlans].sort(
+    (a, b) => (a.price || 0) - (b.price || 0),
+  )
+  return sortedByPrice[Math.floor((sortedByPrice.length - 1) / 2)]?.id
+}
+
 function isPaidPlan(plan?: PublicPlan | null) {
   return Boolean(plan && !plan.isDefault && (plan.price || 0) > 0)
 }
@@ -288,6 +310,10 @@ export function ProductUpgradeProvisioning({
       return rankDiff || (a.price || 0) - (b.price || 0)
     })
   }, [currentPlanId, effectiveSelectedType, plans, subscriptionLocked])
+  const popularPlanId = useMemo(
+    () => choosePopularPlanId(visiblePlans, effectiveSelectedType),
+    [effectiveSelectedType, visiblePlans],
+  )
 
   const defaultSelected =
     visiblePlans.find((plan) => plan.id === requestedPlanId) ??
@@ -553,6 +579,7 @@ export function ProductUpgradeProvisioning({
             const selected = selectedPlan.id === plan.id
             const current = currentPlanId === plan.id
             const rank = planRank(plan)
+            const popular = plan.id === popularPlanId && (plan.price || 0) > 0
             const planCopy = planMetrics(plan, performanceSnapshot)
             return (
               <div
@@ -572,7 +599,7 @@ export function ProductUpgradeProvisioning({
                   if (!subscriptionLocked) setSelectedPlanId(plan.id)
                 }}
               >
-                {rank === 1 ? (
+                {popular ? (
                   <div className="absolute right-0 top-0 rounded-bl-xl bg-[#0051d5] px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white">
                     Popular Choice
                   </div>
