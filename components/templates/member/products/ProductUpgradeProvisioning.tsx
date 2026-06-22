@@ -52,7 +52,7 @@ const EMPTY_PERFORMANCE_SNAPSHOT: ProductUpgradePerformanceSnapshot = {
 const FALLBACK_FEATURES = {
   free: [
     "Shipyard listing",
-    "Verified badge eligibility",
+    "Optional badge embed",
     "Basic analytics",
     "Search indexing",
   ],
@@ -235,6 +235,7 @@ export function ProductUpgradeProvisioning({
   errorRedirectPath,
   currentPlanId,
   currentPlan,
+  preferFreePlan = false,
   lockedPlanType,
   subscriptionLocked = false,
   currentPlanStatus = {
@@ -251,6 +252,7 @@ export function ProductUpgradeProvisioning({
   errorRedirectPath?: string
   currentPlanId?: string | null
   currentPlan?: PublicPlan | null
+  preferFreePlan?: boolean
   lockedPlanType?: PlanType | null
   subscriptionLocked?: boolean
   currentPlanStatus?: ProductUpgradePlanStatus
@@ -318,7 +320,9 @@ export function ProductUpgradeProvisioning({
   const defaultSelected =
     visiblePlans.find((plan) => plan.id === requestedPlanId) ??
     visiblePlans.find((plan) => plan.id === currentPlanId) ??
-    visiblePlans.find((plan) => planRank(plan) === 1) ??
+    (preferFreePlan
+      ? visiblePlans.find((plan) => planRank(plan) === 0)
+      : visiblePlans.find((plan) => planRank(plan) === 1)) ??
     visiblePlans[0] ??
     null
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
@@ -683,11 +687,12 @@ export function ProductUpgradeProvisioning({
                           }}
                         >
                           <ShieldCheck className="size-4" aria-hidden="true" />
-                          Verify Shipyard Badge
+                          Optional Badge
                         </button>
                         <p className="text-sm leading-5 text-[#43474c]">
-                          Free listings include a Shipyard badge so attribution
-                          helps keep the platform free for makers.
+                          Free listings do not require a featured badge or paid
+                          placement. You can add the badge embed if you want, or
+                          continue free without it.
                         </p>
                       </div>
                     ) : (
@@ -802,7 +807,9 @@ export function ProductUpgradeProvisioning({
                     className="h-12 w-full rounded-xl bg-[#00162a] text-[12px] font-bold uppercase tracking-widest text-white shadow-lg shadow-[#00162a]/10 hover:bg-black"
                   >
                     <Sparkles className="size-4" aria-hidden="true" />
-                    Select Plan
+                    {(selectedPlan.price || 0) === 0
+                      ? "Continue Free"
+                      : "Select Plan"}
                   </Button>
                 </form>
               )}
@@ -810,7 +817,7 @@ export function ProductUpgradeProvisioning({
               <p className="text-center text-[10px] leading-relaxed text-[#43474c]">
                 {subscriptionLocked
                   ? "Your paid subscription is managed in the billing portal."
-                  : "Paid tiers route through checkout. Free placement activates immediately when selected."}
+                  : "Free placement activates immediately. Paid tiers route through checkout only when selected."}
               </p>
             </div>
           </div>

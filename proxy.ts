@@ -14,8 +14,11 @@ import {
 
 const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 const PUBLIC_FILE_EXTENSION = /\.[^/]+$/
+const PRODUCT_PAGE_PATH_PATTERN = /^\/products\/([^/]+)\/?$/
 const PUBLIC_DOCUMENT_CACHE_CONTROL =
   "public, s-maxage=60, stale-while-revalidate=31535940"
+const PUBLIC_NOT_FOUND_CACHE_CONTROL =
+  "public, s-maxage=60, stale-while-revalidate=300"
 const PRIVATE_DOCUMENT_CACHE_CONTROL =
   "private, no-cache, no-store, max-age=0, must-revalidate"
 
@@ -116,6 +119,67 @@ function rewriteSitemapChunkRequest(req: NextRequest) {
   return NextResponse.rewrite(url)
 }
 
+function getProductPageSlug(req: NextRequest) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return null
+  }
+
+  if (req.headers.get("rsc")) {
+    return null
+  }
+
+  const url = new URL(req.url)
+  const match = url.pathname.match(PRODUCT_PAGE_PATH_PATTERN)
+  if (!match?.[1]) {
+    return null
+  }
+
+  const accept = req.headers.get("accept")?.toLowerCase() ?? ""
+  if (accept && !accept.includes("text/html") && !accept.includes("*/*")) {
+    return null
+  }
+
+  try {
+    return decodeURIComponent(match[1])
+  } catch {
+    return match[1]
+  }
+}
+
+async function rewriteMissingProductRequest(req: NextRequest) {
+  const slug = getProductPageSlug(req)
+  if (!slug) {
+    return null
+  }
+
+  const markdownUrl = new URL(
+    `/markdown-for-agents/products/${encodeURIComponent(slug)}`,
+    req.url,
+  )
+
+  let markdownResponse: Response
+  try {
+    markdownResponse = await fetch(markdownUrl, {
+      method: "HEAD",
+      headers: { accept: "*/*" },
+    })
+  } catch {
+    return null
+  }
+
+  if (markdownResponse.status !== 404) {
+    return null
+  }
+
+  const notFoundUrl = new URL("/_not-found", req.url)
+  const response = addAgentDiscoveryHeaders(
+    req,
+    NextResponse.rewrite(notFoundUrl, { status: 404 }),
+  )
+  response.headers.set("Cache-Control", PUBLIC_NOT_FOUND_CACHE_CONTROL)
+  return response
+}
+
 function isPublicDocumentRequest(req: NextRequest) {
   if (req.method !== "GET" && req.method !== "HEAD") {
     return false
@@ -197,6 +261,11 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   const sitemapRewrite = rewriteSitemapChunkRequest(req)
   if (sitemapRewrite) {
     return sitemapRewrite
+  }
+
+  const missingProductRewrite = await rewriteMissingProductRequest(req)
+  if (missingProductRewrite) {
+    return missingProductRewrite
   }
 
   const url = new URL(req.url)

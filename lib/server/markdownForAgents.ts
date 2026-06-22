@@ -99,6 +99,10 @@ function isMarkdownRenderablePath(pathname: string) {
   )
 }
 
+function isProductMarkdownPath(pathname: string) {
+  return /^\/products\/[^/]+\/?$/.test(pathname)
+}
+
 async function fetchMarkdownHtmlTarget(
   targetUrl: URL,
 ): Promise<{ response: Response; finalUrl: URL } | null> {
@@ -157,6 +161,9 @@ export async function renderMarkdownForPath(
       body: productMarkdown,
       status: 200,
     }
+  }
+  if (isProductMarkdownPath(targetUrl.pathname)) {
+    return null
   }
 
   const fetched = await fetchMarkdownHtmlTarget(targetUrl).catch(() => null)

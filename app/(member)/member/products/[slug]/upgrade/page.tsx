@@ -83,6 +83,7 @@ export default async function ProductUpgradePage({
     prisma.product.findUnique({
       where: { id: product.id },
       select: {
+        pricingModel: true,
         subscriptionId: true,
         planAssignedAt: true,
         plan: {
@@ -135,6 +136,7 @@ export default async function ProductUpgradePage({
   const productHref = memberProductPath(product.slug)
   const productUpgradeHref = memberProductUpgradePath(product.slug)
   const publicProductHref = productPath(product.slug)
+  const preferFreePlan = productPlan?.pricingModel === "free"
 
   return (
     <div className="px-4 py-8 md:px-8">
@@ -147,6 +149,7 @@ export default async function ProductUpgradePage({
           errorRedirectPath={productUpgradeHref}
           currentPlanId={currentPlan?.id}
           currentPlan={currentPlanPublic}
+          preferFreePlan={preferFreePlan}
           lockedPlanType={lockedPlanType}
           subscriptionLocked={hasActivePaidSubscription}
           currentPlanStatus={{
