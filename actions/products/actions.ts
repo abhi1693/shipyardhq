@@ -30,6 +30,34 @@ import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
+const DNS_LOOKUP_TIMEOUT_MS = 5_000
+
+function dnsTimeoutError() {
+  const error = new Error("DNS lookup timed out") as NodeJS.ErrnoException
+  error.code = "ETIMEOUT"
+  return error
+}
+
+async function resolveTxtRecords(domain: string) {
+  const resolver = new Resolver()
+  resolver.setServers(["1.1.1.1", "8.8.8.8"])
+  let timeout: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    return await Promise.race([
+      resolver.resolveTxt(domain),
+      new Promise<string[][]>((_, reject) => {
+        timeout = setTimeout(() => {
+          resolver.cancel()
+          reject(dnsTimeoutError())
+        }, DNS_LOOKUP_TIMEOUT_MS)
+      }),
+    ])
+  } finally {
+    if (timeout) clearTimeout(timeout)
+  }
+}
+
 async function refreshHomepageFeedCacheAfterProductChange(
   reason: string,
   productId?: string,
@@ -275,9 +303,7 @@ export async function createProductAction(formData: FormData) {
     try {
       const domain = getRootDomain(websiteUrl)
       if (domain) {
-        const resolver = new Resolver()
-        resolver.setServers(["1.1.1.1", "8.8.8.8"])
-        const txtRecords = await resolver.resolveTxt(domain)
+        const txtRecords = await resolveTxtRecords(domain)
         const flattened = txtRecords.flat().map((t) => t.trim())
         initialVerified = flattened.some(
           (txt) => txt === verificationTxt.trim(),
@@ -753,10 +779,7 @@ export async function verifyProductDomainAction(productId: string) {
       return { error: "Unable to derive root domain for verification." }
     }
 
-    const resolver = new Resolver()
-    resolver.setServers(["1.1.1.1", "8.8.8.8"])
-
-    const txtRecords = await resolver.resolveTxt(domain)
+    const txtRecords = await resolveTxtRecords(domain)
     const flattened = txtRecords.flat()
     const expected = product.verification.verificationTxt
 
@@ -796,10 +819,7 @@ export async function checkDomainTxtAction(websiteUrl: string) {
     if (!domain)
       return { error: "Unable to derive root domain for verification." }
 
-    const resolver = new Resolver()
-    resolver.setServers(["1.1.1.1", "8.8.8.8"])
-
-    const txtRecords = await resolver.resolveTxt(domain)
+    const txtRecords = await resolveTxtRecords(domain)
     const flattened = txtRecords.flat().map((t) => t.trim())
     const expected = generateVerificationTxtFromWebsite(websiteUrl)
     const matched = flattened.some((txt) => txt === expected.trim())

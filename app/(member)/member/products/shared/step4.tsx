@@ -83,25 +83,17 @@ export default function Step3({
         return
       }
 
-      // Compute expected locally to avoid placeholder flicker
+      // Any website change invalidates prior verification result.
+      form.setValue("verificationChecked", false)
+      form.setValue("verificationSuccess", false)
+
+      // Compute expected locally to avoid placeholder flicker.
       try {
         const norm = website.trim().toLowerCase()
         const hex = await sha256Hex(norm)
         const localExpected = `prod-verif-shipyard-${hex.slice(0, 12)}`
         if (active) form.setValue("verificationExpectedTxt", localExpected)
       } catch {}
-
-      // Also attempt DNS check (best effort) and keep expected in sync
-      try {
-        const res = await checkDomainTxtAction(website)
-        if (active && "expected" in res && res.expected) {
-          form.setValue("verificationExpectedTxt", res.expected)
-        }
-      } catch {}
-
-      // Any website change invalidates prior verification result
-      form.setValue("verificationChecked", false)
-      form.setValue("verificationSuccess", false)
     }
 
     load()
@@ -115,7 +107,11 @@ export default function Step3({
     setVerifying(true)
     try {
       const res = await checkDomainTxtAction(website)
-      if ("error" in res) return toast.error(res.error)
+      if ("error" in res) {
+        form.setValue("verificationChecked", true)
+        form.setValue("verificationSuccess", false)
+        return toast.error(res.error)
+      }
       form.setValue("verificationChecked", true)
       form.setValue("verificationSuccess", !!res.success)
       if (res.expected) form.setValue("verificationExpectedTxt", res.expected)
