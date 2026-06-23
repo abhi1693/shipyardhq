@@ -150,7 +150,7 @@ function MetricSparkline({
           <XAxis dataKey="label" hide />
           <YAxis hide />
           <RechartsTooltip
-            allowEscapeViewBox={{ x: true, y: true }}
+            allowEscapeViewBox={{ x: false, y: true }}
             cursor={{ stroke: color, strokeOpacity: 0.18 }}
             offset={8}
             content={<TrafficSparklineTooltip />}
