@@ -190,8 +190,26 @@ function formatChange({ current, previous }: WindowTotals) {
   return `${prefix}${change.toFixed(1)}%`
 }
 
+function padDatePart(value: number) {
+  return value.toString().padStart(2, "0")
+}
+
 function formatDate(value: Date | null | undefined) {
-  return value ? value.toISOString().replace("T", " ").slice(0, 19) : "n/a"
+  if (!value) return "n/a"
+  if (Number.isNaN(value.getTime())) return "n/a"
+
+  return [
+    `${value.getFullYear()}-${padDatePart(value.getMonth() + 1)}-${padDatePart(
+      value.getDate(),
+    )}`,
+    `${padDatePart(value.getHours())}:${padDatePart(
+      value.getMinutes(),
+    )}:${padDatePart(value.getSeconds())}`,
+  ].join(" ")
+}
+
+function localTimeZoneLabel() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone ?? "local"
 }
 
 function payloadRecord(payload: Prisma.JsonValue): Record<string, unknown> {
@@ -535,6 +553,7 @@ function header(report: Record<string, any>, options: CliOptions) {
     paint(
       [
         `Generated ${formatDate(new Date(report.generatedAt))}`,
+        `Timezone ${localTimeZoneLabel()}`,
         `Window last ${options.days} day${options.days === 1 ? "" : "s"}`,
         `Sections ${options.sections.join(", ")}`,
       ].join(" | "),
