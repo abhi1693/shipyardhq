@@ -8,6 +8,7 @@ import {
 } from "@/actions/public/homepage/feed"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
+import { isHomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
 
 function normalizePositiveInteger(value: string | null, fallback: number) {
   const parsed = Number(value)
@@ -50,13 +51,22 @@ export async function GET(request: Request) {
     url.searchParams.get("pageSize"),
     HOMEPAGE_FEED_PAGE_SIZE,
   )
+  const rawLaunchPeriod = url.searchParams.get("launchPeriod")
+  const launchPeriod = isHomepageLaunchPeriod(rawLaunchPeriod)
+    ? rawLaunchPeriod
+    : null
+  const excludeProductIds = url.searchParams
+    .getAll("excludeProductId")
+    .filter(Boolean)
 
   try {
     const result = await getHomepageFeedPage({
       page,
       pageSize,
+      excludeProductIds,
       view: DEFAULT_HOMEPAGE_FEED_VIEW,
-      launchWindow: "week",
+      launchWindow: "homepage",
+      launchPeriod,
     })
     const personalized = await applyViewerVoteState(result)
 
@@ -76,6 +86,7 @@ export async function GET(request: Request) {
         pageSize,
         hasMore: false,
         nextPage: null,
+        launchPeriod: null,
       },
       { status: 200 },
     )

@@ -8,6 +8,11 @@ import {
   HOMEPAGE_FEED_PAGE_SIZE,
   HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
 } from "@/lib/homepage/feed-constants"
+import {
+  HOMEPAGE_WINDOW_PERIOD_ORDER,
+  isHomepageLaunchPeriod,
+  type HomepageLaunchPeriod,
+} from "@/lib/homepage/launch-periods"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import type { ProductCardVariant } from "@/types/product-card"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
@@ -35,7 +40,7 @@ const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_FEED_POOL_LIMIT = 200
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
 const HOMEPAGE_FEED_CACHE_VERSION = "v1"
-const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v2"
+const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v3"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
 const HOMEPAGE_FEED_IN_PROCESS_TTL_MS = 15_000
@@ -113,9 +118,10 @@ export interface HomepageFeedPageResult {
   pageSize: number
   hasMore: boolean
   nextPage: number | null
+  launchPeriod?: HomepageLaunchPeriod | null
 }
 
-type HomepageLaunchWindow = "all" | "week"
+type HomepageLaunchWindow = "all" | "week" | "homepage"
 type RefreshHomepageFeedCacheOptions = {
   revalidateNextCache?: boolean
   useNextLaunchCache?: boolean
@@ -135,6 +141,10 @@ interface HomepageWeekFeedPools {
   today: HomepageFeedItem[]
   yesterday: HomepageFeedItem[]
   thisWeek: HomepageFeedItem[]
+  lastWeek: HomepageFeedItem[]
+  thisMonth: HomepageFeedItem[]
+  previousMonth: HomepageFeedItem[]
+  thisYear: HomepageFeedItem[]
   sponsored: HomepageFeedItem[]
 }
 
@@ -151,7 +161,9 @@ interface GetHomepageFeedPageParams {
   page?: number
   pageSize?: number
   clerkUserId?: string | null
+  excludeProductIds?: string[]
   launchWindow?: HomepageLaunchWindow
+  launchPeriod?: HomepageLaunchPeriod | null
 }
 
 interface GetHomepageFeedViewParams extends GetHomepageFeedPageParams {
@@ -189,10 +201,54 @@ function startOfUtcDayDate(date: Date) {
   )
 }
 
+function startOfUtcWeekDate(date: Date) {
+  const start = startOfUtcDayDate(date)
+  const day = start.getUTCDay()
+  const daysSinceMonday = day === 0 ? 6 : day - 1
+  return addUtcDaysDate(start, -daysSinceMonday)
+}
+
+function startOfUtcMonthDate(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1))
+}
+
+function startOfPreviousUtcMonthDate(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1))
+}
+
+function startOfUtcYearDate(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+}
+
 function addUtcDaysDate(date: Date, days: number) {
   const nextDate = new Date(date)
   nextDate.setUTCDate(nextDate.getUTCDate() + days)
   return nextDate
+}
+
+function buildHomepageLaunchPeriodDefinitions(now: Date) {
+  const startToday = startOfUtcDayDate(now)
+  const startTomorrow = addUtcDaysDate(startToday, 1)
+  const startYesterday = addUtcDaysDate(startToday, -1)
+  const startThisWeek = startOfUtcWeekDate(now)
+  const startLastWeek = addUtcDaysDate(startThisWeek, -7)
+  const startThisMonth = startOfUtcMonthDate(now)
+  const startPreviousMonth = startOfPreviousUtcMonthDate(now)
+  const startThisYear = startOfUtcYearDate(now)
+
+  return {
+    today: { gte: startToday, lt: startTomorrow },
+    yesterday: { gte: startYesterday, lt: startToday },
+    thisWeek: { gte: startThisWeek, lt: startYesterday },
+    lastWeek: { gte: startLastWeek, lt: startThisWeek },
+    thisMonth: { gte: startThisMonth, lt: startLastWeek },
+    previousMonth: { gte: startPreviousMonth, lt: startThisMonth },
+    thisYear: { gte: startThisYear, lt: startPreviousMonth },
+  }
+}
+
+function hasValidReleaseWindow({ gte, lt }: { gte: Date; lt: Date }) {
+  return gte.getTime() < lt.getTime()
 }
 
 function calculatePercentChange(current: number, previous: number) {
@@ -540,10 +596,7 @@ function getUniqueFeedItems(items: HomepageFeedItem[]) {
 async function getHomepageWeekFeedPoolsImpl(
   now = new Date(),
 ): Promise<HomepageWeekFeedPools> {
-  const startToday = startOfUtcDayDate(now)
-  const startTomorrow = addUtcDaysDate(startToday, 1)
-  const startYesterday = addUtcDaysDate(startToday, -1)
-  const startThisWeek = addUtcDaysDate(startToday, -7)
+  const launchPeriods = buildHomepageLaunchPeriodDefinitions(now)
   const sponsoredPlanIds = await getSponsoredPlacementPlanIds()
   const sponsoredPlanIdSet = new Set(sponsoredPlanIds)
   const sponsoredPlacementWhere = buildSponsoredPlacementWhere(
@@ -554,55 +607,38 @@ async function getHomepageWeekFeedPoolsImpl(
     AND: [buildBaseWhere(), { NOT: sponsoredPlacementWhere }],
   }
   const orderBy = getHomepageFeedOrderBy()
+  const findOrganicProductsForWindow = (window: { gte: Date; lt: Date }) => {
+    if (!hasValidReleaseWindow(window)) {
+      return Promise.resolve([] satisfies HomepageFeedProduct[])
+    }
+
+    return prisma.product.findMany({
+      where: {
+        AND: [organicBaseWhere, buildReleaseWindowWhere(window)],
+      },
+      orderBy,
+      take: HOMEPAGE_FEED_POOL_LIMIT,
+      select: homepageFeedSelect,
+    })
+  }
 
   const [
     todayProducts,
     yesterdayProducts,
     thisWeekProducts,
+    lastWeekProducts,
+    thisMonthProducts,
+    previousMonthProducts,
+    thisYearProducts,
     sponsoredProducts,
   ] = await Promise.all([
-    prisma.product.findMany({
-      where: {
-        AND: [
-          organicBaseWhere,
-          buildReleaseWindowWhere({
-            gte: startToday,
-            lt: startTomorrow,
-          }),
-        ],
-      },
-      orderBy,
-      take: HOMEPAGE_FEED_POOL_LIMIT,
-      select: homepageFeedSelect,
-    }),
-    prisma.product.findMany({
-      where: {
-        AND: [
-          organicBaseWhere,
-          buildReleaseWindowWhere({
-            gte: startYesterday,
-            lt: startToday,
-          }),
-        ],
-      },
-      orderBy,
-      take: HOMEPAGE_FEED_POOL_LIMIT,
-      select: homepageFeedSelect,
-    }),
-    prisma.product.findMany({
-      where: {
-        AND: [
-          organicBaseWhere,
-          buildReleaseWindowWhere({
-            gte: startThisWeek,
-            lt: startYesterday,
-          }),
-        ],
-      },
-      orderBy,
-      take: HOMEPAGE_FEED_POOL_LIMIT,
-      select: homepageFeedSelect,
-    }),
+    findOrganicProductsForWindow(launchPeriods.today),
+    findOrganicProductsForWindow(launchPeriods.yesterday),
+    findOrganicProductsForWindow(launchPeriods.thisWeek),
+    findOrganicProductsForWindow(launchPeriods.lastWeek),
+    findOrganicProductsForWindow(launchPeriods.thisMonth),
+    findOrganicProductsForWindow(launchPeriods.previousMonth),
+    findOrganicProductsForWindow(launchPeriods.thisYear),
     prisma.product.findMany({
       where: {
         AND: [buildBaseWhere(), sponsoredPlacementWhere],
@@ -613,13 +649,30 @@ async function getHomepageWeekFeedPoolsImpl(
     }),
   ])
 
-  const [today, yesterday, thisWeek, sponsored] =
-    await buildFeedItemsFromProductGroups(
-      [todayProducts, yesterdayProducts, thisWeekProducts, sponsoredProducts],
-      null,
-      sponsoredPlanIdSet,
-      now,
-    )
+  const [
+    today,
+    yesterday,
+    thisWeek,
+    lastWeek,
+    thisMonth,
+    previousMonth,
+    thisYear,
+    sponsored,
+  ] = await buildFeedItemsFromProductGroups(
+    [
+      todayProducts,
+      yesterdayProducts,
+      thisWeekProducts,
+      lastWeekProducts,
+      thisMonthProducts,
+      previousMonthProducts,
+      thisYearProducts,
+      sponsoredProducts,
+    ],
+    null,
+    sponsoredPlanIdSet,
+    now,
+  )
 
   return {
     generatedAt: now.toISOString(),
@@ -627,6 +680,10 @@ async function getHomepageWeekFeedPoolsImpl(
     today: getUniqueFeedItems(today),
     yesterday: getUniqueFeedItems(yesterday),
     thisWeek: getUniqueFeedItems(thisWeek),
+    lastWeek: getUniqueFeedItems(lastWeek),
+    thisMonth: getUniqueFeedItems(thisMonth),
+    previousMonth: getUniqueFeedItems(previousMonth),
+    thisYear: getUniqueFeedItems(thisYear),
     sponsored: getUniqueFeedItems(
       sponsored.sort(compareFeedItemsByShuffleRank),
     ),
@@ -655,16 +712,37 @@ async function getHomepageWeekFeedPageFromPools({
   page = 1,
   pageSize = HOMEPAGE_FEED_PAGE_SIZE,
   clerkUserId,
+  excludeProductIds = [],
+  launchPeriod,
 }: GetHomepageFeedPageParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const organicStartIndex = (safePage - 1) * safePageSize
   const pools = await getHomepageWeekFeedPools()
-  const organicItems = getUniqueFeedItems([
-    ...pools.today,
-    ...pools.yesterday,
-    ...pools.thisWeek,
+  const excludedIds = new Set(excludeProductIds.filter(Boolean))
+  const withoutExcludedItems = (items: HomepageFeedItem[]) =>
+    excludedIds.size ? items.filter((item) => !excludedIds.has(item.id)) : items
+  const recentItems = getUniqueFeedItems([
+    ...withoutExcludedItems(pools.today),
+    ...withoutExcludedItems(pools.yesterday),
+    ...withoutExcludedItems(pools.thisWeek),
   ])
+  const periodItems: Record<HomepageLaunchPeriod, HomepageFeedItem[]> = {
+    recent: recentItems,
+    lastWeek: withoutExcludedItems(pools.lastWeek),
+    thisMonth: withoutExcludedItems(pools.thisMonth),
+    previousMonth: withoutExcludedItems(pools.previousMonth),
+    thisYear: withoutExcludedItems(pools.thisYear),
+  }
+  const selectedPeriod =
+    launchPeriod && isHomepageLaunchPeriod(launchPeriod)
+      ? launchPeriod
+      : recentItems.length > 0
+        ? "recent"
+        : (HOMEPAGE_WINDOW_PERIOD_ORDER.find(
+            (period) => periodItems[period].length > 0,
+          ) ?? "recent")
+  const organicItems = getUniqueFeedItems(periodItems[selectedPeriod])
 
   if (organicStartIndex >= organicItems.length) {
     return {
@@ -673,6 +751,7 @@ async function getHomepageWeekFeedPageFromPools({
       pageSize: safePageSize,
       hasMore: false,
       nextPage: null,
+      launchPeriod: selectedPeriod,
     }
   }
 
@@ -682,7 +761,7 @@ async function getHomepageWeekFeedPageFromPools({
   )
   const organicIds = new Set(organicPageItems.map((item) => item.id))
   const sponsoredItems = pools.sponsored.filter(
-    (item) => !organicIds.has(item.id),
+    (item) => !organicIds.has(item.id) && !excludedIds.has(item.id),
   )
   const [viewerOrganicItems, viewerSponsoredItems] =
     await applyViewerVoteStateToGroups(
@@ -702,6 +781,7 @@ async function getHomepageWeekFeedPageFromPools({
     pageSize: safePageSize,
     hasMore,
     nextPage: hasMore ? safePage + 1 : null,
+    launchPeriod: selectedPeriod,
   }
 }
 
@@ -749,6 +829,7 @@ async function getOrderedHomepageFeedPage({
   page = 1,
   pageSize = HOMEPAGE_FEED_PAGE_SIZE,
   clerkUserId,
+  excludeProductIds = [],
   rotate = false,
   sponsoredPlanIds,
 }: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
@@ -756,10 +837,15 @@ async function getOrderedHomepageFeedPage({
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
 
   const baseWhere = buildBaseWhere()
+  const excludeWhere: Prisma.ProductWhereInput | null = excludeProductIds.length
+    ? { id: { notIn: excludeProductIds.filter(Boolean) } }
+    : null
   const combinedWhere =
     where && Object.keys(where).length > 0
-      ? { AND: [baseWhere, where] }
-      : baseWhere
+      ? { AND: [baseWhere, where, ...(excludeWhere ? [excludeWhere] : [])] }
+      : excludeWhere
+        ? { AND: [baseWhere, excludeWhere] }
+        : baseWhere
 
   const total = await prisma.product.count({ where: combinedWhere })
   const absoluteStart = (safePage - 1) * safePageSize
@@ -771,6 +857,7 @@ async function getOrderedHomepageFeedPage({
       pageSize: safePageSize,
       hasMore: false,
       nextPage: null,
+      launchPeriod: null,
     }
   }
 
@@ -812,6 +899,7 @@ async function getOrderedHomepageFeedPage({
     pageSize: safePageSize,
     hasMore,
     nextPage: hasMore ? safePage + 1 : null,
+    launchPeriod: null,
   }
 }
 
@@ -850,9 +938,15 @@ function interleaveSponsoredItems(
 export async function getHomepageNewFeedPage(
   params: GetHomepageFeedPageParams = {},
 ): Promise<HomepageFeedPageResult> {
-  const { page, pageSize, clerkUserId, launchWindow } = params
+  const {
+    page,
+    pageSize,
+    clerkUserId,
+    excludeProductIds = [],
+    launchWindow,
+  } = params
 
-  if (launchWindow === "week") {
+  if (launchWindow === "week" || launchWindow === "homepage") {
     return getHomepageWeekFeedPageFromPools(params)
   }
 
@@ -879,6 +973,7 @@ export async function getHomepageNewFeedPage(
     page,
     pageSize: safePageSize,
     clerkUserId,
+    excludeProductIds,
     where: { AND: organicWhereParts },
     orderBy,
     sponsoredPlanIds: sponsoredPlanIdSet,
@@ -897,7 +992,9 @@ export async function getHomepageNewFeedPage(
     select: homepageFeedSelect,
   })
   const sponsoredItems = await buildFeedItemsFromProducts(
-    sponsoredProducts,
+    sponsoredProducts.filter(
+      (product) => !excludeProductIds.includes(product.id),
+    ),
     clerkUserId,
     sponsoredPlanIdSet,
   )
@@ -923,6 +1020,9 @@ function buildHomepageFeedCacheKey(params: GetHomepageFeedViewParams = {}) {
   const pageSize = normalizePageSize(params.pageSize, HOMEPAGE_FEED_PAGE_SIZE)
   const view = params.view ?? "new"
   const launchWindow = params.launchWindow ?? "all"
+  const launchPeriod = params.launchPeriod ?? "auto"
+  const excluded =
+    params.excludeProductIds?.filter(Boolean).sort().join(",") || "none"
   const viewer = params.clerkUserId ? `user:${params.clerkUserId}` : "anon"
 
   return buildCacheKey(
@@ -932,6 +1032,8 @@ function buildHomepageFeedCacheKey(params: GetHomepageFeedViewParams = {}) {
     getShuffleDateKey(),
     view,
     launchWindow,
+    launchPeriod,
+    excluded,
     page,
     pageSize,
     viewer,
@@ -1004,13 +1106,13 @@ export async function refreshHomepageFeedCache(
         page: 1,
         pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
         view: "new",
-        launchWindow: "week",
+        launchWindow: "homepage",
       }),
       getHomepageFeedView({
         page: 1,
         pageSize: HOMEPAGE_FEED_PAGE_SIZE,
         view: "new",
-        launchWindow: "week",
+        launchWindow: "homepage",
       }),
       getHomepageFeedView({
         page: 1,

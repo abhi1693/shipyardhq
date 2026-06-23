@@ -17,6 +17,7 @@ const EMPTY_FEED_PAGE: HomepageFeedPageResult = {
   pageSize: HOMEPAGE_FEED_PAGE_SIZE,
   hasMore: false,
   nextPage: null,
+  launchPeriod: null,
 }
 
 function HomepageFeedLoading() {
@@ -92,6 +93,7 @@ export function HomepageFeedLoader() {
       initialHasMore={feedPage.hasMore}
       initialPage={feedPage.nextPage ?? feedPage.page + 1}
       pageSize={feedPage.pageSize}
+      launchPeriod={feedPage.launchPeriod ?? null}
       referenceDateIso={new Date().toISOString()}
     />
   )

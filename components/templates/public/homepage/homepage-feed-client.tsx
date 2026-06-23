@@ -6,6 +6,7 @@ import {
   getHomepageFeedPage,
   type HomepageFeedItem,
 } from "@/actions/public/homepage/feed"
+import type { HomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import ProductFeedList from "@/components/organisms/feed/ProductFeedList"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
@@ -16,6 +17,7 @@ interface HomepageFeedClientProps {
   initialHasMore: boolean
   initialPage: number
   pageSize: number
+  launchPeriod: HomepageLaunchPeriod | null
   referenceDateIso: string
 }
 
@@ -25,6 +27,7 @@ export function HomepageFeedClient({
   initialHasMore,
   initialPage,
   pageSize,
+  launchPeriod,
   referenceDateIso,
 }: HomepageFeedClientProps) {
   const normalizedInitialPage =
@@ -64,6 +67,8 @@ export function HomepageFeedClient({
         page,
         pageSize: normalizedPageSize,
         view: activeFilter,
+        launchWindow: "homepage",
+        launchPeriod,
       })
 
       setItems((previous) => {
@@ -87,7 +92,7 @@ export function HomepageFeedClient({
     } finally {
       setIsLoading(false)
     }
-  }, [activeFilter, hasMore, isLoading, normalizedPageSize, page])
+  }, [activeFilter, hasMore, isLoading, launchPeriod, normalizedPageSize, page])
 
   useEffect(() => {
     const node = sentinelRef.current

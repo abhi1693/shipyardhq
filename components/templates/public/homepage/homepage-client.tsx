@@ -20,6 +20,7 @@ import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
 } from "@/actions/public/homepage/feed"
+import type { HomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
 import { BROWSE_PATH, categoryPath, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -299,6 +300,14 @@ type HomepageDropSection = {
   items: HomepageDropListItem[]
 }
 
+const HOMEPAGE_LAUNCH_PERIOD_TITLES: Record<HomepageLaunchPeriod, string> = {
+  recent: "This Week",
+  lastWeek: "Last Week",
+  thisMonth: "This Month",
+  previousMonth: "Previous Month",
+  thisYear: "This Year",
+}
+
 function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
   return {
     id: item.id,
@@ -344,6 +353,7 @@ function addUtcDays(time: number, days: number) {
 function buildDropSections(
   items: HomepageDropListItem[],
   referenceDateIso: string,
+  launchPeriod: HomepageLaunchPeriod | null,
 ): HomepageDropSection[] {
   const referenceDate = new Date(referenceDateIso)
   const referenceTime = Number.isNaN(referenceDate.getTime())
@@ -353,6 +363,19 @@ function buildDropSections(
   const startYesterday = addUtcDays(startToday, -1)
   const startThisWeek = addUtcDays(startToday, -7)
   const sponsoredItems = items.filter((item) => item.isSponsored)
+
+  if (launchPeriod && launchPeriod !== "recent") {
+    const sectionItems = [...items]
+    return sectionItems.length > 0
+      ? [
+          {
+            key: launchPeriod,
+            title: HOMEPAGE_LAUNCH_PERIOD_TITLES[launchPeriod],
+            items: sectionItems,
+          },
+        ]
+      : []
+  }
 
   type BucketKey = "today" | "yesterday" | "thisWeek"
   const bucketOrder: Array<{ key: BucketKey; title: string }> = [
@@ -416,11 +439,13 @@ function buildDropSections(
       }
     })
 
-    sections.push({
-      key: bucket.key,
-      title: bucket.title,
-      items: sectionItems,
-    })
+    if (sectionItems.length > 0) {
+      sections.push({
+        key: bucket.key,
+        title: bucket.title,
+        items: sectionItems,
+      })
+    }
   })
 
   return sections
@@ -564,6 +589,8 @@ export function HomepageDropsInfiniteList({
   initialHasMore,
   initialNextPage,
   pageSize,
+  launchPeriod,
+  excludedProductId,
   excludedSlug,
   referenceDateIso,
 }: {
@@ -571,6 +598,8 @@ export function HomepageDropsInfiniteList({
   initialHasMore: boolean
   initialNextPage: number | null
   pageSize: number
+  launchPeriod: HomepageLaunchPeriod | null
+  excludedProductId?: string
   excludedSlug?: string
   referenceDateIso: string
 }) {
@@ -588,16 +617,10 @@ export function HomepageDropsInfiniteList({
   const seenKeysRef = useRef(new Set(initialUniqueItems.map(dropKey)))
   const voteState = useHomepageVoteState()
   const sections = useMemo(
-    () => buildDropSections(items, referenceDateIso),
-    [items, referenceDateIso],
+    () => buildDropSections(items, referenceDateIso, launchPeriod),
+    [items, launchPeriod, referenceDateIso],
   )
-  const visibleSections = useMemo(
-    () =>
-      hasMore
-        ? sections.filter((section) => section.items.length > 0)
-        : sections,
-    [hasMore, sections],
-  )
+  const visibleSections = sections
 
   const loadMore = useCallback(async () => {
     if (loading || error || !hasMore || !nextPage) return
@@ -610,6 +633,12 @@ export function HomepageDropsInfiniteList({
         page: String(nextPage),
         pageSize: String(pageSize),
       })
+      if (launchPeriod) {
+        params.set("launchPeriod", launchPeriod)
+      }
+      if (excludedProductId) {
+        params.set("excludeProductId", excludedProductId)
+      }
       const response = await fetch(`/api/homepage/feed?${params.toString()}`, {
         headers: { accept: "application/json" },
       })
@@ -642,7 +671,17 @@ export function HomepageDropsInfiniteList({
     } finally {
       setLoading(false)
     }
-  }, [error, excludedSlug, hasMore, loading, nextPage, pageSize, voteState])
+  }, [
+    error,
+    excludedProductId,
+    excludedSlug,
+    hasMore,
+    launchPeriod,
+    loading,
+    nextPage,
+    pageSize,
+    voteState,
+  ])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -714,7 +753,7 @@ export function HomepageDropsInfiniteList({
         {loading ? "Loading more drops..." : null}
         {!loading && error ? error : null}
         {!loading && !error && !hasMore && items.length > 0
-          ? "You've reached the end of this week's launches."
+          ? `You've reached the end of ${launchPeriod && launchPeriod !== "recent" ? HOMEPAGE_LAUNCH_PERIOD_TITLES[launchPeriod].toLowerCase() : "this week's"} launches.`
           : null}
       </div>
     </div>

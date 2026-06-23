@@ -257,18 +257,7 @@ async function getCachedHomepageDataSections() {
     DEFAULT_TTL.fast,
   )
 
-  const [feedPage, launchOfDay, homepageStats] = await Promise.all([
-    getHomepageFeedPage({
-      page: 1,
-      pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
-      launchWindow: "week",
-    }).catch(() => ({
-      items: [],
-      page: 1,
-      pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
-      hasMore: false,
-      nextPage: null,
-    })),
+  const [launchOfDay, homepageStats] = await Promise.all([
     getHomepageLaunchOfDay().catch(() => null),
     getLeaderboardStats().catch(() => ({
       pageViews30: 0,
@@ -277,6 +266,20 @@ async function getCachedHomepageDataSections() {
       realtimeVisitors: 1,
     })),
   ])
+
+  const feedPage = await getHomepageFeedPage({
+    page: 1,
+    pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
+    excludeProductIds: launchOfDay ? [launchOfDay.id] : [],
+    launchWindow: "homepage",
+  }).catch(() => ({
+    items: [],
+    page: 1,
+    pageSize: HOMEPAGE_INITIAL_FEED_PAGE_SIZE,
+    hasMore: false,
+    nextPage: null,
+    launchPeriod: null,
+  }))
 
   return {
     feedPage,
@@ -487,6 +490,8 @@ async function HomepageDataSections() {
             initialHasMore={feedPage.hasMore}
             initialNextPage={feedPage.nextPage}
             pageSize={feedPage.pageSize}
+            launchPeriod={feedPage.launchPeriod ?? null}
+            excludedProductId={launch?.id}
             excludedSlug={launch?.slug}
             referenceDateIso={referenceDateIso}
           />
