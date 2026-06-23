@@ -83,6 +83,7 @@ export default async function ProductUpgradePage({
     prisma.product.findUnique({
       where: { id: product.id },
       select: {
+        status: true,
         pricingModel: true,
         subscriptionId: true,
         planAssignedAt: true,
@@ -149,6 +150,7 @@ export default async function ProductUpgradePage({
           errorRedirectPath={productUpgradeHref}
           currentPlanId={currentPlan?.id}
           currentPlan={currentPlanPublic}
+          productStatus={productPlan?.status ?? null}
           preferFreePlan={preferFreePlan}
           lockedPlanType={lockedPlanType}
           subscriptionLocked={hasActivePaidSubscription}

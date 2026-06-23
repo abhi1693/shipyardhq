@@ -264,6 +264,7 @@ export async function setProductPlanAction(
   productId: string,
   planId: string | null,
   subscriptionId?: string | null,
+  options: { publish?: boolean } = {},
 ) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
@@ -307,6 +308,10 @@ export async function setProductPlanAction(
   const data: Prisma.ProductUncheckedUpdateInput = {
     planId: planId ?? null,
     planAssignedAt,
+  }
+  if (options.publish && product.status === ProductStatus.draft) {
+    data.status = ProductStatus.published
+    data.publishedAt = new Date()
   }
   if (subscriptionIdUpdate !== undefined) {
     data.subscriptionId = subscriptionIdUpdate
@@ -588,7 +593,7 @@ export async function choosePlanAction(
 
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
-    await setProductPlanAction(ctx.productId, planId, null)
+    await setProductPlanAction(ctx.productId, planId, null, { publish: true })
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 

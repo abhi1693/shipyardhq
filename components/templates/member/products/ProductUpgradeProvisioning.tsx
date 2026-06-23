@@ -21,6 +21,7 @@ import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCe
 import { cn } from "@/lib/utils"
 
 type PlanType = PublicPlan["type"]
+type ProductUpgradeProductStatus = "draft" | "published" | "archived"
 
 export type ProductUpgradePerformanceSnapshot = {
   siteUniqueVisitors30d: number
@@ -235,6 +236,7 @@ export function ProductUpgradeProvisioning({
   errorRedirectPath,
   currentPlanId,
   currentPlan,
+  productStatus,
   preferFreePlan = false,
   lockedPlanType,
   subscriptionLocked = false,
@@ -252,6 +254,7 @@ export function ProductUpgradeProvisioning({
   errorRedirectPath?: string
   currentPlanId?: string | null
   currentPlan?: PublicPlan | null
+  productStatus?: ProductUpgradeProductStatus | null
   preferFreePlan?: boolean
   lockedPlanType?: PlanType | null
   subscriptionLocked?: boolean
@@ -343,6 +346,8 @@ export function ProductUpgradeProvisioning({
   const selectedIsCurrent = Boolean(
     selectedPlan && currentPlanId && selectedPlan.id === currentPlanId,
   )
+  const productIsPublished = productStatus === "published"
+  const showCurrentPlanNotice = selectedIsCurrent && productIsPublished
   const circumference = 2 * Math.PI * 45
   const score = metrics?.score ?? 0
   const gaugeOffset = circumference - (score / 100) * circumference
@@ -795,7 +800,7 @@ export function ProductUpgradeProvisioning({
                   <CreditCard className="size-4" aria-hidden="true" />
                   {isPortalPending ? "Opening Portal" : "Cancel Subscription"}
                 </Button>
-              ) : selectedIsCurrent ? (
+              ) : showCurrentPlanNotice ? (
                 <div className="rounded-xl border border-[#16a34a]/20 bg-[#16a34a]/10 px-4 py-3 text-center text-sm font-semibold text-[#16a34a]">
                   This is your current plan
                 </div>
@@ -808,7 +813,9 @@ export function ProductUpgradeProvisioning({
                   >
                     <Sparkles className="size-4" aria-hidden="true" />
                     {(selectedPlan.price || 0) === 0
-                      ? "Continue Free"
+                      ? productIsPublished
+                        ? "Continue Free"
+                        : "Publish on Free"
                       : "Select Plan"}
                   </Button>
                 </form>
