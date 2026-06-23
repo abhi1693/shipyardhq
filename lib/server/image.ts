@@ -1,4 +1,5 @@
 // Server-side image processing helpers
+import { type BinaryInput, toNodeBuffer } from "@/lib/binary"
 
 type ProcessResult = {
   buffer: Buffer
@@ -16,22 +17,23 @@ function guessExtFromMime(mime: string): string {
 }
 
 export async function toWebpIfPossible(
-  input: ArrayBuffer,
+  input: BinaryInput,
   originalMime: string,
 ): Promise<ProcessResult> {
   // Prefer lossless conversions so we never ship visibly degraded assets.
   const effort = 6
+  const buf = toNodeBuffer(input)
+
   try {
     const sharp = (await import("sharp")).default
     // Avoid breaking animated GIF/SVG — preserve original in those cases
     if (originalMime.includes("gif") || originalMime.includes("svg")) {
       return {
-        buffer: Buffer.from(input),
+        buffer: buf,
         contentType: originalMime || "application/octet-stream",
         extension: guessExtFromMime(originalMime),
       }
     }
-    const buf = Buffer.from(input)
     // Convert to WebP (lossless) and only keep if it actually shrinks the asset.
     const webp = await sharp(buf).webp({ lossless: true, effort }).toBuffer()
     if (webp.length < buf.length) {
@@ -46,7 +48,7 @@ export async function toWebpIfPossible(
   } catch {
     // Fallback if sharp is unavailable in the environment
     return {
-      buffer: Buffer.from(input),
+      buffer: buf,
       contentType: originalMime || "application/octet-stream",
       extension: guessExtFromMime(originalMime),
     }

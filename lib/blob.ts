@@ -5,6 +5,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3"
+import { type BinaryInput, toNodeBuffer } from "@/lib/binary"
 
 type PutOptions = {
   access?: "public" | "private"
@@ -110,17 +111,15 @@ function keyFromUrlOrPath(value: string) {
 
 export async function putBlob(
   key: string,
-  data: ArrayBuffer | Blob | Buffer,
+  data: BinaryInput | Blob,
   opts: PutOptions = {},
 ) {
   const config = getR2Config()
   const normalizedKey = trimSlashes(key)
   const body =
     data instanceof Blob
-      ? Buffer.from(await data.arrayBuffer())
-      : Buffer.isBuffer(data)
-        ? data
-        : Buffer.from(data)
+      ? toNodeBuffer(await data.arrayBuffer())
+      : toNodeBuffer(data)
 
   await getS3Client().send(
     new PutObjectCommand({
