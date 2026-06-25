@@ -38,6 +38,7 @@
     "start": "next start",
     "admin:insights": "tsx scripts/admin-insights.ts",
     "admin:prod": "scripts/admin-insights-prod.sh",
+    "release:image": "scripts/release-image.sh",
     "worker": "tsx bin/shipyard-worker.ts",
     "images:ingest-external": "tsx scripts/ingest-external-images-to-r2.ts",
     "images:ingest-external:apply": "tsx scripts/ingest-external-images-to-r2.ts --apply",

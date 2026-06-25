@@ -238,6 +238,15 @@ The web container needs a writable `/app` directory at startup because it writes
 
 Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install cache layer.
 
+When GitHub Actions runners are unavailable, build and push the release image locally:
+
+```bash
+gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
+npm run release:image -- v1.4.69
+```
+
+The script mirrors `.github/workflows/container.yml`: it builds `linux/arm64`, sets `APP_VERSION` to the release tag, and pushes `ghcr.io/abhi1693/shipyardhq:<version>` plus `ghcr.io/abhi1693/shipyardhq:latest`.
+
 ## Security
 
 - Keep secrets in `.env.local` locally and in your deployment secret manager in production.
