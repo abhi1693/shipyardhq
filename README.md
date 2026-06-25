@@ -245,7 +245,7 @@ gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-
 npm run release:image -- v1.4.69
 ```
 
-The script mirrors `.github/workflows/container.yml`: it builds `linux/arm64`, sets `APP_VERSION` to the release tag, and pushes `ghcr.io/abhi1693/shipyardhq:<version>` plus `ghcr.io/abhi1693/shipyardhq:latest`.
+The script mirrors `.github/workflows/container.yml`: it checks out the release tag into a temporary git worktree, builds `linux/arm64`, sets `APP_VERSION` to the release tag, and pushes `ghcr.io/abhi1693/shipyardhq:<version>` plus `ghcr.io/abhi1693/shipyardhq:latest`.
 
 ## Security
 
