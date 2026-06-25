@@ -309,7 +309,7 @@ const HOMEPAGE_LAUNCH_PERIOD_TITLES: Record<HomepageLaunchPeriod, string> = {
   recent: "This Week",
   lastWeek: "Last Week",
   thisMonth: "This Month",
-  previousMonth: "Previous Month",
+  previousMonth: "Last Month",
   thisYear: "This Year",
 }
 
@@ -355,6 +355,28 @@ function addUtcDays(time: number, days: number) {
   return time + days * 24 * 60 * 60 * 1000
 }
 
+function startOfUtcWeek(time: number) {
+  const start = startOfUtcDay(new Date(time))
+  const day = new Date(start).getUTCDay()
+  const daysSinceMonday = day === 0 ? 6 : day - 1
+  return addUtcDays(start, -daysSinceMonday)
+}
+
+function startOfUtcMonth(time: number) {
+  const date = new Date(time)
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)
+}
+
+function startOfPreviousUtcMonth(time: number) {
+  const date = new Date(time)
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1)
+}
+
+function startOfUtcYear(time: number) {
+  const date = new Date(time)
+  return Date.UTC(date.getUTCFullYear(), 0, 1)
+}
+
 function buildDropSections(
   items: HomepageDropListItem[],
   referenceDateIso: string,
@@ -366,7 +388,11 @@ function buildDropSections(
     : referenceDate.getTime()
   const startToday = startOfUtcDay(new Date(referenceTime))
   const startYesterday = addUtcDays(startToday, -1)
-  const startThisWeek = addUtcDays(startToday, -7)
+  const startThisWeek = startOfUtcWeek(referenceTime)
+  const startLastWeek = addUtcDays(startThisWeek, -7)
+  const startThisMonth = startOfUtcMonth(referenceTime)
+  const startPreviousMonth = startOfPreviousUtcMonth(referenceTime)
+  const startThisYear = startOfUtcYear(referenceTime)
   const sponsoredItems = items.filter((item) => item.isSponsored)
 
   if (launchPeriod && launchPeriod !== "recent") {
@@ -382,14 +408,30 @@ function buildDropSections(
       : []
   }
 
-  type BucketKey = "today" | "yesterday" | "thisWeek"
-  const bucketOrder: Array<{ key: BucketKey; title: string }> = [
+  type BucketKey =
+    | "today"
+    | "yesterday"
+    | "thisWeek"
+    | "lastWeek"
+    | "thisMonth"
+    | "previousMonth"
+    | "thisYear"
+  const primaryBucketOrder: Array<{ key: BucketKey; title: string }> = [
     { key: "today", title: "Today" },
     { key: "yesterday", title: "Yesterday" },
+  ]
+  const fallbackBucketOrder: Array<{ key: BucketKey; title: string }> = [
     { key: "thisWeek", title: "This Week" },
+    { key: "lastWeek", title: "Last Week" },
+    { key: "thisMonth", title: "This Month" },
+    { key: "previousMonth", title: "Last Month" },
+    { key: "thisYear", title: "This Year" },
   ]
   const buckets = new Map<BucketKey, HomepageDropListItem[]>(
-    bucketOrder.map((bucket) => [bucket.key, []]),
+    [...primaryBucketOrder, ...fallbackBucketOrder].map((bucket) => [
+      bucket.key,
+      [],
+    ]),
   )
 
   items
@@ -408,6 +450,23 @@ function buildDropSections(
         bucketKey = "yesterday"
       } else if (resolvedTime >= startThisWeek) {
         bucketKey = "thisWeek"
+      } else if (resolvedTime >= startLastWeek) {
+        bucketKey = "lastWeek"
+      } else if (
+        startThisMonth < startLastWeek &&
+        resolvedTime >= startThisMonth
+      ) {
+        bucketKey = "thisMonth"
+      } else if (
+        resolvedTime >= startPreviousMonth &&
+        resolvedTime < startThisMonth
+      ) {
+        bucketKey = "previousMonth"
+      } else if (
+        resolvedTime >= startThisYear &&
+        resolvedTime < startPreviousMonth
+      ) {
+        bucketKey = "thisYear"
       }
 
       if (!bucketKey) return
@@ -417,6 +476,12 @@ function buildDropSections(
   const sections: HomepageDropSection[] = []
   let organicIndex = 0
   let sponsoredIndex = 0
+  const selectedFallbackBucket = fallbackBucketOrder.find(
+    (bucket) => (buckets.get(bucket.key) ?? []).length > 0,
+  )
+  const bucketOrder = selectedFallbackBucket
+    ? [...primaryBucketOrder, selectedFallbackBucket]
+    : primaryBucketOrder
 
   bucketOrder.forEach((bucket) => {
     const organicItems = buckets.get(bucket.key) ?? []
@@ -758,7 +823,7 @@ export function HomepageDropsInfiniteList({
         {loading ? "Loading more drops..." : null}
         {!loading && error ? error : null}
         {!loading && !error && !hasMore && items.length > 0
-          ? `You've reached the end of ${launchPeriod && launchPeriod !== "recent" ? HOMEPAGE_LAUNCH_PERIOD_TITLES[launchPeriod].toLowerCase() : "this week's"} launches.`
+          ? `You've reached the end of ${launchPeriod && launchPeriod !== "recent" ? HOMEPAGE_LAUNCH_PERIOD_TITLES[launchPeriod].toLowerCase() : "recent"} launches.`
           : null}
       </div>
     </div>

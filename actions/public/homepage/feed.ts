@@ -39,7 +39,7 @@ const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_FEED_POOL_LIMIT = 200
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
-const HOMEPAGE_FEED_CACHE_VERSION = "v1"
+const HOMEPAGE_FEED_CACHE_VERSION = "v2"
 const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v3"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
@@ -593,6 +593,23 @@ function getUniqueFeedItems(items: HomepageFeedItem[]) {
   return uniqueItems
 }
 
+function ensurePageIncludesPeriodItem(
+  pageItems: HomepageFeedItem[],
+  periodItems: HomepageFeedItem[],
+) {
+  if (periodItems.length === 0) return pageItems
+
+  const pageIds = new Set(pageItems.map((item) => item.id))
+  if (periodItems.some((item) => pageIds.has(item.id))) {
+    return pageItems
+  }
+
+  const periodItem = periodItems.find((item) => !pageIds.has(item.id))
+  if (!periodItem) return pageItems
+
+  return [...pageItems, periodItem]
+}
+
 async function getHomepageWeekFeedPoolsImpl(
   now = new Date(),
 ): Promise<HomepageWeekFeedPools> {
@@ -722,17 +739,32 @@ async function getHomepageWeekFeedPageFromPools({
   const excludedIds = new Set(excludeProductIds.filter(Boolean))
   const withoutExcludedItems = (items: HomepageFeedItem[]) =>
     excludedIds.size ? items.filter((item) => !excludedIds.has(item.id)) : items
+  const todayItems = withoutExcludedItems(pools.today)
+  const yesterdayItems = withoutExcludedItems(pools.yesterday)
+  const thisWeekItems = withoutExcludedItems(pools.thisWeek)
+  const lastWeekItems = withoutExcludedItems(pools.lastWeek)
+  const thisMonthItems = withoutExcludedItems(pools.thisMonth)
+  const previousMonthItems = withoutExcludedItems(pools.previousMonth)
+  const thisYearItems = withoutExcludedItems(pools.thisYear)
+  const recentThirdPeriodItems =
+    [
+      thisWeekItems,
+      lastWeekItems,
+      thisMonthItems,
+      previousMonthItems,
+      thisYearItems,
+    ].find((items) => items.length > 0) ?? []
   const recentItems = getUniqueFeedItems([
-    ...withoutExcludedItems(pools.today),
-    ...withoutExcludedItems(pools.yesterday),
-    ...withoutExcludedItems(pools.thisWeek),
+    ...todayItems,
+    ...yesterdayItems,
+    ...recentThirdPeriodItems,
   ])
   const periodItems: Record<HomepageLaunchPeriod, HomepageFeedItem[]> = {
     recent: recentItems,
-    lastWeek: withoutExcludedItems(pools.lastWeek),
-    thisMonth: withoutExcludedItems(pools.thisMonth),
-    previousMonth: withoutExcludedItems(pools.previousMonth),
-    thisYear: withoutExcludedItems(pools.thisYear),
+    lastWeek: lastWeekItems,
+    thisMonth: thisMonthItems,
+    previousMonth: previousMonthItems,
+    thisYear: thisYearItems,
   }
   const selectedPeriod =
     launchPeriod && isHomepageLaunchPeriod(launchPeriod)
@@ -755,10 +787,16 @@ async function getHomepageWeekFeedPageFromPools({
     }
   }
 
-  const organicPageItems = organicItems.slice(
+  let organicPageItems = organicItems.slice(
     organicStartIndex,
     organicStartIndex + safePageSize,
   )
+  if (selectedPeriod === "recent" && safePage === 1) {
+    organicPageItems = ensurePageIncludesPeriodItem(
+      organicPageItems,
+      recentThirdPeriodItems,
+    )
+  }
   const organicIds = new Set(organicPageItems.map((item) => item.id))
   const sponsoredItems = pools.sponsored.filter(
     (item) => !organicIds.has(item.id) && !excludedIds.has(item.id),

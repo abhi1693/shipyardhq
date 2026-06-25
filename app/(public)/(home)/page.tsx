@@ -445,7 +445,7 @@ async function HomepageDataSections() {
                 Latest Launches
               </h3>
               <p className="text-sm leading-5 text-[#43474c]">
-                Fresh products from today, yesterday, and this week.
+                Fresh products from today, yesterday, and recent launch windows.
               </p>
             </div>
             <div className="flex gap-1">
