@@ -22,7 +22,9 @@ export default function PublicHeaderAuth() {
           className="size-8 rounded-[4px] border-0 p-0 text-[12px] font-medium leading-4 text-[#43474c] shadow-none hover:border-transparent hover:bg-[#F8FAFC] hover:text-black"
           aria-label="Sign in"
         >
-          <Link href="/login">Login</Link>
+          <Link href="/login" prefetch={false}>
+            Login
+          </Link>
         </Button>
       </div>
       <PublicMobileMenu />

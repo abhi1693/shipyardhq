@@ -127,7 +127,7 @@ export default function PublicMobileMenu() {
               variant="outline"
               className="h-10 w-full rounded-[6px] border-[#D8E0EA] bg-white text-[#28384d] shadow-none"
             >
-              <Link href="/login">
+              <Link href="/login" prefetch={false}>
                 <LogIn className="size-4" aria-hidden />
                 Login
               </Link>

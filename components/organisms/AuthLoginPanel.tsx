@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useClerk, useSignIn } from "@clerk/nextjs"
+import { useRouter } from "next/navigation"
+import { useClerk, useSignIn, useUser } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/nextjs/types"
 import { IconBrandGithub, IconBrandX } from "@tabler/icons-react"
 import type { SubmitEvent } from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { BrandLogo } from "@/components/atoms/brand-logo"
 import { BRAND_NAME } from "@/lib/brand"
@@ -105,8 +106,10 @@ function ProviderLogo({ strategy }: { strategy: OAuthStrategy }) {
 
 export default function AuthLoginPanel({ redirectUrl }: AuthLoginPanelProps) {
   const finalRedirectUrl = redirectUrl ?? MEMBER_BASE_PATH
+  const router = useRouter()
   const clerk = useClerk() as ClerkWithConnectionSettings
   const { signIn } = useSignIn()
+  const { isLoaded, user } = useUser()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [pendingStrategy, setPendingStrategy] = useState<string | null>(null)
@@ -115,6 +118,12 @@ export default function AuthLoginPanel({ redirectUrl }: AuthLoginPanelProps) {
   const enabledOAuthStrategies =
     clerk.__internal_environment?.userSettings?.socialProviderStrategies ?? []
   const isBusy = pendingStrategy !== null
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      router.replace(finalRedirectUrl)
+    }
+  }, [finalRedirectUrl, isLoaded, router, user])
 
   async function handleOAuth(strategy: OAuthStrategy) {
     setPendingStrategy(strategy)
@@ -200,85 +209,99 @@ export default function AuthLoginPanel({ redirectUrl }: AuthLoginPanelProps) {
             </p>
           </header>
 
-          {enabledOAuthStrategies.length ? (
-            <div className="space-y-3">
-              {enabledOAuthStrategies.map((strategy) => (
-                <button
-                  key={strategy}
-                  type="button"
-                  disabled={isBusy}
-                  onClick={() => handleOAuth(strategy)}
-                  className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#c4c6cd] bg-white px-4 text-sm font-semibold text-[#0b1c30] transition-all hover:bg-[#eff4ff] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
-                >
-                  <ProviderLogo strategy={strategy} />
-                  Continue with {formatProviderName(strategy)}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          {enabledOAuthStrategies.length ? (
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-[#E2E8F0]" />
-              </div>
-              <div className="relative flex justify-center text-[11px] font-semibold uppercase tracking-[0.18em]">
-                <span className="bg-white px-4 text-[#43474c]">or</span>
-              </div>
-            </div>
-          ) : null}
-
-          <form className="space-y-5" onSubmit={handleEmailSignIn}>
-            <label className="block space-y-2 text-sm font-semibold text-[#0b1c30]">
-              <span>Email address</span>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="name@company.com"
-                className="h-11 w-full rounded-lg border border-[#c4c6cd] bg-[#eff4ff] px-4 text-sm font-normal text-[#0b1c30] outline-none transition-all placeholder:text-[#74777d]/70 focus:border-[#0051d5] focus:ring-2 focus:ring-[#0051d5]/20"
-              />
-            </label>
-
-            <label className="block space-y-2 text-sm font-semibold text-[#0b1c30]">
-              <span>Password</span>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="••••••••"
-                className="h-11 w-full rounded-lg border border-[#c4c6cd] bg-[#eff4ff] px-4 text-sm font-normal text-[#0b1c30] outline-none transition-all placeholder:text-[#74777d]/70 focus:border-[#0051d5] focus:ring-2 focus:ring-[#0051d5]/20"
-              />
-            </label>
-
-            {error ? (
-              <p className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={isBusy}
-              className="flex h-11 w-full items-center justify-center rounded-lg bg-[#00162a] text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
-            >
-              {pendingStrategy === "password" ? "Signing in..." : "Continue"}
-            </button>
-          </form>
-
-          <footer className="mt-8 border-t border-[#E2E8F0] pt-6 text-center">
-            <p className="text-sm leading-5 text-[#43474c]">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="font-semibold text-[#0051d5] transition-colors hover:text-[#003ea7] hover:underline hover:underline-offset-4"
-              >
-                Sign up
-              </Link>
+          {!isLoaded ? (
+            <p className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-center text-sm text-[#43474c]">
+              Checking your session...
             </p>
-          </footer>
+          ) : user ? (
+            <p className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-center text-sm text-[#43474c]">
+              Redirecting to your member area...
+            </p>
+          ) : (
+            <>
+              {enabledOAuthStrategies.length ? (
+                <div className="space-y-3">
+                  {enabledOAuthStrategies.map((strategy) => (
+                    <button
+                      key={strategy}
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => handleOAuth(strategy)}
+                      className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-[#c4c6cd] bg-white px-4 text-sm font-semibold text-[#0b1c30] transition-all hover:bg-[#eff4ff] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      <ProviderLogo strategy={strategy} />
+                      Continue with {formatProviderName(strategy)}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {enabledOAuthStrategies.length ? (
+                <div className="relative my-8">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-[#E2E8F0]" />
+                  </div>
+                  <div className="relative flex justify-center text-[11px] font-semibold uppercase tracking-[0.18em]">
+                    <span className="bg-white px-4 text-[#43474c]">or</span>
+                  </div>
+                </div>
+              ) : null}
+
+              <form className="space-y-5" onSubmit={handleEmailSignIn}>
+                <label className="block space-y-2 text-sm font-semibold text-[#0b1c30]">
+                  <span>Email address</span>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="name@company.com"
+                    className="h-11 w-full rounded-lg border border-[#c4c6cd] bg-[#eff4ff] px-4 text-sm font-normal text-[#0b1c30] outline-none transition-all placeholder:text-[#74777d]/70 focus:border-[#0051d5] focus:ring-2 focus:ring-[#0051d5]/20"
+                  />
+                </label>
+
+                <label className="block space-y-2 text-sm font-semibold text-[#0b1c30]">
+                  <span>Password</span>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="••••••••"
+                    className="h-11 w-full rounded-lg border border-[#c4c6cd] bg-[#eff4ff] px-4 text-sm font-normal text-[#0b1c30] outline-none transition-all placeholder:text-[#74777d]/70 focus:border-[#0051d5] focus:ring-2 focus:ring-[#0051d5]/20"
+                  />
+                </label>
+
+                {error ? (
+                  <p className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {error}
+                  </p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={isBusy}
+                  className="flex h-11 w-full items-center justify-center rounded-lg bg-[#00162a] text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {pendingStrategy === "password"
+                    ? "Signing in..."
+                    : "Continue"}
+                </button>
+              </form>
+
+              <footer className="mt-8 border-t border-[#E2E8F0] pt-6 text-center">
+                <p className="text-sm leading-5 text-[#43474c]">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/register"
+                    className="font-semibold text-[#0051d5] transition-colors hover:text-[#003ea7] hover:underline hover:underline-offset-4"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+              </footer>
+            </>
+          )}
         </div>
 
         <div className="mt-8 flex justify-center gap-6">
