@@ -46,6 +46,44 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback
 }
 
+const REQUIRED_FIELD_LABELS: Record<string, string> = {
+  email_address: "email verification",
+  first_name: "first name",
+  last_name: "last name",
+  legal_accepted: "terms acceptance",
+  password: "password",
+  username: "username",
+}
+
+function formatList(items: string[]) {
+  if (items.length === 0) return ""
+  if (items.length === 1) return items[0]!
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`
+}
+
+function getIncompleteSignupMessage(fields: readonly string[] = []) {
+  const labels = fields.map((field) => REQUIRED_FIELD_LABELS[field] ?? field)
+
+  if (labels.length === 0) {
+    return "Registration needs additional information before continuing."
+  }
+
+  return `Registration still needs ${formatList(labels)} before continuing.`
+}
+
+function getVerificationErrorMessage(error: unknown, missingFields: string[]) {
+  const fallback = getIncompleteSignupMessage(missingFields)
+  const message = getErrorMessage(error, fallback)
+
+  if (/sign[\s-]?up.+not.+complete/i.test(message) && missingFields.length) {
+    return fallback
+  }
+
+  return message
+}
+
 function normalizeProvider(provider: string) {
   return provider.replace(/^oauth_/, "").replace(/^custom_/, "")
 }
@@ -141,6 +179,7 @@ export default function AuthRegisterPanel({
     try {
       const { error: authError } = await signUp.sso({
         strategy,
+        legalAccepted: true,
         redirectCallbackUrl: "/sso-callback",
         redirectUrl: finalRedirectUrl,
       })
@@ -165,6 +204,7 @@ export default function AuthRegisterPanel({
         emailAddress: email.trim(),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        legalAccepted: true,
         password,
       })
 
@@ -189,7 +229,7 @@ export default function AuthRegisterPanel({
         return
       }
 
-      setError("Registration needs additional information before continuing.")
+      setError(getIncompleteSignupMessage(signUp.missingFields))
     } catch (authError) {
       setError(getErrorMessage(authError, "Unable to create account"))
     } finally {
@@ -213,14 +253,11 @@ export default function AuthRegisterPanel({
         throw verificationError
       }
 
-      if (signUp.status === "complete") {
-        await completeSignUp()
-        return
-      }
-
-      setError("Verification is not complete yet.")
+      await completeSignUp()
     } catch (authError) {
-      setError(getErrorMessage(authError, "Unable to verify email address"))
+      setError(
+        getVerificationErrorMessage(authError, signUp.missingFields ?? []),
+      )
     } finally {
       setPendingStrategy(null)
     }
