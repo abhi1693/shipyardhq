@@ -55,6 +55,8 @@ const REQUIRED_FIELD_LABELS: Record<string, string> = {
   username: "username",
 }
 
+const SIGN_UP_REDIRECT_FALLBACK_MS = 4000
+
 function formatList(items: string[]) {
   if (items.length === 0) return ""
   if (items.length === 1) return items[0]!
@@ -161,14 +163,41 @@ export default function AuthRegisterPanel({
   const isBusy = pendingStrategy !== null
 
   async function completeSignUp() {
-    const { error: finalizeError } = await signUp.finalize({
-      navigate: ({ decorateUrl }) => {
-        window.location.href = decorateUrl(finalRedirectUrl)
-      },
+    let redirected = false
+    let fallbackTimer: number | null = null
+
+    function redirectTo(url: string) {
+      if (redirected) return
+      redirected = true
+      window.location.assign(url)
+    }
+
+    const fallbackRedirect = new Promise<{ error: null }>((resolve) => {
+      fallbackTimer = window.setTimeout(() => {
+        redirectTo(finalRedirectUrl)
+        resolve({ error: null })
+      }, SIGN_UP_REDIRECT_FALLBACK_MS)
     })
 
-    if (finalizeError) {
-      throw finalizeError
+    const finalizeResult = await Promise.race([
+      signUp.finalize({
+        navigate: ({ decorateUrl }) => {
+          redirectTo(decorateUrl(finalRedirectUrl))
+        },
+      }),
+      fallbackRedirect,
+    ])
+
+    if (fallbackTimer !== null) {
+      window.clearTimeout(fallbackTimer)
+    }
+
+    if (finalizeResult.error) {
+      throw finalizeResult.error
+    }
+
+    if (!redirected) {
+      redirectTo(finalRedirectUrl)
     }
   }
 
