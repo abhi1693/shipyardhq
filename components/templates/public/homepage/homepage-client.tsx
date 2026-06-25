@@ -151,6 +151,7 @@ export function HomepageUpvoteButton({
   className,
   dark = false,
   fullLabel = false,
+  hideZeroCount = false,
   countIncrement = 1,
   syncResponseCount = true,
 }: {
@@ -161,6 +162,7 @@ export function HomepageUpvoteButton({
   className?: string
   dark?: boolean
   fullLabel?: boolean
+  hideZeroCount?: boolean
   countIncrement?: number
   syncResponseCount?: boolean
 }) {
@@ -246,6 +248,7 @@ export function HomepageUpvoteButton({
         ? "border-[#C0FF00] bg-[#C0FF00] text-[#061d31] hover:bg-[#C0FF00]/90"
         : "bg-[#0051d5] text-white hover:bg-[#0048bf]"),
   )
+  const shouldDisplayCount = !hideZeroCount || state.count > 0
   const content = (
     <>
       <span
@@ -260,8 +263,10 @@ export function HomepageUpvoteButton({
         />
       </span>
       <span>
-        {fullLabel ? "Upvote " : ""}
-        {formatter.format(state.count)}
+        {fullLabel ? "Upvote" : ""}
+        {shouldDisplayCount
+          ? `${fullLabel ? " " : ""}${formatter.format(state.count)}`
+          : ""}
       </span>
     </>
   )

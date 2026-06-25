@@ -959,16 +959,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     </span>
                   </div>
                 ) : null}
-                {leaderboardPoints > 0 ? (
-                  <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
-                    <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
-                      Shipyard points
-                    </span>
-                    <span className="text-lg font-semibold text-emerald-700">
-                      {numberFormatter.format(leaderboardPoints)}
-                    </span>
-                  </div>
-                ) : null}
+                <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                  <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                    Shipyard points
+                  </span>
+                  <span className="text-lg font-semibold text-emerald-700">
+                    {numberFormatter.format(leaderboardPoints)}
+                  </span>
+                </div>
               </section>
             ) : null}
             {productDetailsCard}

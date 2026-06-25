@@ -316,14 +316,11 @@ async function HomepageDataSections() {
   )
   const launchGrowth = launch?.upvoteGrowthPercent
   const launchBuildersClickedCount = launch?.buildersClickedCount ?? 0
-  const launchSignalLabel =
-    typeof launchGrowth === "number"
-      ? formatPercent(launchGrowth)
-      : launch?.rank
-        ? `#${launch.rank}`
-        : "New"
-  const launchSignalIsPositive =
-    typeof launchGrowth !== "number" || launchGrowth >= 0
+  const shouldDisplayLaunchMomentum =
+    typeof launchGrowth === "number" && launchGrowth > 0
+  const launchSignalLabel = shouldDisplayLaunchMomentum
+    ? formatPercent(launchGrowth)
+    : null
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
@@ -352,35 +349,16 @@ async function HomepageDataSections() {
                       </p>
                     </div>
                   </div>
-                  <div className="hidden flex-col items-end sm:flex">
-                    <div
-                      className={cn(
-                        "flex items-center gap-1.5 rounded px-2 py-1",
-                        launchSignalIsPositive
-                          ? "bg-[#16a34a]/5"
-                          : "bg-[#ba1a1a]/5",
-                      )}
-                    >
-                      <TrendingUp
-                        className={cn(
-                          "size-[18px]",
-                          launchSignalIsPositive
-                            ? "text-[#166534]"
-                            : "text-[#ba1a1a]",
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          "text-xs font-semibold uppercase tracking-[0.05em]",
-                          launchSignalIsPositive
-                            ? "text-[#166534]"
-                            : "text-[#ba1a1a]",
-                        )}
-                      >
-                        {launchSignalLabel}
-                      </span>
+                  {launchSignalLabel ? (
+                    <div className="hidden flex-col items-end sm:flex">
+                      <div className="flex items-center gap-1.5 rounded bg-[#16a34a]/5 px-2 py-1">
+                        <TrendingUp className="size-[18px] text-[#166534]" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#166534]">
+                          {launchSignalLabel}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
 
                 <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
@@ -392,6 +370,7 @@ async function HomepageDataSections() {
                     countIncrement={10}
                     syncResponseCount={false}
                     fullLabel
+                    hideZeroCount
                     className="px-6"
                   />
                   <Button
