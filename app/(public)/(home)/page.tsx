@@ -321,6 +321,7 @@ async function HomepageDataSections() {
   const launchSignalLabel = shouldDisplayLaunchMomentum
     ? formatPercent(launchGrowth)
     : null
+  const launchIsSponsored = Boolean(launch?.isSponsored)
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
@@ -329,7 +330,14 @@ async function HomepageDataSections() {
         style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
       >
         <div className="grid grid-cols-12 gap-6">
-          <article className="relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm lg:col-span-8">
+          <article
+            className={cn(
+              "relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border p-5 shadow-sm lg:col-span-8",
+              launchIsSponsored
+                ? "border-[#F59E0B]/45 bg-[#FFF7ED]"
+                : "border-[#E2E8F0] bg-white",
+            )}
+          >
             {launch ? (
               <>
                 <div className="mb-4 flex items-start justify-between gap-4">
@@ -343,6 +351,11 @@ async function HomepageDataSections() {
                         <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
                           Launch of the Day
                         </span>
+                        {launchIsSponsored ? (
+                          <span className="rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#A33105]">
+                            Sponsored
+                          </span>
+                        ) : null}
                       </div>
                       <p className="max-w-lg text-sm leading-snug text-[#43474c]">
                         {launch.tagline}
