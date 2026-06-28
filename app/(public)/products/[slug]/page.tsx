@@ -849,9 +849,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </h1>
                 {isVerified ? (
                   <BadgeCheck
-                    className="h-5 w-5 text-[#0051d5]"
+                    className="h-5 w-5 fill-[#0051d5] text-white"
                     aria-label="Verified"
-                    fill="currentColor"
                   />
                 ) : null}
               </div>
