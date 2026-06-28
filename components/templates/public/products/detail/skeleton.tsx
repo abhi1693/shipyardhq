@@ -86,7 +86,7 @@ export function PublicProductDetailSkeleton() {
       aria-label="Loading product"
     >
       <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
-        <header className="mb-6 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+        <header className="mb-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="flex min-w-0 items-center gap-6">
             <Skeleton className="h-16 w-16 rounded-xl md:h-20 md:w-20" />
             <div className="min-w-0">
@@ -101,10 +101,10 @@ export function PublicProductDetailSkeleton() {
               </div>
             </div>
           </div>
-          <div className="flex w-full flex-wrap gap-3 md:w-auto">
-            <Skeleton className="h-12 flex-1 rounded-xl md:w-36 md:flex-none" />
-            <Skeleton className="h-12 flex-1 rounded-xl md:w-28 md:flex-none" />
-            <Skeleton className="h-12 flex-1 rounded-lg md:w-36 md:flex-none" />
+          <div className="flex w-full flex-wrap gap-3 md:ml-auto md:w-auto md:justify-end">
+            <Skeleton className="h-12 flex-1 rounded-xl sm:w-36 sm:flex-none" />
+            <Skeleton className="h-12 flex-1 rounded-xl sm:w-28 sm:flex-none" />
+            <Skeleton className="h-12 flex-1 rounded-lg sm:w-36 sm:flex-none" />
           </div>
         </header>
 

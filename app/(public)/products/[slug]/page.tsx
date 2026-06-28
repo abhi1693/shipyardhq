@@ -822,7 +822,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ) : null}
       <ScrollReset triggerKey={product.slug} />
       <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
-        <header className="mb-6 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+        <header className="mb-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="flex min-w-0 items-center gap-6">
             {product.logo ? (
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
@@ -880,13 +880,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             </div>
           </div>
-          <div className="flex w-full flex-wrap gap-3 md:w-auto">
+          <div className="flex w-full flex-wrap gap-3 md:ml-auto md:w-auto md:justify-end">
             {websiteHref ? (
               <a
                 href={websiteHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 md:flex-none"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
               >
                 <ExternalLink className="h-4 w-4" aria-hidden />
                 Visit website
@@ -897,7 +897,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 href={videoHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 md:flex-none"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
               >
                 <PlayCircle className="h-4 w-4" aria-hidden />
                 Video
