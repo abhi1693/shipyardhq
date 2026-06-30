@@ -99,6 +99,7 @@ const htmlLimitedBots =
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  productionBrowserSourceMaps: true,
   cacheComponents: true,
   htmlLimitedBots,
   staticPageGenerationTimeout: 600,
