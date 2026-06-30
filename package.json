@@ -73,6 +73,8 @@
     "@dualmark/core": "^0.10.0",
     "@dualmark/nextjs": "^0.10.0",
     "@google-analytics/data": "^6.1.0",
+    "@grafana/faro-web-sdk": "^2.8.1",
+    "@grafana/faro-web-tracing": "^2.8.1",
     "@hookform/resolvers": "^5.4.0",
     "@next/env": "^16.2.9",
     "@opentelemetry/api": "^1.9.1",

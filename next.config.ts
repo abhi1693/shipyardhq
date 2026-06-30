@@ -12,6 +12,7 @@ const googleAnalyticsHosts = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
 ] as const
+const faroCollectorOrigin = normalizeCspOrigin(process.env.NEXT_PUBLIC_FARO_URL)
 
 function normalizeCspOrigin(value: string | undefined) {
   const trimmed = value?.trim()
@@ -71,6 +72,7 @@ function buildContentSecurityPolicy() {
       ...devConnectSources,
       ...googleAnalyticsHosts,
       ...clerkConnectHosts,
+      ...(faroCollectorOrigin ? [faroCollectorOrigin] : []),
     ],
     ["style-src", "'self'", "'unsafe-inline'"],
     ["img-src", "'self'", "blob:", "data:", "https:"],

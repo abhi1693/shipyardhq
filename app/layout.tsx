@@ -6,6 +6,7 @@ import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import { resolveExcludedGaHostnames } from "@/lib/analytics/gaHostnames"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
+import { FaroRum } from "./faro-rum"
 
 const siteSeo = buildSiteSeo()
 
@@ -67,6 +68,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
+        <FaroRum />
         <LazyToaster position="top-right" />
         {children}
         {gaId && <DeferredGoogleAnalytics gaId={gaId} />}
