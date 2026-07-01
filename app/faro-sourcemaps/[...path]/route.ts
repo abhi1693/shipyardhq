@@ -2,9 +2,6 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { NextRequest } from "next/server";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 type RouteContext = {
   params: Promise<{ path?: string[] }> | { path?: string[] };
 };
