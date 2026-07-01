@@ -1,5 +1,14 @@
 import Link from "next/link"
-import { Rocket, TrendingUp } from "lucide-react"
+import {
+  BarChart3,
+  Megaphone,
+  MousePointerClick,
+  Rocket,
+  Search,
+  Sparkles,
+  TrendingUp,
+  Trophy,
+} from "lucide-react"
 
 import {
   getHomepageFeedPage,
@@ -21,6 +30,7 @@ import {
   HOME_PATH,
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
+  PRICING_PATH,
   productPath,
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
@@ -30,6 +40,7 @@ import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 
 const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
+const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
@@ -59,6 +70,42 @@ type DisplayDrop = {
 type HomepageBuilderSummary = Awaited<
   ReturnType<typeof getHomepageBuilderSummaryPublic>
 >
+
+const HOMEPAGE_VALUE_POINTS = [
+  {
+    icon: Search,
+    title: "Launch into an active feed",
+    body: "Your product appears beside real launches, votes, and builder interest instead of sitting on a static directory page.",
+  },
+  {
+    icon: MousePointerClick,
+    title: "Learn what earns attention",
+    body: "Clicks, votes, rankings, and traffic signals help you understand which positioning is landing with builders.",
+  },
+  {
+    icon: Trophy,
+    title: "Keep momentum visible",
+    body: "Daily showcases and leaderboards give strong launches a place to keep earning discovery after the first spike.",
+  },
+] as const
+
+const HOMEPAGE_VISIBILITY_OPTIONS = [
+  {
+    icon: Megaphone,
+    title: "Start with a free listing",
+    body: "Publish your product, join the launch feed, and collect early signals before deciding whether extra reach makes sense.",
+  },
+  {
+    icon: Sparkles,
+    title: "Add reach when timing matters",
+    body: "Featured and priority placements help launch-ready products stay visible during the window you care about most.",
+  },
+  {
+    icon: BarChart3,
+    title: "Upgrade for deeper feedback loops",
+    body: "Pro adds advanced analytics and spotlight surfaces so you can connect attention with the next growth move.",
+  },
+] as const
 
 const fallbackBuilderSummary: HomepageBuilderSummary = {
   builderCount: siteGrowthMetrics.builderCount,
@@ -175,23 +222,22 @@ function HomepageHero({
 
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff]">
-      <div className="mx-auto max-w-[1200px] px-4 py-16 text-center sm:px-6 md:py-24">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#166534]">
+      <div className="mx-auto max-w-[1200px] px-4 py-10 text-center sm:px-6 md:py-14">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#166534]">
           <Rocket className="size-[18px] fill-current" aria-hidden />
           <span className="text-xs font-semibold uppercase tracking-wider">
-            Join {builderCountLabel} top {builderNoun}
+            Join {builderCountLabel} {builderNoun} launching in public
           </span>
         </div>
-        <h1 className="mx-auto mb-6 max-w-4xl text-[40px] font-bold leading-[1.1] tracking-tight text-black md:text-[64px]">
-          Launch where builders discover. <br className="hidden md:block" />
-          <span className="text-[#0051d5]">Grow with real traction.</span>
+        <h1 className="mx-auto mb-5 max-w-4xl text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
+          Launch your product where builders are already browsing.
         </h1>
-        <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[#43474c]">
-          {BRAND_NAME} helps founders and independent builders submit apps, SaaS
-          tools, APIs, and startup products to a focused discovery network with
-          proof, rankings, and analytics built in.
+        <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-[#43474c]">
+          {BRAND_NAME} is a live launch board for apps, SaaS tools, APIs, and
+          startup projects. Submit your product, earn votes and clicks, then add
+          more reach only when the launch is ready for it.
         </p>
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
             asChild
             className="h-14 w-full rounded-xl border-0 bg-black px-10 text-base font-semibold text-white shadow-lg shadow-black/10 hover:scale-[0.98] hover:bg-black sm:w-auto"
@@ -206,6 +252,13 @@ function HomepageHero({
           >
             <Link href={BROWSE_PATH}>Browse Today&apos;s Drops</Link>
           </Button>
+        </div>
+        <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+          <span>Free to submit</span>
+          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
+          <span>Votes and builder clicks</span>
+          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
+          <span>Optional visibility boosts</span>
         </div>
       </div>
     </section>
@@ -458,7 +511,8 @@ async function HomepageDataSections() {
                 Latest Launches
               </h3>
               <p className="text-sm leading-5 text-[#43474c]">
-                Fresh products from today, yesterday, and recent launch windows.
+                Fresh products from today, yesterday, and recent launch windows
+                earning builder attention.
               </p>
             </div>
             <div className="flex gap-1">
@@ -488,7 +542,114 @@ async function HomepageDataSections() {
             referenceDateIso={referenceDateIso}
           />
         </section>
+
+        <HomepageTrustSections />
       </div>
     </HomepageVoteStateProvider>
+  )
+}
+
+function HomepageTrustSections() {
+  return (
+    <div className="space-y-10">
+      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+        <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
+            Why this exists
+          </span>
+          <h3 className="mt-3 text-2xl font-bold leading-8 tracking-tight text-black">
+            Most makers do not need another quiet listing page.
+          </h3>
+          <p className="mt-4 text-sm leading-6 text-[#43474c]">
+            We built {BRAND_NAME} for the messy part after you ship: getting
+            enough useful attention to know what is working. The feed, votes,
+            clicks, rankings, and analytics are here to help a launch turn into
+            a clearer next move.
+          </p>
+          <p className="mt-4 text-sm leading-6 text-[#43474c]">
+            Start free. If a launch is ready for more visibility, paid plans add
+            reach around the same surfaces builders are already using.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {HOMEPAGE_VALUE_POINTS.map((point) => {
+            const Icon = point.icon
+
+            return (
+              <article
+                key={point.title}
+                className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
+              >
+                <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#0051d5]">
+                  <Icon className="size-5" aria-hidden />
+                </div>
+                <h4 className="text-sm font-bold leading-5 text-black">
+                  {point.title}
+                </h4>
+                <p className="mt-2 text-xs leading-5 text-[#43474c]">
+                  {point.body}
+                </p>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-[#D7DEE8] bg-[#F1F5F9] p-6 shadow-sm">
+        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#166534]">
+              Visibility options
+            </span>
+            <h3 className="mt-3 text-2xl font-bold leading-8 tracking-tight text-black">
+              Upgrade when extra reach has a job to do.
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-[#43474c]">
+              Paid plans should feel like launch acceleration, not a toll booth:
+              use them when you want a longer visibility window, stronger
+              placement, or deeper analytics for a product that is ready.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button
+                asChild
+                className="h-11 rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white hover:bg-black/90"
+              >
+                <Link href={PRICING_PLANS_PATH}>Compare visibility options</Link>
+              </Button>
+              <Button
+                asChild
+                className="h-11 rounded-lg border border-[#c4c6cd] bg-white px-5 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC]"
+              >
+                <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                  Submit first
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {HOMEPAGE_VISIBILITY_OPTIONS.map((option) => {
+              const Icon = option.icon
+
+              return (
+                <article
+                  key={option.title}
+                  className="rounded-xl border border-[#D7DEE8] bg-white p-5"
+                >
+                  <Icon className="mb-4 size-5 text-[#0b1c30]" aria-hidden />
+                  <h4 className="text-sm font-bold leading-5 text-black">
+                    {option.title}
+                  </h4>
+                  <p className="mt-2 text-xs leading-5 text-[#43474c]">
+                    {option.body}
+                  </p>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
