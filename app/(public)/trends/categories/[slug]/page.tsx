@@ -13,6 +13,7 @@ import {
   productCardSelect,
   type ProductCardRecord,
 } from "@/lib/products/selects"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
@@ -150,7 +151,7 @@ async function TrendingToolsInCategoryPageContent({
     .map((id) => recordMap.get(id))
     .filter((record): record is ProductCardRecord => Boolean(record))
 
-  const [interestMap, priorityPlanIds] = await Promise.all([
+  const [interestMap, priorityPlanIds, scoreMap] = await Promise.all([
     ordered.length
       ? getProductInterestSignalsMap({
           products: ordered.map((record) => ({
@@ -160,6 +161,7 @@ async function TrendingToolsInCategoryPageContent({
         })
       : Promise.resolve(new Map()),
     getPriorityPlacementPlanIds(),
+    getCurrentScoreMap(ordered.map((record) => record.id)),
   ])
 
   const referenceDateIso = resolveTaxonomyReferenceDateIso(ordered)
@@ -170,6 +172,7 @@ async function TrendingToolsInCategoryPageContent({
     toProductCardItem({
       ...mapProductCardRecordToBase(record, badgeReferenceDate, {
         priorityPlanIds,
+        scoreByProductId: scoreMap,
       }),
       interest: interestMap.get(record.id) ?? null,
     }),

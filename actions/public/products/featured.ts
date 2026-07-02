@@ -8,6 +8,7 @@ import {
   buildPublicDiscoveryProductWhere,
   buildPublicDiscoverySqlFilter,
 } from "@/lib/products/public-discovery"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
@@ -24,6 +25,22 @@ export type SponsoredProductPlacement = {
   id: string
   product: SponsoredProduct
   origin: "plan"
+}
+
+async function withFeaturedProductScores<T extends { product: { id: string } }>(
+  entries: T[],
+) {
+  const scoreMap = await getCurrentScoreMap(
+    entries.map((entry: T) => entry.product.id),
+  )
+
+  return entries.map((entry: T) => ({
+    ...entry,
+    product: {
+      ...entry.product,
+      scoreCount: scoreMap.get(entry.product.id),
+    },
+  }))
 }
 
 export async function getProducts(
@@ -45,7 +62,9 @@ export async function getProducts(
     orderBy: { createdAt: "asc" },
   })
 
-  return entries as unknown as FeaturedProduct[]
+  return (await withFeaturedProductScores(
+    entries,
+  )) as unknown as FeaturedProduct[]
 }
 
 export async function getTrendingProducts(limit = 12) {
@@ -82,7 +101,9 @@ export async function getTrendingProducts(limit = 12) {
     select: featuredProductSelect,
   })
 
-  return trending as unknown as Prisma.ProductBadgeGetPayload<{
+  return (await withFeaturedProductScores(
+    trending,
+  )) as unknown as Prisma.ProductBadgeGetPayload<{
     select: typeof featuredProductSelect
   }>[]
 }
@@ -152,7 +173,9 @@ export async function getFeaturedByCategorySlug(
     take: limit,
   })
 
-  return entries as unknown as FeaturedProduct[]
+  return (await withFeaturedProductScores(
+    entries,
+  )) as unknown as FeaturedProduct[]
 }
 
 const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const

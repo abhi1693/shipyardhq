@@ -12,6 +12,7 @@ import {
   buildRegularPlanFilter,
   getPriorityPlacementPlanIds,
 } from "@/lib/products/priority-plans"
+import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 
 const useCaseProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -37,7 +38,7 @@ export type UseCaseCategory = {
 }
 
 export type UseCaseProductsPage = {
-  products: UseCaseProduct[]
+  products: Array<UseCaseProduct & { scoreCount?: number }>
   hasMore: boolean
   total: number
 }
@@ -389,8 +390,18 @@ export async function getPublicUseCaseProductsPage(
   ])
 
   const products = [...priorityProducts, ...regularProducts]
+  const scoreMap = await getCurrentScoreMap(
+    products.map((product) => product.id),
+  )
   const total = totalPriority + totalRegular
   const hasMore = skip + products.length < total
 
-  return { products, hasMore, total }
+  return {
+    products: products.map((product) => ({
+      ...product,
+      scoreCount: scoreMap.get(product.id),
+    })),
+    hasMore,
+    total,
+  }
 }

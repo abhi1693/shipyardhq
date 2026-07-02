@@ -21,9 +21,38 @@ async function getCachedCurrentLeaderboardRunForScores(
   })
 }
 
+async function addLatestPositiveScores(
+  scores: Map<string, number>,
+  productIds: string[],
+) {
+  const missingIds = productIds.filter((productId) => !scores.has(productId))
+  if (!missingIds.length) return
+
+  const fallbackRows = await prisma.productLeaderboardScore.findMany({
+    where: {
+      productId: { in: missingIds },
+      score: { gt: 0 },
+    },
+    orderBy: [{ run: { periodStart: "desc" } }, { score: "desc" }],
+    select: {
+      productId: true,
+      score: true,
+    },
+  })
+
+  for (const row of fallbackRows) {
+    if (!scores.has(row.productId)) {
+      scores.set(row.productId, row.score ?? 0)
+    }
+  }
+}
+
 /**
- * Fetch a map of productId -> current leaderboard score for the active window.
- * Returns an empty map if there is no active run or no matching rows.
+ * Fetch a map of productId -> Shipyard score.
+ *
+ * Prefer the active leaderboard window, then fall back to each product's latest
+ * positive leaderboard score so public cards do not show zero when the current
+ * monthly run has not scored that product yet.
  */
 export async function getCurrentScoreMap(
   productIds: string[],
@@ -37,22 +66,25 @@ export async function getCurrentScoreMap(
     periodStart.toISOString(),
     periodEnd.toISOString(),
   )
-  if (!run) return scores
 
-  const rows = await prisma.productLeaderboardScore.findMany({
-    where: {
-      runId: run.id,
-      productId: { in: uniqueIds },
-    },
-    select: {
-      productId: true,
-      score: true,
-    },
-  })
+  if (run) {
+    const rows = await prisma.productLeaderboardScore.findMany({
+      where: {
+        runId: run.id,
+        productId: { in: uniqueIds },
+      },
+      select: {
+        productId: true,
+        score: true,
+      },
+    })
 
-  for (const row of rows) {
-    scores.set(row.productId, row.score ?? 0)
+    for (const row of rows) {
+      scores.set(row.productId, row.score ?? 0)
+    }
   }
+
+  await addLatestPositiveScores(scores, uniqueIds)
 
   return scores
 }
