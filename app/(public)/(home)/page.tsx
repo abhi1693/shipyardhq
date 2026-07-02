@@ -60,7 +60,6 @@ type DisplayDrop = {
   scoreCount?: number | null
   rank?: number | null
   upvoteGrowthPercent?: number | null
-  buildersClickedCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
   publishedAt?: string | null
@@ -137,15 +136,6 @@ function pluralize(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural
 }
 
-function formatBuildersClickedLabel(value: number) {
-  const safeValue = Math.max(0, value)
-  return `${formatCount(safeValue)} ${pluralize(
-    safeValue,
-    "builder",
-    "builders",
-  )} clicked`
-}
-
 function toDisplayDrop(
   item: Awaited<ReturnType<typeof getHomepageFeedPage>>["items"][number],
 ): DisplayDrop {
@@ -159,7 +149,6 @@ function toDisplayDrop(
     categorySlug: item.categorySlug,
     score: item.scoreCount,
     scoreCount: item.scoreCount,
-    buildersClickedCount: item.interest?.uniqueVisitors7d ?? null,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
@@ -353,7 +342,6 @@ async function HomepageDataSections() {
         rank: launchOfDay.rank,
         score: launchOfDay.score,
         upvoteGrowthPercent: launchOfDay.upvoteGrowthPercent,
-        buildersClickedCount: launchOfDay.buildersClickedCount,
       }
     : (feedProducts[0] ?? null)
   const feedDrops = feedProducts.filter(
@@ -368,7 +356,6 @@ async function HomepageDataSections() {
     ),
   )
   const launchGrowth = launch?.upvoteGrowthPercent
-  const launchBuildersClickedCount = launch?.buildersClickedCount ?? 0
   const shouldDisplayLaunchMomentum =
     typeof launchGrowth === "number" && launchGrowth > 0
   const launchSignalLabel = shouldDisplayLaunchMomentum
@@ -451,11 +438,6 @@ async function HomepageDataSections() {
                       View Product
                     </Link>
                   </Button>
-                  <div className="ml-auto flex items-center">
-                    <span className="text-[11px] font-medium leading-[14px] text-[#43474c]">
-                      {formatBuildersClickedLabel(launchBuildersClickedCount)}
-                    </span>
-                  </div>
                 </div>
               </>
             ) : (
