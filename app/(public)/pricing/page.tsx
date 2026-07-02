@@ -50,6 +50,7 @@ function formatBuilderCountBadge(value: number) {
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Transparent pricing to list, launch, promote, and measure your product on ${BRAND_NAME}.`,
+  canonical: PRICING_PATH,
 })
 
 const HERO_POINTS = [

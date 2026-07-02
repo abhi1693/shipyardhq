@@ -37,12 +37,10 @@ export async function generateMetadata(
     title: `${meta.label} products and launches`,
     description,
     section: "Products",
+    canonical: productTypePath(meta.slug),
   })
 
-  return {
-    ...metadata,
-    alternates: { canonical: productTypePath(meta.slug) },
-  }
+  return metadata
 }
 
 export default function ProductTypePage(

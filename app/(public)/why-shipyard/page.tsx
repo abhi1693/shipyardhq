@@ -169,6 +169,7 @@ const PAGE_TITLE = "Why Shipyard"
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Launch your app, SaaS tool, API, or startup product on ${BRAND_NAME} with focused discovery, rankings, analytics, and promotion tools.`,
+  canonical: WHY_SHIPYARD_PATH,
 })
 
 export default function WhyShipyardPage() {

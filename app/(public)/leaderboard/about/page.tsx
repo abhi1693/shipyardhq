@@ -21,6 +21,7 @@ const PAGE_TITLE = `Leaderboard Playbook | ${BRAND_NAME}`
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Understand ${BRAND_NAME} leaderboard scoring, ranking cadence, performance signals, and visibility boosts for product launches.`,
+  canonical: LEADERBOARD_GUIDE_PATH,
 })
 
 export default function LeaderboardGuidePage() {

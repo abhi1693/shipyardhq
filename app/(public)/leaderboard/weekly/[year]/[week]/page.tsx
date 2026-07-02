@@ -6,6 +6,7 @@ import {
   resolvePeriodWindowFromParts,
 } from "@/actions/public/leaderboard/actions"
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
+import { buildPageMetadata } from "@/lib/metadata"
 import { weeklyLeaderboardPath } from "@/lib/routes"
 
 type PageParams = {
@@ -25,11 +26,11 @@ export async function generateMetadata({
     week: Number(week),
   })
   const periodLabel = window?.label ?? "Weekly leaderboard"
-  return {
+  return buildPageMetadata({
     title: `Weekly leaderboard — ${periodLabel}`,
     description: `Top Shipyard products for ${periodLabel}, ranked by points.`,
-    alternates: { canonical: weeklyLeaderboardPath(year, week) },
-  }
+    canonical: weeklyLeaderboardPath(year, week),
+  })
 }
 
 export default async function WeeklyLeaderboardPage({

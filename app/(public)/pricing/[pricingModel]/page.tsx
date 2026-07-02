@@ -36,12 +36,10 @@ export async function generateMetadata(
     title: `${meta.label} pricing products`,
     description,
     section: "Pricing",
+    canonical: pricingModelPath(meta.slug),
   })
 
-  return {
-    ...metadata,
-    alternates: { canonical: pricingModelPath(meta.slug) },
-  }
+  return metadata
 }
 
 export default function PricingModelPage(

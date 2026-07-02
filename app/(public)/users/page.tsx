@@ -13,6 +13,7 @@ const baseMetadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
     "Explore Shipyard makers, see what they have launched, and discover who is building momentum right now.",
+  canonical: USERS_PATH,
   openGraph: {
     url: USERS_PATH,
     type: "website",
@@ -22,10 +23,7 @@ const baseMetadata = buildPageMetadata({
   },
 })
 
-export const metadata: Metadata = {
-  ...baseMetadata,
-  alternates: { canonical: USERS_PATH },
-}
+export const metadata: Metadata = baseMetadata
 
 export default function UsersIndexPage() {
   return (

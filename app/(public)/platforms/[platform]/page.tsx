@@ -35,12 +35,10 @@ export async function generateMetadata(
         ? `Discover ${payload.total} ${platformMeta.label} ${payload.total === 1 ? "product" : "products"} launching on ${BRAND_NAME}. ${platformMeta.description}`
         : `Discover ${platformMeta.label} product launches on ${BRAND_NAME}. ${platformMeta.description}`,
     section: "Platforms",
+    canonical: platformPath(platformMeta.slug),
   })
 
-  return {
-    ...metadata,
-    alternates: { canonical: platformPath(platformMeta.slug) },
-  }
+  return metadata
 }
 
 export default function PlatformPage(

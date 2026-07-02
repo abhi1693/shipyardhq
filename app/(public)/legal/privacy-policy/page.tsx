@@ -9,6 +9,7 @@ const PAGE_TITLE = "Privacy Policy"
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Learn how ${BRAND_NAME} collects, uses, and protects your personal information.`,
+  canonical: LEGAL_PRIVACY_PATH,
 })
 
 export default function PrivacyPolicyPage() {

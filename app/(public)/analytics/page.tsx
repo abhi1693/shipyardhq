@@ -635,6 +635,7 @@ function NewVsReturningCard({
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Track launch performance on ${BRAND_NAME} with product views, referrers, traffic sources, top apps, and engagement signals.`,
+  canonical: ANALYTICS_PATH,
 })
 
 async function getCachedAnalyticsPageData({

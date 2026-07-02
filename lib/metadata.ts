@@ -290,11 +290,15 @@ export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
     metadata.alternates.canonical = canonical
   }
 
-  if (pageTitle || descriptionValue || openGraph) {
+  if (pageTitle || descriptionValue || canonical || openGraph) {
     const openGraphResult = {
       ...(baseMetadata.openGraph ?? {}),
       ...(openGraph ?? {}),
     } as NonNullable<Metadata["openGraph"]>
+
+    if (canonical && typeof openGraph?.url === "undefined") {
+      openGraphResult.url = canonical
+    }
 
     const overrideOgTitle = cleanupTitleInput(
       resolveTemplateString(openGraph?.title),

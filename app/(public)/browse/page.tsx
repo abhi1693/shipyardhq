@@ -19,6 +19,7 @@ const baseMetadata = buildPageMetadata({
   title: PAGE_TITLE,
   description:
     "Browse product launches, SaaS tools, mobile apps, APIs, AI products, and startup projects by use case or category.",
+  canonical: BROWSE_PATH,
 })
 
 const resolveSingle = (value: string | string[] | undefined) =>
@@ -41,8 +42,12 @@ export async function generateMetadata(
     const useCaseMeta = await getPublicUseCaseMeta(useCaseSlug)
     if (useCaseMeta && useCaseMeta.productCount > 0) {
       return {
-        ...baseMetadata,
-        alternates: { canonical: usecasePath(useCaseMeta.slug) },
+        ...buildPageMetadata({
+          title: PAGE_TITLE,
+          description:
+            "Browse product launches, SaaS tools, mobile apps, APIs, AI products, and startup projects by use case or category.",
+          canonical: usecasePath(useCaseMeta.slug),
+        }),
         robots,
       }
     }
@@ -50,7 +55,6 @@ export async function generateMetadata(
 
   return {
     ...baseMetadata,
-    alternates: { canonical: BROWSE_PATH },
     robots,
   }
 }

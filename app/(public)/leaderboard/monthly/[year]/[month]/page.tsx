@@ -6,6 +6,7 @@ import {
   resolvePeriodWindowFromParts,
 } from "@/actions/public/leaderboard/actions"
 import { PeriodicLeaderboardView } from "@/components/templates/public/leaderboard/periodic/view"
+import { buildPageMetadata } from "@/lib/metadata"
 import { monthlyLeaderboardPath } from "@/lib/routes"
 
 type PageParams = {
@@ -25,11 +26,11 @@ export async function generateMetadata({
     month: Number(month),
   })
   const periodLabel = window?.label ?? "Monthly leaderboard"
-  return {
+  return buildPageMetadata({
     title: `Monthly leaderboard — ${periodLabel}`,
     description: `Top Shipyard products for ${periodLabel}, ranked by points.`,
-    alternates: { canonical: monthlyLeaderboardPath(year, month) },
-  }
+    canonical: monthlyLeaderboardPath(year, month),
+  })
 }
 
 export default async function MonthlyLeaderboardArchivePage({

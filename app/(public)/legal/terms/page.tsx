@@ -9,6 +9,7 @@ const PAGE_TITLE = "Terms of Service"
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Review the terms and conditions for using ${BRAND_NAME}.`,
+  canonical: LEGAL_TERMS_PATH,
 })
 
 export default function TermsOfServicePage() {
