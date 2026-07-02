@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  Fragment,
   type ReactNode,
   useCallback,
   useContext,
@@ -663,6 +664,8 @@ export function HomepageDropsInfiniteList({
   excludedProductId,
   excludedSlug,
   referenceDateIso,
+  afterTodaySlot,
+  afterYesterdaySlot,
 }: {
   initialItems: HomepageDropListItem[]
   initialHasMore: boolean
@@ -672,6 +675,8 @@ export function HomepageDropsInfiniteList({
   excludedProductId?: string
   excludedSlug?: string
   referenceDateIso: string
+  afterTodaySlot?: ReactNode
+  afterYesterdaySlot?: ReactNode
 }) {
   const initialUniqueItems = useMemo(
     () => uniqueDropItems(initialItems),
@@ -794,27 +799,35 @@ export function HomepageDropsInfiniteList({
   return (
     <div className="space-y-3">
       {visibleSections.map((section) => (
-        <section key={section.key} className="space-y-3">
-          <div className="flex items-center gap-3">
-            <h4 className="shrink-0 text-lg font-semibold text-black">
-              {section.title}
-            </h4>
-            <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
-          </div>
-          <div className="space-y-3">
-            {section.items.length > 0 ? (
-              section.items.map((product) => (
-                <HomepageDropRow key={dropKey(product)} product={product} />
-              ))
-            ) : (
-              <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
-                <CardContent className="p-4 text-sm text-[#475569]">
-                  No launches in this window yet.
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </section>
+        <Fragment key={section.key}>
+          <section className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h4 className="shrink-0 text-lg font-semibold text-black">
+                {section.title}
+              </h4>
+              <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
+            </div>
+            <div className="space-y-3">
+              {section.items.length > 0 ? (
+                section.items.map((product) => (
+                  <HomepageDropRow key={dropKey(product)} product={product} />
+                ))
+              ) : (
+                <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
+                  <CardContent className="p-4 text-sm text-[#475569]">
+                    No launches in this window yet.
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </section>
+          {section.key === "yesterday" && afterYesterdaySlot ? (
+            <div className="py-3">{afterYesterdaySlot}</div>
+          ) : null}
+          {section.key === "today" && afterTodaySlot ? (
+            <div className="py-3">{afterTodaySlot}</div>
+          ) : null}
+        </Fragment>
       ))}
 
       <div ref={sentinelRef} className="min-h-10" aria-hidden />
