@@ -14,7 +14,10 @@ interface CategoryPageProps {
 }
 
 function categoryDescription(name: string, description?: string | null) {
-  if (description) return description
+  const categoryDescription = description?.trim()
+  if (categoryDescription) {
+    return `${categoryDescription} Browse launch-ready apps, SaaS tools, APIs, and startup products from makers shipping in this category.`
+  }
 
   return `Discover the newest ${name.toLowerCase()} products from makers shipping practical tools, launch experiments, and production-ready software.`
 }

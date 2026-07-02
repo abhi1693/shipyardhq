@@ -15,7 +15,7 @@ import {
 } from "@/lib/products/selects"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { buildPageMetadata } from "@/lib/metadata"
+import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
   CATEGORIES_PATH,
@@ -50,6 +50,21 @@ export async function generateStaticParams() {
 
 const TREND_WINDOW_DAYS = 7
 
+const buildTrendingCategoryDescription = (
+  categoryName: string,
+  categoryDescription?: string | null,
+) => {
+  const fallback = `Track trending ${categoryName.toLowerCase()} tools on Shipyard over the last ${TREND_WINDOW_DAYS} days. Browse launched apps, SaaS products, APIs, and startup projects gaining momentum.`
+  const baseDescription = categoryDescription?.trim()
+
+  return (
+    buildMetaDescription(
+      baseDescription ? `${baseDescription} ${fallback}` : fallback,
+      fallback,
+    ) ?? fallback
+  )
+}
+
 export async function generateMetadata(
   props: CategoryTrendsPageProps,
 ): Promise<Metadata> {
@@ -63,12 +78,14 @@ export async function generateMetadata(
 
   const canonical = `/trends/categories/${category.slug}`
   const title = `Trending tools in ${category.name}`
+  const description = buildTrendingCategoryDescription(
+    category.name,
+    category.description,
+  )
   return buildPageMetadata({
     title,
     section: "Trends",
-    description:
-      category.description ??
-      `Most clicked tools in ${category.name} this week.`,
+    description,
     canonical,
   })
 }
@@ -197,7 +214,10 @@ async function TrendingToolsInCategoryPageContent({
   return (
     <TaxonomyDetailPage
       title={`Trending tools in ${category.name}`}
-      description={`Most clicked tools in ${category.name} over the last ${TREND_WINDOW_DAYS} days.`}
+      description={buildTrendingCategoryDescription(
+        category.name,
+        category.description,
+      )}
       icon={
         <CategoryIcon
           icon={category.icon}

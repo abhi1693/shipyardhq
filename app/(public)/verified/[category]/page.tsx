@@ -18,6 +18,7 @@ import {
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { pluralize } from "@/lib/pluralize"
 
 type VerifiedCategoryParams = {
   category: string
@@ -26,6 +27,13 @@ type VerifiedCategoryParams = {
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
   return categories.map((category) => ({ category: category.slug }))
+}
+
+function buildVerifiedCategoryDescription(categoryName: string, total: number) {
+  return `Browse ${total} verified ${categoryName.toLowerCase()} ${pluralize(
+    total,
+    "product",
+  )} on Shipyard, with trusted launch profiles, backlinks, and discovery-ready pages for builders comparing software.`
 }
 
 export async function generateMetadata({
@@ -46,7 +54,7 @@ export async function generateMetadata({
     pageSize: 1,
   }).then((payload) => payload.total)
   const title = `Verified ${category.name} tools`
-  const description = `Browse ${total} verified ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} from Shipyard makers.`
+  const description = buildVerifiedCategoryDescription(category.name, total)
   const canonical = verifiedCategoryPath(categorySlug)
 
   return {
@@ -96,7 +104,10 @@ async function VerifiedCategoryPageContent({
 
   const pagePath = verifiedCategoryPath(categorySlug)
   const title = `Verified ${category.name} tools`
-  const description = `Browse ${payload.total} verified ${category.name.toLowerCase()} ${payload.total === 1 ? "product" : "products"} from Shipyard makers.`
+  const description = buildVerifiedCategoryDescription(
+    category.name,
+    payload.total,
+  )
 
   return (
     <ProductSlicePage

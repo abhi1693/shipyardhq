@@ -29,9 +29,17 @@ export async function generateMetadata(
     productCount,
     "product",
   )} in ${category.name}. Discover launch-ready tools, compare makers, and find new products on Shipyard.`
+  const categoryDescription = category.description?.trim()
   const description =
-    buildMetaDescription(category.description, fallbackDescription) ??
-    fallbackDescription
+    buildMetaDescription(
+      categoryDescription
+        ? `${categoryDescription} Browse ${productCount.toLocaleString("en-US")} ${pluralize(
+            productCount,
+            "product",
+          )} curated for makers comparing launch-ready apps, SaaS tools, APIs, and startup products.`
+        : fallbackDescription,
+      fallbackDescription,
+    ) ?? fallbackDescription
   const canonical = categoryPath(slug)
 
   return buildPageMetadata({
