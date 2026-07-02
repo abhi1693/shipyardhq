@@ -640,19 +640,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     }
   })
   const relatedDirectoryLinks = (() => {
-    const links: {
+    const directories: {
       label: string
       href: string
       description: string
     }[] = []
 
-    const addLink = (link: {
+    const addDirectoryLink = (link: {
       label: string
       href?: string | null
       description: string
     }) => {
-      if (!link.href || links.some((item) => item.href === link.href)) return
-      links.push({
+      if (!link.href || directories.some((item) => item.href === link.href)) {
+        return
+      }
+      directories.push({
         label: link.label,
         href: link.href,
         description: link.description,
@@ -660,14 +662,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     }
 
     if (primaryCategorySlug && categoryLabel) {
-      addLink({
+      addDirectoryLink({
         label: `${categoryLabel} products`,
         href: categoryPath(primaryCategorySlug),
         description: `Browse every ${categoryLabel.toLowerCase()} launch on Shipyard.`,
       })
 
       if (pricingModelSlug && pricingModelLabel) {
-        addLink({
+        addDirectoryLink({
           label: `${categoryLabel} with ${pricingModelLabel} pricing`,
           href: categoryPricingPath(primaryCategorySlug, pricingModelSlug),
           description: "Compare products in this category by pricing model.",
@@ -675,7 +677,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       }
 
       if (productTypeMeta && productTypeLabel) {
-        addLink({
+        addDirectoryLink({
           label: `${categoryLabel} ${productTypeLabel}`,
           href: categoryProductTypePath(
             primaryCategorySlug,
@@ -688,7 +690,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       for (const platform of platformValues.slice(0, 3)) {
         const platformMeta = getPlatformMetaByValue(platform)
         if (!platformMeta) continue
-        addLink({
+        addDirectoryLink({
           label: `${categoryLabel} for ${platformMeta.label}`,
           href: categoryPlatformPath(primaryCategorySlug, platformMeta.slug),
           description: "Compare products in this category by platform support.",
@@ -696,7 +698,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       }
 
       for (const alternative of sidebarProduct.alternatives.slice(0, 2)) {
-        addLink({
+        addDirectoryLink({
           label: `${alternative.name} alternatives in ${categoryLabel}`,
           href: alternativeCategoryPath(alternative.slug, primaryCategorySlug),
           description: `Compare ${categoryLabel.toLowerCase()} products positioned around ${alternative.name}.`,
@@ -706,7 +708,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
     if (primaryUseCaseSlug) {
       if (primaryCategorySlug && categoryLabel) {
-        addLink({
+        addDirectoryLink({
           label: `${categoryLabel} for this use case`,
           href: usecaseCategoryPath(primaryUseCaseSlug, primaryCategorySlug),
           description: "Browse this use case narrowed by category.",
@@ -714,7 +716,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       }
 
       if (pricingModelSlug && pricingModelLabel) {
-        addLink({
+        addDirectoryLink({
           label: `${pricingModelLabel} tools for this use case`,
           href: usecasePricingPath(primaryUseCaseSlug, pricingModelSlug),
           description: "Browse this use case narrowed by pricing model.",
@@ -724,7 +726,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       for (const platform of platformValues.slice(0, 2)) {
         const platformMeta = getPlatformMetaByValue(platform)
         if (!platformMeta) continue
-        addLink({
+        addDirectoryLink({
           label: `${platformMeta.label} tools for this use case`,
           href: usecasePlatformPath(primaryUseCaseSlug, platformMeta.slug),
           description: "Browse this use case narrowed by supported platform.",
@@ -732,15 +734,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       }
     }
 
-    for (const tag of keywordTagItems.slice(0, 4)) {
-      addLink({
-        label: `#${tag.label}`,
-        href: tagPath(tag.slug),
-        description: `Browse products tagged with ${tag.label}.`,
-      })
-    }
-
-    return links.slice(0, 10)
+    return directories.slice(0, 4)
   })()
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
@@ -952,25 +946,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </div>
         ) : null}
-        {relatedDirectoryLinks.length ? (
-          <div className="border-t border-border pt-4">
-            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Related directories
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {relatedDirectoryLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  title={link.description}
-                  className="rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-semibold text-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
       <div className="border-t border-border pt-4">
         <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1142,6 +1117,36 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               ) : null}
             </section>
+            {relatedDirectoryLinks.length ? (
+              <section className="rounded-xl border border-border bg-white p-5 shadow-sm">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Related directories
+                </h2>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {relatedDirectoryLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      title={link.description}
+                      className="group flex min-w-0 items-start justify-between gap-3 rounded-lg border border-border bg-[#f8fafc] px-3 py-3 transition hover:border-[#0051d5]/30 hover:bg-white"
+                    >
+                      <span className="min-w-0">
+                        <span className="line-clamp-1 block text-sm font-semibold text-foreground">
+                          {link.label}
+                        </span>
+                        <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                          {link.description}
+                        </span>
+                      </span>
+                      <ExternalLink
+                        className="mt-0.5 size-3.5 shrink-0 text-muted-foreground transition group-hover:text-[#0051d5]"
+                        aria-hidden
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
 
           <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">

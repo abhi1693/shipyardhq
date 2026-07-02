@@ -430,7 +430,7 @@ export function ProductSlicePage({
       />
 
       <div className="mx-auto max-w-[110rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-10">
+        <div className="mx-auto flex max-w-5xl flex-col gap-7">
           <nav
             aria-label="Breadcrumb"
             className="text-sm text-muted-foreground"
@@ -525,26 +525,23 @@ export function ProductSlicePage({
             </div>
           </div>
 
-          <section className="rounded-xl border border-border/70 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-[#1C2333]">
+          <section className="border-t border-border/70 pt-5">
+            <h2 className="text-sm font-semibold text-[#1C2333]">
               How to use this directory
             </h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
               {uniqueIntro}
             </p>
           </section>
 
           {topProducts.length ? (
-            <section className="rounded-xl border border-border/70 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-[#1C2333]">
+            <section className="border-t border-border/70 pt-5">
+              <h2 className="text-sm font-semibold text-[#1C2333]">
                 Top products in this slice
               </h2>
-              <div className="mt-4 grid gap-3">
+              <ol className="mt-3 divide-y divide-border/70">
                 {topProducts.map((product, index) => (
-                  <article
-                    key={product.id}
-                    className="rounded-lg border border-border/70 bg-[#f8fafc] p-4"
-                  >
+                  <li key={product.id} className="py-3 first:pt-0">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <Link
                         href={productPath(product.slug)}
@@ -561,29 +558,29 @@ export function ProductSlicePage({
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       Reason to consider: {productReason(product, faqQualifier)}
                     </p>
-                  </article>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </section>
           ) : null}
 
           {directoryLinks.length ? (
-            <section className="rounded-xl border border-border/70 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-[#1C2333]">
+            <section className="border-t border-border/70 pt-5">
+              <h2 className="text-sm font-semibold text-[#1C2333]">
                 Related directories
               </h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                 {directoryLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="rounded-lg border border-border/70 bg-[#f8fafc] p-4 transition hover:border-foreground/20"
+                    className="group block min-w-0 border-t border-border/60 pt-3 transition first:border-t-0 first:pt-0 sm:[&:nth-child(2)]:border-t-0 sm:[&:nth-child(2)]:pt-0"
                   >
                     <span className="block text-sm font-semibold text-foreground">
                       {link.label}
                     </span>
                     {link.description ? (
-                      <span className="mt-1 block text-sm leading-6 text-muted-foreground">
+                      <span className="mt-1 block text-sm leading-6 text-muted-foreground group-hover:text-foreground">
                         {link.description}
                       </span>
                     ) : null}
@@ -594,11 +591,11 @@ export function ProductSlicePage({
           ) : null}
 
           {linkGroups.length ? (
-            <section className="rounded-xl border border-border/70 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-[#1C2333]">
+            <section className="border-t border-border/70 pt-5">
+              <h2 className="text-sm font-semibold text-[#1C2333]">
                 More ways to explore this slice
               </h2>
-              <div className="mt-4 grid gap-4 md:grid-cols-3">
+              <div className="mt-3 grid gap-4 md:grid-cols-3">
                 {linkGroups.map((group) => (
                   <div key={group.title} className="space-y-2">
                     <h3 className="text-sm font-semibold text-foreground">
@@ -610,7 +607,7 @@ export function ProductSlicePage({
                           key={link.href}
                           href={link.href}
                           title={link.description}
-                          className="rounded-full border border-border/70 bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white"
+                          className="rounded-full border border-border/70 bg-white/70 px-3 py-1 text-xs font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white"
                         >
                           {link.label}
                         </Link>
@@ -643,13 +640,13 @@ export function ProductSlicePage({
             ]}
           />
 
-          <section className="rounded-xl border border-border/70 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-[#1C2333]">
+          <section className="border-t border-border/70 pt-5">
+            <h2 className="text-sm font-semibold text-[#1C2333]">
               Frequently asked questions
             </h2>
-            <div className="mt-4 divide-y divide-border/70">
+            <div className="mt-3 grid gap-x-6 gap-y-4 md:grid-cols-2">
               {visibleFaq.map((entry) => (
-                <article key={entry.question} className="py-4 first:pt-0">
+                <article key={entry.question} className="min-w-0">
                   <h3 className="text-sm font-semibold text-foreground">
                     {entry.question}
                   </h3>

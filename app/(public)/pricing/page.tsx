@@ -316,28 +316,26 @@ export default async function PricingPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1200px] px-4 pb-12 sm:px-6">
-          <AnswerBlocks
-            blocks={[
-              {
-                title: "What this page lists",
-                body: `${BRAND_NAME} pricing lists free submission, launch promotion, placement, and analytics options for makers publishing products in the Shipyard directory.`,
-              },
-              {
-                title: "Who it is for",
-                body: "This page is for founders, indie makers, SaaS teams, and product marketers deciding whether to list for free or add paid visibility during a launch window.",
-              },
-              {
-                title: "How placement works",
-                body: "Free listings can enter public discovery surfaces. Paid plans can add eligible featured, sponsored, priority, spotlight, or analytics benefits depending on the active plan configuration.",
-              },
-              {
-                title: "Freshness policy",
-                body: "Pricing content uses current public plan records where available and revalidates with the site so listing, placement, and promotion details can change as plans are updated.",
-              },
-            ]}
-          />
-        </section>
+        <AnswerBlocks
+          blocks={[
+            {
+              title: "What this page lists",
+              body: `${BRAND_NAME} pricing lists free submission, launch promotion, placement, and analytics options for makers publishing products in the Shipyard directory.`,
+            },
+            {
+              title: "Who it is for",
+              body: "This page is for founders, indie makers, SaaS teams, and product marketers deciding whether to list for free or add paid visibility during a launch window.",
+            },
+            {
+              title: "How placement works",
+              body: "Free listings can enter public discovery surfaces. Paid plans can add eligible featured, sponsored, priority, spotlight, or analytics benefits depending on the active plan configuration.",
+            },
+            {
+              title: "Freshness policy",
+              body: "Pricing content uses current public plan records where available and revalidates with the site so listing, placement, and promotion details can change as plans are updated.",
+            },
+          ]}
+        />
 
         <section
           id="plans"
