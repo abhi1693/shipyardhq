@@ -6,10 +6,10 @@ import {
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import { sitemapResponse, urlsetXml, type SitemapUrlEntry } from "@/lib/sitemap"
 
-const toMonthDate = (monthKey: string, fallback: Date) => {
+const toMonthDate = (monthKey: string) => {
   const match = monthKey.match(/^(\d{2})-(\d{2})-(\d{4})$/)
   if (!match) {
-    return fallback
+    return null
   }
   const day = Number(match[1])
   const monthIndex = Number(match[2]) - 1
@@ -19,13 +19,13 @@ const toMonthDate = (monthKey: string, fallback: Date) => {
     !Number.isFinite(monthIndex) ||
     !Number.isFinite(year)
   ) {
-    return fallback
+    return null
   }
-  if (monthIndex < 0 || monthIndex > 11) return fallback
+  if (monthIndex < 0 || monthIndex > 11) return null
   const date = new Date(Date.UTC(year, monthIndex, day))
-  if (date.getUTCFullYear() !== year) return fallback
-  if (date.getUTCMonth() !== monthIndex) return fallback
-  if (date.getUTCDate() !== day) return fallback
+  if (date.getUTCFullYear() !== year) return null
+  if (date.getUTCMonth() !== monthIndex) return null
+  if (date.getUTCDate() !== day) return null
   return date
 }
 
@@ -38,14 +38,13 @@ export async function GET() {
   const currentMonthlyLoc = `${base}${currentMonthlyPath}`
   const currentEntry: SitemapUrlEntry = {
     loc: currentMonthlyLoc,
-    lastmod: now,
     changefreq: "weekly",
     priority: "0.6",
   }
   const archiveEntries: SitemapUrlEntry[] = months
     .map(
       (monthEntry: (typeof months)[number], index: number): SitemapUrlEntry => {
-        const monthDate = toMonthDate(monthEntry.month, now)
+        const monthDate = toMonthDate(monthEntry.month)
         const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
 
         return {

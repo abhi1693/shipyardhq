@@ -106,7 +106,7 @@ export async function GET() {
         if (!latest) return null
         return {
           slug,
-          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+          lastmod: new Date(latest.updatedAt || latest.publishedAt),
         }
       }),
     ),
@@ -127,7 +127,7 @@ export async function GET() {
 
         return {
           slug,
-          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+          lastmod: new Date(latest.updatedAt || latest.publishedAt),
         }
       }),
     ),
@@ -148,7 +148,7 @@ export async function GET() {
 
         return {
           slug,
-          lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+          lastmod: new Date(latest.updatedAt || latest.publishedAt),
         }
       }),
     ),
@@ -179,7 +179,7 @@ export async function GET() {
             return {
               categorySlug: category.slug,
               platform: platformSlug,
-              lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+              lastmod: new Date(latest.updatedAt || latest.publishedAt),
             }
           }),
         )
@@ -222,7 +222,7 @@ export async function GET() {
             return {
               categorySlug: category.slug,
               pricingModel,
-              lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+              lastmod: new Date(latest.updatedAt || latest.publishedAt),
             }
           }),
         )
@@ -269,7 +269,7 @@ export async function GET() {
             return {
               categorySlug: category.slug,
               productType,
-              lastmod: new Date(latest.updatedAt || latest.publishedAt || now),
+              lastmod: new Date(latest.updatedAt || latest.publishedAt),
             }
           }),
         )
@@ -682,7 +682,6 @@ export async function GET() {
       return xml`
         <url>
           <loc>${base}${path}</loc>
-          <lastmod>${now.toISOString()}</lastmod>
           <changefreq>${changefreq}</changefreq>
           <priority>${priority}</priority>
         </url>
@@ -878,7 +877,7 @@ export async function GET() {
         `
       }),
     ...categories.flatMap((c: CategorySitemapEntry) => {
-      const last = c.updatedAt || now
+      const last = c.updatedAt
       const days = Math.floor(
         (now.getTime() - new Date(last).getTime()) / 86400000,
       )
@@ -906,7 +905,7 @@ export async function GET() {
     ...useCases
       .filter((useCase: (typeof useCases)[number]) => useCase.productCount > 0)
       .map((useCase: (typeof useCases)[number]) => {
-        const last = useCase.updatedAt || now
+        const last = useCase.updatedAt
         const days = Math.floor(
           (now.getTime() - new Date(last).getTime()) / 86400000,
         )

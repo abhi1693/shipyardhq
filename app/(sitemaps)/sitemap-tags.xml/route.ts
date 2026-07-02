@@ -18,8 +18,7 @@ export async function GET() {
   const { total, lastUpdated } = await getKeywordTagSitemapStats()
 
   const chunks = getSitemapShardCount(total)
-  const nowIso = new Date().toISOString()
-  const lastmod = coerceDate(lastUpdated)?.toISOString() ?? nowIso
+  const lastmod = coerceDate(lastUpdated)?.toISOString()
 
   return sitemapResponse(
     sitemapIndexXml(

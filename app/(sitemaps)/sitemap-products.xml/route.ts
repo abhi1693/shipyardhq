@@ -20,8 +20,7 @@ export async function GET() {
   ])
 
   const chunks = getSitemapShardCount(count)
-  const nowIso = new Date().toISOString()
-  const lastmod = latest?.updatedAt?.toISOString() || nowIso
+  const lastmod = latest?.updatedAt?.toISOString()
 
   return sitemapResponse(
     sitemapIndexXml(

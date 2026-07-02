@@ -49,7 +49,7 @@ export async function GET(
 
   const entries: SitemapUrlEntry[] = products.map(
     (p: ProductSitemapEntry): SitemapUrlEntry => {
-      const last = p.updatedAt || p.publishedAt || new Date()
+      const last = p.updatedAt || p.publishedAt
       const days = Math.floor(
         (Date.now() - new Date(last).getTime()) / 86400000,
       )

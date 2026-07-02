@@ -43,8 +43,10 @@ export async function GET(
   const tags = await getKeywordTagSitemapChunk(offset, SITEMAP_CHUNK_SIZE)
 
   const entries: SitemapUrlEntry[] = tags.map((tag): SitemapUrlEntry => {
-    const last = coerceDate(tag.lastUpdated) ?? new Date()
-    const days = Math.floor((Date.now() - last.getTime()) / 86400000)
+    const last = coerceDate(tag.lastUpdated)
+    const days = last
+      ? Math.floor((Date.now() - last.getTime()) / 86400000)
+      : Number.POSITIVE_INFINITY
     const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
 
     return {
