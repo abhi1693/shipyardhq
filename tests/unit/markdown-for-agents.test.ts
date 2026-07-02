@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { estimateTokens, negotiateFormat, toMarkdownPath } from "@dualmark/core"
 
 import { BRAND_NAME } from "@/lib/brand"
+import { dualmarkConfig } from "@/lib/dualmark"
+import { HOME_PATH } from "@/lib/routes"
 import { buildProductMarkdownDocument } from "@/lib/server/productMarkdownDocument"
 
 describe("markdown for agents", () => {
@@ -20,6 +22,20 @@ describe("markdown for agents", () => {
     expect(toMarkdownPath("/")).toBe("/index.md")
     expect(toMarkdownPath("/products/example")).toBe("/products/example.md")
     expect(toMarkdownPath("/products/example.md")).toBe("/products/example.md")
+  })
+
+  it("renders a substantive home index markdown document", () => {
+    const homePage = dualmarkConfig.staticPages.find(
+      (page) => page.pattern === HOME_PATH,
+    )
+    const markdown = homePage?.render()
+
+    expect(markdown).toContain("# Shipyard HQ")
+    expect(markdown).toContain("## Core Entity Facts")
+    expect(markdown).toContain("## Submission and Listing Workflow")
+    expect(markdown).toContain("## Key Directories and Retrieval Targets")
+    expect(markdown).toContain("## Example Public Pages")
+    expect(markdown).toContain("Canonical: http://localhost:3000/")
   })
 
   it("renders product markdown from product data without page chrome", () => {
