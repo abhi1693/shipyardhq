@@ -16,6 +16,15 @@ describe("public docs cache headers", () => {
     )
   })
 
+  it("labels the archive sitemap accurately in llms.txt", async () => {
+    const response = await getLlmsTxt()
+    const body = await response.text()
+
+    expect(body).toContain("Archive sitemap")
+    expect(body).toContain("sitemap-archives.xml")
+    expect(body).not.toContain("Categories sitemap")
+  })
+
   it("sets public cache headers on Dualmark markdown responses", async () => {
     const response = markdownResponse("# Shipyard\n", {
       cacheControl: PUBLIC_CONTENT_CACHE_CONTROL,

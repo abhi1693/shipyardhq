@@ -165,9 +165,10 @@ export const llmsTxtSections: LlmsTxtSection[] = [
         description: "Product pages under /products/{slug}.",
       },
       {
-        title: "Categories sitemap",
+        title: "Archive sitemap",
         href: absoluteUrl("/sitemap-archives.xml"),
-        description: "Category, platform, pricing, and archive pages.",
+        description:
+          "Category, platform, pricing, product-type, use-case, verified, and leaderboard archive pages.",
       },
       {
         title: "Alternatives sitemap",
