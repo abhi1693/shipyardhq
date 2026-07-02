@@ -4,6 +4,7 @@ import { ListFilter } from "lucide-react"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { BROWSE_PATH } from "@/lib/routes"
 import {
+  BROWSE_INITIAL_PAGE_SIZE,
   getBrowsePagePayload,
   type BrowseSort,
   type BrowsePageFilters,
@@ -149,6 +150,7 @@ export async function BrowsePageContent({
                 <BrowseProductRowsClient
                   initialHasMore={hasMore}
                   initialPage={2}
+                  pageSize={BROWSE_INITIAL_PAGE_SIZE}
                   searchParams={{
                     useCase: normalizedFilters.useCase,
                     category: normalizedFilters.category,

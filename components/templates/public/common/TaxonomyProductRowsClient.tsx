@@ -27,6 +27,7 @@ interface TaxonomyProductRowsClientProps {
   initialProducts: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
+  pageSize?: number
   referenceDateIso?: string | null
   searchParams: TaxonomyRowsSearchParams
   initialContentRendered?: boolean
@@ -46,6 +47,7 @@ export function TaxonomyProductRowsClient({
   initialProducts,
   initialHasMore,
   initialPage,
+  pageSize,
   referenceDateIso,
   searchParams,
   initialContentRendered = false,
@@ -98,6 +100,7 @@ export function TaxonomyProductRowsClient({
       const result = await getProductFeedPage({
         kind: "browse",
         page,
+        pageSize,
         ...normalizedSearch,
       })
 
@@ -115,7 +118,7 @@ export function TaxonomyProductRowsClient({
     } finally {
       setIsLoading(false)
     }
-  }, [hasMore, isLoading, normalizedSearch, page])
+  }, [hasMore, isLoading, normalizedSearch, page, pageSize])
 
   useEffect(() => {
     if (!hasMore) return

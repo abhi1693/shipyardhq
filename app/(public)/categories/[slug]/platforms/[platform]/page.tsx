@@ -25,6 +25,7 @@ import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 import {
   buildDirectoryFaq,
+  PSEO_PRODUCT_SLICE_PAGE_SIZE,
   pseoRobotsForTotal,
 } from "@/lib/pseo/product-slices"
 
@@ -172,6 +173,7 @@ async function CategoryPlatformPageContent({
     sort: parsed.sort,
     verified: parsed.verified,
     page: parsed.page,
+    pageSize: PSEO_PRODUCT_SLICE_PAGE_SIZE,
     query: parsed.query,
   })
 
@@ -309,7 +311,8 @@ async function CategoryPlatformPageContent({
           <ProductGridClient
             initialProducts={payload.products}
             initialHasMore={payload.hasMore}
-            initialPage={parsed.page}
+            initialPage={parsed.page + 1}
+            pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
             searchParams={{
               category: slug,
               platform: platformMeta.slug,

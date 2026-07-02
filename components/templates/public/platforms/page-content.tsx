@@ -9,6 +9,7 @@ import { TaxonomyProductGridFeed } from "@/components/templates/public/common/Ta
 import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
 import { getPlatformMeta } from "@/lib/platforms/config"
 import { getPlatformPagePayload } from "@/lib/platforms/page-cache"
+import { PSEO_PRODUCT_SLICE_PAGE_SIZE } from "@/lib/pseo/product-slices"
 import {
   BROWSE_PATH,
   HOME_PATH,
@@ -92,6 +93,7 @@ export async function PlatformPageContent({
           products={payload.products}
           hasMore={payload.hasMore}
           initialPage={2}
+          pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
           referenceDateIso={referenceDateIso}
           searchParams={{
             platform: platformMeta.slug,

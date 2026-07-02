@@ -27,6 +27,7 @@ export type ProductFeedPageRequest =
       pricingModel?: string
       productType?: string
       verified?: boolean
+      pageSize?: number
       minPrice?: number
       maxPrice?: number
       badge?: string
@@ -78,6 +79,7 @@ export async function getProductFeedPage(
         categorySlug: request.category,
         verified: request.verified,
         sort: isValidBrowseSort(request.sort) ? request.sort : undefined,
+        pageSize: request.pageSize,
         query: request.q,
         platform: platformEnum,
         pricingModel: pricingModelEnum,

@@ -6,6 +6,7 @@ import {
   PLATFORM_SLUGS,
   type PlatformSlug,
 } from "@/lib/platforms/config"
+import { PSEO_PRODUCT_SLICE_PAGE_SIZE } from "@/lib/pseo/product-slices"
 import { pluralize } from "@/lib/pluralize"
 
 export type PlatformPageFilters = {
@@ -69,6 +70,7 @@ export async function getPlatformPagePayload(
     sort: filters.sort,
     verified: filters.verified,
     page: filters.page,
+    pageSize: PSEO_PRODUCT_SLICE_PAGE_SIZE,
     query: filters.query,
   })
 

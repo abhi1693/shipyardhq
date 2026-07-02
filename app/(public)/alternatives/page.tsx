@@ -13,6 +13,7 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Browse SaaS Alternatives"
+const DIRECTORY_ITEM_LIST_LIMIT = 20
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -75,22 +76,24 @@ export default async function AlternativesPage() {
     description: `Comparison pages for SaaS alternatives, competitors, and replacement products on ${BRAND_NAME}.`,
     numberOfItems: alternativeCount,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: items.slice(0, 50).map((item, index) => {
-      const itemUrl = `${siteUrl}${item.href}`
+    itemListElement: items
+      .slice(0, DIRECTORY_ITEM_LIST_LIMIT)
+      .map((item, index) => {
+        const itemUrl = `${siteUrl}${item.href}`
 
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        url: itemUrl,
-        item: {
-          "@type": "CollectionPage",
-          "@id": `${itemUrl}#collection`,
-          name: `${item.title} Alternatives`,
+        return {
+          "@type": "ListItem",
+          position: index + 1,
           url: itemUrl,
-          description: item.description,
-        },
-      }
-    }),
+          item: {
+            "@type": "CollectionPage",
+            "@id": `${itemUrl}#collection`,
+            name: `${item.title} Alternatives`,
+            url: itemUrl,
+            description: item.description,
+          },
+        }
+      }),
   }
 
   return (

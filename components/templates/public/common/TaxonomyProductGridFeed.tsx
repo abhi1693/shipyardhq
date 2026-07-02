@@ -25,6 +25,7 @@ interface TaxonomyProductGridFeedProps {
   products: ProductCardBase[]
   hasMore: boolean
   initialPage: number
+  pageSize?: number
   referenceDateIso?: string | null
   searchParams: ProductGridSearchParams
   emptyTitle: string
@@ -35,6 +36,7 @@ export function TaxonomyProductGridFeed({
   products,
   hasMore,
   initialPage,
+  pageSize,
   referenceDateIso,
   searchParams,
   emptyTitle,
@@ -76,6 +78,7 @@ export function TaxonomyProductGridFeed({
               initialProducts={[]}
               initialHasMore={hasMore}
               initialPage={initialPage}
+              pageSize={pageSize}
               referenceDateIso={resolvedReferenceDateIso}
               searchParams={searchParams}
               initialContentRendered

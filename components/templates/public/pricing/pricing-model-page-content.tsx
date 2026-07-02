@@ -11,6 +11,7 @@ import {
   getPricingModelMeta,
   type PricingModelSlug,
 } from "@/lib/pricing/models"
+import { PSEO_PRODUCT_SLICE_PAGE_SIZE } from "@/lib/pseo/product-slices"
 import { getPricingModelPagePayload } from "@/lib/pricing/page-cache"
 import {
   BROWSE_PATH,
@@ -97,6 +98,7 @@ export async function PricingModelPageContent({
           products={payload.products}
           hasMore={payload.hasMore}
           initialPage={2}
+          pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
           referenceDateIso={referenceDateIso}
           searchParams={{
             pricingModel: pricingModelMeta.slug,

@@ -11,6 +11,7 @@ import {
   getProductTypeMeta,
   type ProductTypeSlug,
 } from "@/lib/product-types/models"
+import { PSEO_PRODUCT_SLICE_PAGE_SIZE } from "@/lib/pseo/product-slices"
 import { getProductTypePagePayload } from "@/lib/product-types/page-cache"
 import {
   BROWSE_PATH,
@@ -95,6 +96,7 @@ export async function ProductTypePageContent({
           products={payload.products}
           hasMore={payload.hasMore}
           initialPage={2}
+          pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
           referenceDateIso={referenceDateIso}
           searchParams={{
             productType: productTypeMeta.slug,

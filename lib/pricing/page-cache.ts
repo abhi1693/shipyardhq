@@ -1,6 +1,7 @@
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { browseSortLabelMap, type BrowseSort } from "@/lib/browse/cache"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { PSEO_PRODUCT_SLICE_PAGE_SIZE } from "@/lib/pseo/product-slices"
 import { pluralize } from "@/lib/pluralize"
 import {
   getPricingModelMeta,
@@ -67,6 +68,7 @@ export async function getPricingModelPagePayload(
     sort: filters.sort,
     verified: filters.verified,
     page: filters.page,
+    pageSize: PSEO_PRODUCT_SLICE_PAGE_SIZE,
     query: filters.query,
   })
 

@@ -14,6 +14,7 @@ import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { buildFaqStructuredData, type FaqEntryInput } from "@/lib/seo/faq"
 
 export const PSEO_MIN_INDEXABLE_PRODUCTS = 3
+export const PSEO_PRODUCT_SLICE_PAGE_SIZE = 12
 
 export type PseoSort = "new" | "trending" | "votes" | "az"
 export type PseoSearchParamValue = string | string[] | undefined
@@ -105,7 +106,7 @@ export const pseoRobotsForTotal = (total: number): Metadata["robots"] =>
 export async function getProductSlicePayload({
   filters,
   parsed,
-  pageSize = 20,
+  pageSize = PSEO_PRODUCT_SLICE_PAGE_SIZE,
 }: {
   filters: ProductSliceFilters
   parsed: ParsedPseoSearchParams

@@ -14,6 +14,7 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Browse Tags"
+const DIRECTORY_ITEM_LIST_LIMIT = 20
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -64,22 +65,24 @@ export default async function TagsIndexPage() {
     description: `Popular product tags, technologies, and launch niches indexed by ${BRAND_NAME}.`,
     numberOfItems: totalTags,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: items.slice(0, 50).map((item, index) => {
-      const itemUrl = `${siteUrl}${item.href}`
+    itemListElement: items
+      .slice(0, DIRECTORY_ITEM_LIST_LIMIT)
+      .map((item, index) => {
+        const itemUrl = `${siteUrl}${item.href}`
 
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        url: itemUrl,
-        item: {
-          "@type": "CollectionPage",
-          "@id": `${itemUrl}#collection`,
-          name: item.title,
+        return {
+          "@type": "ListItem",
+          position: index + 1,
           url: itemUrl,
-          description: item.description,
-        },
-      }
-    }),
+          item: {
+            "@type": "CollectionPage",
+            "@id": `${itemUrl}#collection`,
+            name: item.title,
+            url: itemUrl,
+            description: item.description,
+          },
+        }
+      }),
   }
 
   return (

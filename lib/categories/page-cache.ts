@@ -40,6 +40,8 @@ export type CategoryDetailPayload = {
   metrics: CategoryMetrics
 }
 
+export const CATEGORY_DETAIL_INITIAL_PAGE_SIZE = 12
+
 const formatLatestLaunchDate = (value?: string) => {
   if (!value) return null
   const createdAt = new Date(value)
@@ -126,7 +128,7 @@ export async function getCategoryDetailPayload(
   )
 
   const [categoryData, featured] = await Promise.all([
-    getCategoryWithProducts(slug),
+    getCategoryWithProducts(slug, 1, CATEGORY_DETAIL_INITIAL_PAGE_SIZE),
     getFeaturedByCategorySlug(slug, 7),
   ])
 

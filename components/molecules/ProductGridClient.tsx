@@ -13,6 +13,7 @@ interface ProductGridClientProps {
   initialProducts: BrowseProduct[]
   initialHasMore: boolean
   initialPage: number
+  pageSize?: number
   searchParams: {
     useCase?: string
     category?: string
@@ -31,6 +32,7 @@ export default function ProductGridClient({
   initialProducts,
   initialHasMore,
   initialPage,
+  pageSize,
   searchParams,
 }: ProductGridClientProps) {
   const initialItems = useMemo(
@@ -75,6 +77,7 @@ export default function ProductGridClient({
       const result = await getProductFeedPage({
         kind: "browse",
         page,
+        pageSize,
         ...normalizedSearch,
       })
 
@@ -83,7 +86,7 @@ export default function ProductGridClient({
         hasMore: result.hasMore,
       }
     },
-    [normalizedSearch],
+    [normalizedSearch, pageSize],
   )
 
   return (

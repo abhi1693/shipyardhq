@@ -25,6 +25,8 @@ export const browseSortLabelMap: Record<BrowseSort, string> = {
   az: "A–Z",
 }
 
+export const BROWSE_INITIAL_PAGE_SIZE = 12
+
 export type BrowseSort = "new" | "trending" | "votes" | "az"
 
 export type BrowsePageFilters = {
@@ -176,6 +178,7 @@ export const getBrowsePagePayload = async (
       categorySlug: filters.category,
       sort: filters.sort,
       page: filters.page,
+      pageSize: BROWSE_INITIAL_PAGE_SIZE,
       query: filters.query,
       platform: getPlatformMeta(filters.platform)?.value,
       pricingModel: pricingModelValueFromSlug(filters.pricingModel),

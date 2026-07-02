@@ -28,6 +28,8 @@ import { getPublicUseCaseProductsPage } from "@/actions/public/use-cases/actions
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 
+const USE_CASE_DETAIL_INITIAL_PAGE_SIZE = 6
+
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
 }
@@ -38,7 +40,10 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     await Promise.all([
       getUseCasePagePayload(slug),
       getTaxonomySponsorProducts(),
-      getPublicUseCaseProductsPage({ slug, pageSize: 24 }),
+      getPublicUseCaseProductsPage({
+        slug,
+        pageSize: USE_CASE_DETAIL_INITIAL_PAGE_SIZE,
+      }),
       getPriorityPlacementPlanIds(),
     ])
 

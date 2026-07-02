@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import {
   buildPseoSearchParams,
   buildDirectoryFaq,
+  PSEO_PRODUCT_SLICE_PAGE_SIZE,
   pseoSortOptions,
   type ParsedPseoSearchParams,
   type PseoSearchParams,
@@ -188,7 +189,8 @@ export function ProductSlicePage({
           <ProductGridClient
             initialProducts={products}
             initialHasMore={hasMore}
-            initialPage={parsed.page}
+            initialPage={parsed.page + 1}
+            pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
             searchParams={{
               ...searchParams,
               sort: parsed.sort,

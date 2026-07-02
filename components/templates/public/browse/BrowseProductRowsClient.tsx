@@ -24,6 +24,7 @@ type BrowseRowsSearchParams = {
 interface BrowseProductRowsClientProps {
   initialHasMore: boolean
   initialPage: number
+  pageSize: number
   searchParams: BrowseRowsSearchParams
 }
 
@@ -40,6 +41,7 @@ function renderLoadingSkeleton(count: number) {
 export function BrowseProductRowsClient({
   initialHasMore,
   initialPage,
+  pageSize,
   searchParams,
 }: BrowseProductRowsClientProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -85,6 +87,7 @@ export function BrowseProductRowsClient({
       const result = await getProductFeedPage({
         kind: "browse",
         page,
+        pageSize,
         ...normalizedSearch,
       })
 
@@ -93,7 +96,7 @@ export function BrowseProductRowsClient({
         hasMore: result.hasMore,
       }
     },
-    [normalizedSearch],
+    [normalizedSearch, pageSize],
   )
 
   useEffect(() => {
