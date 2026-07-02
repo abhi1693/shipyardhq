@@ -8,7 +8,11 @@ import {
   getPlatformStaticParams,
 } from "@/lib/platforms/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
-import { platformPath } from "@/lib/routes"
+import {
+  pseoCanonicalForTotal,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
+import { PLATFORMS_PATH, platformPath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 
 export function generateStaticParams() {
@@ -35,10 +39,17 @@ export async function generateMetadata(
         ? `Discover ${payload.total} ${platformMeta.label} ${payload.total === 1 ? "product" : "products"} launching on ${BRAND_NAME}. ${platformMeta.description}`
         : `Discover ${platformMeta.label} product launches on ${BRAND_NAME}. ${platformMeta.description}`,
     section: "Platforms",
-    canonical: platformPath(platformMeta.slug),
+    canonical: pseoCanonicalForTotal(
+      platformPath(platformMeta.slug),
+      PLATFORMS_PATH,
+      payload?.total ?? 0,
+    ),
   })
 
-  return metadata
+  return {
+    ...metadata,
+    robots: pseoRobotsForTotal(payload?.total ?? 0),
+  }
 }
 
 export default function PlatformPage(

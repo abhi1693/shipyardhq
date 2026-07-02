@@ -3,7 +3,9 @@ import { estimateTokens, negotiateFormat, toMarkdownPath } from "@dualmark/core"
 
 import { BRAND_NAME } from "@/lib/brand"
 import { dualmarkConfig } from "@/lib/dualmark"
+import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH } from "@/lib/routes"
+import { buildDirectoryMarkdownDocument } from "@/lib/server/directoryMarkdownDocument"
 import { buildProductMarkdownDocument } from "@/lib/server/productMarkdownDocument"
 
 describe("markdown for agents", () => {
@@ -36,6 +38,52 @@ describe("markdown for agents", () => {
     expect(markdown).toContain("## Key Directories and Retrieval Targets")
     expect(markdown).toContain("## Example Public Pages")
     expect(markdown).toContain("Canonical: http://localhost:3000/")
+  })
+
+  it("adds markdown alternates to canonical page metadata", () => {
+    const metadata = buildPageMetadata({
+      title: "Analytics",
+      canonical: "/categories/analytics",
+    })
+
+    expect(metadata.alternates?.canonical).toBe("/categories/analytics")
+    expect(metadata.alternates?.types?.["text/markdown"]).toBe(
+      "/categories/analytics.md",
+    )
+  })
+
+  it("renders directory markdown with facts and representative products", () => {
+    const markdown = buildDirectoryMarkdownDocument({
+      title: "Free Analytics Products",
+      canonicalPath: "/categories/analytics/pricing/free",
+      description:
+        "Free analytics products on Shipyard are filtered by category and pricing model.",
+      total: 2,
+      facts: ["Category: Analytics", "Filter: Free"],
+      products: [
+        {
+          slug: "metric-lens",
+          name: "Metric Lens",
+          tagline: "Simple product analytics dashboards",
+          category: { name: "Analytics", slug: "analytics" },
+          analytics: { upvotes: 12 },
+          isVerified: true,
+        },
+      ],
+    })
+
+    expect(markdown).toContain("# Free Analytics Products")
+    expect(markdown).toContain(
+      "Canonical: http://localhost:3000/categories/analytics/pricing/free",
+    )
+    expect(markdown).toContain(
+      "Markdown alternate: http://localhost:3000/categories/analytics/pricing/free.md",
+    )
+    expect(markdown).toContain("- Total products: 2")
+    expect(markdown).toContain(
+      "Metric Lens: http://localhost:3000/products/metric-lens",
+    )
+    expect(markdown).toContain("Verified")
   })
 
   it("renders product markdown from product data without page chrome", () => {

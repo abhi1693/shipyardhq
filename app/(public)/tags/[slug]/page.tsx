@@ -33,6 +33,7 @@ import { toProductCardItem } from "@/lib/products/card-item"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stripLegacyKeywordHash } from "@/lib/tags"
 import { tagRobotsForProductCount } from "@/lib/tags/indexing"
+import { canonicalForInventoryCount } from "@/lib/seo/indexing"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { stableUnitInterval } from "@/lib/stable-random"
 import { buildProductListItem } from "@/lib/seo/product-list"
@@ -65,7 +66,11 @@ export async function generateMetadata({
         ? `Explore ${productCount} Shipyard product ${productCount === 1 ? "launch" : "launches"} tagged with ${label}, including apps, SaaS tools, APIs, and startup projects.`
         : `Explore Shipyard product launches tagged with ${label}, including apps, SaaS tools, APIs, and startup projects.`,
     section: "Tags",
-    canonical: tagPath(summary?.slug || canonicalSlug),
+    canonical: canonicalForInventoryCount({
+      canonical: tagPath(summary?.slug || canonicalSlug),
+      parent: TAGS_PATH,
+      productCount,
+    }),
   })
 
   return {

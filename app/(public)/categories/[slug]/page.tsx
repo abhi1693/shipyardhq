@@ -6,6 +6,10 @@ import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/Tax
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
+  pseoCanonicalForTotal,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
+import {
   getCategoryDetailPayload,
   getCategoryStaticParams,
 } from "@/lib/categories/page-cache"
@@ -40,9 +44,13 @@ export async function generateMetadata(
         : fallbackDescription,
       fallbackDescription,
     ) ?? fallbackDescription
-  const canonical = categoryPath(slug)
+  const canonical = pseoCanonicalForTotal(
+    categoryPath(slug),
+    CATEGORIES_PATH,
+    productCount,
+  )
 
-  return buildPageMetadata({
+  const metadata = buildPageMetadata({
     title: category.name,
     section: "Categories",
     description,
@@ -55,6 +63,11 @@ export async function generateMetadata(
       description,
     },
   })
+
+  return {
+    ...metadata,
+    robots: pseoRobotsForTotal(productCount),
+  }
 }
 
 export default function CategoryPage(

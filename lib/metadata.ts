@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { toMarkdownPath } from "@dualmark/core"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
 const siteSeo = buildSiteSeo()
@@ -184,6 +185,20 @@ type PageMetadataOptions = {
   twitter?: Metadata["twitter"]
 }
 
+export function markdownAlternatePath(canonical?: string) {
+  const trimmed = canonical?.trim()
+  if (!trimmed) return undefined
+
+  try {
+    const path = /^https?:\/\//i.test(trimmed)
+      ? new URL(trimmed).pathname
+      : trimmed
+    return toMarkdownPath(path)
+  } catch {
+    return undefined
+  }
+}
+
 export function buildSectionMetadata(
   options: SectionMetadataOptions = {},
 ): Metadata {
@@ -288,6 +303,13 @@ export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
   if (canonical) {
     metadata.alternates = metadata.alternates || {}
     metadata.alternates.canonical = canonical
+    const markdownPath = markdownAlternatePath(canonical)
+    if (markdownPath) {
+      metadata.alternates.types = {
+        ...(metadata.alternates.types ?? {}),
+        "text/markdown": markdownPath,
+      }
+    }
   }
 
   if (pageTitle || descriptionValue || canonical || openGraph) {

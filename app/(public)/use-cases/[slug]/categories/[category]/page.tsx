@@ -8,10 +8,7 @@ import {
 } from "@/actions/public/use-cases/actions"
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
 import { buildPageMetadata } from "@/lib/metadata"
-import {
-  categoryNounPhrase,
-  lowerCategoryNounPhrase,
-} from "@/lib/seo/category-phrases"
+import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 import {
   CATEGORIES_PATH,
   HOME_PATH,
@@ -23,9 +20,11 @@ import {
 import {
   getProductSlicePayload,
   parsePseoSearchParams,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildUseCaseCategoryMatrixCopy } from "@/lib/pseo/matrix-copy"
 
 type UseCaseCategoryParams = {
   slug: string
@@ -70,9 +69,16 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((slice) => slice.total)
-  const title = `${categoryNounPhrase(category.name, "tools")} to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${total} ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()} on Shipyard.`
-  const canonical = usecaseCategoryPath(slug, categorySlug)
+  const { title, description } = buildUseCaseCategoryMatrixCopy({
+    useCaseLabel: useCase.label,
+    categoryName: category.name,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    usecaseCategoryPath(slug, categorySlug),
+    usecasePath(slug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -124,13 +130,17 @@ async function UseCaseCategoryPageContent({
   })
 
   const pagePath = usecaseCategoryPath(slug, categorySlug)
-  const title = `${categoryNounPhrase(category.name, "tools")} to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${slice.total} ${category.name.toLowerCase()} ${slice.total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()} on Shipyard.`
+  const { title, description } = buildUseCaseCategoryMatrixCopy({
+    useCaseLabel: useCase.label,
+    categoryName: category.name,
+    total: slice.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`Teams looking to ${useCase.label.toLowerCase()} often need a narrower view than a general use-case page. This slice filters the workflow by ${category.name.toLowerCase()} so buyers can compare products with the right category fit, launch freshness, and public Shipyard signals.`}
       pagePath={pagePath}
       scriptKeyPrefix={`use-case-${slug}-category-${categorySlug}`}
       breadcrumbs={[
@@ -139,6 +149,23 @@ async function UseCaseCategoryPageContent({
         { name: useCase.label, path: usecasePath(slug) },
         { name: "Categories", path: CATEGORIES_PATH },
         { name: category.name, path: categoryPath(categorySlug) },
+      ]}
+      relatedLinks={[
+        {
+          label: useCase.label,
+          href: usecasePath(slug),
+          description: `Browse every product for teams looking to ${useCase.label.toLowerCase()}.`,
+        },
+        {
+          label: category.name,
+          href: categoryPath(categorySlug),
+          description: `Browse every ${lowerCategoryNounPhrase(category.name, "tool")} in this category.`,
+        },
+        {
+          label: "Use cases",
+          href: USE_CASES_PATH,
+          description: "Explore Shipyard directories by buyer workflow.",
+        },
       ]}
       products={slice.products}
       total={slice.total}

@@ -17,6 +17,16 @@ import {
   weeklyLeaderboardPath,
 } from "@/lib/routes"
 import { keywordToSlug, legacyKeywordToSlug } from "@/lib/tags"
+import {
+  canonicalForInventoryCount,
+  MIN_INDEXABLE_PRODUCTS,
+  robotsForInventoryCount,
+} from "@/lib/seo/indexing"
+import {
+  TAG_MIN_INDEXABLE_PRODUCTS,
+  isTagIndexable,
+  tagRobotsForProductCount,
+} from "@/lib/tags/indexing"
 
 describe("toAbsoluteUrlFromSite", () => {
   it("returns undefined for empty input", () => {
@@ -131,7 +141,7 @@ describe("crawler directives", () => {
     const publicRule = Array.isArray(rules) ? rules[0] : rules
 
     expect(publicRule.disallow).toContain("/r/")
-    expect(publicRule.disallow).toContain("/_next/static/")
+    expect(publicRule.disallow).not.toContain("/_next/static/")
   })
 
   it("marks redirect and static asset endpoints as non-indexable", async () => {
@@ -217,6 +227,47 @@ describe("crawler directives", () => {
         follow: true,
       },
     })
+  })
+
+  it("only indexes pSEO and tag pages with at least five products", () => {
+    expect(MIN_INDEXABLE_PRODUCTS).toBe(5)
+    expect(TAG_MIN_INDEXABLE_PRODUCTS).toBe(5)
+
+    expect(robotsForInventoryCount(4)).toMatchObject({
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+      },
+    })
+    expect(robotsForInventoryCount(5)).toBeUndefined()
+    expect(
+      canonicalForInventoryCount({
+        canonical: "/categories/analytics/pricing/free",
+        parent: "/categories/analytics",
+        productCount: 4,
+      }),
+    ).toBe("/categories/analytics")
+    expect(
+      canonicalForInventoryCount({
+        canonical: "/categories/analytics/pricing/free",
+        parent: "/categories/analytics",
+        productCount: 5,
+      }),
+    ).toBe("/categories/analytics/pricing/free")
+
+    expect(isTagIndexable(4)).toBe(false)
+    expect(isTagIndexable(5)).toBe(true)
+    expect(tagRobotsForProductCount(4)).toMatchObject({
+      index: false,
+      follow: true,
+      googleBot: {
+        index: false,
+        follow: true,
+      },
+    })
+    expect(tagRobotsForProductCount(5)).toBeUndefined()
   })
 })
 

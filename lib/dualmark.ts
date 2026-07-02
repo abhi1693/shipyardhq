@@ -142,7 +142,7 @@ const homeMarkdownDescription = [
   `- Agent retrieval guide: ${absoluteUrl("/llms.txt")}`,
   `- Sitemap index: ${absoluteUrl("/sitemap.xml")}`,
   `- API catalog: ${absoluteUrl("/.well-known/api-catalog")}`,
-  "- Public pages support markdown negotiation through Dualmark; request markdown with an `Accept: text/markdown` header or use visible markdown twin paths such as `/index.md` and `/products/{slug}.md`.",
+  "- Public pages support markdown negotiation through Dualmark; request markdown with an `Accept: text/markdown` header or use visible markdown twin paths such as `/index.md`, `/products/{slug}.md`, `/categories/{slug}.md`, and `/categories/{slug}/pricing/{pricingModel}.md`.",
 ].join("\n")
 
 export const llmsTxtSections: LlmsTxtSection[] = [

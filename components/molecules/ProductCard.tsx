@@ -18,6 +18,10 @@ export type ProductCardBase = {
   currencyCode?: string | null
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null; slug?: string | null } | null
+  type?: string | null
+  platforms?: string[] | null
+  keywords?: string[] | null
+  alternatives?: { name: string; slug: string }[] | null
   badges?: string[] | null
   sponsored?: boolean
   isVerified?: boolean

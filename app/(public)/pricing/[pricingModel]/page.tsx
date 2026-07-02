@@ -8,7 +8,11 @@ import {
 } from "@/lib/pricing/page-cache"
 import { getPricingModelMeta } from "@/lib/pricing/models"
 import { buildPageMetadata } from "@/lib/metadata"
-import { pricingModelPath } from "@/lib/routes"
+import {
+  pseoCanonicalForTotal,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
+import { PRICING_PATH, pricingModelPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
 
 export function generateStaticParams() {
@@ -36,10 +40,17 @@ export async function generateMetadata(
     title: `${meta.label} pricing products`,
     description,
     section: "Pricing",
-    canonical: pricingModelPath(meta.slug),
+    canonical: pseoCanonicalForTotal(
+      pricingModelPath(meta.slug),
+      PRICING_PATH,
+      payload?.total ?? 0,
+    ),
   })
 
-  return metadata
+  return {
+    ...metadata,
+    robots: pseoRobotsForTotal(payload?.total ?? 0),
+  }
 }
 
 export default function PricingModelPage(

@@ -21,9 +21,11 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   platformValueFromMaybe,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildUseCasePlatformMatrixCopy } from "@/lib/pseo/matrix-copy"
 
 type UseCasePlatformParams = {
   slug: string
@@ -61,9 +63,16 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `${platformMeta.label} tools to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${total} ${platformMeta.label} ${total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()}.`
-  const canonical = usecasePlatformPath(slug, platformMeta.slug)
+  const { title, description } = buildUseCasePlatformMatrixCopy({
+    useCaseLabel: useCase.label,
+    platformLabel: platformMeta.label,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    usecasePlatformPath(slug, platformMeta.slug),
+    usecasePath(slug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -113,13 +122,17 @@ async function UseCasePlatformPageContent({
   })
 
   const pagePath = usecasePlatformPath(slug, platformMeta.slug)
-  const title = `${platformMeta.label} tools to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${payload.total} ${platformMeta.label} ${payload.total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()}.`
+  const { title, description } = buildUseCasePlatformMatrixCopy({
+    useCaseLabel: useCase.label,
+    platformLabel: platformMeta.label,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`This use-case platform slice focuses on products that help teams ${useCase.label.toLowerCase()} while fitting ${platformMeta.label} workflows. Use it to compare platform compatibility, launch recency, verification, and public traction without leaving the use-case context.`}
       pagePath={pagePath}
       scriptKeyPrefix={`use-case-${slug}-platform-${platformMeta.slug}`}
       breadcrumbs={[
@@ -128,6 +141,23 @@ async function UseCasePlatformPageContent({
         { name: useCase.label, path: usecasePath(slug) },
         { name: "Platforms", path: PLATFORMS_PATH },
         { name: platformMeta.label, path: platformPath(platformMeta.slug) },
+      ]}
+      relatedLinks={[
+        {
+          label: useCase.label,
+          href: usecasePath(slug),
+          description: `Browse every product for teams looking to ${useCase.label.toLowerCase()}.`,
+        },
+        {
+          label: `${platformMeta.label} products`,
+          href: platformPath(platformMeta.slug),
+          description: `Compare all Shipyard products that support ${platformMeta.label}.`,
+        },
+        {
+          label: "Platforms",
+          href: PLATFORMS_PATH,
+          description: "Browse product directories by supported platform.",
+        },
       ]}
       products={payload.products}
       total={payload.total}

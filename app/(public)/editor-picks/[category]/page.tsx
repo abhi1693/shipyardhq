@@ -15,9 +15,11 @@ import {
 import {
   getProductSlicePayload,
   parsePseoSearchParams,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildEditorPickCategoryMatrixCopy } from "@/lib/pseo/matrix-copy"
 import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
 type EditorPickCategoryParams = {
@@ -48,9 +50,15 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `Editor's picks for ${category.name}`
-  const description = `Browse ${total} editor-picked ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} curated on Shipyard.`
-  const canonical = editorPickCategoryPath(categorySlug)
+  const { title, description } = buildEditorPickCategoryMatrixCopy({
+    categoryName: category.name,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    editorPickCategoryPath(categorySlug),
+    categoryPath(categorySlug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -98,13 +106,16 @@ async function EditorPickCategoryPageContent({
   })
 
   const pagePath = editorPickCategoryPath(categorySlug)
-  const title = `Editor's picks for ${category.name}`
-  const description = `Browse ${payload.total} editor-picked ${category.name.toLowerCase()} ${payload.total === 1 ? "product" : "products"} curated on Shipyard.`
+  const { title, description } = buildEditorPickCategoryMatrixCopy({
+    categoryName: category.name,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`Editor's picks for ${category.name.toLowerCase()} highlight products with stronger curation signals than the default category feed. This slice is useful when buyers want a shorter research list before checking product fit, pricing, verification, and launch activity.`}
       pagePath={pagePath}
       scriptKeyPrefix={`editor-picks-category-${categorySlug}`}
       breadcrumbs={[
@@ -112,6 +123,18 @@ async function EditorPickCategoryPageContent({
         { name: "Categories", path: CATEGORIES_PATH },
         { name: category.name, path: categoryPath(categorySlug) },
         { name: "Editor's Picks", path: pagePath },
+      ]}
+      relatedLinks={[
+        {
+          label: category.name,
+          href: categoryPath(categorySlug),
+          description: `Browse every ${lowerCategoryNounPhrase(category.name, "tool")} in this category.`,
+        },
+        {
+          label: "Categories",
+          href: CATEGORIES_PATH,
+          description: "Explore all Shipyard category directories.",
+        },
       ]}
       products={payload.products}
       total={payload.total}

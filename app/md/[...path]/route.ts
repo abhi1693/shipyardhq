@@ -3,6 +3,7 @@ import { createDualmarkRouteHandler } from "@dualmark/nextjs"
 import type { NextRequest } from "next/server"
 
 import { dualmarkConfig, dualmarkExtraHeaders } from "@/lib/dualmark"
+import { renderDirectoryMarkdownForPath } from "@/lib/server/directoryMarkdown"
 import { renderProductMarkdownForPath } from "@/lib/server/productMarkdown"
 
 type MarkdownPathContext = {
@@ -49,11 +50,27 @@ async function productMarkdownResponse(path: string) {
   })
 }
 
+async function directoryMarkdownResponse(path: string) {
+  const body = await renderDirectoryMarkdownForPath(path)
+  if (!body) return null
+
+  return markdownResponse(body, {
+    cacheControl: dualmarkConfig.headers.cacheControl,
+    noindex: dualmarkConfig.headers.noindex,
+    extraHeaders: dualmarkExtraHeaders,
+  })
+}
+
 export async function GET(req: NextRequest, context: MarkdownPathContext) {
   const path = await getPath(context)
   const productResponse = await productMarkdownResponse(path)
   if (productResponse) {
     return productResponse
+  }
+
+  const directoryResponse = await directoryMarkdownResponse(path)
+  if (directoryResponse) {
+    return directoryResponse
   }
 
   return handler.GET(req, {

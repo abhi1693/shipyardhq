@@ -9,8 +9,10 @@ import { buildPageMetadata } from "@/lib/metadata"
 import {
   CATEGORIES_PATH,
   HOME_PATH,
+  PRODUCT_TYPES_PATH,
   categoryPath,
   categoryProductTypePath,
+  productTypePath,
 } from "@/lib/routes"
 import {
   PRODUCT_TYPE_SLUGS,
@@ -20,9 +22,11 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   productTypeValueFromMaybe,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildCategoryProductTypeMatrixCopy } from "@/lib/pseo/matrix-copy"
 import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
 type CategoryProductTypeParams = {
@@ -59,9 +63,17 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `${category.name} ${productTypeMeta.label} products`
-  const description = `Browse ${total} ${category.name.toLowerCase()} ${productTypeMeta.label.toLowerCase()} ${total === 1 ? "product" : "products"} curated on Shipyard. ${productTypeMeta.description}`
-  const canonical = categoryProductTypePath(slug, productTypeMeta.slug)
+  const { title, description } = buildCategoryProductTypeMatrixCopy({
+    category,
+    productTypeLabel: productTypeMeta.label,
+    productTypeDescription: productTypeMeta.description,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    categoryProductTypePath(slug, productTypeMeta.slug),
+    categoryPath(slug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -116,13 +128,18 @@ async function CategoryProductTypePageContent({
   })
 
   const pagePath = categoryProductTypePath(slug, productTypeMeta.slug)
-  const title = `${category.name} ${productTypeMeta.label} products`
-  const description = `Browse ${payload.total} ${category.name.toLowerCase()} ${productTypeMeta.label.toLowerCase()} ${payload.total === 1 ? "product" : "products"} curated on Shipyard.`
+  const { title, description } = buildCategoryProductTypeMatrixCopy({
+    category,
+    productTypeLabel: productTypeMeta.label,
+    productTypeDescription: productTypeMeta.description,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`${productTypeMeta.label} products in ${category.name.toLowerCase()} solve different buyer jobs than broader category lists: this slice focuses on format, delivery model, and category fit so teams can compare ${lowerCategoryNounPhrase(category.name, "tools")} that match the way they plan to adopt software.`}
       pagePath={pagePath}
       scriptKeyPrefix={`category-${slug}-product-type-${productTypeMeta.slug}`}
       breadcrumbs={[
@@ -130,6 +147,24 @@ async function CategoryProductTypePageContent({
         { name: "Categories", path: CATEGORIES_PATH },
         { name: category.name, path: categoryPath(slug) },
         { name: productTypeMeta.label, path: pagePath },
+      ]}
+      relatedLinks={[
+        {
+          label: category.name,
+          href: categoryPath(slug),
+          description: `Browse every ${lowerCategoryNounPhrase(category.name, "tool")} in this category.`,
+        },
+        {
+          label: `${productTypeMeta.label} products`,
+          href: productTypePath(productTypeMeta.slug),
+          description: `Compare all ${productTypeMeta.label.toLowerCase()} launches on Shipyard.`,
+        },
+        {
+          label: "Product types",
+          href: PRODUCT_TYPES_PATH,
+          description:
+            "Browse directories by software format and product type.",
+        },
       ]}
       products={payload.products}
       total={payload.total}

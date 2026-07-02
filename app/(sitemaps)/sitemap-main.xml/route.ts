@@ -51,7 +51,16 @@ import { PSEO_MIN_INDEXABLE_PRODUCTS } from "@/lib/pseo/product-slices"
 import { sitemapResponse } from "@/lib/sitemap"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
-  select: { id: true; slug: true; updatedAt: true }
+  select: {
+    id: true
+    slug: true
+    updatedAt: true
+    _count: {
+      select: {
+        productAssignments: true
+      }
+    }
+  }
 }>
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
@@ -89,21 +98,38 @@ export async function GET() {
     productTypeSlices,
   ] = await Promise.all([
     prisma.category.findMany({
-      select: { id: true, slug: true, updatedAt: true },
+      select: {
+        id: true,
+        slug: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            productAssignments: {
+              where: {
+                product: buildPublicDiscoveryProductWhere(),
+              },
+            },
+          },
+        },
+      },
       orderBy: { updatedAt: "desc" },
     }),
     getPublicUseCasesWithCounts(),
     Promise.all(
       PLATFORM_SLUGS.map(async (slug) => {
-        const latest = await prisma.product.findFirst({
-          where: buildPublicDiscoveryProductWhere({
-            platforms: { has: platformValueFromSlug(slug) },
-          }),
-          select: { updatedAt: true, publishedAt: true },
-          orderBy: { updatedAt: "desc" },
+        const where = buildPublicDiscoveryProductWhere({
+          platforms: { has: platformValueFromSlug(slug) },
         })
+        const [count, latest] = await Promise.all([
+          prisma.product.count({ where }),
+          prisma.product.findFirst({
+            where,
+            select: { updatedAt: true, publishedAt: true },
+            orderBy: { updatedAt: "desc" },
+          }),
+        ])
 
-        if (!latest) return null
+        if (!latest || count < PSEO_MIN_INDEXABLE_PRODUCTS) return null
         return {
           slug,
           lastmod: new Date(latest.updatedAt || latest.publishedAt),
@@ -115,15 +141,19 @@ export async function GET() {
         const meta = getPricingModelMeta(slug)
         if (!meta) return null
 
-        const latest = await prisma.product.findFirst({
-          where: buildPublicDiscoveryProductWhere({
-            pricingModel: meta.value,
-          }),
-          select: { updatedAt: true, publishedAt: true },
-          orderBy: { updatedAt: "desc" },
+        const where = buildPublicDiscoveryProductWhere({
+          pricingModel: meta.value,
         })
+        const [count, latest] = await Promise.all([
+          prisma.product.count({ where }),
+          prisma.product.findFirst({
+            where,
+            select: { updatedAt: true, publishedAt: true },
+            orderBy: { updatedAt: "desc" },
+          }),
+        ])
 
-        if (!latest) return null
+        if (!latest || count < PSEO_MIN_INDEXABLE_PRODUCTS) return null
 
         return {
           slug,
@@ -158,10 +188,15 @@ export async function GET() {
     lastmod: Date
   }
 
+  const indexableCategories = categories.filter(
+    (category) =>
+      category._count.productAssignments >= PSEO_MIN_INDEXABLE_PRODUCTS,
+  )
+
   type CategorySummary = (typeof categories)[number]
   const categoryPlatformSlices = (
     await Promise.all(
-      categories.map(async (category: CategorySummary) => {
+      indexableCategories.map(async (category: CategorySummary) => {
         const perPlatform = await Promise.all(
           PLATFORM_SLUGS.map(async (platformSlug) => {
             const platformValue = platformValueFromSlug(platformSlug)
@@ -203,7 +238,7 @@ export async function GET() {
 
   const categoryPricingSlices = (
     await Promise.all(
-      categories.map(async (category: CategorySummary) => {
+      indexableCategories.map(async (category: CategorySummary) => {
         const perPricing = await Promise.all(
           PRICING_MODEL_SLUGS.map(async (pricingModel) => {
             const meta = getPricingModelMeta(pricingModel)
@@ -246,7 +281,7 @@ export async function GET() {
 
   const categoryProductTypeSlices = (
     await Promise.all(
-      categories.map(async (category: CategorySummary) => {
+      indexableCategories.map(async (category: CategorySummary) => {
         const perType = await Promise.all(
           PRODUCT_TYPE_SLUGS.map(async (productType) => {
             const meta = getProductTypeMeta(productType)
@@ -537,7 +572,7 @@ export async function GET() {
 
   const curatedCategorySlices = (
     await Promise.all(
-      categories.map(async (category: CategorySummary) => {
+      indexableCategories.map(async (category: CategorySummary) => {
         const categoryWhere = {
           OR: [
             { categoryId: category.id },
@@ -876,7 +911,7 @@ export async function GET() {
           </url>
         `
       }),
-    ...categories.flatMap((c: CategorySitemapEntry) => {
+    ...indexableCategories.flatMap((c: CategorySitemapEntry) => {
       const last = c.updatedAt
       const days = Math.floor(
         (now.getTime() - new Date(last).getTime()) / 86400000,

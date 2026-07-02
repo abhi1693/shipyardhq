@@ -555,13 +555,26 @@ export async function POST(request: Request) {
 
   const descriptionInstruction =
     parsed.data.descriptionGuidance?.trim() ||
-    "- Rewrite the description as a launch-ready overview using Markdown (bold, italics, bullet lists allowed, but never heading syntax like '#'). In this order, include: Product Overview (one-line elevator pitch plus brief plain-language summary and problem statement), Key Features (3–7 concise bullets highlighting differentiators or tiered plans if available), Target Audience / Use Cases (who it's for and typical workflows), and Benefits / Value Proposition (tangible outcomes and any proof points)."
+    "- Rewrite the description as a launch-ready, SEO-ready overview using Markdown (bold, italics, bullet lists allowed, but never heading syntax like '#'). Open with a 40-60 word standalone answer that says what the product is, who it serves, and the primary outcome. Then include: Key Features (3-6 concise bullets with source-backed differentiators), Target Audience / Use Cases (who it is for and workflows), Pricing / Platform Notes (only facts supported by the source), and Benefits / Value Proposition (tangible outcomes and proof points when present)."
+
+  const seoGuidelines = [
+    "- Optimize imported data for Shipyard product pages, category pages, tag pages, alternatives pages, and AI answer extraction.",
+    "- Make every text field unique to this product. Do not reuse generic phrases like 'launch-ready tools', 'all-in-one platform', 'powerful solution', or 'streamline your workflow' unless the source explicitly says them.",
+    "- Tagline: 45-90 characters, plain text, no hype punctuation, and include the product's concrete category or primary use case when supported.",
+    "- Description: write clear, extractable paragraphs and bullets. The first paragraph must stand alone as a concise definition suitable for search snippets and AI citations.",
+    "- Keywords: return 4-6 lowercase noun phrases, 1-3 words each, no hashtags, no brand-only keyword, no duplicates, no broad terms like 'software', 'tool', 'app', 'startup', 'productivity' unless paired with a specific modifier.",
+    "- Category selection must favor the closest buyer directory fit over vague similarity. If known categories are provided, use exact names only.",
+    "- Platform, product type, pricing model, alternatives, and keywords must match the product's public claims so pSEO slices are accurate after import.",
+    "- Prefer concrete entities, integrations, platforms, workflows, and buyer jobs that can power internal links and tag pages.",
+    "- Do not keyword-stuff. Natural language, factual specificity, and taxonomy accuracy are more important than repetition.",
+  ].join("\n")
 
   const guidelines = [
     descriptionInstruction,
     "- Always populate 'name' with the product brand or title and 'tagline' with a short, memorable elevator pitch derived from the supplied content.",
     "- Base all narrative details on the supplied meta descriptions, pricing context, primary copy snippet, and truncated website text.",
-    "- Always include a keywords array with 3 to 6 concise, lowercase SEO keywords directly supported by the source content.",
+    seoGuidelines,
+    "- Always include a keywords array with 4 to 6 concise, lowercase SEO keywords directly supported by the source content.",
     "- When known categories are provided, return 'categoryNames' with 1 to 3 exact category names from that list, ordered from most to least relevant. Also set 'categoryName' to the first selected category for backward compatibility.",
     "- If pricing page context is provided, reference the actual plan names, price points, and differentiators; if pricing data is missing, explicitly note that pricing details are unavailable and do not guess.",
     "- When alternative options are provided, return 'alternativeIds' with the single best match (or up to 3 if clearly relevant), using ids from the provided list. Prefer the closest brand/domain match. Only return an empty array if absolutely no option matches. Never invent or guess ids outside the provided options.",
@@ -574,12 +587,12 @@ export async function POST(request: Request) {
     const response = await openai.responses.create({
       model: "gpt-4.1-mini",
       temperature: 0.2,
-      max_output_tokens: 600,
+      max_output_tokens: 900,
       input: [
         {
           role: "system",
           content:
-            "You are a product marketing assistant. Only output valid minified JSON with no markdown or commentary.",
+            "You are a product marketing and SEO data extraction assistant for Shipyard HQ. Optimize product import fields for factual product pages, internal directory placement, pSEO slices, and AI search extraction. Only output valid minified JSON with no markdown or commentary.",
         },
         {
           role: "user",

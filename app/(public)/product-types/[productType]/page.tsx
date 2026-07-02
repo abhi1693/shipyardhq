@@ -8,7 +8,11 @@ import {
 } from "@/lib/product-types/page-cache"
 import { getProductTypeMeta } from "@/lib/product-types/models"
 import { buildPageMetadata } from "@/lib/metadata"
-import { productTypePath } from "@/lib/routes"
+import { PRODUCT_TYPES_PATH, productTypePath } from "@/lib/routes"
+import {
+  pseoCanonicalForTotal,
+  pseoRobotsForTotal,
+} from "@/lib/pseo/product-slices"
 import { pluralize } from "@/lib/pluralize"
 import { BRAND_NAME } from "@/lib/brand"
 
@@ -37,10 +41,17 @@ export async function generateMetadata(
     title: `${meta.label} products and launches`,
     description,
     section: "Products",
-    canonical: productTypePath(meta.slug),
+    canonical: pseoCanonicalForTotal(
+      productTypePath(meta.slug),
+      PRODUCT_TYPES_PATH,
+      payload?.total ?? 0,
+    ),
   })
 
-  return metadata
+  return {
+    ...metadata,
+    robots: pseoRobotsForTotal(payload?.total ?? 0),
+  }
 }
 
 export default function ProductTypePage(

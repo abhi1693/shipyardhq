@@ -6,10 +6,7 @@ import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
-import {
-  categoryNounPhrase,
-  lowerCategoryNounPhrase,
-} from "@/lib/seo/category-phrases"
+import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 import {
   CATEGORIES_PATH,
   HOME_PATH,
@@ -19,10 +16,11 @@ import {
 import {
   getProductSlicePayload,
   parsePseoSearchParams,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
-import { pluralize } from "@/lib/pluralize"
+import { buildVerifiedCategoryMatrixCopy } from "@/lib/pseo/matrix-copy"
 
 type VerifiedCategoryParams = {
   category: string
@@ -31,13 +29,6 @@ type VerifiedCategoryParams = {
 export async function generateStaticParams() {
   const categories = await getCategoryStaticParams()
   return categories.map((category) => ({ category: category.slug }))
-}
-
-function buildVerifiedCategoryDescription(categoryName: string, total: number) {
-  return `Browse ${total} verified ${categoryName.toLowerCase()} ${pluralize(
-    total,
-    "product",
-  )} on Shipyard, with trusted launch profiles, backlinks, and discovery-ready pages for builders comparing software.`
 }
 
 export async function generateMetadata({
@@ -57,9 +48,15 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: true },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `Verified ${categoryNounPhrase(category.name, "tools")}`
-  const description = buildVerifiedCategoryDescription(category.name, total)
-  const canonical = verifiedCategoryPath(categorySlug)
+  const { title, description } = buildVerifiedCategoryMatrixCopy({
+    categoryName: category.name,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    verifiedCategoryPath(categorySlug),
+    categoryPath(categorySlug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -107,16 +104,16 @@ async function VerifiedCategoryPageContent({
   })
 
   const pagePath = verifiedCategoryPath(categorySlug)
-  const title = `Verified ${categoryNounPhrase(category.name, "tools")}`
-  const description = buildVerifiedCategoryDescription(
-    category.name,
-    payload.total,
-  )
+  const { title, description } = buildVerifiedCategoryMatrixCopy({
+    categoryName: category.name,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`Verified ${lowerCategoryNounPhrase(category.name, "tools")} are products where Shipyard has a stronger maker or profile signal than a basic listing. Use this slice when trust markers, active launch pages, and clean public product metadata matter as much as category fit.`}
       pagePath={pagePath}
       scriptKeyPrefix={`verified-category-${categorySlug}`}
       breadcrumbs={[
@@ -124,6 +121,18 @@ async function VerifiedCategoryPageContent({
         { name: "Categories", path: CATEGORIES_PATH },
         { name: category.name, path: categoryPath(categorySlug) },
         { name: "Verified", path: pagePath },
+      ]}
+      relatedLinks={[
+        {
+          label: category.name,
+          href: categoryPath(categorySlug),
+          description: `Browse every ${lowerCategoryNounPhrase(category.name, "tool")} in this category.`,
+        },
+        {
+          label: "Categories",
+          href: CATEGORIES_PATH,
+          description: "Explore all Shipyard category directories.",
+        },
       ]}
       products={payload.products}
       total={payload.total}

@@ -1,6 +1,24 @@
 import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
 import { validateSingleEmail } from "@/lib/emailValidation"
 
+const MAX_TAGLINE_LENGTH = 110
+const MAX_DESCRIPTION_LENGTH = 2400
+const MAX_KEYWORDS = 6
+const GENERIC_KEYWORDS = new Set([
+  "app",
+  "apps",
+  "platform",
+  "product",
+  "products",
+  "productivity",
+  "saas",
+  "software",
+  "solution",
+  "startup",
+  "tool",
+  "tools",
+])
+
 export type ProductAutofillModelOutput = {
   name?: string | null
   tagline?: string | null
@@ -121,6 +139,39 @@ function normalizeString(value?: string | null) {
   return trimmed.length ? trimmed : undefined
 }
 
+function truncateAtBoundary(value: string, maxLength: number) {
+  const trimmed = value.trim()
+  if (trimmed.length <= maxLength) return trimmed
+  const truncated = trimmed.slice(0, maxLength)
+  const boundary = Math.max(
+    truncated.lastIndexOf(". "),
+    truncated.lastIndexOf("! "),
+    truncated.lastIndexOf("? "),
+    truncated.lastIndexOf("\n"),
+    truncated.lastIndexOf(" "),
+  )
+  const candidate =
+    boundary > Math.floor(maxLength * 0.65)
+      ? truncated.slice(0, boundary).trim()
+      : truncated.trim()
+  return candidate.replace(/[,\-:;]+$/, "").trim()
+}
+
+function normalizeTagline(value?: string | null) {
+  const str = normalizeString(value)
+  if (!str) return undefined
+  return truncateAtBoundary(str.replace(/\s+/g, " "), MAX_TAGLINE_LENGTH)
+}
+
+function normalizeDescription(value?: string | null) {
+  const str = normalizeString(value)
+  if (!str) return undefined
+  const withoutH1 = str
+    .replace(/(^|\n)\s*#(?!#)\s*/g, "$1## ")
+    .replace(/\n{3,}/g, "\n\n")
+  return truncateAtBoundary(withoutH1, MAX_DESCRIPTION_LENGTH)
+}
+
 function sanitizeUrl(value?: string | null) {
   const str = normalizeString(value)
   if (!str) return undefined
@@ -197,10 +248,20 @@ function normalizeKeywords(values?: string[] | null) {
   for (const raw of values) {
     const str = normalizeString(raw)
     if (!str) continue
-    const normalized = str.replace(/[\s]{2,}/g, " ")
-    if (!seen.has(normalized.toLowerCase())) {
-      seen.add(normalized.toLowerCase())
+    const normalized = str
+      .toLowerCase()
+      .replace(/^#+/, "")
+      .replace(/[^\p{L}\p{N}\s+./-]/gu, "")
+      .replace(/[\s]{2,}/g, " ")
+      .trim()
+    if (!normalized) continue
+    if (GENERIC_KEYWORDS.has(normalized)) continue
+    const wordCount = normalized.split(/\s+/).filter(Boolean).length
+    if (wordCount > 4 || normalized.length > 48) continue
+    if (!seen.has(normalized)) {
+      seen.add(normalized)
       keywords.push(normalized)
+      if (keywords.length === MAX_KEYWORDS) break
     }
   }
   return keywords.length ? keywords : undefined
@@ -248,10 +309,10 @@ export function normalizeProductAutofill(
   const name = normalizeString(raw.name)
   if (name) suggestion.name = name
 
-  const tagline = normalizeString(raw.tagline)
+  const tagline = normalizeTagline(raw.tagline)
   if (tagline) suggestion.tagline = tagline
 
-  const description = normalizeString(raw.description)
+  const description = normalizeDescription(raw.description)
   if (description) suggestion.description = description
 
   const logo = sanitizeUrl(raw.logoUrl)

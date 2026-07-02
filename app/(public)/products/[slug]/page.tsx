@@ -43,12 +43,20 @@ import {
 import {
   BROWSE_PATH,
   HOME_PATH,
+  alternativeCategoryPath,
   alternativePath,
+  categoryPlatformPath,
   categoryPath,
+  categoryPricingPath,
+  categoryProductTypePath,
   platformPath,
   pricingModelPath,
   productPath,
   productTypePath,
+  tagPath,
+  usecaseCategoryPath,
+  usecasePlatformPath,
+  usecasePricingPath,
   userPath,
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
@@ -631,6 +639,109 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       label: formattedLabel || keyword,
     }
   })
+  const relatedDirectoryLinks = (() => {
+    const links: {
+      label: string
+      href: string
+      description: string
+    }[] = []
+
+    const addLink = (link: {
+      label: string
+      href?: string | null
+      description: string
+    }) => {
+      if (!link.href || links.some((item) => item.href === link.href)) return
+      links.push({
+        label: link.label,
+        href: link.href,
+        description: link.description,
+      })
+    }
+
+    if (primaryCategorySlug && categoryLabel) {
+      addLink({
+        label: `${categoryLabel} products`,
+        href: categoryPath(primaryCategorySlug),
+        description: `Browse every ${categoryLabel.toLowerCase()} launch on Shipyard.`,
+      })
+
+      if (pricingModelSlug && pricingModelLabel) {
+        addLink({
+          label: `${categoryLabel} with ${pricingModelLabel} pricing`,
+          href: categoryPricingPath(primaryCategorySlug, pricingModelSlug),
+          description: "Compare products in this category by pricing model.",
+        })
+      }
+
+      if (productTypeMeta && productTypeLabel) {
+        addLink({
+          label: `${categoryLabel} ${productTypeLabel}`,
+          href: categoryProductTypePath(
+            primaryCategorySlug,
+            productTypeMeta.slug,
+          ),
+          description: "Compare products in this category by product type.",
+        })
+      }
+
+      for (const platform of platformValues.slice(0, 3)) {
+        const platformMeta = getPlatformMetaByValue(platform)
+        if (!platformMeta) continue
+        addLink({
+          label: `${categoryLabel} for ${platformMeta.label}`,
+          href: categoryPlatformPath(primaryCategorySlug, platformMeta.slug),
+          description: "Compare products in this category by platform support.",
+        })
+      }
+
+      for (const alternative of sidebarProduct.alternatives.slice(0, 2)) {
+        addLink({
+          label: `${alternative.name} alternatives in ${categoryLabel}`,
+          href: alternativeCategoryPath(alternative.slug, primaryCategorySlug),
+          description: `Compare ${categoryLabel.toLowerCase()} products positioned around ${alternative.name}.`,
+        })
+      }
+    }
+
+    if (primaryUseCaseSlug) {
+      if (primaryCategorySlug && categoryLabel) {
+        addLink({
+          label: `${categoryLabel} for this use case`,
+          href: usecaseCategoryPath(primaryUseCaseSlug, primaryCategorySlug),
+          description: "Browse this use case narrowed by category.",
+        })
+      }
+
+      if (pricingModelSlug && pricingModelLabel) {
+        addLink({
+          label: `${pricingModelLabel} tools for this use case`,
+          href: usecasePricingPath(primaryUseCaseSlug, pricingModelSlug),
+          description: "Browse this use case narrowed by pricing model.",
+        })
+      }
+
+      for (const platform of platformValues.slice(0, 2)) {
+        const platformMeta = getPlatformMetaByValue(platform)
+        if (!platformMeta) continue
+        addLink({
+          label: `${platformMeta.label} tools for this use case`,
+          href: usecasePlatformPath(primaryUseCaseSlug, platformMeta.slug),
+          description: "Browse this use case narrowed by supported platform.",
+        })
+      }
+    }
+
+    for (const tag of keywordTagItems.slice(0, 4)) {
+      addLink({
+        label: `#${tag.label}`,
+        href: tagPath(tag.slug),
+        description: `Browse products tagged with ${tag.label}.`,
+      })
+    }
+
+    return links.slice(0, 10)
+  })()
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
     : null
@@ -841,6 +952,25 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </div>
         ) : null}
+        {relatedDirectoryLinks.length ? (
+          <div className="border-t border-border pt-4">
+            <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Related directories
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {relatedDirectoryLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  title={link.description}
+                  className="rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-semibold text-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
       <div className="border-t border-border pt-4">
         <span className="mb-3 block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1003,7 +1133,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   {keywordTagItems.map((tag) => (
                     <Link
                       key={tag.slug}
-                      href={`/tags/${tag.slug}`}
+                      href={tagPath(tag.slug)}
                       className="rounded-sm border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-medium uppercase text-muted-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
                     >
                       #{tag.label}

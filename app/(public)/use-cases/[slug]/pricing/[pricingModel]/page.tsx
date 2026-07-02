@@ -21,9 +21,11 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   pricingValueFromMaybe,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildUseCasePricingMatrixCopy } from "@/lib/pseo/matrix-copy"
 
 type UseCasePricingParams = {
   slug: string
@@ -61,9 +63,16 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `${pricing.label} tools to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${total} ${pricing.label.toLowerCase()} ${total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()}.`
-  const canonical = usecasePricingPath(slug, pricing.slug)
+  const { title, description } = buildUseCasePricingMatrixCopy({
+    useCaseLabel: useCase.label,
+    pricingLabel: pricing.label,
+    total,
+  })
+  const canonical = pseoCanonicalForTotal(
+    usecasePricingPath(slug, pricing.slug),
+    usecasePath(slug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -113,13 +122,17 @@ async function UseCasePricingPageContent({
   })
 
   const pagePath = usecasePricingPath(slug, pricing.slug)
-  const title = `${pricing.label} tools to ${useCase.label.toLowerCase()}`
-  const description = `Browse ${payload.total} ${pricing.label.toLowerCase()} ${payload.total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()}.`
+  const { title, description } = buildUseCasePricingMatrixCopy({
+    useCaseLabel: useCase.label,
+    pricingLabel: pricing.label,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`This use-case pricing slice narrows products that help teams ${useCase.label.toLowerCase()} by ${pricing.label.toLowerCase()} pricing. It is useful when budget model is a first-pass filter before comparing launch freshness, verification, category fit, and public Shipyard discovery signals.`}
       pagePath={pagePath}
       scriptKeyPrefix={`use-case-${slug}-pricing-${pricing.slug}`}
       breadcrumbs={[
@@ -128,6 +141,23 @@ async function UseCasePricingPageContent({
         { name: useCase.label, path: usecasePath(slug) },
         { name: "Pricing", path: PRICING_PATH },
         { name: pricing.label, path: pricingModelPath(pricing.slug) },
+      ]}
+      relatedLinks={[
+        {
+          label: useCase.label,
+          href: usecasePath(slug),
+          description: `Browse every product for teams looking to ${useCase.label.toLowerCase()}.`,
+        },
+        {
+          label: `${pricing.label} pricing`,
+          href: pricingModelPath(pricing.slug),
+          description: `Compare all Shipyard products with ${pricing.label.toLowerCase()} pricing.`,
+        },
+        {
+          label: "Pricing models",
+          href: PRICING_PATH,
+          description: "Browse product directories by pricing model.",
+        },
       ]}
       products={payload.products}
       total={payload.total}

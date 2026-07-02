@@ -3,6 +3,11 @@ import type { Metadata } from "next"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import {
+  MIN_INDEXABLE_PRODUCTS,
+  canonicalForInventoryCount,
+  robotsForInventoryCount,
+} from "@/lib/seo/indexing"
 import type {
   Platform,
   PricingModel,
@@ -13,7 +18,7 @@ import { pricingModelValueFromSlug } from "@/lib/pricing/models"
 import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { buildFaqStructuredData, type FaqEntryInput } from "@/lib/seo/faq"
 
-export const PSEO_MIN_INDEXABLE_PRODUCTS = 3
+export const PSEO_MIN_INDEXABLE_PRODUCTS = MIN_INDEXABLE_PRODUCTS
 export const PSEO_PRODUCT_SLICE_PAGE_SIZE = 12
 
 export type PseoSort = "new" | "trending" | "votes" | "az"
@@ -92,16 +97,18 @@ export const buildPseoSearchParams = (params: PseoSearchParams) => {
 }
 
 export const pseoRobotsForTotal = (total: number): Metadata["robots"] =>
-  total >= PSEO_MIN_INDEXABLE_PRODUCTS
-    ? undefined
-    : {
-        index: false,
-        follow: true,
-        googleBot: {
-          index: false,
-          follow: true,
-        },
-      }
+  robotsForInventoryCount(total)
+
+export const pseoCanonicalForTotal = (
+  canonical: string,
+  parent: string,
+  total: number,
+) =>
+  canonicalForInventoryCount({
+    canonical,
+    parent,
+    productCount: total,
+  })
 
 export async function getProductSlicePayload({
   filters,

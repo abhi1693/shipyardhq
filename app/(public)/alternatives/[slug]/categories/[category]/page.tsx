@@ -19,9 +19,11 @@ import {
 import {
   getProductSlicePayload,
   parsePseoSearchParams,
+  pseoCanonicalForTotal,
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { buildAlternativeCategoryMatrixCopy } from "@/lib/pseo/matrix-copy"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
@@ -73,9 +75,17 @@ export async function generateMetadata({
   }).then((payload) => payload.total)
   await connection()
   const currentYear = new Date().getFullYear()
-  const title = `${category.name} alternatives to ${alternative.name}`
-  const description = `Compare ${total} ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} positioned as ${alternative.name} alternatives and competitors in ${currentYear}.`
-  const canonical = alternativeCategoryPath(slug, categorySlug)
+  const { title, description } = buildAlternativeCategoryMatrixCopy({
+    alternativeName: alternative.name,
+    categoryName: category.name,
+    total,
+    currentYear,
+  })
+  const canonical = pseoCanonicalForTotal(
+    alternativeCategoryPath(slug, categorySlug),
+    alternativePath(slug),
+    total,
+  )
 
   return {
     ...buildPageMetadata({
@@ -131,13 +141,17 @@ async function AlternativeCategoryPageContent({
   })
 
   const pagePath = alternativeCategoryPath(slug, categorySlug)
-  const title = `${category.name} alternatives to ${alternative.name}`
-  const description = `Compare ${payload.total} ${category.name.toLowerCase()} ${payload.total === 1 ? "product" : "products"} positioned as ${alternative.name} alternatives and competitors.`
+  const { title, description } = buildAlternativeCategoryMatrixCopy({
+    alternativeName: alternative.name,
+    categoryName: category.name,
+    total: payload.total,
+  })
 
   return (
     <ProductSlicePage
       title={title}
       description={description}
+      intro={`This alternatives slice compares ${category.name.toLowerCase()} products positioned around ${alternative.name}. It keeps the category constraint visible so buyers can separate true functional substitutes from broader competitors and then sort by freshness, traction, or name.`}
       pagePath={pagePath}
       scriptKeyPrefix={`alternative-${slug}-category-${categorySlug}`}
       breadcrumbs={[
@@ -146,6 +160,23 @@ async function AlternativeCategoryPageContent({
         { name: alternative.name, path: alternativePath(slug) },
         { name: "Categories", path: CATEGORIES_PATH },
         { name: category.name, path: categoryPath(categorySlug) },
+      ]}
+      relatedLinks={[
+        {
+          label: `${alternative.name} alternatives`,
+          href: alternativePath(slug),
+          description: `Compare every product positioned as an alternative to ${alternative.name}.`,
+        },
+        {
+          label: category.name,
+          href: categoryPath(categorySlug),
+          description: `Browse every ${lowerCategoryNounPhrase(category.name, "tool")} in this category.`,
+        },
+        {
+          label: "Alternatives",
+          href: ALTERNATIVES_PATH,
+          description: "Explore competitor and alternative directories.",
+        },
       ]}
       products={payload.products}
       total={payload.total}
