@@ -13,6 +13,23 @@ export type ProductOffer = {
   priceCurrency?: string
 }
 
+export type ProductFact = {
+  name: string
+  value: string | number | boolean
+}
+
+export type ProductRelatedEntity = {
+  name: string
+  url?: string
+  image?: string
+}
+
+export type ProductCreator = {
+  type?: "Person" | "Organization"
+  name: string
+  url?: string
+}
+
 export type ProductStructuredData = {
   "@context": "https://schema.org"
   "@type": "Product"
@@ -21,6 +38,32 @@ export type ProductStructuredData = {
   description?: string
   url: string
   image?: string | string[]
+  category?: string
+  keywords?: string
+  releaseDate?: string
+  datePublished?: string
+  dateModified?: string
+  creator?: {
+    "@type": "Person" | "Organization"
+    name: string
+    url?: string
+  }
+  manufacturer?: {
+    "@type": "Person" | "Organization"
+    name: string
+    url?: string
+  }
+  isSimilarTo?: Array<{
+    "@type": "Product" | "Thing"
+    name: string
+    url?: string
+    image?: string
+  }>
+  additionalProperty?: Array<{
+    "@type": "PropertyValue"
+    name: string
+    value: string | number | boolean
+  }>
   aggregateRating?: {
     "@type": "AggregateRating"
     ratingValue?: string
@@ -42,6 +85,15 @@ export type BuildProductStructuredDataOptions = {
   name?: string
   description?: string
   image?: string | string[]
+  category?: string
+  keywords?: string[]
+  releaseDate?: string
+  datePublished?: string
+  dateModified?: string
+  creator?: ProductCreator
+  manufacturer?: ProductCreator
+  isSimilarTo?: ProductRelatedEntity[]
+  additionalProperty?: ProductFact[]
   aggregateRating?: ProductAggregateRating
   offers?: ProductOffer
 }
@@ -122,6 +174,79 @@ const normalizeOffer = (
   }
 }
 
+const normalizeKeywordList = (keywords?: string[]) => {
+  const cleaned = Array.from(
+    new Set(
+      (keywords ?? [])
+        .map((keyword) => keyword?.trim())
+        .filter((keyword): keyword is string => Boolean(keyword?.length)),
+    ),
+  )
+  return cleaned.length ? cleaned.join(", ") : undefined
+}
+
+const normalizeCreator = (
+  siteUrl: string,
+  creator?: ProductCreator,
+): ProductStructuredData["creator"] => {
+  if (!creator) return undefined
+  const name = creator.name.trim()
+  if (!name) return undefined
+  const url = creator?.url
+    ? toAbsoluteUrlFromSite(creator.url, siteUrl)
+    : undefined
+  return {
+    "@type": creator.type ?? "Person",
+    name,
+    ...(url ? { url } : {}),
+  }
+}
+
+const normalizeRelatedEntities = (
+  siteUrl: string,
+  entities?: ProductRelatedEntity[],
+): ProductStructuredData["isSimilarTo"] => {
+  const normalized = (entities ?? [])
+    .map((entity) => {
+      const name = entity.name?.trim()
+      if (!name) return null
+      const url = entity.url ? toAbsoluteUrlFromSite(entity.url, siteUrl) : null
+      const image = entity.image
+        ? toAbsoluteUrlFromSite(entity.image, siteUrl)
+        : null
+      return {
+        "@type": "Product" as const,
+        name,
+        ...(url ? { url } : {}),
+        ...(image ? { image } : {}),
+      }
+    })
+    .filter((entity): entity is NonNullable<typeof entity> => Boolean(entity))
+
+  return normalized.length ? normalized : undefined
+}
+
+const normalizeAdditionalProperties = (
+  facts?: ProductFact[],
+): ProductStructuredData["additionalProperty"] => {
+  const normalized = (facts ?? [])
+    .map((fact) => {
+      const name = fact.name?.trim()
+      if (!name) return null
+      const value =
+        typeof fact.value === "string" ? fact.value.trim() : fact.value
+      if (value === "") return null
+      return {
+        "@type": "PropertyValue" as const,
+        name,
+        value,
+      }
+    })
+    .filter((fact): fact is NonNullable<typeof fact> => Boolean(fact))
+
+  return normalized.length ? normalized : undefined
+}
+
 export function buildProductStructuredData(
   options: BuildProductStructuredDataOptions = {},
 ): ProductStructuredData {
@@ -135,6 +260,17 @@ export function buildProductStructuredData(
   const name = options.name?.trim() || siteConfig.name
   const description = options.description?.trim() || siteConfig.description
   const image = normalizeMedia(options.image, siteUrl)
+  const category = options.category?.trim()
+  const keywords = normalizeKeywordList(options.keywords)
+  const releaseDate = options.releaseDate?.trim()
+  const datePublished = options.datePublished?.trim()
+  const dateModified = options.dateModified?.trim()
+  const creator = normalizeCreator(siteUrl, options.creator)
+  const manufacturer = normalizeCreator(siteUrl, options.manufacturer)
+  const isSimilarTo = normalizeRelatedEntities(siteUrl, options.isSimilarTo)
+  const additionalProperty = normalizeAdditionalProperties(
+    options.additionalProperty,
+  )
   const aggregateRating = normalizeAggregateRating(options.aggregateRating)
   const offers = normalizeOffer(options.offers)
 
@@ -146,6 +282,15 @@ export function buildProductStructuredData(
     name,
     description,
     image,
+    category,
+    keywords,
+    releaseDate,
+    datePublished,
+    dateModified,
+    creator,
+    manufacturer,
+    isSimilarTo,
+    additionalProperty,
     aggregateRating,
     offers,
   }

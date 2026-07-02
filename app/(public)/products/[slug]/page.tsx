@@ -475,11 +475,94 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .join("")
         .slice(0, 2)
     : "SP"
+  const makerName = ownerDisplayName || ownerName || null
+  const categoryLabel = product.category?.name?.trim() ?? null
+  const platformFactLabels = Array.from(
+    new Set(
+      platformValues
+        .map((platform) => {
+          const value = String(platform)
+          return getPlatformMetaByValue(value)?.label ?? formatLabel(value)
+        })
+        .filter(Boolean),
+    ),
+  )
+  const productKeywords = Array.from(
+    new Set<string>(
+      (product.keywords ?? [])
+        .map((keyword: string | null) => keyword?.trim())
+        .filter((keyword: string | undefined | null): keyword is string =>
+          Boolean(keyword),
+        ),
+    ),
+  )
+  const productAlternatives = (sidebarProduct.alternatives ?? []).map(
+    (alternative) => ({
+      name: alternative.name,
+      url: alternativePath(alternative.slug),
+      image: alternative.logoUrl,
+    }),
+  )
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,
     name: product.name,
     description: productMetaDescription,
     image: product.logo ?? undefined,
+    category: categoryLabel ?? undefined,
+    keywords: productKeywords,
+    releaseDate: schemaPublishedDateIso,
+    datePublished: schemaPublishedDateIso,
+    dateModified: updatedDateIso,
+    creator: makerName
+      ? {
+          type: "Person",
+          name: makerName,
+          ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
+        }
+      : undefined,
+    manufacturer: makerName
+      ? {
+          type: "Person",
+          name: makerName,
+          ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
+        }
+      : undefined,
+    isSimilarTo: productAlternatives,
+    additionalProperty: [
+      ...(makerName ? [{ name: "Maker", value: makerName }] : []),
+      ...(categoryLabel ? [{ name: "Category", value: categoryLabel }] : []),
+      ...(pricingModelLabel
+        ? [{ name: "Pricing model", value: pricingModelLabel }]
+        : []),
+      ...(platformFactLabels.length
+        ? [
+            {
+              name: "Supported platforms",
+              value: platformFactLabels.join(", "),
+            },
+          ]
+        : []),
+      ...(schemaPublishedDateIso
+        ? [{ name: "Launch date", value: schemaPublishedDateIso }]
+        : []),
+      {
+        name: "Verified status",
+        value: isVerified ? "Verified" : "Not verified",
+      },
+      ...(productAlternatives.length
+        ? [
+            {
+              name: "Alternatives",
+              value: productAlternatives
+                .map((alternative) => alternative.name)
+                .join(", "),
+            },
+          ]
+        : []),
+      ...(productKeywords.length
+        ? [{ name: "Tags", value: productKeywords.join(", ") }]
+        : []),
+    ],
     offers: offer,
   })
 
@@ -498,7 +581,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? new Date(publishedSource).toISOString()
     : null
   const shareUrl = new URL(canonicalPath, siteConfig.url).toString()
-  const categoryLabel = product.category?.name ?? null
   const startingPrice =
     typeof sidebarProduct?.startingPriceCents === "number"
       ? formatCurrency(
@@ -541,15 +623,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const activeBadgeDefs = ((sidebarProduct?.badges ?? []) as string[])
     .map((badgeKey) => BADGE_LOOKUP[badgeKey])
     .filter(Boolean)
-  const keywordTagItems = Array.from(
-    new Set<string>(
-      (product.keywords ?? [])
-        .map((keyword: string | null) => keyword?.trim())
-        .filter((keyword: string | undefined | null): keyword is string =>
-          Boolean(keyword),
-        ),
-    ),
-  ).map((keyword: string) => {
+  const keywordTagItems = productKeywords.map((keyword: string) => {
     const slugValue = keywordToSlug(keyword)
     const formattedLabel = formatTagLabel(keyword)
     return {
