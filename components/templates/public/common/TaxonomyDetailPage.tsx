@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { type ReactNode } from "react"
 
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
@@ -138,6 +139,26 @@ export function TaxonomyDetailPage({
 
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-8">
+          <AnswerBlocks
+            blocks={[
+              {
+                title: "What this page lists",
+                body: `This page lists Shipyard product launches and directory entries related to ${title}. Each item links to a public product or filtered directory page with launch metadata.`,
+              },
+              {
+                title: "Who it is for",
+                body: `This page is for founders, operators, buyers, and researchers comparing ${title} products, alternatives, categories, and launch activity on Shipyard.`,
+              },
+              {
+                title: "How ordering works",
+                body: "Product feeds emphasize published launch metadata, recent activity, public discovery signals, and eligible promoted placements. Leaderboard-oriented pages use ranking signals such as votes, launch activity, and archive period.",
+              },
+              {
+                title: "Freshness policy",
+                body: "Shipyard directory pages revalidate frequently and update when products are published, edited, verified, promoted, tagged, ranked, or mapped to categories and alternatives.",
+              },
+            ]}
+          />
           <section data-testid={feedTestId}>{feed}</section>
           {afterFeed}
         </div>

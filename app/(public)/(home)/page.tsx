@@ -22,6 +22,7 @@ import {
   HomepageUpvoteButton,
   HomepageVoteStateProvider,
 } from "@/components/templates/public/homepage/homepage-client"
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -281,6 +282,28 @@ export default function HomePage() {
       />
 
       <HomepageHeroWithBuilderSummary />
+      <section className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6">
+        <AnswerBlocks
+          blocks={[
+            {
+              title: "What this page lists",
+              body: `${BRAND_NAME} highlights current product launches, the launch of the day, public discovery stats, and recent products from the Shipyard launch directory.`,
+            },
+            {
+              title: "Who it is for",
+              body: "The homepage is for builders launching products, buyers browsing new software, and researchers looking for active apps, SaaS tools, APIs, AI products, and startup projects.",
+            },
+            {
+              title: "How rankings work",
+              body: "Homepage highlights use public Shipyard launch signals such as votes, ranking context, launch activity, sponsored eligibility, and recent product metadata.",
+            },
+            {
+              title: "Freshness policy",
+              body: "Homepage launch data revalidates frequently and updates as products are published, voted on, promoted, ranked, or refreshed in the public launch feed.",
+            },
+          ]}
+        />
+      </section>
       <HomepageDataSections />
     </div>
   )
@@ -597,7 +620,9 @@ function HomepageTrustSections() {
                 asChild
                 className="h-11 rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white hover:bg-black/90"
               >
-                <Link href={PRICING_PLANS_PATH}>Compare visibility options</Link>
+                <Link href={PRICING_PLANS_PATH}>
+                  Compare visibility options
+                </Link>
               </Button>
               <Button
                 asChild

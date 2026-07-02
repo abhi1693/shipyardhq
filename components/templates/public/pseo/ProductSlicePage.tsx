@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { buildQuery } from "@/lib/urlParams"
@@ -185,6 +186,27 @@ export function ProductSlicePage({
               )}
             </div>
           </div>
+
+          <AnswerBlocks
+            blocks={[
+              {
+                title: "What this page lists",
+                body: `${title} lists ${total} ${pluralize(total, "product")} matching this Shipyard directory slice. The results reflect the selected filters, sort order, and available public product metadata.`,
+              },
+              {
+                title: "Who it is for",
+                body: `This page is for founders, buyers, operators, and researchers comparing ${faqQualifier} by category, use case, pricing model, platform, verification, badges, or alternatives.`,
+              },
+              {
+                title: "How rankings work",
+                body: "Default ordering favors recent eligible launches, while trending and vote-based sorting use public Shipyard discovery signals. Sponsored or priority placements may receive eligible visibility treatment.",
+              },
+              {
+                title: "Freshness policy",
+                body: "This directory slice revalidates frequently and updates when products launch, change metadata, receive badges, become verified, or match new filter relationships.",
+              },
+            ]}
+          />
 
           <ProductGridClient
             initialProducts={products}

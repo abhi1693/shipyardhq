@@ -6,6 +6,7 @@ import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   CATEGORIES_PATH,
@@ -310,6 +311,27 @@ async function CategoryPricingPageContent({
               )}
             </div>
           </div>
+
+          <AnswerBlocks
+            blocks={[
+              {
+                title: "What this page lists",
+                body: `${pageTitle} lists ${resultCount} ${pluralize(resultCount, "product")} in ${category.name} with ${pricingModelMeta.label.toLowerCase()} pricing metadata. Results use public Shipyard product listings and the current filter state.`,
+              },
+              {
+                title: "Who it is for",
+                body: `This page is for founders, operators, buyers, and researchers comparing ${pricingModelMeta.label.toLowerCase()} ${lowerCategoryNounPhrase(category.name, "tools")} on Shipyard.`,
+              },
+              {
+                title: "How rankings work",
+                body: "Default ordering favors recent eligible launches. Trending and vote-based sorts use public Shipyard discovery signals, and eligible promoted placements may receive additional visibility.",
+              },
+              {
+                title: "Freshness policy",
+                body: "This directory slice revalidates frequently and updates when products launch, change pricing metadata, receive badges, become verified, or change category assignments.",
+              },
+            ]}
+          />
 
           <ProductGridClient
             initialProducts={payload.products}

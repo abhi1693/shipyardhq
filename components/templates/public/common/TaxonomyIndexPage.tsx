@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { BarChart3, ChevronRight, Hash, TrendingUp } from "lucide-react"
 
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { cn } from "@/lib/utils"
 
 export type TaxonomyIndexItem = {
@@ -317,6 +318,27 @@ export function TaxonomyIndexPage({
 
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-6 md:px-6 lg:grid-cols-12">
         <div className="space-y-8 lg:col-span-8">
+          <AnswerBlocks
+            blocks={[
+              {
+                title: "What this page lists",
+                body: `${title} lists ${formatCount(totalItems ?? items.length)} Shipyard directory entries and maps them to ${formatCount(totalProductCount)} product relationships where available.`,
+              },
+              {
+                title: "Who it is for",
+                body: "This directory is for founders, buyers, operators, and researchers who want to narrow Shipyard products by a shared category, tag, use case, platform, pricing model, or comparison theme.",
+              },
+              {
+                title: "How ordering works",
+                body: "Directory cards are ordered by mapped product volume and current discovery signals. Trending sections highlight the strongest recent directory activity from the available Shipyard dataset.",
+              },
+              {
+                title: "Freshness policy",
+                body: "This index updates as products are published, edited, tagged, verified, promoted, or remapped to directory entities. Cached public pages revalidate frequently.",
+              },
+            ]}
+          />
+
           {topItems.length > 0 ? (
             <section>
               <div className="mb-3 flex items-center justify-between gap-4">

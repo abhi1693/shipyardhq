@@ -18,6 +18,7 @@ import { BrowseRisingStars } from "@/components/templates/public/browse/BrowseRi
 import { BrowseDiscoveryFilters } from "@/components/templates/public/browse/BrowseDiscoveryFilters"
 import { BrowseProductRows } from "@/components/templates/public/browse/BrowseProductRows"
 import { BrowseProductRowsClient } from "@/components/templates/public/browse/BrowseProductRowsClient"
+import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 
 type StrOrArr = string | string[] | undefined
 
@@ -110,6 +111,27 @@ export async function BrowsePageContent({
 
       <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-10 px-4 py-12 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-12">
+          <AnswerBlocks
+            blocks={[
+              {
+                title: "What this page lists",
+                body: "Browse lists public Shipyard product launches across apps, SaaS tools, APIs, AI products, developer tools, and startup projects. Results can be filtered by use case, category, platform, pricing model, product type, badge, and search query.",
+              },
+              {
+                title: "Who it is for",
+                body: "Browse is for founders researching adjacent products, buyers comparing new software, operators looking for tools, and makers checking where their launch appears in the Shipyard directory.",
+              },
+              {
+                title: "How rankings work",
+                body: "The default view emphasizes newer eligible launches. Sort options can switch discovery to trending, vote-based, or alphabetical ordering using public Shipyard product and launch signals.",
+              },
+              {
+                title: "Freshness policy",
+                body: "Browse revalidates frequently and updates as products are published, edited, voted on, tagged, verified, promoted, or assigned to categories and use cases.",
+              },
+            ]}
+          />
+
           <BrowseRisingStars products={products} />
 
           <section>
