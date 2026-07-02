@@ -554,61 +554,69 @@ async function HomepageDataSections() {
 
 function HomepageTrustSections() {
   return (
-    <div className="space-y-10">
-      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-        <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
-            Why this exists
-          </span>
-          <h3 className="mt-3 text-2xl font-bold leading-8 tracking-tight text-black">
-            Most makers do not need another quiet listing page.
-          </h3>
-          <p className="mt-4 text-sm leading-6 text-[#43474c]">
-            We built {BRAND_NAME} for the messy part after you ship: getting
-            enough useful attention to know what is working. The feed, votes,
-            clicks, rankings, and analytics are here to help a launch turn into
-            a clearer next move.
-          </p>
-          <p className="mt-4 text-sm leading-6 text-[#43474c]">
-            Start free. If a launch is ready for more visibility, paid plans add
-            reach around the same surfaces builders are already using.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <section className="overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm">
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="p-6 sm:p-8 lg:p-10">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+              Why this exists
+            </span>
+            <h3 className="mt-3 max-w-xl text-2xl font-bold leading-8 tracking-tight text-black sm:text-3xl sm:leading-10">
+              Most makers do not need another quiet listing page.
+            </h3>
+            <div className="mt-5 max-w-xl space-y-4 text-sm leading-6 text-[#43474c]">
+              <p>
+                We built {BRAND_NAME} for the messy part after you ship: getting
+                enough useful attention to know what is working. The feed,
+                votes, clicks, rankings, and analytics are here to help a launch
+                turn into a clearer next move.
+              </p>
+              <p>
+                Start free. If a launch is ready for more visibility, paid plans
+                add reach around the same surfaces builders are already using.
+              </p>
+            </div>
+          </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          {HOMEPAGE_VALUE_POINTS.map((point) => {
-            const Icon = point.icon
+          <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] p-6 sm:p-8 lg:border-l lg:border-t-0">
+            <div className="divide-y divide-[#D7DEE8]">
+              {HOMEPAGE_VALUE_POINTS.map((point) => {
+                const Icon = point.icon
 
-            return (
-              <article
-                key={point.title}
-                className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
-              >
-                <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#0051d5]">
-                  <Icon className="size-5" aria-hidden />
-                </div>
-                <h4 className="text-sm font-bold leading-5 text-black">
-                  {point.title}
-                </h4>
-                <p className="mt-2 text-xs leading-5 text-[#43474c]">
-                  {point.body}
-                </p>
-              </article>
-            )
-          })}
+                return (
+                  <article
+                    key={point.title}
+                    className="flex gap-4 py-5 first:pt-0 last:pb-0"
+                  >
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#0051d5] shadow-sm ring-1 ring-[#E2E8F0]">
+                      <Icon className="size-5" aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold leading-5 text-black">
+                        {point.title}
+                      </h4>
+                      <p className="mt-1.5 text-sm leading-6 text-[#43474c]">
+                        {point.body}
+                      </p>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="rounded-xl border border-[#D7DEE8] bg-[#F1F5F9] p-6 shadow-sm">
-        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#166534]">
+      <section className="overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="bg-[#061D31] p-6 text-white sm:p-8 lg:p-10">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9FE6B8]">
               Visibility options
             </span>
-            <h3 className="mt-3 text-2xl font-bold leading-8 tracking-tight text-black">
+            <h3 className="mt-3 max-w-lg text-2xl font-bold leading-8 tracking-tight sm:text-3xl sm:leading-10">
               Upgrade when extra reach has a job to do.
             </h3>
-            <p className="mt-3 text-sm leading-6 text-[#43474c]">
+            <p className="mt-4 max-w-lg text-sm leading-6 text-[#D0E4FF]">
               Paid plans should feel like launch acceleration, not a toll booth:
               use them when you want a longer visibility window, stronger
               placement, or deeper analytics for a product that is ready.
@@ -616,7 +624,7 @@ function HomepageTrustSections() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button
                 asChild
-                className="h-11 rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white hover:bg-black/90"
+                className="h-11 rounded-lg border-0 bg-white px-5 text-sm font-semibold text-[#061D31] hover:bg-[#F8FAFC]"
               >
                 <Link href={PRICING_PLANS_PATH}>
                   Compare visibility options
@@ -624,7 +632,7 @@ function HomepageTrustSections() {
               </Button>
               <Button
                 asChild
-                className="h-11 rounded-lg border border-[#c4c6cd] bg-white px-5 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC]"
+                className="h-11 rounded-lg border border-white/20 bg-transparent px-5 text-sm font-semibold text-white shadow-none hover:bg-white/10"
               >
                 <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
                   Submit first
@@ -633,20 +641,17 @@ function HomepageTrustSections() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid divide-y divide-[#E2E8F0] md:grid-cols-3 md:divide-x md:divide-y-0">
             {HOMEPAGE_VISIBILITY_OPTIONS.map((option) => {
               const Icon = option.icon
 
               return (
-                <article
-                  key={option.title}
-                  className="rounded-xl border border-[#D7DEE8] bg-white p-5"
-                >
-                  <Icon className="mb-4 size-5 text-[#0b1c30]" aria-hidden />
+                <article key={option.title} className="p-6 sm:p-8">
+                  <Icon className="mb-5 size-5 text-[#0051d5]" aria-hidden />
                   <h4 className="text-sm font-bold leading-5 text-black">
                     {option.title}
                   </h4>
-                  <p className="mt-2 text-xs leading-5 text-[#43474c]">
+                  <p className="mt-2 text-sm leading-6 text-[#43474c]">
                     {option.body}
                   </p>
                 </article>
