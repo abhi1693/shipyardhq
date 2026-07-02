@@ -69,15 +69,15 @@ model Product {
 }
 
 model ProductKeyword {
-  productId         String
-  keyword           String
-  canonical         String
-  hash              String
-  slug              String
-  productStatus     ProductStatus
-  productUpdatedAt  DateTime
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  productId        String
+  keyword          String
+  canonical        String
+  hash             String
+  slug             String
+  productStatus    ProductStatus
+  productUpdatedAt DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -810,6 +810,7 @@ model Plan {
 model PlanFeature {
   id          String   @id @default(cuid())
   name        String
+  displayName String?
   key         String   @unique
   description String
   createdAt   DateTime @default(now())

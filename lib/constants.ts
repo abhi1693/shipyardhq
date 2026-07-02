@@ -81,9 +81,12 @@ export const BADGE_OPTIONS = [
   },
 ]
 
+export const AI_SEARCH_READY_PLAN_FEATURE_KEY = "product.aiSearchReady"
+
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
   "product.sitemap",
+  AI_SEARCH_READY_PLAN_FEATURE_KEY,
   "featured",
   "priorityPlacement",
   "sponsoredProducts",

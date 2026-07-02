@@ -12,37 +12,51 @@ const FEATURES = [
   {
     key: "analytics.basic",
     name: "Basic Analytics",
+    displayName: "Basic launch analytics",
     description: "Shows basic view count",
   },
   {
     key: "product.sitemap",
     name: "Product Sitemap Submission",
+    displayName: "Indexed discovery page",
     description:
       "We submit your listing to Google and Bing for faster indexing.",
   },
   {
+    key: "product.aiSearchReady",
+    name: "AI Search Readiness",
+    displayName: "AI-search ready profile",
+    description:
+      "Structured product facts, markdown retrieval, schema, sitemap inclusion, and crawler-readable metadata.",
+  },
+  {
     key: "analytics.advanced",
     name: "Advanced Analytics",
+    displayName: "Advanced traffic insights",
     description: "Unlocks advanced traffic dashboards",
   },
   {
     key: "featured",
     name: "Featured Badge",
+    displayName: "Featured launch badge",
     description: "Product marked as featured",
   },
   {
     key: "priorityPlacement",
     name: "Priority Placement",
+    displayName: "Higher placement while boost is active",
     description: "Listed higher in results",
   },
   {
     key: "sponsoredProducts",
     name: "Sponsored Placement",
+    displayName: "Promoted in launch surfaces",
     description: "Reserve a sponsored slot across Shipyard",
   },
   {
     key: "partnerSpotlight",
     name: "Partner Spotlight",
+    displayName: "Partner spotlight placement",
     description: "Partner spotlight visibility",
   },
 ]
@@ -56,8 +70,17 @@ export async function seedPlanFeatures(prisma: PrismaClient) {
     const action = exists ? ("update" as const) : ("create" as const)
     await prisma.planFeature.upsert({
       where: { key: f.key },
-      update: { name: f.name, description: f.description },
-      create: { key: f.key, name: f.name, description: f.description },
+      update: {
+        name: f.name,
+        displayName: f.displayName,
+        description: f.description,
+      },
+      create: {
+        key: f.key,
+        name: f.name,
+        displayName: f.displayName,
+        description: f.description,
+      },
     })
     rows.push({ key: f.key, action })
   }

@@ -4475,6 +4475,7 @@ export type PlanScalarFieldEnum = (typeof PlanScalarFieldEnum)[keyof typeof Plan
 export const PlanFeatureScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  displayName: 'displayName',
   key: 'key',
   description: 'description',
   createdAt: 'createdAt',

@@ -37,6 +37,7 @@ type PlanWithAssignments = Prisma.PlanGetPayload<{
 const planFeatureSelect = {
   id: true,
   name: true,
+  displayName: true,
   key: true,
   description: true,
 } satisfies Prisma.PlanFeatureSelect
@@ -76,6 +77,7 @@ async function getPublicPlansCached(type?: PlanType) {
       return {
         id: f.id,
         name: f.name,
+        displayName: f.displayName,
         key: f.key,
         description: f.description,
         enabled: a ? a.enabled : false,

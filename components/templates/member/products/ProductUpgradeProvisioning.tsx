@@ -125,7 +125,7 @@ function isPaidPlan(plan?: PublicPlan | null) {
 function enabledPlanFeatures(plan: PublicPlan, fallback: string[]) {
   const enabledFeatures = plan.features
     .filter((feature) => feature.enabled)
-    .map((feature) => feature.name)
+    .map((feature) => feature.displayName || feature.name)
     .slice(0, 4)
 
   return enabledFeatures.length ? enabledFeatures : fallback

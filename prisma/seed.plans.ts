@@ -54,6 +54,7 @@ const PLANS: PlanSeed[] = [
     features: [
       { key: "analytics.basic" },
       { key: "product.sitemap" },
+      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
@@ -75,6 +76,7 @@ const PLANS: PlanSeed[] = [
     features: [
       { key: "analytics.basic" },
       { key: "product.sitemap" },
+      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
@@ -93,6 +95,7 @@ const PLANS: PlanSeed[] = [
       { key: "analytics.basic" },
       { key: "analytics.advanced" },
       { key: "product.sitemap" },
+      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
@@ -116,6 +119,7 @@ const PLANS: PlanSeed[] = [
       { key: "analytics.basic" },
       { key: "analytics.advanced" },
       { key: "product.sitemap" },
+      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },

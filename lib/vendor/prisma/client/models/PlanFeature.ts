@@ -27,6 +27,7 @@ export type AggregatePlanFeature = {
 export type PlanFeatureMinAggregateOutputType = {
   id: string | null
   name: string | null
+  displayName: string | null
   key: string | null
   description: string | null
   createdAt: Date | null
@@ -36,6 +37,7 @@ export type PlanFeatureMinAggregateOutputType = {
 export type PlanFeatureMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  displayName: string | null
   key: string | null
   description: string | null
   createdAt: Date | null
@@ -45,6 +47,7 @@ export type PlanFeatureMaxAggregateOutputType = {
 export type PlanFeatureCountAggregateOutputType = {
   id: number
   name: number
+  displayName: number
   key: number
   description: number
   createdAt: number
@@ -56,6 +59,7 @@ export type PlanFeatureCountAggregateOutputType = {
 export type PlanFeatureMinAggregateInputType = {
   id?: true
   name?: true
+  displayName?: true
   key?: true
   description?: true
   createdAt?: true
@@ -65,6 +69,7 @@ export type PlanFeatureMinAggregateInputType = {
 export type PlanFeatureMaxAggregateInputType = {
   id?: true
   name?: true
+  displayName?: true
   key?: true
   description?: true
   createdAt?: true
@@ -74,6 +79,7 @@ export type PlanFeatureMaxAggregateInputType = {
 export type PlanFeatureCountAggregateInputType = {
   id?: true
   name?: true
+  displayName?: true
   key?: true
   description?: true
   createdAt?: true
@@ -156,6 +162,7 @@ export type PlanFeatureGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type PlanFeatureGroupByOutputType = {
   id: string
   name: string
+  displayName: string | null
   key: string
   description: string
   createdAt: Date
@@ -186,6 +193,7 @@ export type PlanFeatureWhereInput = {
   NOT?: Prisma.PlanFeatureWhereInput | Prisma.PlanFeatureWhereInput[]
   id?: Prisma.StringFilter<"PlanFeature"> | string
   name?: Prisma.StringFilter<"PlanFeature"> | string
+  displayName?: Prisma.StringNullableFilter<"PlanFeature"> | string | null
   key?: Prisma.StringFilter<"PlanFeature"> | string
   description?: Prisma.StringFilter<"PlanFeature"> | string
   createdAt?: Prisma.DateTimeFilter<"PlanFeature"> | Date | string
@@ -197,6 +205,7 @@ export type PlanFeatureWhereInput = {
 export type PlanFeatureOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -212,6 +221,7 @@ export type PlanFeatureWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PlanFeatureWhereInput[]
   NOT?: Prisma.PlanFeatureWhereInput | Prisma.PlanFeatureWhereInput[]
   name?: Prisma.StringFilter<"PlanFeature"> | string
+  displayName?: Prisma.StringNullableFilter<"PlanFeature"> | string | null
   description?: Prisma.StringFilter<"PlanFeature"> | string
   createdAt?: Prisma.DateTimeFilter<"PlanFeature"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PlanFeature"> | Date | string
@@ -222,6 +232,7 @@ export type PlanFeatureWhereUniqueInput = Prisma.AtLeast<{
 export type PlanFeatureOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -237,6 +248,7 @@ export type PlanFeatureScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PlanFeatureScalarWhereWithAggregatesInput | Prisma.PlanFeatureScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PlanFeature"> | string
   name?: Prisma.StringWithAggregatesFilter<"PlanFeature"> | string
+  displayName?: Prisma.StringNullableWithAggregatesFilter<"PlanFeature"> | string | null
   key?: Prisma.StringWithAggregatesFilter<"PlanFeature"> | string
   description?: Prisma.StringWithAggregatesFilter<"PlanFeature"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PlanFeature"> | Date | string
@@ -246,6 +258,7 @@ export type PlanFeatureScalarWhereWithAggregatesInput = {
 export type PlanFeatureCreateInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -257,6 +270,7 @@ export type PlanFeatureCreateInput = {
 export type PlanFeatureUncheckedCreateInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -268,6 +282,7 @@ export type PlanFeatureUncheckedCreateInput = {
 export type PlanFeatureUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -279,6 +294,7 @@ export type PlanFeatureUpdateInput = {
 export type PlanFeatureUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -290,6 +306,7 @@ export type PlanFeatureUncheckedUpdateInput = {
 export type PlanFeatureCreateManyInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -299,6 +316,7 @@ export type PlanFeatureCreateManyInput = {
 export type PlanFeatureUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -308,6 +326,7 @@ export type PlanFeatureUpdateManyMutationInput = {
 export type PlanFeatureUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -317,6 +336,7 @@ export type PlanFeatureUncheckedUpdateManyInput = {
 export type PlanFeatureCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -326,6 +346,7 @@ export type PlanFeatureCountOrderByAggregateInput = {
 export type PlanFeatureMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -335,6 +356,7 @@ export type PlanFeatureMaxOrderByAggregateInput = {
 export type PlanFeatureMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  displayName?: Prisma.SortOrder
   key?: Prisma.SortOrder
   description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -384,6 +406,7 @@ export type PlanFeatureUpdateOneWithoutRewardCatalogItemNestedInput = {
 export type PlanFeatureCreateWithoutAssignmentsInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -394,6 +417,7 @@ export type PlanFeatureCreateWithoutAssignmentsInput = {
 export type PlanFeatureUncheckedCreateWithoutAssignmentsInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -420,6 +444,7 @@ export type PlanFeatureUpdateToOneWithWhereWithoutAssignmentsInput = {
 export type PlanFeatureUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +455,7 @@ export type PlanFeatureUpdateWithoutAssignmentsInput = {
 export type PlanFeatureUncheckedUpdateWithoutAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -440,6 +466,7 @@ export type PlanFeatureUncheckedUpdateWithoutAssignmentsInput = {
 export type PlanFeatureCreateWithoutRewardCatalogItemInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -450,6 +477,7 @@ export type PlanFeatureCreateWithoutRewardCatalogItemInput = {
 export type PlanFeatureUncheckedCreateWithoutRewardCatalogItemInput = {
   id?: string
   name: string
+  displayName?: string | null
   key: string
   description: string
   createdAt?: Date | string
@@ -476,6 +504,7 @@ export type PlanFeatureUpdateToOneWithWhereWithoutRewardCatalogItemInput = {
 export type PlanFeatureUpdateWithoutRewardCatalogItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -486,6 +515,7 @@ export type PlanFeatureUpdateWithoutRewardCatalogItemInput = {
 export type PlanFeatureUncheckedUpdateWithoutRewardCatalogItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   key?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -536,6 +566,7 @@ export type PlanFeatureCountOutputTypeCountRewardCatalogItemArgs<ExtArgs extends
 export type PlanFeatureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  displayName?: boolean
   key?: boolean
   description?: boolean
   createdAt?: boolean
@@ -548,6 +579,7 @@ export type PlanFeatureSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 export type PlanFeatureSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  displayName?: boolean
   key?: boolean
   description?: boolean
   createdAt?: boolean
@@ -557,6 +589,7 @@ export type PlanFeatureSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 export type PlanFeatureSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  displayName?: boolean
   key?: boolean
   description?: boolean
   createdAt?: boolean
@@ -566,13 +599,14 @@ export type PlanFeatureSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type PlanFeatureSelectScalar = {
   id?: boolean
   name?: boolean
+  displayName?: boolean
   key?: boolean
   description?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PlanFeatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "key" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeature"]>
+export type PlanFeatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "displayName" | "key" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeature"]>
 export type PlanFeatureInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignments?: boolean | Prisma.PlanFeature$assignmentsArgs<ExtArgs>
   RewardCatalogItem?: boolean | Prisma.PlanFeature$RewardCatalogItemArgs<ExtArgs>
@@ -590,6 +624,7 @@ export type $PlanFeaturePayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    displayName: string | null
     key: string
     description: string
     createdAt: Date
@@ -1021,6 +1056,7 @@ export interface Prisma__PlanFeatureClient<T, Null = never, ExtArgs extends runt
 export interface PlanFeatureFieldRefs {
   readonly id: Prisma.FieldRef<"PlanFeature", 'String'>
   readonly name: Prisma.FieldRef<"PlanFeature", 'String'>
+  readonly displayName: Prisma.FieldRef<"PlanFeature", 'String'>
   readonly key: Prisma.FieldRef<"PlanFeature", 'String'>
   readonly description: Prisma.FieldRef<"PlanFeature", 'String'>
   readonly createdAt: Prisma.FieldRef<"PlanFeature", 'DateTime'>

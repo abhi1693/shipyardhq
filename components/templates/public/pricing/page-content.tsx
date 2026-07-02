@@ -24,6 +24,11 @@ export const PRICING_FAQS = [
       "All plans include launch guidance, template assets, and async support from our team. Premium placements add one-on-one review sessions and priority feature requests.",
   },
   {
+    question: "What does AI-search ready profile mean?",
+    answer:
+      "Paid listings can include structured product facts, schema, markdown retrieval, sitemap inclusion, and crawler-readable metadata. This makes the Shipyard page easier for search and AI retrieval systems to parse, but it does not guarantee rankings or citations.",
+  },
+  {
     question: "Can my team collaborate on launches?",
     answer:
       "Today, launches are managed per account. If you need multi-user access, reach out and we’ll help you plan a workflow.",

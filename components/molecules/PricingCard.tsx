@@ -25,6 +25,7 @@ export type PricingCardProps = {
   features: {
     id: string
     name: string
+    displayName?: string | null
     key: string
     description: string
     enabled: boolean
@@ -79,6 +80,7 @@ export function PricingCard({
           boostDuration === 1 ? "" : "s"
         }`
       : null
+  const emphasizedFeaturePattern = /advanced|spotlight|priority/i
 
   if (variant === "placement") {
     const isPro = /pro/i.test(name)
@@ -182,14 +184,12 @@ export function PricingCard({
                   />
                   <span
                     className={clsx(
-                      feature.key.toLowerCase().includes("advanced") ||
-                        feature.key.toLowerCase().includes("spotlight") ||
-                        feature.key.toLowerCase().includes("priority")
+                      emphasizedFeaturePattern.test(feature.key)
                         ? "font-semibold"
                         : "font-medium",
                     )}
                   >
-                    {feature.name}
+                    {feature.displayName || feature.name}
                   </span>
                 </li>
               ))}
@@ -289,7 +289,7 @@ export function PricingCard({
               .map((f) => (
                 <PricingFeature
                   key={f.id}
-                  label={f.name}
+                  label={f.displayName || f.name}
                   enabled={true}
                   isExperimental={f.isExperimental}
                   description={f.description}

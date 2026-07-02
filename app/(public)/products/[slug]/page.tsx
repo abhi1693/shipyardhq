@@ -61,7 +61,11 @@ import {
 } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn, ensureUrlHasSchema } from "@/lib/utils"
-import { BADGE_OPTIONS } from "@/lib/constants"
+import {
+  AI_SEARCH_READY_PLAN_FEATURE_KEY,
+  BADGE_OPTIONS,
+} from "@/lib/constants"
+import { hasPlanFeature } from "@/lib/features"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
@@ -427,6 +431,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     product.verification?.isVerified ??
     sidebarProduct?.verification?.isVerified,
   )
+  const hasAiSearchReadyProfile = hasPlanFeature(
+    sidebarProduct.plan,
+    AI_SEARCH_READY_PLAN_FEATURE_KEY,
+  )
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
   )
@@ -557,6 +565,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         name: "Verified status",
         value: isVerified ? "Verified" : "Not verified",
       },
+      ...(hasAiSearchReadyProfile
+        ? [{ name: "AI-search ready profile", value: "Enabled" }]
+        : []),
       ...(productAlternatives.length
         ? [
             {
@@ -910,6 +921,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <span className="text-sm text-muted-foreground">Coming soon</span>
           )}
         </div>
+        {hasAiSearchReadyProfile ? (
+          <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              AI profile
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0051d5]/20 bg-[#eff6ff] px-2.5 py-1 text-xs font-semibold text-[#0051d5]">
+              <BadgeCheck className="size-3.5" aria-hidden />
+              AI-search ready
+            </span>
+          </div>
+        ) : null}
         {sidebarProduct?.alternatives.length ? (
           <div className="flex items-center justify-between gap-4 border-t border-border pt-4">
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

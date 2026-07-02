@@ -1,6 +1,8 @@
 import { categoryPath, productPath, productTypePath } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import { AI_SEARCH_READY_PLAN_FEATURE_KEY } from "@/lib/constants"
+import { hasPlanFeature } from "@/lib/features"
 
 const PRODUCT_TYPE_BY_VALUE: Record<string, { slug: string; label: string }> = {
   saas: { slug: "saas", label: "SaaS" },
@@ -65,6 +67,14 @@ export type ProductMarkdownDetail = {
   } | null
   _count?: {
     ProductUpvote?: number | null
+  } | null
+  plan?: {
+    assignments?: Array<{
+      enabled: boolean
+      feature?: {
+        key?: string | null
+      } | null
+    }> | null
   } | null
 }
 
@@ -248,6 +258,10 @@ export function buildProductMarkdownDocument(
   const description = cleanMultiline(product.description ?? meta.description)
   const tags = tagLabels(meta)
   const media = mediaItems(meta)
+  const hasAiSearchReadyProfile = hasPlanFeature(
+    product.plan ?? null,
+    AI_SEARCH_READY_PLAN_FEATURE_KEY,
+  )
 
   sections.push(`# ${title}`)
 
@@ -259,6 +273,18 @@ export function buildProductMarkdownDocument(
 
   if (description) {
     sections.push(`## Description\n\n${description}`)
+  }
+
+  if (hasAiSearchReadyProfile) {
+    sections.push(
+      `## AI Search Profile\n\n${markdownList([
+        "Structured product facts: enabled",
+        "Markdown retrieval: enabled",
+        "Product schema: enabled",
+        "Sitemap inclusion: enabled",
+        "Internal discovery links: category, pricing model, product type, and tags when available",
+      ])}`,
+    )
   }
 
   if (tags.length) {
