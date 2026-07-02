@@ -18,6 +18,7 @@ import {
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
 type EditorPickCategoryParams = {
   category: string
@@ -124,7 +125,7 @@ async function EditorPickCategoryPageContent({
       chips={[category.name, "Editor's Pick"]}
       itemListName={title}
       itemListDescription={description}
-      faqQualifier={`editor-picked ${category.name.toLowerCase()} tools`}
+      faqQualifier={`editor-picked ${lowerCategoryNounPhrase(category.name, "tools")}`}
     />
   )
 }

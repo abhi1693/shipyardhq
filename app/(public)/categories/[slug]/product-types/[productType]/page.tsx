@@ -23,6 +23,7 @@ import {
   pseoRobotsForTotal,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
+import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
 type CategoryProductTypeParams = {
   slug: string
@@ -74,7 +75,7 @@ export async function generateMetadata({
     robots: pseoRobotsForTotal(total),
     keywords: [
       `${category.name.toLowerCase()} ${productTypeMeta.label.toLowerCase()} products`,
-      `${category.name.toLowerCase()} ${productTypeMeta.label.toLowerCase()} tools`,
+      `${lowerCategoryNounPhrase(category.name, "tools")} ${productTypeMeta.label.toLowerCase()}`,
       `${productTypeMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
     ],
   }

@@ -9,6 +9,10 @@ import {
 import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlicePage"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
+  categoryNounPhrase,
+  lowerCategoryNounPhrase,
+} from "@/lib/seo/category-phrases"
+import {
   CATEGORIES_PATH,
   HOME_PATH,
   USE_CASES_PATH,
@@ -66,7 +70,7 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: false },
     pageSize: 1,
   }).then((slice) => slice.total)
-  const title = `${category.name} tools to ${useCase.label.toLowerCase()}`
+  const title = `${categoryNounPhrase(category.name, "tools")} to ${useCase.label.toLowerCase()}`
   const description = `Browse ${total} ${category.name.toLowerCase()} ${total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()} on Shipyard.`
   const canonical = usecaseCategoryPath(slug, categorySlug)
 
@@ -120,7 +124,7 @@ async function UseCaseCategoryPageContent({
   })
 
   const pagePath = usecaseCategoryPath(slug, categorySlug)
-  const title = `${category.name} tools to ${useCase.label.toLowerCase()}`
+  const title = `${categoryNounPhrase(category.name, "tools")} to ${useCase.label.toLowerCase()}`
   const description = `Browse ${slice.total} ${category.name.toLowerCase()} ${slice.total === 1 ? "product" : "products"} for teams looking to ${useCase.label.toLowerCase()} on Shipyard.`
 
   return (
@@ -148,7 +152,7 @@ async function UseCaseCategoryPageContent({
       chips={[useCase.label, category.name]}
       itemListName={title}
       itemListDescription={description}
-      faqQualifier={`${category.name.toLowerCase()} tools to ${useCase.label.toLowerCase()}`}
+      faqQualifier={`${lowerCategoryNounPhrase(category.name, "tools")} to ${useCase.label.toLowerCase()}`}
     />
   )
 }

@@ -23,6 +23,7 @@ import {
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+import { lowerCategoryNounPhrase } from "@/lib/seo/category-phrases"
 
 type AlternativeCategoryParams = {
   slug: string
@@ -88,7 +89,7 @@ export async function generateMetadata({
     robots: pseoRobotsForTotal(total),
     keywords: [
       `${alternative.name} alternatives for ${category.name.toLowerCase()}`,
-      `${category.name.toLowerCase()} tools like ${alternative.name}`,
+      `${lowerCategoryNounPhrase(category.name, "tools")} like ${alternative.name}`,
       `${alternative.name} ${category.name.toLowerCase()} competitors`,
     ],
   }

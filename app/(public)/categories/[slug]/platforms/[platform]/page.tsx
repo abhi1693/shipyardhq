@@ -17,6 +17,10 @@ import { buildQuery, type StrOrArr } from "@/lib/urlParams"
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import { getPlatformMeta, PLATFORM_SLUGS } from "@/lib/platforms/config"
 import { buildProductListItem } from "@/lib/seo/product-list"
+import {
+  categoryNounPhrase,
+  lowerCategoryNounPhrase,
+} from "@/lib/seo/category-phrases"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 import {
@@ -109,7 +113,9 @@ export async function generateMetadata(props: {
     platform: platformMeta.value,
     pageSize: 1,
   }).then((payload) => payload.total ?? payload.products.length)
-  const title = `${category.name} tools for ${platformMeta.label}`
+  const categoryTools = categoryNounPhrase(category.name, "tools")
+  const lowerCategoryTools = lowerCategoryNounPhrase(category.name, "tools")
+  const title = `${categoryTools} for ${platformMeta.label}`
   const description = category.description
     ? `${category.description} Browse ${total} ${category.name.toLowerCase()} products built for ${platformMeta.label}.`
     : `Discover ${total} ${category.name.toLowerCase()} software products made for ${platformMeta.label} users.`
@@ -127,7 +133,7 @@ export async function generateMetadata(props: {
     ...metadata,
     robots: pseoRobotsForTotal(total),
     keywords: [
-      `${category.name.toLowerCase()} tools for ${platformMeta.label.toLowerCase()}`,
+      `${lowerCategoryTools} for ${platformMeta.label.toLowerCase()}`,
       `${category.name.toLowerCase()} ${platformMeta.label.toLowerCase()} apps`,
       `${platformMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
     ],
@@ -173,6 +179,7 @@ async function CategoryPlatformPageContent({
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const pagePath = categoryPlatformPath(slug, platformMeta.slug)
+  const pageTitle = `${categoryNounPhrase(category.name, "tools")} for ${platformMeta.label}`
 
   const searchParamState = buildSearchParams(resolvedSearchParams)
   const buildPath = (overrides: Record<string, string | undefined | null>) =>
@@ -189,7 +196,7 @@ async function CategoryPlatformPageContent({
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `${category.name} products for ${platformMeta.label}`,
+    name: pageTitle,
     description: `Browse ${payload.total ?? payload.products.length} ${pluralize(payload.total ?? payload.products.length, "product")} in ${category.name} built for ${platformMeta.label}.`,
     itemListOrder:
       parsed.sort === "az"
@@ -205,9 +212,9 @@ async function CategoryPlatformPageContent({
     ),
   }
   const faq = buildDirectoryFaq({
-    title: `${category.name} products for ${platformMeta.label}`,
+    title: pageTitle,
     count: resultCount,
-    qualifier: `${category.name.toLowerCase()} tools for ${platformMeta.label}`,
+    qualifier: `${lowerCategoryNounPhrase(category.name, "tools")} for ${platformMeta.label}`,
     pageUrl: pagePath,
   })
 
@@ -217,7 +224,7 @@ async function CategoryPlatformPageContent({
         scriptKeyPrefix={`category-${slug}-platform-${platformMeta.slug}`}
         webPage={{
           path: pagePath,
-          name: `${category.name} products for ${platformMeta.label}`,
+          name: pageTitle,
         }}
         breadcrumbs={{
           items: [
@@ -242,7 +249,7 @@ async function CategoryPlatformPageContent({
         <div className="mx-auto flex max-w-5xl flex-col gap-10">
           <div className="space-y-3 text-center">
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">
-              {category.name} products for {platformMeta.label}
+              {pageTitle}
             </h1>
             <p className="text-base text-muted-foreground sm:text-lg">
               Browse {resultCount} {pluralize(resultCount, "product")} in{" "}

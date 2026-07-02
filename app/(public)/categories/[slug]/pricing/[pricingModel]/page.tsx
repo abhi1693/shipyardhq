@@ -17,6 +17,10 @@ import { buildQuery, type StrOrArr } from "@/lib/urlParams"
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import { getPricingModelMeta, PRICING_MODEL_SLUGS } from "@/lib/pricing/models"
 import { buildProductListItem } from "@/lib/seo/product-list"
+import {
+  categoryNounPhrase,
+  lowerCategoryNounPhrase,
+} from "@/lib/seo/category-phrases"
 import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 import {
@@ -109,7 +113,9 @@ export async function generateMetadata(props: {
     pricingModel: pricingModelMeta.value,
     pageSize: 1,
   }).then((payload) => payload.total ?? payload.products.length)
-  const title = `${pricingModelMeta.label} ${category.name} tools`
+  const categoryTools = categoryNounPhrase(category.name, "tools")
+  const lowerCategoryTools = lowerCategoryNounPhrase(category.name, "tools")
+  const title = `${pricingModelMeta.label} ${categoryTools}`
   const description = category.description
     ? `${category.description} Browse ${total} ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} products curated on Shipyard.`
     : `Discover ${total} ${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software products from indie makers.`
@@ -127,7 +133,7 @@ export async function generateMetadata(props: {
     ...metadata,
     robots: pseoRobotsForTotal(total),
     keywords: [
-      `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
+      `${pricingModelMeta.label.toLowerCase()} ${lowerCategoryTools}`,
       `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} software`,
       `${category.name.toLowerCase()} products with ${pricingModelMeta.label.toLowerCase()} pricing`,
     ],
@@ -175,6 +181,7 @@ async function CategoryPricingPageContent({
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const pagePath = categoryPricingPath(slug, pricingModelMeta.slug)
+  const pageTitle = `${pricingModelMeta.label} ${categoryNounPhrase(category.name, "tools")}`
 
   const searchParamState = buildSearchParams(resolvedSearchParams)
   const buildPath = (overrides: Record<string, string | undefined | null>) =>
@@ -191,7 +198,7 @@ async function CategoryPricingPageContent({
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `${pricingModelMeta.label} ${category.name} products`,
+    name: pageTitle,
     description: `Browse ${payload.total ?? payload.products.length} ${pluralize(payload.total ?? payload.products.length, "product")} with ${pricingModelMeta.label.toLowerCase()} pricing in the ${category.name} category.`,
     itemListOrder:
       parsed.sort === "az"
@@ -207,9 +214,9 @@ async function CategoryPricingPageContent({
     ),
   }
   const faq = buildDirectoryFaq({
-    title: `${pricingModelMeta.label} ${category.name} products`,
+    title: pageTitle,
     count: resultCount,
-    qualifier: `${pricingModelMeta.label.toLowerCase()} ${category.name.toLowerCase()} tools`,
+    qualifier: `${pricingModelMeta.label.toLowerCase()} ${lowerCategoryNounPhrase(category.name, "tools")}`,
     pageUrl: pagePath,
   })
 
@@ -219,7 +226,7 @@ async function CategoryPricingPageContent({
         scriptKeyPrefix={`category-${slug}-pricing-${pricingModelMeta.slug}`}
         webPage={{
           path: pagePath,
-          name: `${pricingModelMeta.label} ${category.name} tools`,
+          name: pageTitle,
         }}
         breadcrumbs={{
           items: [
@@ -244,7 +251,7 @@ async function CategoryPricingPageContent({
         <div className="mx-auto flex max-w-5xl flex-col gap-10">
           <div className="space-y-3 text-center">
             <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">
-              {pricingModelMeta.label} {category.name} products
+              {pageTitle}
             </h1>
             <p className="text-base text-muted-foreground sm:text-lg">
               Browse {resultCount} {pluralize(resultCount, "product")} in{" "}

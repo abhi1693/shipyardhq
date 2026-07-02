@@ -7,6 +7,10 @@ import { ProductSlicePage } from "@/components/templates/public/pseo/ProductSlic
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
+  categoryNounPhrase,
+  lowerCategoryNounPhrase,
+} from "@/lib/seo/category-phrases"
+import {
   CATEGORIES_PATH,
   HOME_PATH,
   categoryPath,
@@ -53,7 +57,7 @@ export async function generateMetadata({
     parsed: { sort: "new", page: 1, verified: true },
     pageSize: 1,
   }).then((payload) => payload.total)
-  const title = `Verified ${category.name} tools`
+  const title = `Verified ${categoryNounPhrase(category.name, "tools")}`
   const description = buildVerifiedCategoryDescription(category.name, total)
   const canonical = verifiedCategoryPath(categorySlug)
 
@@ -103,7 +107,7 @@ async function VerifiedCategoryPageContent({
   })
 
   const pagePath = verifiedCategoryPath(categorySlug)
-  const title = `Verified ${category.name} tools`
+  const title = `Verified ${categoryNounPhrase(category.name, "tools")}`
   const description = buildVerifiedCategoryDescription(
     category.name,
     payload.total,
@@ -133,7 +137,7 @@ async function VerifiedCategoryPageContent({
       chips={[category.name, "Verified"]}
       itemListName={title}
       itemListDescription={description}
-      faqQualifier={`verified ${category.name.toLowerCase()} tools`}
+      faqQualifier={`verified ${lowerCategoryNounPhrase(category.name, "tools")}`}
     />
   )
 }
