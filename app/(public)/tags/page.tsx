@@ -1,4 +1,5 @@
 import { Hash } from "lucide-react"
+import { JsonLdScript } from "next-seo"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
@@ -9,6 +10,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { HOME_PATH, TAGS_PATH, tagPath } from "@/lib/routes"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { buildPageMetadata } from "@/lib/metadata"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Browse Tags"
@@ -35,6 +37,50 @@ export default async function TagsIndexPage() {
       tone: index % 3 === 0 ? "blue" : index % 3 === 1 ? "green" : "orange",
     }
   })
+  const siteUrl = resolveSiteUrl()
+  const pageUrl = `${siteUrl}${TAGS_PATH}`
+  const itemListId = `${pageUrl}#itemlist`
+  const collectionPage = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${pageUrl}#collection`,
+    url: pageUrl,
+    name: PAGE_TITLE,
+    description: `Explore ${BRAND_NAME} products by keyword, technology, and niche across the launch directory.`,
+    inLanguage: "en-US",
+    numberOfItems: totalTags,
+    isPartOf: {
+      "@type": "WebSite",
+      name: BRAND_NAME,
+      url: siteUrl,
+    },
+    mainEntity: { "@id": itemListId },
+  }
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": itemListId,
+    name: `${BRAND_NAME} tag directory`,
+    description: `Popular product tags, technologies, and launch niches indexed by ${BRAND_NAME}.`,
+    numberOfItems: totalTags,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: items.slice(0, 50).map((item, index) => {
+      const itemUrl = `${siteUrl}${item.href}`
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        url: itemUrl,
+        item: {
+          "@type": "CollectionPage",
+          "@id": `${itemUrl}#collection`,
+          name: item.title,
+          url: itemUrl,
+          description: item.description,
+        },
+      }
+    }),
+  }
 
   return (
     <TaxonomyIndexPage
@@ -56,16 +102,23 @@ export default async function TagsIndexPage() {
       emptyTitle="No tags yet"
       emptyDescription="Once products add keywords, you will be able to explore them here."
       structuredData={
-        <CoreStructuredData
-          scriptKeyPrefix="tags"
-          webPage={{ path: TAGS_PATH, name: PAGE_TITLE }}
-          breadcrumbs={{
-            items: [
-              { name: "Home", path: HOME_PATH },
-              { name: PAGE_TITLE, path: TAGS_PATH },
-            ],
-          }}
-        />
+        <>
+          <CoreStructuredData
+            scriptKeyPrefix="tags"
+            webPage={{ path: TAGS_PATH, name: PAGE_TITLE }}
+            breadcrumbs={{
+              items: [
+                { name: "Home", path: HOME_PATH },
+                { name: PAGE_TITLE, path: TAGS_PATH },
+              ],
+            }}
+          />
+          <JsonLdScript
+            data={collectionPage}
+            scriptKey="tags-collection-jsonld"
+          />
+          <JsonLdScript data={itemList} scriptKey="tags-itemlist-jsonld" />
+        </>
       }
     />
   )

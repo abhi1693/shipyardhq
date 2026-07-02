@@ -224,10 +224,36 @@ async function TagDetailPageContent({ params }: TagPageProps) {
     ? buildTaxonomyProductSections(combinedFeedItems, referenceDateIso)
     : []
   const siteUrl = resolveSiteUrl()
+  const pageUrl = `${siteUrl}${pagePath}`
+  const itemListId = `${pageUrl}#itemlist`
+  const collectionPage = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${pageUrl}#collection`,
+    url: pageUrl,
+    name: `${tagLabel} product launches`,
+    description: pageDescription,
+    inLanguage: "en-US",
+    keywords: [tagLabel, summary.canonical, summary.keyword]
+      .filter(Boolean)
+      .join(", "),
+    numberOfItems: taggedCount,
+    about: {
+      "@type": "Thing",
+      name: tagLabel,
+    },
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Shipyard",
+      url: siteUrl,
+    },
+    mainEntity: { "@id": itemListId },
+    ...(referenceDateIso ? { dateModified: referenceDateIso } : {}),
+  }
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "@id": `${siteUrl}${pagePath}#itemlist`,
+    "@id": itemListId,
     name: `${tagLabel} product launches`,
     description: pageDescription,
     numberOfItems: taggedCount,
@@ -299,6 +325,10 @@ async function TagDetailPageContent({ params }: TagPageProps) {
                 { name: tagLabel, path: pagePath },
               ],
             }}
+          />
+          <JsonLdScript
+            data={collectionPage}
+            scriptKey={`tag-${summary.slug}-collection-jsonld`}
           />
           {taggedCount > 0 ? (
             <JsonLdScript

@@ -31,6 +31,7 @@ interface TaxonomyDetailPageProps {
   stats: TaxonomyDetailStat[]
   feed: ReactNode
   feedTestId: string
+  afterFeed?: ReactNode
   structuredData?: ReactNode
   sponsorProducts?: TaxonomySponsorProduct[]
   sponsorProduct?: TaxonomySponsorProduct | null
@@ -67,6 +68,7 @@ export function TaxonomyDetailPage({
   stats,
   feed,
   feedTestId,
+  afterFeed,
   structuredData,
   sponsorProducts: sponsorProductsProp,
   sponsorProduct,
@@ -137,6 +139,7 @@ export function TaxonomyDetailPage({
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-8">
           <section data-testid={feedTestId}>{feed}</section>
+          {afterFeed}
         </div>
 
         <aside className="space-y-6 lg:col-span-4">

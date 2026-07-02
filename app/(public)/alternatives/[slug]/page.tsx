@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { JsonLdScript } from "next-seo"
 
 import {
   ALTERNATIVE_DETAIL_PAGE_SIZE,
@@ -11,6 +12,7 @@ import {
 } from "@/actions/public/alternatives/actions"
 import AlternativeProductsClient from "@/app/(public)/alternatives/[slug]/AlternativeProductsClient"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
@@ -19,10 +21,12 @@ import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/c
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
+  HOME_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
   alternativePath,
 } from "@/lib/routes"
+import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { siteConfig } from "@/lib/siteConfig"
 
@@ -178,9 +182,44 @@ async function AlternativeDetailPageContent({
       ? `Compare the top ${productsPage.total} ${alternative.name} alternatives, competitors, and similar tools Shipyard makers rely on.`
       : `Explore curated ${alternative.name} competitors, similar tools, and replacement platforms.`
 
-  const structuredData = {
+  const topProductNames = productsPage.items
+    .slice(0, 3)
+    .map((product) => product.name)
+    .filter(Boolean)
+  const comparisonFaqs = [
+    {
+      question: `What are the best alternatives to ${alternative.name}?`,
+      answer:
+        topProductNames.length > 0
+          ? `Shipyard currently maps ${productsPage.total} ${alternative.name} alternatives, including ${topProductNames.join(", ")}. Browse the full list to compare launch traction, positioning, and product details.`
+          : `Shipyard is curating ${alternative.name} alternatives as makers submit relevant products and competitors.`,
+    },
+    {
+      question: `How does Shipyard compare ${alternative.name} competitors?`,
+      answer: `Shipyard groups products by their alternative mapping, launch metadata, categories, maker-submitted descriptions, and discovery signals so founders can scan comparable products quickly.`,
+    },
+    {
+      question: `Can I submit an alternative to ${alternative.name}?`,
+      answer: `Yes. Makers can submit a product to Shipyard, add the relevant alternative mapping, and use promotion tiers when they want extra launch reach.`,
+    },
+  ]
+  const faqStructuredData = buildFaqStructuredData(comparisonFaqs, {
+    pageUrl: alternativePath(alternative.slug),
+  })
+  const itemListData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${alternativeUrl}#itemlist`,
+    name: `Products like ${alternative.name}`,
+    description: structuredDescription,
+    numberOfItems: productsPage.total,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: itemListElements,
+  }
+  const collectionPageData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
+    "@id": `${alternativeUrl}#collection`,
     name:
       productsPage.total > 0
         ? `Top ${productsPage.total} ${alternative.name} Alternatives & Competitors`
@@ -198,6 +237,7 @@ async function AlternativeDetailPageContent({
     publisher: {
       "@type": "Organization",
       name: siteConfig.name,
+      "@id": `${siteConfig.url}#organization`,
       url: siteConfig.url,
       logo: {
         "@type": "ImageObject",
@@ -211,36 +251,10 @@ async function AlternativeDetailPageContent({
     },
     mainEntityOfPage: alternativeUrl,
     ...(referenceDateIso ? { dateModified: referenceDateIso } : {}),
-    mainEntity: {
-      "@type": "ItemList",
-      name: `Products like ${alternative.name}`,
-      numberOfItems: productsPage.total,
-      itemListOrder: "https://schema.org/ItemListOrderAscending",
-      itemListElement: itemListElements,
-    },
-  }
-
-  const alternativesDirectoryUrl = new URL(
-    ALTERNATIVES_PATH,
-    siteConfig.url,
-  ).toString()
-  const breadcrumbData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "SaaS Alternatives Directory",
-        item: alternativesDirectoryUrl,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: `${alternative.name} Alternatives`,
-        item: alternativeUrl,
-      },
-    ],
+    mainEntity: { "@id": `${alternativeUrl}#itemlist` },
+    hasPart: faqStructuredData.mainEntity.length
+      ? { "@id": `${alternativeUrl}#faq` }
+      : undefined,
   }
 
   return (
@@ -280,22 +294,59 @@ async function AlternativeDetailPageContent({
           referenceDateIso={referenceDateIso}
         />
       }
+      afterFeed={
+        <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
+          <h2 className="text-2xl font-bold text-[#0b1c30]">
+            Comparing {alternative.name} alternatives
+          </h2>
+          <div className="mt-5 space-y-5">
+            {comparisonFaqs.map((faq) => (
+              <div key={faq.question} className="space-y-2">
+                <h3 className="text-sm font-semibold text-[#0b1c30]">
+                  {faq.question}
+                </h3>
+                <p className="text-sm leading-6 text-[#43474c]">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      }
       feedTestId="alternative-feed-section"
       structuredData={
         <>
-          <script
-            type="application/ld+json"
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(structuredData),
+          <CoreStructuredData
+            scriptKeyPrefix={`alternative-${alternative.slug}`}
+            webPage={{
+              path: alternativePath(alternative.slug),
+              name:
+                productsPage.total > 0
+                  ? `Top ${productsPage.total} ${alternative.name} Alternatives & Competitors`
+                  : `Best ${alternative.name} Alternatives & Competitors`,
+              description: structuredDescription,
+              keywords: seoKeywords,
+            }}
+            breadcrumbs={{
+              items: [
+                { name: "Home", path: HOME_PATH },
+                { name: "Alternatives", path: ALTERNATIVES_PATH },
+                {
+                  name: `${alternative.name} Alternatives`,
+                  path: alternativePath(alternative.slug),
+                },
+              ],
             }}
           />
-          <script
-            type="application/ld+json"
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(breadcrumbData),
-            }}
+          <JsonLdScript
+            data={collectionPageData}
+            scriptKey={`alternative-${alternative.slug}-collection-jsonld`}
+          />
+          <JsonLdScript
+            data={itemListData}
+            scriptKey={`alternative-${alternative.slug}-itemlist-jsonld`}
+          />
+          <JsonLdScript
+            data={faqStructuredData}
+            scriptKey={`alternative-${alternative.slug}-faq-jsonld`}
           />
         </>
       }

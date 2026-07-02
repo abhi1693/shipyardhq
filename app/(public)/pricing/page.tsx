@@ -15,6 +15,7 @@ import {
   PricingPlansList,
   PricingPlansSkeleton,
 } from "@/components/templates/public/pricing/page-content"
+import { getPublicPlans } from "@/actions/public/plans/actions"
 import {
   Accordion,
   AccordionContent,
@@ -27,7 +28,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
-import { siteGrowthMetrics } from "@/lib/siteConfig"
+import { resolveSiteUrl, siteGrowthMetrics } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Pricing"
@@ -89,10 +90,138 @@ const PLACEMENT_POINTS = [
   },
 ] as const
 
-export default function PricingPage() {
+type PricingSchemaPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
+
+function buildPricingStructuredData(plans: PricingSchemaPlan[]) {
+  const siteUrl = resolveSiteUrl()
+  const pricingUrl = `${siteUrl}${PRICING_PATH}`
+  const startUrl = `${siteUrl}${MEMBER_PRODUCTS_ADD_PATH}`
+  const normalizedPlans = plans.length
+    ? plans
+    : [
+        {
+          id: "free-listing",
+          slug: "free-listing",
+          name: "Free listing",
+          description: `List your product on ${BRAND_NAME} with a public launch page and starter analytics.`,
+          type: "one_time_price",
+          price: 0,
+          discount: null,
+          boostForDays: 0,
+          isDefault: true,
+          externalId: null,
+          paymentFrequencyCount: undefined,
+          paymentFrequencyInterval: undefined,
+          subscriptionPeriodCount: undefined,
+          subscriptionPeriodInterval: undefined,
+          priceSuffix: undefined,
+          productCount: 0,
+          features: [],
+        },
+      ]
+
+  const offerNodes = normalizedPlans.map((plan, index) => {
+    const discount =
+      typeof plan.discount === "number" && plan.discount > 0
+        ? Math.min(plan.discount, 100)
+        : 0
+    const discountedCents = Math.max(
+      0,
+      Math.round((plan.price ?? 0) * (1 - discount / 100)),
+    )
+    const planUrl = plan.slug
+      ? `${pricingUrl}#${plan.slug}`
+      : `${pricingUrl}#plans`
+
+    return {
+      "@type": "Offer",
+      "@id": `${pricingUrl}#offer-${plan.slug || index + 1}`,
+      name: plan.name,
+      description:
+        plan.description ||
+        `${plan.name} placement for product launches on ${BRAND_NAME}.`,
+      url: planUrl,
+      price: (discountedCents / 100).toFixed(2),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      itemOffered: { "@id": `${pricingUrl}#service` },
+      seller: { "@id": `${siteUrl}#organization` },
+      ...(plan.type === "recurring_price" && plan.paymentFrequencyInterval
+        ? {
+            eligibleDuration: {
+              "@type": "QuantitativeValue",
+              value: plan.paymentFrequencyCount ?? 1,
+              unitText: String(plan.paymentFrequencyInterval).toUpperCase(),
+            },
+          }
+        : {}),
+    }
+  })
+
+  const prices = offerNodes
+    .map((offer) => Number(offer.price))
+    .filter((price) => Number.isFinite(price))
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "@id": `${pricingUrl}#product`,
+        name: `${BRAND_NAME} launch placements`,
+        description: `Product launch listings, promotion placements, and analytics for founders launching on ${BRAND_NAME}.`,
+        brand: { "@id": `${siteUrl}#organization` },
+        category: "Product launch directory",
+        url: pricingUrl,
+        offers: {
+          "@type": "AggregateOffer",
+          url: pricingUrl,
+          priceCurrency: "USD",
+          lowPrice: prices.length ? Math.min(...prices).toFixed(2) : "0.00",
+          highPrice: prices.length ? Math.max(...prices).toFixed(2) : "0.00",
+          offerCount: offerNodes.length,
+        },
+      },
+      {
+        "@type": "Service",
+        "@id": `${pricingUrl}#service`,
+        name: `${BRAND_NAME} product launch promotion`,
+        description: `Launch, promote, and measure products with ${BRAND_NAME} directory placement, sponsored reach, and analytics.`,
+        serviceType: "Product launch directory and promotion",
+        provider: { "@id": `${siteUrl}#organization` },
+        areaServed: "Worldwide",
+        url: pricingUrl,
+        hasOfferCatalog: { "@id": `${pricingUrl}#offer-catalog` },
+      },
+      {
+        "@type": "OfferCatalog",
+        "@id": `${pricingUrl}#offer-catalog`,
+        name: `${BRAND_NAME} pricing plans`,
+        url: pricingUrl,
+        itemListElement: offerNodes,
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pricingUrl}#pricing-page`,
+        url: pricingUrl,
+        name: PAGE_TITLE,
+        mainEntity: { "@id": `${pricingUrl}#offer-catalog` },
+        potentialAction: {
+          "@type": "RegisterAction",
+          target: startUrl,
+          name: `Start a ${BRAND_NAME} launch`,
+        },
+      },
+    ],
+  }
+}
+
+export default async function PricingPage() {
+  const plans = await getPublicPlans()
   const builderCountLabel = formatBuilderCountBadge(
     siteGrowthMetrics.builderCount,
   )
+  const pricingStructuredData = buildPricingStructuredData(plans)
   const faqStructuredData = buildFaqStructuredData(
     PRICING_FAQS.map((faq) => ({ question: faq.question, answer: faq.answer })),
     { pageUrl: PRICING_PATH },
@@ -110,6 +239,10 @@ export default function PricingPage() {
             { name: PAGE_TITLE, path: PRICING_PATH },
           ],
         }}
+      />
+      <JsonLdScript
+        data={pricingStructuredData}
+        scriptKey="pricing-offers-jsonld"
       />
       {hasFaqStructuredData ? (
         <JsonLdScript data={faqStructuredData} scriptKey="pricing-faq-jsonld" />
