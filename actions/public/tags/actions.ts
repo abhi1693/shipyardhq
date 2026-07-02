@@ -8,6 +8,7 @@ import {
   normalizeKeyword,
   stripLegacyKeywordHash,
 } from "@/lib/tags"
+import { TAG_MIN_INDEXABLE_PRODUCTS } from "@/lib/tags/indexing"
 import {
   mapProductCardRecordToBase,
   productCardSelect,
@@ -76,6 +77,7 @@ async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
     FROM "ProductKeyword"
     WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
+    HAVING COUNT(DISTINCT "productId") >= ${TAG_MIN_INDEXABLE_PRODUCTS}
     ORDER BY "productCount" DESC, canonical ASC
     LIMIT ${limit}
   `)
@@ -99,6 +101,7 @@ async function fetchKeywordTagSummariesPage(
     FROM "ProductKeyword"
     WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
+    HAVING COUNT(DISTINCT "productId") >= ${TAG_MIN_INDEXABLE_PRODUCTS}
     ORDER BY "productCount" DESC, canonical ASC
     OFFSET ${safeOffset}
     LIMIT ${safeLimit}
@@ -350,6 +353,7 @@ async function fetchKeywordTagChunk(
     FROM "ProductKeyword"
     WHERE "productStatus" = 'published'
     GROUP BY keyword, hash
+    HAVING COUNT(DISTINCT "productId") >= ${TAG_MIN_INDEXABLE_PRODUCTS}
     ORDER BY canonical ASC
     OFFSET ${offset}
     LIMIT ${limit}
@@ -361,11 +365,20 @@ async function fetchKeywordTagStats() {
   const result = await prisma.$queryRaw<
     { total: bigint; lastUpdated: Date | null }[]
   >(Prisma.sql`
+    WITH indexable_tags AS (
+      SELECT
+        keyword,
+        hash,
+        MAX("productUpdatedAt") AS "lastUpdated"
+      FROM "ProductKeyword"
+      WHERE "productStatus" = 'published'
+      GROUP BY keyword, hash
+      HAVING COUNT(DISTINCT "productId") >= ${TAG_MIN_INDEXABLE_PRODUCTS}
+    )
     SELECT
-      COUNT(DISTINCT keyword)::bigint AS total,
-      MAX("productUpdatedAt") AS "lastUpdated"
-    FROM "ProductKeyword"
-    WHERE "productStatus" = 'published'
+      COUNT(*)::bigint AS total,
+      MAX("lastUpdated") AS "lastUpdated"
+    FROM indexable_tags
   `)
   return result[0] ?? { total: BigInt(0), lastUpdated: null }
 }

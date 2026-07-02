@@ -2,13 +2,16 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { Hash } from "lucide-react"
+import { JsonLdScript } from "next-seo"
 
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import {
+  getKeywordTagBySlug,
   getKeywordTagProducts,
   getKeywordTagSummaries,
 } from "@/actions/public/tags/actions"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
@@ -18,8 +21,10 @@ import {
 } from "@/components/templates/public/common/TaxonomyProductRows"
 import {
   BROWSE_PATH,
+  HOME_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
+  TAGS_PATH,
   tagPath,
 } from "@/lib/routes"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -27,8 +32,11 @@ import { getTagDetailPayload } from "@/lib/tags/page-cache"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import { stripLegacyKeywordHash } from "@/lib/tags"
+import { tagRobotsForProductCount } from "@/lib/tags/indexing"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { stableUnitInterval } from "@/lib/stable-random"
+import { buildProductListItem } from "@/lib/seo/product-list"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export async function generateStaticParams() {
   const tags = await getKeywordTagSummaries()
@@ -45,13 +53,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const canonicalSlug = stripLegacyKeywordHash(slug) || slug
-  const label = formatTagLabel(canonicalSlug)
-  return buildPageMetadata({
-    title: `${label} Tag`,
-    description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
+  const summary = await getKeywordTagBySlug(slug)
+  const label = formatTagLabel(
+    summary?.canonical || summary?.keyword || canonicalSlug,
+  )
+  const productCount = summary?.productCount ?? 0
+  const metadata = buildPageMetadata({
+    title: `${label} products and launches`,
+    description:
+      productCount > 0
+        ? `Explore ${productCount} Shipyard product ${productCount === 1 ? "launch" : "launches"} tagged with ${label}, including apps, SaaS tools, APIs, and startup projects.`
+        : `Explore Shipyard product launches tagged with ${label}, including apps, SaaS tools, APIs, and startup projects.`,
     section: "Tags",
-    canonical: tagPath(canonicalSlug),
+    canonical: tagPath(summary?.slug || canonicalSlug),
   })
+
+  return {
+    ...metadata,
+    robots: tagRobotsForProductCount(productCount),
+  }
 }
 
 interface TagPageProps {
@@ -159,6 +179,8 @@ async function TagDetailPageContent({ params }: TagPageProps) {
 
   const tagLabel = formatTagLabel(summary.canonical || summary.keyword)
   const totalTaggedProducts = summary.productCount
+  const pagePath = tagPath(summary.slug)
+  const pageDescription = `Explore ${totalTaggedProducts} Shipyard product ${totalTaggedProducts === 1 ? "launch" : "launches"} using the ${tagLabel} keyword. Browse related apps, SaaS tools, APIs, and startup projects.`
 
   const collectedProducts = [...products.products]
   let hasMore = products.hasMore
@@ -201,11 +223,28 @@ async function TagDetailPageContent({ params }: TagPageProps) {
   const feedSections = referenceDateIso
     ? buildTaxonomyProductSections(combinedFeedItems, referenceDateIso)
     : []
+  const siteUrl = resolveSiteUrl()
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${siteUrl}${pagePath}#itemlist`,
+    name: `${tagLabel} product launches`,
+    description: pageDescription,
+    numberOfItems: taggedCount,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: tagProductItems.slice(0, 20).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl,
+      }),
+    ),
+  }
 
   return (
     <TaxonomyDetailPage
       title={tagLabel}
-      description={`Explore launches using the “${tagLabel}” keyword.`}
+      description={pageDescription}
       icon={<Hash className="h-10 w-10 text-[#c0ff00]" aria-hidden />}
       primaryCta={{
         href: MEMBER_PRODUCTS_ADD_PATH,
@@ -243,6 +282,32 @@ async function TagDetailPageContent({ params }: TagPageProps) {
         </div>
       }
       feedTestId="tag-feed-section"
+      structuredData={
+        <>
+          <CoreStructuredData
+            scriptKeyPrefix={`tag-${summary.slug}`}
+            webPage={{
+              path: pagePath,
+              name: `${tagLabel} product launches`,
+              description: pageDescription,
+              keywords: [tagLabel, summary.canonical, summary.keyword],
+            }}
+            breadcrumbs={{
+              items: [
+                { name: "Home", path: HOME_PATH },
+                { name: "Tags", path: TAGS_PATH },
+                { name: tagLabel, path: pagePath },
+              ],
+            }}
+          />
+          {taggedCount > 0 ? (
+            <JsonLdScript
+              data={itemList}
+              scriptKey={`tag-${summary.slug}-itemlist-jsonld`}
+            />
+          ) : null}
+        </>
+      }
       sponsorProducts={taxonomySponsors}
       trafficStats={<TaxonomyTrafficStatsSidebar />}
     />
