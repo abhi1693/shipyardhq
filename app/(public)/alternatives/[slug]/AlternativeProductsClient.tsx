@@ -53,7 +53,7 @@ function toFeedItem(product: AlternativeDetailProduct): HomepageFeedItem {
   }
 }
 
-export function AlternativeProductsClient({
+function AlternativeProductsClient({
   alternativeId,
   initialItems,
   initialHasMore,

@@ -40,7 +40,7 @@ const mapMakerMeta = (maker: MakerListItem) => {
   return { name, initials, launches }
 }
 
-export function MakersFeedClient({
+function MakersFeedClient({
   initialItems,
   initialPage,
   pageSize,

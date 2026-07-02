@@ -11,7 +11,7 @@ import {
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
 
-export const productAnalyticsSelect = {
+const productAnalyticsSelect = {
   id: true,
   name: true,
   slug: true,
@@ -105,17 +105,6 @@ export async function invalidateProductAnalyticsRecordCache(
       )
     },
   })
-}
-
-export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {
-  return {
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    createdAt: product.createdAt,
-    updatedAt: product.updatedAt,
-    analytics: product.analytics,
-  }
 }
 
 export function resolveProductAnalyticsAccess(

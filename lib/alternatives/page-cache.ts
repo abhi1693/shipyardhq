@@ -1,17 +1,9 @@
 import {
-  ALTERNATIVE_CATALOG_PAGE_SIZE,
   getAlternativeMomentumCounts,
-  getAlternativeCatalogPage,
   getAlternativesWithCounts,
   type AlternativeCatalogItem,
 } from "@/actions/public/alternatives/actions"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
-
-type AlternativesIndexPayload = {
-  initialItems: AlternativeCatalogItem[]
-  initialHasMore: boolean
-  pageSize: number
-}
 
 type AlternativesPagePayload = {
   alternatives: AlternativeCatalogItem[]
@@ -30,25 +22,6 @@ const getTrendingWindowStart = () => {
   windowStart.setUTCDate(windowStart.getUTCDate() - TRENDING_WINDOW_DAYS)
   windowStart.setUTCHours(0, 0, 0, 0)
   return windowStart
-}
-
-export async function getAlternativesIndexPayload(): Promise<AlternativesIndexPayload> {
-  "use cache"
-  applyCache(
-    ["alternative-products:index:payload", TAGS.alternativeProducts],
-    DEFAULT_TTL.slow,
-  )
-
-  const result = await getAlternativeCatalogPage({
-    page: 1,
-    pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-  })
-
-  return {
-    initialItems: result.items,
-    initialHasMore: result.hasMore,
-    pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-  }
 }
 
 export async function getAlternativesPagePayload(): Promise<AlternativesPagePayload> {

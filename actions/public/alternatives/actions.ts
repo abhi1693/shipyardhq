@@ -50,15 +50,6 @@ export type AlternativeMomentum = {
   recentProducts: number
 }
 
-interface GetAlternativeCatalogPageOptions {
-  page?: number
-  pageSize?: number
-  query?: string
-}
-
-const DEFAULT_PAGE_SIZE = 18
-export const ALTERNATIVE_CATALOG_PAGE_SIZE = DEFAULT_PAGE_SIZE
-
 export const ALTERNATIVE_DETAIL_PAGE_SIZE = 8
 
 interface GetFeaturedAlternativesOptions {
@@ -301,80 +292,5 @@ export async function getAlternativeProductsPage({
     hasMore,
     nextPage: hasMore ? safePage + 1 : null,
     total,
-  }
-}
-
-export async function getAlternativeCatalogPage({
-  page = 1,
-  pageSize = DEFAULT_PAGE_SIZE,
-  query,
-}: GetAlternativeCatalogPageOptions = {}): Promise<{
-  items: AlternativeCatalogItem[]
-  hasMore: boolean
-  nextPage: number | null
-}> {
-  "use cache"
-  applyCache([TAGS.alternativeProducts], DEFAULT_TTL.slow)
-
-  const safePage = Number.isFinite(page) && page && page > 0 ? page : 1
-  const clampedPageSize =
-    Number.isFinite(pageSize) && pageSize && pageSize > 0
-      ? Math.min(pageSize, 50)
-      : DEFAULT_PAGE_SIZE
-
-  const skip = (safePage - 1) * clampedPageSize
-  const take = clampedPageSize + 1
-
-  const trimmedQuery = query?.trim()
-  const baseFilter: Prisma.AlternativeProductWhereInput = {
-    products: { some: publicDiscoveryProductWhere },
-  }
-  const searchFilter: Prisma.AlternativeProductWhereInput | undefined =
-    trimmedQuery && trimmedQuery.length
-      ? {
-          OR: [
-            { name: { contains: trimmedQuery, mode: "insensitive" } },
-            { description: { contains: trimmedQuery, mode: "insensitive" } },
-            {
-              categories: {
-                some: {
-                  name: { contains: trimmedQuery, mode: "insensitive" },
-                },
-              },
-            },
-            {
-              products: {
-                some: buildPublicDiscoveryProductWhere({
-                  name: { contains: trimmedQuery, mode: "insensitive" },
-                }),
-              },
-            },
-          ],
-        }
-      : undefined
-
-  const where = searchFilter
-    ? {
-        AND: [baseFilter, searchFilter],
-      }
-    : baseFilter
-
-  const records = await prisma.alternativeProduct.findMany({
-    include: ALTERNATIVE_CARD_INCLUDE,
-    where,
-    orderBy: [{ name: "asc" }],
-    skip,
-    take,
-  })
-
-  const typedRecords = records as AlternativeCatalogItem[]
-
-  const hasMore = typedRecords.length > clampedPageSize
-  const items = hasMore ? typedRecords.slice(0, clampedPageSize) : typedRecords
-
-  return {
-    items,
-    hasMore,
-    nextPage: hasMore ? safePage + 1 : null,
   }
 }

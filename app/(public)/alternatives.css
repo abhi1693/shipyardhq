@@ -5,8 +5,6 @@
 @import "./_public-common.css";
 
 @source "./alternatives/**/*.{js,ts,jsx,tsx,mdx}";
-@source "../../components/molecules/AlternativeCatalogCard.tsx";
-@source "../../components/molecules/AlternativeCatalogGridClient.tsx";
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductGrid*.tsx";
 @source "../../components/molecules/ProductList.skeleton.tsx";

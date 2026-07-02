@@ -260,7 +260,7 @@ export async function getUserProducts(params?: ListParams) {
 }
 
 // Attach or remove a plan from a product owned by the current user
-export async function setProductPlanAction(
+async function setProductPlanAction(
   productId: string,
   planId: string | null,
   subscriptionId?: string | null,
@@ -335,7 +335,7 @@ export async function setProductPlanAction(
 }
 
 // Start checkout on DodoPayments when plan has externalId
-export async function startPlanCheckoutAction(
+async function startPlanCheckoutAction(
   productId: string,
   planId: string,
 ) {

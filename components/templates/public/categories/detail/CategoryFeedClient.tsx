@@ -141,5 +141,3 @@ export function CategoryFeedClient({
     </div>
   )
 }
-
-export default CategoryFeedClient

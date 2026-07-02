@@ -8,6 +8,5 @@
 @source "./legal/**/*.{js,ts,jsx,tsx,mdx}";
 @source "./why-shipyard/**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../components/molecules/Analytics*.tsx";
-@source "../../components/molecules/PerformanceCard.tsx";
 @source "../../components/molecules/PricingFeature.tsx";
 @source "../../components/organisms/PricingTable.tsx";

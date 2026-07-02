@@ -120,5 +120,3 @@ export function UserFeedClient({
     </div>
   )
 }
-
-export default UserFeedClient

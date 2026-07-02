@@ -1,4 +1,3 @@
-import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
 import clsx from "clsx"
 
 import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
@@ -6,27 +5,7 @@ import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { getProducts } from "@/actions/public/products/featured"
-import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { PricingTable } from "@/components/organisms/PricingTable"
-
-export const CORE_PERKS = [
-  {
-    icon: IconFlag3,
-    title: "Launch-ready guidance",
-    body: "Preflight checklists, asset templates, and launch-day reminders keep every release on track.",
-  },
-  {
-    icon: IconTargetArrow,
-    title: "Flexible exposure",
-    body: "Dial in the reach you need—from free listings to sponsored placements—with instant plan upgrades.",
-  },
-  {
-    icon: IconSparkles,
-    title: "Analytics built in",
-    body: "Traffic, referrers, and engagement dashboards are included out of the box—no extra setup or add-on tools required.",
-  },
-]
 
 export const PRICING_FAQS = [
   {
@@ -93,16 +72,6 @@ export async function PricingPlansList({
   )
 }
 
-export async function FeaturedProductsList() {
-  const featured = await getProducts("featured")
-
-  if (!featured.length) {
-    return null
-  }
-
-  return <FeaturedProductGrid items={featured.slice(0, 6)} />
-}
-
 export function PricingPlansSkeleton({
   withSectionWrapper = true,
 }: { withSectionWrapper?: boolean } = {}) {
@@ -147,19 +116,6 @@ export function PricingPlansSkeleton({
     <section className="py-12">
       <div className="mx-auto max-w-6xl px-4">{content}</div>
     </section>
-  )
-}
-
-export function FeaturedProductsSkeleton() {
-  return (
-    <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {[...Array(3).keys()].map((index) => (
-        <div
-          key={index}
-          className="aspect-[3/2] animate-pulse rounded-[24px] border border-[color:var(--brand-1)/0.15] bg-background/80"
-        />
-      ))}
-    </div>
   )
 }
 
