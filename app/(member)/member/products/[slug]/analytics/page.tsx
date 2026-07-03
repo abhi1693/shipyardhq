@@ -136,7 +136,8 @@ function UpgradeRequiredCard({
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center gap-3 py-8 text-center">
         <p className="text-sm text-slate-700">
-          Upgrade your plan to unlock advanced analytics for this product.
+          Upgrade your plan to unlock referrers, channels, devices, browsers,
+          and location insights for this product.
         </p>
         <Button asChild size="sm">
           <Link href={href}>Upgrade to view</Link>

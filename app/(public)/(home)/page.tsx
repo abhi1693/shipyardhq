@@ -103,7 +103,7 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
   {
     icon: BarChart3,
     title: "Upgrade for deeper feedback loops",
-    body: "Pro adds advanced analytics and spotlight surfaces so you can connect attention with the next growth move.",
+    body: "Pro adds referrer insights and spotlight surfaces so you can see where attention comes from.",
   },
 ] as const
 

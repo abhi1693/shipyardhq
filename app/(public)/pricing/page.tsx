@@ -69,7 +69,7 @@ const HERO_POINTS = [
   {
     icon: BarChart3,
     title: "Always-on insights",
-    body: "Keep advanced analytics and priority placement rolling.",
+    body: "Keep referrer insights and priority placement rolling.",
   },
 ] as const
 
@@ -86,8 +86,8 @@ const PLACEMENT_POINTS = [
   },
   {
     icon: BarChart3,
-    title: "Advanced Analytics",
-    body: "Track referrers, visitors, and engagement signals as your launch compounds.",
+    title: "Advanced referrer insights",
+    body: "See where discovery traffic comes from across referrers, channels, devices, browsers, and locations.",
   },
 ] as const
 

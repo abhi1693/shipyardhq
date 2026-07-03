@@ -16,6 +16,13 @@ const FEATURES = [
     description: "Shows basic view count",
   },
   {
+    key: "backlink",
+    name: "Backlink",
+    displayName: "Do-follow product backlink",
+    description:
+      "Adds a direct crawlable link from the Shipyard product page to the product website.",
+  },
+  {
     key: "product.sitemap",
     name: "Product Sitemap Submission",
     displayName: "Indexed discovery page",
@@ -32,8 +39,9 @@ const FEATURES = [
   {
     key: "analytics.advanced",
     name: "Advanced Analytics",
-    displayName: "Advanced traffic insights",
-    description: "Unlocks advanced traffic dashboards",
+    displayName: "Advanced referrer insights",
+    description:
+      "Shows referrers, traffic channels, devices, browsers, countries, and cities for product discovery traffic.",
   },
   {
     key: "featured",

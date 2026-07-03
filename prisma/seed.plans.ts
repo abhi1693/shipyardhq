@@ -53,8 +53,8 @@ const PLANS: PlanSeed[] = [
     boostForDays: 14,
     features: [
       { key: "analytics.basic" },
+      { key: "backlink" },
       { key: "product.sitemap" },
-      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
@@ -75,8 +75,8 @@ const PLANS: PlanSeed[] = [
     subscriptionPeriodInterval: TimeInterval.year,
     features: [
       { key: "analytics.basic" },
+      { key: "backlink" },
       { key: "product.sitemap" },
-      { key: "product.aiSearchReady" },
       { key: "featured" },
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
@@ -94,6 +94,7 @@ const PLANS: PlanSeed[] = [
     features: [
       { key: "analytics.basic" },
       { key: "analytics.advanced" },
+      { key: "backlink" },
       { key: "product.sitemap" },
       { key: "product.aiSearchReady" },
       { key: "featured" },
@@ -118,6 +119,7 @@ const PLANS: PlanSeed[] = [
     features: [
       { key: "analytics.basic" },
       { key: "analytics.advanced" },
+      { key: "backlink" },
       { key: "product.sitemap" },
       { key: "product.aiSearchReady" },
       { key: "featured" },

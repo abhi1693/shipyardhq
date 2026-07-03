@@ -82,9 +82,11 @@ export const BADGE_OPTIONS = [
 ]
 
 export const AI_SEARCH_READY_PLAN_FEATURE_KEY = "product.aiSearchReady"
+export const BACKLINK_PLAN_FEATURE_KEY = "backlink"
 
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
+  BACKLINK_PLAN_FEATURE_KEY,
   "product.sitemap",
   AI_SEARCH_READY_PLAN_FEATURE_KEY,
   "featured",

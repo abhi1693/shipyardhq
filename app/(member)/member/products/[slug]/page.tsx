@@ -190,9 +190,10 @@ export default async function ViewUserProductPage({
         .filter((feature) => feature.enabled)
         .filter((feature) => !hasPlanFeature(product.plan ?? null, feature.key))
     : []
-  const nextPlanHighlights = nextPlanNewBenefits
-    .slice(0, 3)
-    .map((feature) => ({ id: feature.id, name: feature.name }))
+  const nextPlanHighlights = nextPlanNewBenefits.slice(0, 3).map((feature) => ({
+    id: feature.id,
+    name: feature.displayName || feature.name,
+  }))
   const nextPlanHighlightCount = nextPlanNewBenefits.length
   const usdFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -583,7 +584,7 @@ export default async function ViewUserProductPage({
                             href={upgradePath}
                             className="text-[#0051d5] hover:underline"
                           >
-                            Upgrade to unlock referrers
+                            Upgrade to unlock referrer insights
                           </Link>
                         </div>
                       </div>

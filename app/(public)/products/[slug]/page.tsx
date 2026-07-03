@@ -63,6 +63,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { cn, ensureUrlHasSchema } from "@/lib/utils"
 import {
   AI_SEARCH_READY_PLAN_FEATURE_KEY,
+  BACKLINK_PLAN_FEATURE_KEY,
   BADGE_OPTIONS,
 } from "@/lib/constants"
 import { hasPlanFeature } from "@/lib/features"
@@ -443,6 +444,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     priceCurrency: sidebarProduct.currencyCode || "USD",
   }
   const platformValues = (sidebarProduct.platforms ?? []) as string[]
+  const normalizedWebsiteUrl = product.websiteUrl?.trim()
+    ? ensureUrlHasSchema(product.websiteUrl.trim())
+    : null
+  const hasDofollowBacklink = Boolean(
+    normalizedWebsiteUrl &&
+    hasPlanFeature(sidebarProduct.plan, BACKLINK_PLAN_FEATURE_KEY),
+  )
   const hasWebPlatform = platformValues.includes("web")
   const mobilePlatforms = platformValues.filter((platform: string) =>
     ["ios", "android"].includes(platform),
@@ -565,6 +573,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         name: "Verified status",
         value: isVerified ? "Verified" : "Not verified",
       },
+      ...(hasDofollowBacklink
+        ? [{ name: "Do-follow backlink", value: "Enabled" }]
+        : []),
       ...(hasAiSearchReadyProfile
         ? [{ name: "AI-search ready profile", value: "Enabled" }]
         : []),
@@ -747,13 +758,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
     return directories.slice(0, 4)
   })()
-  const normalizedWebsiteUrl = product.websiteUrl?.trim()
-    ? ensureUrlHasSchema(product.websiteUrl.trim())
-    : null
   const normalizedVideoUrl = product.metadata?.videoUrl?.trim()
     ? ensureUrlHasSchema(product.metadata.videoUrl.trim())
     : null
-  const websiteHref = normalizedWebsiteUrl ? `/r/${product.slug}` : null
+  const websiteHref = normalizedWebsiteUrl
+    ? hasDofollowBacklink
+      ? normalizedWebsiteUrl
+      : `/r/${product.slug}`
+    : null
+  const websiteRel = hasDofollowBacklink ? "noopener" : "noopener noreferrer"
   const videoHref = normalizedVideoUrl
   const leaderboardPoints =
     typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0
@@ -1085,7 +1098,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <a
                 href={websiteHref}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel={websiteRel}
                 className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
               >
                 <ExternalLink className="h-4 w-4" aria-hidden />
