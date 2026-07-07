@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
+import { JsonLdScript } from "next-seo"
 
 import { CategoryDetailPageContent } from "@/components/templates/public/categories/detail/page-content"
 import { TaxonomyDetailSkeleton } from "@/components/templates/public/common/TaxonomyDetailSkeleton"
@@ -16,6 +17,8 @@ import {
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { CATEGORIES_PATH, HOME_PATH, categoryPath } from "@/lib/routes"
 import { pluralize } from "@/lib/pluralize"
+import { buildProductListItem } from "@/lib/seo/product-list"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 export async function generateStaticParams() {
   return getCategoryStaticParams()
@@ -92,12 +95,36 @@ async function CategoryStructuredData({
   if (!payload) return null
 
   const path = categoryPath(slug)
+  const siteUrl = resolveSiteUrl()
+  const pageUrl = `${siteUrl}${path}`
   const categoryName = payload.category.name || "Category"
   const breadcrumbs = [
     { name: "Home", path: HOME_PATH },
     { name: "Categories", path: CATEGORIES_PATH },
     { name: categoryName, path },
   ]
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${pageUrl}#itemlist`,
+    name: `${categoryName} products`,
+    description: `Browse ${payload.productsPage.total} ${pluralize(
+      payload.productsPage.total,
+      "product",
+    )} in ${categoryName} on Shipyard.`,
+    numberOfItems: payload.productsPage.total,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: payload.productsPage.products
+      .slice(0, 20)
+      .map((product, index) =>
+        buildProductListItem({
+          product,
+          position: index + 1,
+          siteUrl,
+          categoryName,
+        }),
+      ),
+  }
 
   return (
     <>
@@ -105,6 +132,10 @@ async function CategoryStructuredData({
         scriptKeyPrefix={`category-${slug}`}
         webPage={{ path, name: categoryName }}
         breadcrumbs={{ items: breadcrumbs }}
+      />
+      <JsonLdScript
+        data={itemList}
+        scriptKey={`category-${slug}-itemlist-jsonld`}
       />
     </>
   )

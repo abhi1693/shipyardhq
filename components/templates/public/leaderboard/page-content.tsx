@@ -25,6 +25,7 @@ import { buildProductInterestBadges } from "@/lib/products/interest"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import {
   BROWSE_PATH,
+  LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   categoryPath,
@@ -32,6 +33,8 @@ import {
   productPath,
 } from "@/lib/routes"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import { buildProductListItem } from "@/lib/seo/product-list"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 
 type LeaderboardListItem = ProductCardBase & {
@@ -330,9 +333,40 @@ export async function LeaderboardPageContent({
       }
     },
   )
+  const siteUrl = resolveSiteUrl()
+  const pagePath = filters.categorySlug
+    ? `${LEADERBOARD_PATH}?category=${encodeURIComponent(
+        filters.categorySlug,
+      )}`
+    : LEADERBOARD_PATH
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${siteUrl}${pagePath}#itemlist`,
+    name: categoryName
+      ? `${categoryName} leaderboard products`
+      : "Shipyard leaderboard products",
+    description: categoryName
+      ? `Ranked ${categoryName} product launches on Shipyard.`
+      : "Ranked product launches on Shipyard, ordered by launch momentum and builder interest.",
+    numberOfItems: leaderboardItems.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: leaderboardItems.map((product) =>
+      buildProductListItem({
+        product,
+        position: product.rank,
+        siteUrl,
+      }),
+    ),
+  }
 
   return (
     <main className="bg-[#f8f9ff] px-6 py-6 text-[#0b1c30]">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
       <div className="mx-auto max-w-[1200px] space-y-12">
         <LeaderboardHero
           categoryName={categoryName}

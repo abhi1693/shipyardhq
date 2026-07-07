@@ -8,13 +8,16 @@ import { getUseCaseHighlights } from "@/actions/public/use-cases/actions"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
+import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import {
   ALTERNATIVES_PATH,
   BROWSE_PATH,
   CATEGORIES_PATH,
+  HOME_PATH,
   LEADERBOARD_PATH,
+  LEADERBOARD_MONTHLY_PATH,
   USERS_PATH,
   USE_CASES_PATH,
   alternativePath,
@@ -26,6 +29,8 @@ import {
   getIsoWeekKey,
   getIsoWeekYearAndNumber,
 } from "@/lib/server/leaderboard/weeks"
+import { buildProductListItem } from "@/lib/seo/product-list"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react"
 import {
@@ -1283,6 +1288,63 @@ export async function PeriodicLeaderboardView({
             year: "numeric",
             timeZone: "UTC",
           })}`
+  const siteUrl = resolveSiteUrl()
+  const pagePath = withLeaderboardFilters(
+    buildPath(leaderboard.period, start),
+    {
+      categorySlug,
+    },
+  )
+  const pageTitle = `${headerTitle} leaderboard`
+  const itemListDescription = `Ranked Shipyard product launches for ${leaderboard.periodLabel}.`
+  const breadcrumbs = [
+    { name: "Home", path: HOME_PATH },
+    { name: "Leaderboard", path: LEADERBOARD_PATH },
+    ...(leaderboard.period === "month"
+      ? [{ name: "Monthly archive", path: LEADERBOARD_MONTHLY_PATH }]
+      : []),
+    { name: headerTitle, path: pagePath },
+  ]
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${siteUrl}${pagePath}#itemlist`,
+    name: `${headerTitle} products`,
+    description: itemListDescription,
+    numberOfItems: items.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: items.slice(0, 100).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: product.leaderboardRank ?? index + 1,
+        siteUrl,
+      }),
+    ),
+  }
+  const itemListScript = (
+    <script
+      type="application/ld+json"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+    />
+  )
+  const structuredData = (
+    <>
+      <CoreStructuredData
+        scriptKeyPrefix={`leaderboard-${leaderboard.period}-${start.toISOString().slice(0, 10)}`}
+        webPage={{
+          path: pagePath,
+          name: pageTitle,
+          description: itemListDescription,
+        }}
+        breadcrumbs={{
+          items: breadcrumbs,
+          options: { pageUrl: pagePath },
+        }}
+      />
+      {itemListScript}
+    </>
+  )
 
   if (leaderboard.period === "day") {
     const [categories, useCases, alternatives] = await Promise.all([
@@ -1294,6 +1356,7 @@ export async function PeriodicLeaderboardView({
 
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
+        {structuredData}
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
           <section className="space-y-6 lg:col-span-8">
             <div className="space-y-3">
@@ -1382,6 +1445,7 @@ export async function PeriodicLeaderboardView({
 
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
+        {structuredData}
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
           <section className="space-y-6 lg:col-span-8">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -1490,6 +1554,7 @@ export async function PeriodicLeaderboardView({
 
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
+        {structuredData}
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
           <section className="lg:col-span-8">
             <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">

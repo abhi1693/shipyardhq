@@ -106,7 +106,33 @@ describe("markdown for agents", () => {
       category: { slug: "customer-support" },
       user: { firstName: "Aminu", lastName: "Example" },
       metadata: { demoUrl: null },
-      verification: { isVerified: false },
+      verification: {
+        isVerified: true,
+        verifiedAt: new Date("2026-05-21T00:00:00.000Z"),
+      },
+      alternatives: [
+        {
+          slug: "intercom",
+          name: "Intercom",
+          websiteUrl: "https://www.intercom.com",
+          description: "Customer service platform",
+        },
+      ],
+      badges: ["top-10-monthly"],
+      leaderboardScores: [
+        {
+          rank: 3,
+          score: 120,
+          views: 400,
+          uniqueVisitors: 250,
+          upvotes: 18,
+          run: {
+            periodStart: new Date("2026-05-01T00:00:00.000Z"),
+            periodEnd: new Date("2026-05-31T00:00:00.000Z"),
+            status: "finalized",
+          },
+        },
+      ],
       _count: { ProductUpvote: 0 },
     } as unknown as Parameters<typeof buildProductMarkdownDocument>[0]
     const meta = {
@@ -128,8 +154,20 @@ describe("markdown for agents", () => {
       "Canonical Shipyard page: http://localhost:3000/products/embed-bot",
     )
     expect(markdown).toContain("Starting price: $39.00")
+    expect(markdown).toContain("Verified product: yes")
+    expect(markdown).toContain("Verified at: 2026-05-21")
     expect(markdown).toContain("Embed-Bot integrates with Slack and email.")
     expect(markdown).toContain("- Handles support conversations")
+    expect(markdown).toContain("## Alternatives")
+    expect(markdown).toContain(
+      "Intercom: http://localhost:3000/alternatives/intercom",
+    )
+    expect(markdown).toContain("## Shipyard Badges")
+    expect(markdown).toContain("- top-10-monthly")
+    expect(markdown).toContain("## Rank History")
+    expect(markdown).toContain(
+      "| 2026-05-01 to 2026-05-31 | #3 | 120 | 400 | 250 | 18 |",
+    )
     expect(markdown).toContain("- AI customer support")
     expect(markdown).not.toContain("Discover")
     expect(markdown).not.toContain("Show more")

@@ -135,12 +135,10 @@ async function UseCaseCategoryPageContent({
     categoryName: category.name,
     total: slice.total,
   })
-
   return (
     <ProductSlicePage
       title={title}
       description={description}
-      intro={`Teams looking to ${useCase.label.toLowerCase()} often need a narrower view than a general use-case page. This slice filters the workflow by ${category.name.toLowerCase()} so buyers can compare products with the right category fit, launch freshness, and public Shipyard signals.`}
       pagePath={pagePath}
       scriptKeyPrefix={`use-case-${slug}-category-${categorySlug}`}
       breadcrumbs={[

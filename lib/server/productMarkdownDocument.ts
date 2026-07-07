@@ -1,4 +1,9 @@
-import { categoryPath, productPath, productTypePath } from "@/lib/routes"
+import {
+  alternativePath,
+  categoryPath,
+  productPath,
+  productTypePath,
+} from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { AI_SEARCH_READY_PLAN_FEATURE_KEY } from "@/lib/constants"
@@ -64,10 +69,33 @@ export type ProductMarkdownDetail = {
   } | null
   verification?: {
     isVerified?: boolean | null
+    verifiedAt?: string | Date | null
+  } | null
+  analytics?: {
+    upvotes?: number | null
   } | null
   _count?: {
     ProductUpvote?: number | null
   } | null
+  badges?: Array<string | null> | null
+  alternatives?: Array<{
+    slug?: string | null
+    name?: string | null
+    websiteUrl?: string | null
+    description?: string | null
+  }> | null
+  leaderboardScores?: Array<{
+    rank?: number | null
+    score?: number | null
+    views?: number | null
+    uniqueVisitors?: number | null
+    upvotes?: number | null
+    run?: {
+      periodStart?: string | Date | null
+      periodEnd?: string | Date | null
+      status?: string | null
+    } | null
+  }> | null
   plan?: {
     assignments?: Array<{
       enabled: boolean
@@ -151,6 +179,18 @@ function markdownList(items: string[]) {
   return items.map((item) => `- ${item}`).join("\n")
 }
 
+function markdownTable(headers: string[], rows: string[][]) {
+  return [
+    `| ${headers.join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    ...rows.map((row) => `| ${row.join(" | ")} |`),
+  ].join("\n")
+}
+
+function escapeTableCell(value: string) {
+  return value.replace(/\|/g, "\\|").replace(/\s+/g, " ").trim()
+}
+
 function productTypeLabel(product: ProductMarkdownDetail) {
   const type = cleanText(product.type)
   return type ? (PRODUCT_TYPE_BY_VALUE[type]?.label ?? type) : null
@@ -227,6 +267,11 @@ function factItems(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
   const platforms = platformLabels(product)
   const publishedDate = formatDate(product.publishedAt ?? product.createdAt)
   const updatedDate = formatDate(product.updatedAt)
+  const verifiedAt = formatDate(product.verification?.verifiedAt)
+  const upvotes =
+    typeof product._count?.ProductUpvote === "number"
+      ? product._count.ProductUpvote
+      : product.analytics?.upvotes
 
   return [
     cleanText(product.tagline)
@@ -243,10 +288,50 @@ function factItems(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
     updatedDate ? `Updated: ${updatedDate}` : null,
     ownerName ? `Maker: ${ownerName}` : null,
     `Verified product: ${product.verification?.isVerified ? "yes" : "no"}`,
-    typeof product._count?.ProductUpvote === "number"
-      ? `Upvotes: ${product._count.ProductUpvote}`
-      : null,
+    verifiedAt ? `Verified at: ${verifiedAt}` : null,
+    typeof upvotes === "number" ? `Upvotes: ${upvotes}` : null,
   ].filter((item): item is string => Boolean(item))
+}
+
+function alternativeItems(product: ProductMarkdownDetail) {
+  return (product.alternatives ?? [])
+    .map((alternative) => {
+      const name = cleanText(alternative.name)
+      const slug = cleanText(alternative.slug)
+      if (!name || !slug) return null
+
+      const parts = [
+        `${name}: ${absoluteSiteUrl(alternativePath(slug))}`,
+        safeExternalUrl(alternative.websiteUrl)
+          ? `website ${safeExternalUrl(alternative.websiteUrl)}`
+          : null,
+        cleanText(alternative.description),
+      ].filter(Boolean)
+
+      return parts.join(" - ")
+    })
+    .filter((item): item is string => Boolean(item))
+}
+
+function rankHistoryRows(product: ProductMarkdownDetail) {
+  return (product.leaderboardScores ?? [])
+    .map((entry) => {
+      const periodStart = formatDate(entry.run?.periodStart)
+      const periodEnd = formatDate(entry.run?.periodEnd)
+      if (!periodStart || !periodEnd) return null
+
+      return [
+        `${periodStart} to ${periodEnd}`,
+        typeof entry.rank === "number" ? `#${entry.rank}` : "Unranked",
+        typeof entry.score === "number" ? String(entry.score) : "",
+        typeof entry.views === "number" ? String(entry.views) : "",
+        typeof entry.uniqueVisitors === "number"
+          ? String(entry.uniqueVisitors)
+          : "",
+        typeof entry.upvotes === "number" ? String(entry.upvotes) : "",
+      ].map(escapeTableCell)
+    })
+    .filter((row): row is string[] => Boolean(row))
 }
 
 export function buildProductMarkdownDocument(
@@ -258,6 +343,9 @@ export function buildProductMarkdownDocument(
   const description = cleanMultiline(product.description ?? meta.description)
   const tags = tagLabels(meta)
   const media = mediaItems(meta)
+  const alternatives = alternativeItems(product)
+  const activeBadges = uniqueValues(product.badges ?? [])
+  const rankRows = rankHistoryRows(product)
   const hasAiSearchReadyProfile = hasPlanFeature(
     product.plan ?? null,
     AI_SEARCH_READY_PLAN_FEATURE_KEY,
@@ -273,6 +361,23 @@ export function buildProductMarkdownDocument(
 
   if (description) {
     sections.push(`## Description\n\n${description}`)
+  }
+
+  if (alternatives.length) {
+    sections.push(`## Alternatives\n\n${markdownList(alternatives)}`)
+  }
+
+  if (activeBadges.length) {
+    sections.push(`## Shipyard Badges\n\n${markdownList(activeBadges)}`)
+  }
+
+  if (rankRows.length) {
+    sections.push(
+      `## Rank History\n\n${markdownTable(
+        ["Period", "Rank", "Score", "Views", "Unique visitors", "Upvotes"],
+        rankRows,
+      )}`,
+    )
   }
 
   if (hasAiSearchReadyProfile) {

@@ -8,6 +8,10 @@ import {
   hasBrowseSearchParams,
   isPlainUseCaseBrowseState,
 } from "@/lib/browse/seo"
+import { buildProductStructuredData } from "@/lib/seo/product"
+import { buildBreadcrumbListStructuredData } from "@/lib/seo/breadcrumbs"
+import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
+import { buildWebPageStructuredData } from "@/lib/seo/webpage"
 import nextConfig from "@/next.config"
 import {
   dailyLeaderboardPath,
@@ -132,6 +136,153 @@ describe("buildProductListItem", () => {
       "@id": "https://shipyard.example/products/custom-tool#thing",
     })
     expect(listItem.item).not.toHaveProperty("offers")
+  })
+})
+
+describe("product detail structured data", () => {
+  it("emits richer product entity data without reviews or ratings by default", () => {
+    const structuredData = buildProductStructuredData({
+      path: "/products/embed-bot",
+      id: "http://localhost:3000/products/embed-bot#product",
+      name: "Embed-Bot",
+      description: "AI customer support for Slack and email.",
+      image: ["/logo.png", "/screenshot.png"],
+      logo: "/logo.png",
+      category: "Customer Support",
+      keywords: ["AI customer support", "Slack"],
+      mainEntityOfPage: "http://localhost:3000/products/embed-bot#webpage",
+      creator: {
+        type: "Person",
+        name: "Aminu Example",
+        url: "/users/user_1",
+      },
+      manufacturer: {
+        type: "Person",
+        name: "Aminu Example",
+        url: "/users/user_1",
+      },
+      brand: {
+        type: "Organization",
+        name: "Embed-Bot",
+        url: "https://www.embed-bot.com",
+        image: "/logo.png",
+      },
+      sameAs: ["https://www.embed-bot.com"],
+      offers: {
+        price: "39.00",
+        priceCurrency: "USD",
+      },
+    })
+
+    expect(structuredData).toMatchObject({
+      "@type": "Product",
+      "@id": "http://localhost:3000/products/embed-bot#product",
+      mainEntityOfPage: "http://localhost:3000/products/embed-bot#webpage",
+      logo: "http://localhost:3000/logo.png",
+      creator: {
+        "@type": "Person",
+        name: "Aminu Example",
+        url: "http://localhost:3000/users/user_1",
+      },
+      manufacturer: {
+        "@type": "Person",
+        name: "Aminu Example",
+      },
+      brand: {
+        "@type": "Organization",
+        name: "Embed-Bot",
+        url: "https://www.embed-bot.com",
+        logo: "http://localhost:3000/logo.png",
+      },
+      sameAs: ["https://www.embed-bot.com"],
+      offers: {
+        "@type": "Offer",
+        price: "39.00",
+        priceCurrency: "USD",
+      },
+    })
+    expect(structuredData).not.toHaveProperty("review")
+    expect(structuredData).not.toHaveProperty("aggregateRating")
+  })
+
+  it("does not emit product or application offers without a real price", () => {
+    expect(
+      buildProductStructuredData({
+        name: "Custom Tool",
+        offers: { priceCurrency: "USD" },
+      }),
+    ).not.toHaveProperty("offers")
+
+    expect(
+      buildWebApplicationStructuredData({
+        name: "Custom Tool",
+        offers: { priceCurrency: "USD" },
+      }),
+    ).not.toHaveProperty("offers")
+  })
+
+  it("links WebPage schema to the product entity", () => {
+    const structuredData = buildWebPageStructuredData({
+      path: "/products/embed-bot",
+      id: "http://localhost:3000/products/embed-bot#webpage",
+      name: "Embed-Bot",
+      description: "AI customer support for Slack and email.",
+      primaryImageOfPage: "/screenshot.png",
+      mainEntity: {
+        type: "Product",
+        id: "http://localhost:3000/products/embed-bot#product",
+      },
+    })
+
+    expect(structuredData).toMatchObject({
+      "@type": "WebPage",
+      "@id": "http://localhost:3000/products/embed-bot#webpage",
+      primaryImageOfPage: {
+        "@type": "ImageObject",
+        url: "http://localhost:3000/screenshot.png",
+      },
+      mainEntity: {
+        "@type": "Product",
+        "@id": "http://localhost:3000/products/embed-bot#product",
+      },
+    })
+  })
+})
+
+describe("breadcrumb structured data", () => {
+  it("infers a stable BreadcrumbList id from the current page crumb", () => {
+    const breadcrumbs = buildBreadcrumbListStructuredData([
+      { name: "Home", path: "/" },
+      { name: "Leaderboard", path: "/leaderboard" },
+      {
+        name: "Best of July 2026",
+        path: "/leaderboard/monthly/2026/7",
+      },
+    ])
+
+    expect(breadcrumbs).toMatchObject({
+      "@type": "BreadcrumbList",
+      "@id": "http://localhost:3000/leaderboard/monthly/2026/7#breadcrumb",
+      itemListElement: [
+        {
+          position: 1,
+          name: "Home",
+          item: { "@id": "http://localhost:3000/" },
+        },
+        {
+          position: 2,
+          name: "Leaderboard",
+          item: { "@id": "http://localhost:3000/leaderboard" },
+        },
+        {
+          position: 3,
+          name: "Best of July 2026",
+          item: {
+            "@id": "http://localhost:3000/leaderboard/monthly/2026/7",
+          },
+        },
+      ],
+    })
   })
 })
 

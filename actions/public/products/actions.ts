@@ -83,6 +83,7 @@ const publicProductSelect = {
   verification: {
     select: {
       isVerified: true,
+      verifiedAt: true,
     },
   },
   ProductMedia: {
@@ -99,6 +100,28 @@ const publicProductSelect = {
     select: {
       badge: true,
       expiresAt: true,
+    },
+  },
+  leaderboardScores: {
+    orderBy: {
+      run: {
+        periodEnd: "desc",
+      },
+    },
+    take: 6,
+    select: {
+      rank: true,
+      score: true,
+      views: true,
+      uniqueVisitors: true,
+      upvotes: true,
+      run: {
+        select: {
+          periodStart: true,
+          periodEnd: true,
+          status: true,
+        },
+      },
     },
   },
   plan: {

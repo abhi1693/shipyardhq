@@ -113,12 +113,6 @@ export default function PublicFooter() {
           <p className="text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c]">
             © <CurrentYear /> {BRAND_NAME}. All rights reserved.
           </p>
-          <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-[#16a34a]" />
-            <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#43474c]">
-              Systems Operational
-            </span>
-          </div>
         </div>
       </div>
     </footer>

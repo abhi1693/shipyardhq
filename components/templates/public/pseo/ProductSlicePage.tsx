@@ -1,21 +1,25 @@
 import Link from "next/link"
+import { Compass } from "lucide-react"
 
-import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
+import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
 import { buildProductListItem } from "@/lib/seo/product-list"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { keywordToSlug } from "@/lib/tags"
 import {
   alternativeCategoryPath,
   alternativePath,
+  BROWSE_PATH,
   categoryPath,
   categoryPlatformPath,
   categoryPricingPath,
   categoryProductTypePath,
+  MEMBER_PRODUCTS_ADD_PATH,
+  PRICING_PATH,
   pricingModelPath,
-  productPath,
   productTypePath,
   tagPath,
   usecaseCategoryPath,
@@ -26,7 +30,6 @@ import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
 import { productTypeSlugFromValue } from "@/lib/product-types/models"
 import { buildQuery } from "@/lib/urlParams"
-import { pluralize } from "@/lib/pluralize"
 import { cn } from "@/lib/utils"
 import {
   buildPseoSearchParams,
@@ -82,48 +85,6 @@ type ProductSlicePageProps = {
   itemListName: string
   itemListDescription: string
   faqQualifier: string
-}
-
-function productCategoryName(product: ProductCardBase) {
-  return typeof product.category === "string"
-    ? product.category
-    : (product.category?.name ?? null)
-}
-
-function productReason(product: ProductCardBase, fallbackContext: string) {
-  const reasons = [
-    product.tagline?.trim(),
-    productCategoryName(product)
-      ? `listed in ${productCategoryName(product)}`
-      : null,
-    product.isVerified ? "verified maker profile" : null,
-    product.sponsored ? "promoted launch placement" : null,
-    typeof product.analytics?.upvotes === "number" &&
-    product.analytics.upvotes > 0
-      ? `${product.analytics.upvotes} ${pluralize(product.analytics.upvotes, "upvote")}`
-      : null,
-  ].filter((item): item is string => Boolean(item))
-
-  return reasons.length
-    ? reasons.slice(0, 3).join("; ")
-    : `matches the ${fallbackContext} filter on Shipyard.`
-}
-
-function buildIntroCopy({
-  title,
-  description,
-  total,
-  chips,
-}: {
-  title: string
-  description: string
-  total: number
-  chips: string[]
-}) {
-  const filters = chips.length
-    ? ` The active filters are ${chips.join(", ")}.`
-    : ""
-  return `${description} Shipyard uses published product metadata, launch recency, maker signals, and directory relationships to keep this ${title.toLowerCase()} view useful for comparison.${filters} There ${total === 1 ? "is" : "are"} ${total} ${pluralize(total, "product")} in this slice.`
 }
 
 function buildRelatedLinks({
@@ -327,7 +288,6 @@ function buildLinkGroups({
 export function ProductSlicePage({
   title,
   description,
-  intro,
   pagePath,
   scriptKeyPrefix,
   breadcrumbs,
@@ -338,7 +298,6 @@ export function ProductSlicePage({
   parsed,
   rawSearchParams,
   searchParams,
-  chips,
   itemListName,
   itemListDescription,
   faqQualifier,
@@ -394,20 +353,76 @@ export function ProductSlicePage({
     question: entry.name,
     answer: entry.acceptedAnswer.text,
   }))
-  const topProducts = products.slice(0, 5)
   const linkGroups = buildLinkGroups({ products, searchParams })
-  const uniqueIntro =
-    intro ??
-    buildIntroCopy({
-      title,
-      description,
-      total,
-      chips,
-    })
   const directoryLinks = buildRelatedLinks({ breadcrumbs, relatedLinks })
-
-  return (
-    <main className="relative isolate bg-[#f5f7fb]">
+  const verifiedCount = products.filter((product) => product.isVerified).length
+  const referenceDateIso = resolveTaxonomyReferenceDateIso(products)
+  const browseParams = new URLSearchParams()
+  if (searchParams.useCase) browseParams.set("useCase", searchParams.useCase)
+  if (searchParams.category) browseParams.set("category", searchParams.category)
+  if (searchParams.platform) browseParams.set("platform", searchParams.platform)
+  if (searchParams.pricingModel) {
+    browseParams.set("pricingModel", searchParams.pricingModel)
+  }
+  const browseHref = browseParams.toString()
+    ? `${BROWSE_PATH}?${browseParams.toString()}`
+    : BROWSE_PATH
+  const filterControls = (
+    <div className="rounded-lg border border-[#e2e8f0] bg-white p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        {pseoSortOptions.map((option) => (
+          <Link
+            key={option.value}
+            href={buildPath({ sort: option.value })}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-sm font-semibold transition",
+              option.value === parsed.sort
+                ? "border-[#0051d5] bg-[#0051d5] text-white"
+                : "border-[#e2e8f0] bg-white text-[#0b1c30] hover:bg-[#f8fafc]",
+            )}
+          >
+            {option.label}
+          </Link>
+        ))}
+        {parsed.verified ? (
+          <Link
+            href={buildPath({ verified: null })}
+            className="ml-auto rounded-lg border border-[#e2e8f0] px-3 py-2 text-sm font-semibold text-[#0b1c30] transition hover:bg-[#f8fafc]"
+          >
+            Show all makers
+          </Link>
+        ) : (
+          <Link
+            href={buildPath({ verified: "true" })}
+            className="ml-auto rounded-lg border border-[#e2e8f0] px-3 py-2 text-sm font-semibold text-[#0b1c30] transition hover:bg-[#f8fafc]"
+          >
+            Verified only
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+  const feed = (
+    <div className="space-y-6">
+      {filterControls}
+      <TaxonomyProductGridFeed
+        products={products}
+        hasMore={hasMore}
+        initialPage={parsed.page + 1}
+        pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
+        referenceDateIso={referenceDateIso}
+        searchParams={{
+          ...searchParams,
+          sort: parsed.sort,
+          verified: searchParams.verified || parsed.verified,
+          q: parsed.query,
+        }}
+        emptyTitle={`No ${title.toLowerCase()} yet`}
+      />
+    </div>
+  )
+  const structuredData = (
+    <>
       <CoreStructuredData
         scriptKeyPrefix={scriptKeyPrefix}
         webPage={{ path: pagePath, name: title }}
@@ -428,250 +443,117 @@ export function ProductSlicePage({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
       />
-
-      <div className="mx-auto max-w-[110rem] px-4 pb-24 pt-12 md:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-7">
-          <nav
-            aria-label="Breadcrumb"
-            className="text-sm text-muted-foreground"
-          >
-            <ol className="flex flex-wrap items-center justify-center gap-2">
-              {breadcrumbs.map((item, index) => {
-                const isCurrent = index === breadcrumbs.length - 1
-                return (
-                  <li
-                    key={`${item.path}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    {index > 0 ? <span aria-hidden="true">/</span> : null}
-                    {isCurrent ? (
-                      <span className="font-semibold text-foreground">
-                        {item.name}
-                      </span>
-                    ) : (
-                      <Link
-                        href={item.path}
-                        className="underline-offset-4 hover:text-foreground hover:underline"
-                      >
-                        {item.name}
-                      </Link>
-                    )}
-                  </li>
-                )
-              })}
-            </ol>
-          </nav>
-
-          <div className="space-y-3 text-center">
-            <h1 className="text-4xl font-semibold tracking-tight text-[#1C2333] sm:text-5xl">
-              {title}
-            </h1>
-            <p className="text-base text-muted-foreground sm:text-lg">
-              {description}
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
-              <span className="rounded-full border border-border/70 bg-white px-3 py-1 font-semibold text-foreground shadow-sm">
-                {total} {pluralize(total, "result")}
-              </span>
-              {chips.map((chip) => (
-                <span
-                  key={chip}
-                  className="rounded-full border border-border/70 bg-white px-3 py-1 font-semibold text-foreground shadow-sm"
-                >
-                  {chip}
+    </>
+  )
+  const afterFeed = (
+    <div className="space-y-8">
+      {directoryLinks.length ? (
+        <section>
+          <h2 className="text-lg font-semibold text-black">
+            Related directories
+          </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {directoryLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-lg border border-[#e2e8f0] bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span className="block text-sm font-semibold text-black">
+                  {link.label}
                 </span>
-              ))}
-              {parsed.verified ? (
-                <span className="rounded-full border border-border/70 bg-white px-3 py-1 font-semibold text-foreground shadow-sm">
-                  Verified makers only
-                </span>
-              ) : null}
-            </div>
+                {link.description ? (
+                  <span className="mt-1 block text-sm leading-6 text-[#43474c]">
+                    {link.description}
+                  </span>
+                ) : null}
+              </Link>
+            ))}
           </div>
+        </section>
+      ) : null}
 
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/70 bg-white px-4 py-3 shadow-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              {pseoSortOptions.map((option) => (
-                <Link
-                  key={option.value}
-                  href={buildPath({ sort: option.value })}
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-sm font-semibold shadow-sm transition",
-                    option.value === parsed.sort
-                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)] text-white"
-                      : "border-border/70 bg-background text-foreground hover:border-border hover:bg-muted/60 dark:border-border/40 dark:bg-slate-950/70",
-                  )}
-                >
-                  {option.label}
-                </Link>
-              ))}
-            </div>
-            <div className="ms-auto flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              {parsed.verified ? (
-                <Link
-                  href={buildPath({ verified: null })}
-                  className="rounded-full border border-border px-3 py-1 font-semibold text-foreground"
-                >
-                  Show all makers
-                </Link>
-              ) : (
-                <Link
-                  href={buildPath({ verified: "true" })}
-                  className="rounded-full border border-border px-3 py-1 font-semibold text-foreground"
-                >
-                  Verified only
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <section className="border-t border-border/70 pt-5">
-            <h2 className="text-sm font-semibold text-[#1C2333]">
-              How to use this directory
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-              {uniqueIntro}
-            </p>
-          </section>
-
-          {topProducts.length ? (
-            <section className="border-t border-border/70 pt-5">
-              <h2 className="text-sm font-semibold text-[#1C2333]">
-                Top products in this slice
-              </h2>
-              <ol className="mt-3 divide-y divide-border/70">
-                {topProducts.map((product, index) => (
-                  <li key={product.id} className="py-3 first:pt-0">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <Link
-                        href={productPath(product.slug)}
-                        className="font-semibold text-foreground underline-offset-4 hover:underline"
-                      >
-                        {index + 1}. {product.name}
-                      </Link>
-                      {product.isVerified ? (
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
-                          Verified
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      Reason to consider: {productReason(product, faqQualifier)}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ) : null}
-
-          {directoryLinks.length ? (
-            <section className="border-t border-border/70 pt-5">
-              <h2 className="text-sm font-semibold text-[#1C2333]">
-                Related directories
-              </h2>
-              <div className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                {directoryLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="group block min-w-0 border-t border-border/60 pt-3 transition first:border-t-0 first:pt-0 sm:[&:nth-child(2)]:border-t-0 sm:[&:nth-child(2)]:pt-0"
-                  >
-                    <span className="block text-sm font-semibold text-foreground">
+      {linkGroups.length ? (
+        <section>
+          <h2 className="text-lg font-semibold text-black">
+            More ways to explore
+          </h2>
+          <div className="mt-3 grid gap-4 md:grid-cols-3">
+            {linkGroups.map((group) => (
+              <div
+                key={group.title}
+                className="rounded-lg border border-[#e2e8f0] bg-white p-4"
+              >
+                <h3 className="text-sm font-semibold text-[#0b1c30]">
+                  {group.title}
+                </h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {group.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      title={link.description}
+                      className="rounded-full border border-[#e2e8f0] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#0b1c30] transition hover:border-[#0051d5]/30 hover:bg-white hover:text-[#0051d5]"
+                    >
                       {link.label}
-                    </span>
-                    {link.description ? (
-                      <span className="mt-1 block text-sm leading-6 text-muted-foreground group-hover:text-foreground">
-                        {link.description}
-                      </span>
-                    ) : null}
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </section>
-          ) : null}
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-          {linkGroups.length ? (
-            <section className="border-t border-border/70 pt-5">
-              <h2 className="text-sm font-semibold text-[#1C2333]">
-                More ways to explore this slice
-              </h2>
-              <div className="mt-3 grid gap-4 md:grid-cols-3">
-                {linkGroups.map((group) => (
-                  <div key={group.title} className="space-y-2">
-                    <h3 className="text-sm font-semibold text-foreground">
-                      {group.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {group.links.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          title={link.description}
-                          className="rounded-full border border-border/70 bg-white/70 px-3 py-1 text-xs font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          <AnswerBlocks
-            blocks={[
-              {
-                title: "What this page lists",
-                body: `${title} lists ${total} ${pluralize(total, "product")} matching this Shipyard directory slice. The results reflect the selected filters, sort order, and available public product metadata.`,
-              },
-              {
-                title: "Who it is for",
-                body: `This page is for founders, buyers, operators, and researchers comparing ${faqQualifier} by category, use case, pricing model, platform, verification, badges, or alternatives.`,
-              },
-              {
-                title: "How rankings work",
-                body: "Default ordering favors recent eligible launches, while trending and vote-based sorting use public Shipyard discovery signals. Sponsored or priority placements may receive eligible visibility treatment.",
-              },
-              {
-                title: "Freshness policy",
-                body: "This directory slice revalidates frequently and updates when products launch, change metadata, receive badges, become verified, or match new filter relationships.",
-              },
-            ]}
-          />
-
-          <section className="border-t border-border/70 pt-5">
-            <h2 className="text-sm font-semibold text-[#1C2333]">
-              Frequently asked questions
-            </h2>
-            <div className="mt-3 grid gap-x-6 gap-y-4 md:grid-cols-2">
-              {visibleFaq.map((entry) => (
-                <article key={entry.question} className="min-w-0">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {entry.question}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {entry.answer}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <ProductGridClient
-            initialProducts={products}
-            initialHasMore={hasMore}
-            initialPage={parsed.page + 1}
-            pageSize={PSEO_PRODUCT_SLICE_PAGE_SIZE}
-            searchParams={{
-              ...searchParams,
-              sort: parsed.sort,
-              verified: searchParams.verified || parsed.verified,
-              q: parsed.query,
-            }}
-          />
+      <section>
+        <h2 className="text-lg font-semibold text-black">
+          Frequently asked questions
+        </h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          {visibleFaq.map((entry) => (
+            <article
+              key={entry.question}
+              className="rounded-lg border border-[#e2e8f0] bg-white p-4"
+            >
+              <h3 className="text-sm font-semibold text-[#0b1c30]">
+                {entry.question}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#43474c]">
+                {entry.answer}
+              </p>
+            </article>
+          ))}
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
+  )
+
+  return (
+    <TaxonomyDetailPage
+      title={title}
+      description={description}
+      icon={<Compass className="h-10 w-10 text-[#c0ff00]" aria-hidden />}
+      primaryCta={{
+        href: MEMBER_PRODUCTS_ADD_PATH,
+        label: "Launch in this directory",
+      }}
+      secondaryCta={{
+        href: PRICING_PATH,
+        label: "Explore promotion tiers",
+      }}
+      tertiaryCta={{
+        href: browseHref,
+        label: "Open in browse",
+      }}
+      stats={[
+        { label: "Results", value: total },
+        { label: "Visible", value: products.length },
+        { label: "Verified", value: verifiedCount },
+      ]}
+      feed={feed}
+      feedTestId="pseo-slice-feed-section"
+      afterFeed={afterFeed}
+      structuredData={structuredData}
+    />
   )
 }

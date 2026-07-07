@@ -7,6 +7,7 @@ import { JsonLdScript } from "next-seo"
 import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
   Apple,
+  ArrowRight,
   BadgeCheck,
   Calendar,
   ExternalLink,
@@ -43,18 +44,22 @@ import {
 import {
   BROWSE_PATH,
   HOME_PATH,
+  LEADERBOARD_PATH,
   alternativeCategoryPath,
   alternativePath,
   categoryPlatformPath,
   categoryPath,
   categoryPricingPath,
   categoryProductTypePath,
+  dailyLeaderboardPath,
+  monthlyLeaderboardPath,
   platformPath,
   pricingModelPath,
   productPath,
   productTypePath,
   tagPath,
   usecaseCategoryPath,
+  usecasePath,
   usecasePlatformPath,
   usecasePricingPath,
   userPath,
@@ -301,6 +306,28 @@ function buildProductDetailMetaDescription(product: {
   )
 }
 
+type InternalLink = {
+  label: string
+  href: string
+  description: string
+}
+
+type InternalLinkGroup = {
+  title: string
+  links: InternalLink[]
+}
+
+function uniqueInternalLinks(links: InternalLink[], limit = 8) {
+  const seen = new Set<string>()
+  return links
+    .filter((link) => {
+      if (!link.href || seen.has(link.href)) return false
+      seen.add(link.href)
+      return true
+    })
+    .slice(0, limit)
+}
+
 function ProductShareMenu({
   productName,
   productTagline,
@@ -439,10 +466,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
   )
-  const offer = {
-    price: ((sidebarProduct.startingPriceCents ?? 0) / 100).toFixed(2),
-    priceCurrency: sidebarProduct.currencyCode || "USD",
-  }
+  const offer =
+    typeof sidebarProduct.startingPriceCents === "number" &&
+    Number.isFinite(sidebarProduct.startingPriceCents)
+      ? {
+          price: (sidebarProduct.startingPriceCents / 100).toFixed(2),
+          priceCurrency: sidebarProduct.currencyCode || "USD",
+        }
+      : undefined
   const platformValues = (sidebarProduct.platforms ?? []) as string[]
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
@@ -527,30 +558,45 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       image: alternative.logoUrl,
     }),
   )
+  const productImageSources = [
+    product.logo,
+    product.bannerImage,
+    ...(product.ProductMedia ?? []).map(
+      (media: { imageUrl: string | null }) => media.imageUrl,
+    ),
+  ].filter((value): value is string => Boolean(value?.trim()))
+  const productStructuredDataId = new URL(
+    `${canonicalPath}#product`,
+    siteConfig.url,
+  ).toString()
+  const productWebPageId = new URL(
+    `${canonicalPath}#webpage`,
+    siteConfig.url,
+  ).toString()
+  const makerEntity = makerName
+    ? {
+        type: "Person" as const,
+        name: makerName,
+        ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
+      }
+    : undefined
   const productStructuredData = buildProductStructuredData({
     path: canonicalPath,
+    id: productStructuredDataId,
     name: product.name,
     description: productMetaDescription,
-    image: product.logo ?? undefined,
+    image: productImageSources,
+    logo: product.logo ?? undefined,
     category: categoryLabel ?? undefined,
     keywords: productKeywords,
     releaseDate: schemaPublishedDateIso,
     datePublished: schemaPublishedDateIso,
     dateModified: updatedDateIso,
-    creator: makerName
-      ? {
-          type: "Person",
-          name: makerName,
-          ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
-        }
-      : undefined,
-    manufacturer: makerName
-      ? {
-          type: "Person",
-          name: makerName,
-          ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
-        }
-      : undefined,
+    mainEntityOfPage: productWebPageId,
+    creator: makerEntity,
+    manufacturer: makerEntity,
+    brand: makerEntity,
+    sameAs: normalizedWebsiteUrl ? [normalizedWebsiteUrl] : undefined,
     isSimilarTo: productAlternatives,
     additionalProperty: [
       ...(makerName ? [{ name: "Maker", value: makerName }] : []),
@@ -598,6 +644,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const primaryUseCaseSlug =
     sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
+  const primaryUseCaseLabel =
+    sidebarProduct.category?.useCases?.[0]?.useCase?.label ?? null
   const primaryCategorySlug = sidebarProduct.category?.slug ?? null
   const publishedSource = product.publishedAt || product.createdAt
   const publishedLabel = publishedSource
@@ -661,103 +709,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       label: formattedLabel || keyword,
     }
   })
-  const relatedDirectoryLinks = (() => {
-    const directories: {
-      label: string
-      href: string
-      description: string
-    }[] = []
-
-    const addDirectoryLink = (link: {
-      label: string
-      href?: string | null
-      description: string
-    }) => {
-      if (!link.href || directories.some((item) => item.href === link.href)) {
-        return
-      }
-      directories.push({
-        label: link.label,
-        href: link.href,
-        description: link.description,
-      })
-    }
-
-    if (primaryCategorySlug && categoryLabel) {
-      addDirectoryLink({
-        label: `${categoryLabel} products`,
-        href: categoryPath(primaryCategorySlug),
-        description: `Browse every ${categoryLabel.toLowerCase()} launch on Shipyard.`,
-      })
-
-      if (pricingModelSlug && pricingModelLabel) {
-        addDirectoryLink({
-          label: `${categoryLabel} with ${pricingModelLabel} pricing`,
-          href: categoryPricingPath(primaryCategorySlug, pricingModelSlug),
-          description: "Compare products in this category by pricing model.",
-        })
-      }
-
-      if (productTypeMeta && productTypeLabel) {
-        addDirectoryLink({
-          label: `${categoryLabel} ${productTypeLabel}`,
-          href: categoryProductTypePath(
-            primaryCategorySlug,
-            productTypeMeta.slug,
-          ),
-          description: "Compare products in this category by product type.",
-        })
-      }
-
-      for (const platform of platformValues.slice(0, 3)) {
-        const platformMeta = getPlatformMetaByValue(platform)
-        if (!platformMeta) continue
-        addDirectoryLink({
-          label: `${categoryLabel} for ${platformMeta.label}`,
-          href: categoryPlatformPath(primaryCategorySlug, platformMeta.slug),
-          description: "Compare products in this category by platform support.",
-        })
-      }
-
-      for (const alternative of sidebarProduct.alternatives.slice(0, 2)) {
-        addDirectoryLink({
-          label: `${alternative.name} alternatives in ${categoryLabel}`,
-          href: alternativeCategoryPath(alternative.slug, primaryCategorySlug),
-          description: `Compare ${categoryLabel.toLowerCase()} products positioned around ${alternative.name}.`,
-        })
-      }
-    }
-
-    if (primaryUseCaseSlug) {
-      if (primaryCategorySlug && categoryLabel) {
-        addDirectoryLink({
-          label: `${categoryLabel} for this use case`,
-          href: usecaseCategoryPath(primaryUseCaseSlug, primaryCategorySlug),
-          description: "Browse this use case narrowed by category.",
-        })
-      }
-
-      if (pricingModelSlug && pricingModelLabel) {
-        addDirectoryLink({
-          label: `${pricingModelLabel} tools for this use case`,
-          href: usecasePricingPath(primaryUseCaseSlug, pricingModelSlug),
-          description: "Browse this use case narrowed by pricing model.",
-        })
-      }
-
-      for (const platform of platformValues.slice(0, 2)) {
-        const platformMeta = getPlatformMetaByValue(platform)
-        if (!platformMeta) continue
-        addDirectoryLink({
-          label: `${platformMeta.label} tools for this use case`,
-          href: usecasePlatformPath(primaryUseCaseSlug, platformMeta.slug),
-          description: "Browse this use case narrowed by supported platform.",
-        })
-      }
-    }
-
-    return directories.slice(0, 4)
-  })()
   const normalizedVideoUrl = product.metadata?.videoUrl?.trim()
     ? ensureUrlHasSchema(product.metadata.videoUrl.trim())
     : null
@@ -788,6 +739,283 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ? Math.max(sidebarUpvotes, analyticsUpvotes)
       : analyticsUpvotes
   const numberFormatter = new Intl.NumberFormat("en-US")
+  const launchDate =
+    publishedSource && !Number.isNaN(new Date(publishedSource).getTime())
+      ? new Date(publishedSource)
+      : null
+  const useCaseLinks = uniqueInternalLinks([
+    ...(sidebarProduct.category?.useCases ?? [])
+      .map((item) => item.useCase)
+      .filter((useCase): useCase is { slug: string; label: string } =>
+        Boolean(useCase?.slug && useCase?.label),
+      )
+      .map((useCase) => ({
+        label: `Use case: ${useCase.label}`,
+        href: usecasePath(useCase.slug),
+        description: `Compare products for teams that ${useCase.label.toLowerCase()}, including tools related to ${product.name}.`,
+      })),
+    ...(primaryUseCaseSlug && primaryCategorySlug && categoryLabel
+      ? [
+          {
+            label: `${categoryLabel} for ${primaryUseCaseLabel ?? "this use case"}`,
+            href: usecaseCategoryPath(primaryUseCaseSlug, primaryCategorySlug),
+            description: `Narrow the research to ${categoryLabel.toLowerCase()} products for ${primaryUseCaseLabel?.toLowerCase() ?? "this use case"}.`,
+          },
+        ]
+      : []),
+  ])
+  const platformDirectoryLinks = uniqueInternalLinks(
+    platformValues
+      .map((platform) => getPlatformMetaByValue(platform))
+      .filter(
+        (
+          platform,
+        ): platform is NonNullable<ReturnType<typeof getPlatformMetaByValue>> =>
+          Boolean(platform),
+      )
+      .flatMap((platform) => [
+        {
+          label: `Platform: ${platform.label}`,
+          href: platformPath(platform.slug),
+          description: `Browse products that support ${platform.label}, including tools related to ${product.name}.`,
+        },
+        ...(primaryCategorySlug && categoryLabel
+          ? [
+              {
+                label: `${categoryLabel} for ${platform.label}`,
+                href: categoryPlatformPath(primaryCategorySlug, platform.slug),
+                description: `Compare ${categoryLabel.toLowerCase()} products that support ${platform.label}.`,
+              },
+            ]
+          : []),
+        ...(primaryUseCaseSlug
+          ? [
+              {
+                label: `${platform.label} tools for this use case`,
+                href: usecasePlatformPath(primaryUseCaseSlug, platform.slug),
+                description: `Compare ${platform.label} products for the same use case as ${product.name}.`,
+              },
+            ]
+          : []),
+      ]),
+  )
+  const pricingDirectoryLinks = uniqueInternalLinks(
+    [
+      ...(pricingModelSlug && pricingModelLabel
+        ? [
+            {
+              label: `Pricing: ${pricingModelLabel}`,
+              href: pricingModelPath(pricingModelSlug),
+              description: `Browse products with ${pricingModelLabel.toLowerCase()} pricing, including tools related to ${product.name}.`,
+            },
+          ]
+        : []),
+      ...(primaryCategorySlug && categoryLabel && pricingModelSlug
+        ? [
+            {
+              label: `${categoryLabel} with ${pricingModelLabel ?? pricingModelSlug} pricing`,
+              href: categoryPricingPath(primaryCategorySlug, pricingModelSlug),
+              description: `Compare ${categoryLabel.toLowerCase()} products by pricing model.`,
+            },
+          ]
+        : []),
+      ...(primaryUseCaseSlug && pricingModelSlug
+        ? [
+            {
+              label: `${pricingModelLabel ?? pricingModelSlug} tools for this use case`,
+              href: usecasePricingPath(primaryUseCaseSlug, pricingModelSlug),
+              description: `Compare products for ${primaryUseCaseLabel?.toLowerCase() ?? "this use case"} by pricing model.`,
+            },
+          ]
+        : []),
+    ],
+    6,
+  )
+  const taxonomyLinks = uniqueInternalLinks(
+    [
+      ...(primaryCategorySlug && categoryLabel
+        ? [
+            {
+              label: `More in ${categoryLabel}`,
+              href: categoryPath(primaryCategorySlug),
+              description: `Browse more ${categoryLabel.toLowerCase()} products and compare where ${product.name} fits in the category.`,
+            },
+          ]
+        : []),
+      ...(productTypeHref && productTypeLabel
+        ? [
+            {
+              label: `More ${productTypeLabel}`,
+              href: productTypeHref,
+              description: `Browse more ${productTypeLabel.toLowerCase()} products related to ${product.name}.`,
+            },
+          ]
+        : []),
+      ...(primaryCategorySlug && categoryLabel && productTypeMeta
+        ? [
+            {
+              label: `${categoryLabel} ${productTypeLabel ?? productTypeMeta.label}`,
+              href: categoryProductTypePath(
+                primaryCategorySlug,
+                productTypeMeta.slug,
+              ),
+              description: `Compare ${categoryLabel.toLowerCase()} products by product type.`,
+            },
+          ]
+        : []),
+      ...keywordTagItems.map((tag) => ({
+        label: `#${tag.label}`,
+        href: tagPath(tag.slug),
+        description: `Browse products tagged with ${tag.label}.`,
+      })),
+    ],
+    10,
+  )
+  const alternativeInternalLinks = uniqueInternalLinks(
+    sidebarProduct.alternatives.flatMap((alternative) => [
+      {
+        label: `Compare ${alternative.name} alternatives`,
+        href: alternativePath(alternative.slug),
+        description: `Use this comparison path when evaluating ${product.name} against ${alternative.name} alternatives.`,
+      },
+      ...(primaryCategorySlug && categoryLabel
+        ? [
+            {
+              label: `${alternative.name} alternatives in ${categoryLabel}`,
+              href: alternativeCategoryPath(
+                alternative.slug,
+                primaryCategorySlug,
+              ),
+              description: `Compare ${categoryLabel.toLowerCase()} products people evaluate against ${alternative.name}.`,
+            },
+          ]
+        : []),
+    ]),
+    8,
+  )
+  const makerInternalLinks = uniqueInternalLinks(
+    productOwner?.id && ownerName
+      ? [
+          {
+            label: `Maker: ${ownerName}`,
+            href: userPath(productOwner.id),
+            description: `View ${ownerName}'s maker profile and other launches.`,
+          },
+        ]
+      : [],
+  )
+  const leaderboardInternalLinks = uniqueInternalLinks(
+    [
+      {
+        label: "Current launch leaderboard",
+        href: LEADERBOARD_PATH,
+        description: "See products currently gaining traction on Shipyard.",
+      },
+      ...(launchDate
+        ? [
+            {
+              label: "Launch day archive",
+              href: dailyLeaderboardPath(
+                launchDate.getUTCFullYear(),
+                launchDate.getUTCMonth() + 1,
+                launchDate.getUTCDate(),
+              ),
+              description:
+                "Check the dated leaderboard archive for this product's launch day.",
+            },
+            {
+              label: "Launch month archive",
+              href: monthlyLeaderboardPath(
+                launchDate.getUTCFullYear(),
+                launchDate.getUTCMonth() + 1,
+              ),
+              description:
+                "Check the monthly leaderboard archive for this product's launch period.",
+            },
+          ]
+        : []),
+    ],
+    4,
+  )
+  const similarInternalLinks = uniqueInternalLinks(
+    [
+      ...(primaryUseCaseSlug
+        ? [
+            {
+              label: "Similar products by use case",
+              href: usecasePath(primaryUseCaseSlug),
+              description: `Browse more products for ${primaryUseCaseLabel?.toLowerCase() ?? "the same use case"}.`,
+            },
+          ]
+        : []),
+      ...(primaryCategorySlug && categoryLabel
+        ? [
+            {
+              label: `Similar ${categoryLabel} products`,
+              href: categoryPath(primaryCategorySlug),
+              description: `Browse more products in ${categoryLabel.toLowerCase()} and compare them with ${product.name}.`,
+            },
+          ]
+        : []),
+    ],
+    4,
+  )
+  const internalLinkGroups: InternalLinkGroup[] = [
+    {
+      title: "Product context",
+      links: uniqueInternalLinks([
+        ...taxonomyLinks,
+        ...makerInternalLinks,
+        ...useCaseLinks,
+      ]),
+    },
+    {
+      title: "Pricing and platform slices",
+      links: uniqueInternalLinks([
+        ...pricingDirectoryLinks,
+        ...platformDirectoryLinks,
+      ]),
+    },
+    {
+      title: "Alternatives and similar launches",
+      links: uniqueInternalLinks([
+        ...alternativeInternalLinks,
+        ...similarInternalLinks,
+      ]),
+    },
+    {
+      title: "Leaderboard archives",
+      links: leaderboardInternalLinks,
+    },
+  ].filter((group) => group.links.length)
+  const visibleInternalLinks = uniqueInternalLinks(
+    [
+      taxonomyLinks[0],
+      makerInternalLinks[0],
+      useCaseLinks[0],
+      pricingDirectoryLinks[0],
+      platformDirectoryLinks[0],
+      alternativeInternalLinks[0],
+      leaderboardInternalLinks[0],
+      similarInternalLinks[0],
+    ].filter((link): link is InternalLink => Boolean(link)),
+    6,
+  )
+  const visibleInternalLinkHrefs = new Set(
+    visibleInternalLinks.map((link) => link.href),
+  )
+  const overflowInternalLinkGroups = internalLinkGroups
+    .map((group) => ({
+      ...group,
+      links: group.links.filter(
+        (link) => !visibleInternalLinkHrefs.has(link.href),
+      ),
+    }))
+    .filter((group) => group.links.length)
+  const overflowInternalLinkCount = overflowInternalLinkGroups.reduce(
+    (total, group) => total + group.links.length,
+    0,
+  )
   const sponsoredProductCard = await DetailSponsoredProductCard({
     currentProductSlug: product.slug,
   })
@@ -1015,8 +1243,24 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     <main className="min-h-screen bg-[#f8f9ff]">
       <CoreStructuredData
         scriptKeyPrefix={`product-${product.slug}`}
-        webPage={{ path: canonicalPath, name: product.name }}
-        breadcrumbs={{ items: productBreadcrumbs }}
+        webPage={{
+          path: canonicalPath,
+          id: productWebPageId,
+          name: product.name,
+          description: productMetaDescription,
+          keywords: productKeywords,
+          datePublished: schemaPublishedDateIso,
+          dateModified: updatedDateIso,
+          primaryImageOfPage: product.bannerImage ?? product.logo ?? undefined,
+          mainEntity: {
+            type: "Product",
+            id: productStructuredDataId,
+          },
+        }}
+        breadcrumbs={{
+          items: productBreadcrumbs,
+          options: { pageUrl: canonicalPath },
+        }}
       />
       <JsonLdScript
         data={productStructuredData}
@@ -1152,35 +1396,88 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
               ) : null}
             </section>
-            {relatedDirectoryLinks.length ? (
-              <section className="rounded-xl border border-border bg-white p-5 shadow-sm">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Related directories
-                </h2>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {relatedDirectoryLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      title={link.description}
-                      className="group flex min-w-0 items-start justify-between gap-3 rounded-lg border border-border bg-[#f8fafc] px-3 py-3 transition hover:border-[#0051d5]/30 hover:bg-white"
-                    >
-                      <span className="min-w-0">
-                        <span className="line-clamp-1 block text-sm font-semibold text-foreground">
-                          {link.label}
+            {visibleInternalLinks.length ? (
+              <nav
+                aria-label={`Research paths related to ${product.name}`}
+                className="rounded-xl border border-border bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">
+                      Continue researching {product.name}
+                    </h2>
+                    <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
+                      Compare {product.name} by category, use case, maker,
+                      pricing, platform support, alternatives, and launch
+                      context.
+                    </p>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {visibleInternalLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        title={link.description}
+                        className="group flex min-w-0 items-start justify-between gap-3 rounded-lg border border-border bg-[#f8fafc] px-3 py-3 transition hover:border-[#0051d5]/30 hover:bg-white"
+                      >
+                        <span className="min-w-0">
+                          <span className="line-clamp-1 block text-sm font-semibold text-foreground group-hover:text-[#0051d5]">
+                            {link.label}
+                          </span>
+                          <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                            {link.description}
+                          </span>
                         </span>
-                        <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
-                          {link.description}
-                        </span>
+                        <ArrowRight
+                          className="mt-1 size-3.5 shrink-0 text-muted-foreground transition group-hover:text-[#0051d5]"
+                          aria-hidden
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {overflowInternalLinkGroups.length ? (
+                  <details className="group mt-3">
+                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-[#0051d5]">
+                      <span>
+                        {`Show all research paths (${overflowInternalLinkCount})`}
                       </span>
-                      <ExternalLink
-                        className="mt-0.5 size-3.5 shrink-0 text-muted-foreground transition group-hover:text-[#0051d5]"
+                      <ArrowRight
+                        className="size-3 transition group-open:rotate-90"
                         aria-hidden
                       />
-                    </Link>
-                  ))}
-                </div>
-              </section>
+                    </summary>
+                    <div className="mt-3 grid gap-x-6 gap-y-4 border-t border-border pt-3 sm:grid-cols-2">
+                      {overflowInternalLinkGroups.map((group) => (
+                        <section key={group.title} aria-label={group.title}>
+                          <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            {group.title}
+                          </h3>
+                          <ul className="mt-2 space-y-2">
+                            {group.links.map((link) => (
+                              <li key={link.href}>
+                                <Link
+                                  href={link.href}
+                                  title={link.description}
+                                  className="group/link block rounded-md px-1 py-0.5 transition hover:bg-[#f8fafc]"
+                                >
+                                  <span className="block text-xs font-semibold text-foreground underline-offset-4 group-hover/link:text-[#0051d5] group-hover/link:underline">
+                                    {link.label}
+                                  </span>
+                                  <span className="mt-0.5 line-clamp-2 block text-[11px] leading-4 text-muted-foreground">
+                                    {link.description}
+                                  </span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </nav>
             ) : null}
           </div>
 

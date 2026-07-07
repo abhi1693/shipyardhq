@@ -81,6 +81,7 @@ export function TaxonomyDetailPage({
       ? sponsorProductsProp
       : [sponsorProduct, secondarySponsor]
   ).filter((product): product is TaxonomySponsorProduct => Boolean(product))
+  const hasSidebar = Boolean(trafficStats || sponsorProducts.length)
 
   return (
     <main className="bg-[#f8fafc] text-[#0b1c30]">
@@ -138,7 +139,13 @@ export function TaxonomyDetailPage({
       </section>
 
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
-        <div className="space-y-12 lg:col-span-8">
+        <div
+          className={
+            hasSidebar
+              ? "space-y-12 lg:col-span-8"
+              : "space-y-12 lg:col-span-12"
+          }
+        >
           <AnswerBlocks
             blocks={[
               {
@@ -163,11 +170,13 @@ export function TaxonomyDetailPage({
           {afterFeed}
         </div>
 
-        <aside className="space-y-6 lg:col-span-4">
-          {trafficStats}
+        {hasSidebar ? (
+          <aside className="space-y-6 lg:col-span-4">
+            {trafficStats}
 
-          <TaxonomySponsorsSidebar products={sponsorProducts} />
-        </aside>
+            <TaxonomySponsorsSidebar products={sponsorProducts} />
+          </aside>
+        ) : null}
       </div>
     </main>
   )

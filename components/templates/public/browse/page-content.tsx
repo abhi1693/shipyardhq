@@ -19,6 +19,8 @@ import { BrowseDiscoveryFilters } from "@/components/templates/public/browse/Bro
 import { BrowseProductRows } from "@/components/templates/public/browse/BrowseProductRows"
 import { BrowseProductRowsClient } from "@/components/templates/public/browse/BrowseProductRowsClient"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
+import { buildProductListItem } from "@/lib/seo/product-list"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 
 type StrOrArr = string | string[] | undefined
 
@@ -89,6 +91,7 @@ export async function BrowsePageContent({
     filters: normalizedFilters,
     products,
     hasMore,
+    total,
     useCases,
     categories,
     filterSummary,
@@ -99,9 +102,37 @@ export async function BrowsePageContent({
     (total, category) => total + (category._count?.products ?? 0),
     0,
   )
+  const siteUrl = resolveSiteUrl()
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${siteUrl}${BROWSE_PATH}#itemlist`,
+    name: hasActiveFilters
+      ? `Shipyard products matching ${filterSummary.join(", ")}`
+      : "Shipyard product launches",
+    description:
+      "Browse public Shipyard product launches across apps, SaaS tools, APIs, AI products, developer tools, and startup projects.",
+    numberOfItems: total,
+    itemListOrder:
+      normalizedFilters.sort === "az"
+        ? "https://schema.org/ItemListOrderAscending"
+        : "https://schema.org/ItemListOrderDescending",
+    itemListElement: products.slice(0, 20).map((product, index) =>
+      buildProductListItem({
+        product,
+        position: index + 1,
+        siteUrl,
+      }),
+    ),
+  }
 
   return (
     <main className="min-h-screen bg-[#f8fafc] text-[#0b1c30]">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
       <BrowseHeroSearch
         query={normalizedFilters.query}
         categories={categories}

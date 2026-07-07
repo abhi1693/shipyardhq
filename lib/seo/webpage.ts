@@ -9,6 +9,16 @@ export type WebPageStructuredData = {
   name: string
   description?: string
   keywords?: string
+  datePublished?: string
+  dateModified?: string
+  primaryImageOfPage?: {
+    "@type": "ImageObject"
+    url: string
+  }
+  mainEntity?: {
+    "@type": string
+    "@id": string
+  }
 }
 
 export type BuildWebPageStructuredDataOptions = {
@@ -34,6 +44,13 @@ export type BuildWebPageStructuredDataOptions = {
   name?: string
   description?: string
   keywords?: string[]
+  datePublished?: string
+  dateModified?: string
+  primaryImageOfPage?: string
+  mainEntity?: {
+    type?: string
+    id: string
+  }
 }
 
 const normalizePath = (value: string) => {
@@ -69,6 +86,18 @@ export function buildWebPageStructuredData(
     .map((keyword) => keyword.trim())
     .filter(Boolean)
     .join(", ")
+  const datePublished = options.datePublished?.trim()
+  const dateModified = options.dateModified?.trim()
+  const primaryImageUrl = options.primaryImageOfPage
+    ? toAbsoluteUrlFromSite(options.primaryImageOfPage, siteUrl)
+    : undefined
+  const mainEntityId = options.mainEntity?.id.trim()
+  const mainEntity = mainEntityId
+    ? {
+        "@type": options.mainEntity?.type?.trim() || "Thing",
+        "@id": mainEntityId,
+      }
+    : undefined
 
   return {
     "@context": "https://schema.org",
@@ -78,6 +107,12 @@ export function buildWebPageStructuredData(
     name,
     description,
     keywords: keywords || undefined,
+    datePublished,
+    dateModified,
+    primaryImageOfPage: primaryImageUrl
+      ? { "@type": "ImageObject", url: primaryImageUrl }
+      : undefined,
+    mainEntity,
   }
 }
 

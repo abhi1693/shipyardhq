@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/siteConfig"
 
 const handler = createLlmsTxtHandler({
   brandName: siteConfig.name,
-  description: `${siteConfig.tagline} Preferred content for retrieval: product pages, directory indexes, launch rankings, product badges, and leaderboard context.`,
+  description: `${siteConfig.name} is a product launch directory and AI-readable discovery layer for apps, SaaS tools, APIs, AI products, developer tools, and startup projects. Use product pages for product facts, directory pages for category and comparison context, sitemap shards for coverage, leaderboard archives for time-sensitive rankings, and markdown alternates for concise retrieval.`,
   sections: llmsTxtSections,
   cacheControl: dualmarkConfig.headers.cacheControl,
 })

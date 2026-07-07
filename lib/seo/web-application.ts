@@ -67,6 +67,11 @@ const normalizePath = (value: string) => {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
 }
 
+const omitUndefined = <T extends Record<string, unknown>>(value: T): T =>
+  Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as T
+
 const normalizeStringArray = (value?: string | string[]) => {
   if (!value) return undefined
   const array = Array.isArray(value) ? value : [value]
@@ -101,18 +106,10 @@ const normalizeOffer = (
   if (!offer) return undefined
   const price = offer.price
   const priceCurrency = offer.priceCurrency?.trim()
-  if (
-    (price === undefined || price === null || price === "") &&
-    !priceCurrency
-  ) {
-    return undefined
-  }
+  if (price === undefined || price === null || price === "") return undefined
   const priceValue =
-    price === undefined || price === null
-      ? undefined
-      : typeof price === "number"
-        ? price.toString()
-        : String(price).trim()
+    typeof price === "number" ? price.toString() : String(price).trim()
+  if (!priceValue) return undefined
   return {
     "@type": "Offer",
     price: priceValue,
@@ -161,7 +158,7 @@ export function buildWebApplicationStructuredData(
   const offers = normalizeOffer(options.offers)
   const author = normalizeAuthor(siteUrl, options.author)
 
-  return {
+  return omitUndefined({
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "@id": id,
@@ -177,7 +174,7 @@ export function buildWebApplicationStructuredData(
     browserRequirements,
     offers,
     author,
-  }
+  })
 }
 
 export const defaultWebApplicationStructuredData =

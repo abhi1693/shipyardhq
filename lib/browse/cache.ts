@@ -62,6 +62,7 @@ export type BrowsePagePayload = {
   filters: BrowsePageFilters
   products: Awaited<ReturnType<typeof getBrowseProducts>>["products"]
   hasMore: Awaited<ReturnType<typeof getBrowseProducts>>["hasMore"]
+  total: Awaited<ReturnType<typeof getBrowseProducts>>["total"]
   featured: Awaited<ReturnType<typeof getProducts>>
   useCases: Awaited<ReturnType<typeof getUseCasesWithCounts>>
   categories: CategoryWithProductCount[]
@@ -199,7 +200,7 @@ export const getBrowsePagePayload = async (
   ])
 
   const products: ProductCardBase[] = browseResult.products
-  const { hasMore } = browseResult
+  const { hasMore, total } = browseResult
 
   const interestMap = await getProductInterestSignalsMap({
     products: products.map((product) => ({
@@ -296,6 +297,7 @@ export const getBrowsePagePayload = async (
     filters,
     products: productsWithInterest,
     hasMore,
+    total,
     featured,
     useCases,
     categories,

@@ -25,6 +25,20 @@ describe("public docs cache headers", () => {
     expect(body).not.toContain("Categories sitemap")
   })
 
+  it("describes Shipyard retrieval, markdown, and citation guidance in llms.txt", async () => {
+    const response = await getLlmsTxt()
+    const body = await response.text()
+
+    expect(body).toContain("Product discovery and research")
+    expect(body).toContain("Path format: /products/{slug}")
+    expect(body).toContain("Machine-readable access")
+    expect(body).toContain("Markdown product pattern")
+    expect(body).toContain("ItemList structured data")
+    expect(body).toContain("Citation and attribution guidance")
+    expect(body).toContain("Data sourced from Shipyard HQ")
+    expect(body).toContain("sitemap-products.xml")
+  })
+
   it("sets public cache headers on Dualmark markdown responses", async () => {
     const response = markdownResponse("# Shipyard\n", {
       cacheControl: PUBLIC_CONTENT_CACHE_CONTROL,

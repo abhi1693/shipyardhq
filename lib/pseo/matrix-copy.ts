@@ -14,6 +14,21 @@ type CountedCopy = {
   description: string
 }
 
+export type UseCaseCategoryEditorial = {
+  eyebrow: string
+  title: string
+  summary: string
+  criteria: Array<{
+    title: string
+    body: string
+  }>
+  shortlist: {
+    title: string
+    items: string[]
+  } | null
+  caveat: string
+}
+
 const sentence = (value?: string | null) => {
   const trimmed = value?.trim()
   if (!trimmed) return null
@@ -22,6 +37,34 @@ const sentence = (value?: string | null) => {
 
 const capitalizeFirst = (value: string) =>
   value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value
+
+const USE_CASE_GERUNDS: Record<string, string> = {
+  accept: "accepting",
+  automate: "automating",
+  build: "building",
+  create: "creating",
+  deliver: "delivering",
+  grow: "growing",
+  launch: "launching",
+  monetize: "monetizing",
+  monitor: "monitoring",
+  optimize: "optimizing",
+  plan: "planning",
+  run: "running",
+  scale: "scaling",
+  secure: "securing",
+  ship: "shipping",
+  track: "tracking",
+}
+
+export const formatUseCaseGerundPhrase = (label: string) => {
+  const words = label.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  if (!words.length) return label.trim().toLowerCase()
+
+  const [first, ...rest] = words
+  const gerund = USE_CASE_GERUNDS[first]
+  return gerund ? [gerund, ...rest].join(" ") : words.join(" ")
+}
 
 export const productCountPhrase = (count: number) =>
   `${count} ${pluralize(count, "product")}`
@@ -135,11 +178,75 @@ export function buildUseCaseCategoryMatrixCopy({
   categoryName: string
   total: number
 }): CountedCopy {
-  const useCase = useCaseLabel.toLowerCase()
+  const useCase = formatUseCaseGerundPhrase(useCaseLabel)
+  const categoryTools = lowerCategoryNounPhrase(categoryName, "tools")
+  const count = productCountPhrase(total)
 
   return {
-    title: `${categoryNounPhrase(categoryName, "tools")} for teams that ${useCase}`,
-    description: `Shortlist ${productCountPhrase(total)} ${categoryName.toLowerCase()} listings mapped to the ${useCaseLabel} workflow. This slice keeps category fit, launch recency, and maker verification visible for faster research.`,
+    title: `Best ${categoryTools} for ${useCase}`,
+    description: `Explore ${count} ${categoryTools} for teams ${useCase}. Compare new launches, pricing, platforms, maker profiles, screenshots, and verified products before you pick the right tool.`,
+  }
+}
+
+export function buildUseCaseCategoryEditorial({
+  useCaseLabel,
+  categoryName,
+  categoryDescription,
+  total,
+  productNames,
+}: {
+  useCaseLabel: string
+  categoryName: string
+  categoryDescription?: string | null
+  total: number
+  productNames?: string[]
+}): UseCaseCategoryEditorial {
+  const useCase = useCaseLabel.toLowerCase()
+  const categoryLower = categoryName.toLowerCase()
+  const categoryTools = lowerCategoryNounPhrase(categoryName, "tools")
+  const cleanProductNames = Array.from(
+    new Set((productNames ?? []).map((name) => name.trim()).filter(Boolean)),
+  ).slice(0, 4)
+  const context = sentence(categoryDescription)
+
+  return {
+    eyebrow: "Editorial shortlist",
+    title: `How to choose ${categoryTools} for teams that ${useCase}`,
+    summary: [
+      context,
+      `The best ${categoryTools} for teams that ${useCase} should match the workflow first, then prove category fit with clear product metadata, recent launch activity, visible maker signals, and enough public context to compare alternatives without opening every listing.`,
+    ]
+      .filter(Boolean)
+      .join(" "),
+    criteria: [
+      {
+        title: "Workflow fit",
+        body: `Start with products that explicitly support the ${useCaseLabel} job-to-be-done instead of broad ${categoryLower} positioning. The strongest matches explain the use case in the tagline, description, tags, or category relationships.`,
+      },
+      {
+        title: "Category proof",
+        body: `Use this page when ${categoryLower} is a hard requirement. Product pages should make the category, product type, pricing model, platform support, and alternatives clear enough for side-by-side evaluation.`,
+      },
+      {
+        title: "Trust and freshness",
+        body: "Prioritize listings with recent updates, verified maker signals, badges, screenshots, and meaningful Shipyard discovery signals. Treat rankings, badges, and upvotes as Shipyard-specific metadata, not universal market rank.",
+      },
+      {
+        title: "Shortlist depth",
+        body: `${productCountPhrase(total)} currently match this route. Use newest sorting for fresh launches, trending or vote sorting for traction, and verified-only filtering when buyer trust matters more than breadth.`,
+      },
+    ],
+    shortlist: cleanProductNames.length
+      ? {
+          title: "Products to start with",
+          items: cleanProductNames.map(
+            (name) =>
+              `${name} appears in this filtered Shipyard slice and should be reviewed for workflow fit, pricing, platform support, and current launch signals.`,
+          ),
+        }
+      : null,
+    caveat:
+      "This guide is directory context, not a paid ranking or endorsement. Open each canonical product page to verify current features, pricing, website details, maker information, and screenshots before choosing a vendor.",
   }
 }
 

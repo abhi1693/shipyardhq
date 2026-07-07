@@ -78,7 +78,7 @@ export function buildBreadcrumbListStructuredData(
 
   const pageUrl = options.pageUrl
     ? toAbsoluteUrlFromSite(options.pageUrl, siteUrl)
-    : undefined
+    : normalizedItems.at(-1)?.item
 
   const id =
     options.id?.trim() || (pageUrl ? `${pageUrl}#breadcrumb` : undefined)

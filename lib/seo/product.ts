@@ -28,6 +28,7 @@ export type ProductCreator = {
   type?: "Person" | "Organization"
   name: string
   url?: string
+  image?: string
 }
 
 export type ProductStructuredData = {
@@ -47,12 +48,23 @@ export type ProductStructuredData = {
     "@type": "Person" | "Organization"
     name: string
     url?: string
+    image?: string
   }
   manufacturer?: {
     "@type": "Person" | "Organization"
     name: string
     url?: string
+    image?: string
   }
+  brand?: {
+    "@type": "Organization" | "Brand"
+    name: string
+    url?: string
+    logo?: string
+  }
+  logo?: string
+  sameAs?: string[]
+  mainEntityOfPage?: string
   isSimilarTo?: Array<{
     "@type": "Product" | "Thing"
     name: string
@@ -92,6 +104,10 @@ export type BuildProductStructuredDataOptions = {
   dateModified?: string
   creator?: ProductCreator
   manufacturer?: ProductCreator
+  brand?: ProductCreator
+  logo?: string
+  sameAs?: string[]
+  mainEntityOfPage?: string
   isSimilarTo?: ProductRelatedEntity[]
   additionalProperty?: ProductFact[]
   aggregateRating?: ProductAggregateRating
@@ -103,6 +119,11 @@ const normalizePath = (value: string) => {
   if (!trimmed) return ""
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
 }
+
+const omitUndefined = <T extends Record<string, unknown>>(value: T): T =>
+  Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
+  ) as T
 
 const normalizeMedia = (
   value: string | string[] | undefined,
@@ -155,18 +176,10 @@ const normalizeOffer = (
   if (!offer) return undefined
   const price = offer.price
   const priceCurrency = offer.priceCurrency?.trim()
-  if (
-    (price === undefined || price === null || price === "") &&
-    !priceCurrency
-  ) {
-    return undefined
-  }
+  if (price === undefined || price === null || price === "") return undefined
   const priceString =
-    price === undefined || price === null
-      ? undefined
-      : typeof price === "number"
-        ? price.toString()
-        : String(price).trim()
+    typeof price === "number" ? price.toString() : String(price).trim()
+  if (!priceString) return undefined
   return {
     "@type": "Offer",
     price: priceString,
@@ -195,10 +208,33 @@ const normalizeCreator = (
   const url = creator?.url
     ? toAbsoluteUrlFromSite(creator.url, siteUrl)
     : undefined
+  const image = creator?.image
+    ? toAbsoluteUrlFromSite(creator.image, siteUrl)
+    : undefined
   return {
     "@type": creator.type ?? "Person",
     name,
     ...(url ? { url } : {}),
+    ...(image ? { image } : {}),
+  }
+}
+
+const normalizeBrand = (
+  siteUrl: string,
+  brand?: ProductCreator,
+): ProductStructuredData["brand"] => {
+  if (!brand) return undefined
+  const name = brand.name.trim()
+  if (!name) return undefined
+  const url = brand.url ? toAbsoluteUrlFromSite(brand.url, siteUrl) : undefined
+  const logo = brand.image
+    ? toAbsoluteUrlFromSite(brand.image, siteUrl)
+    : undefined
+  return {
+    "@type": brand.type === "Organization" ? "Organization" : "Brand",
+    name,
+    ...(url ? { url } : {}),
+    ...(logo ? { logo } : {}),
   }
 }
 
@@ -267,6 +303,21 @@ export function buildProductStructuredData(
   const dateModified = options.dateModified?.trim()
   const creator = normalizeCreator(siteUrl, options.creator)
   const manufacturer = normalizeCreator(siteUrl, options.manufacturer)
+  const brand = normalizeBrand(siteUrl, options.brand)
+  const logo = options.logo
+    ? toAbsoluteUrlFromSite(options.logo, siteUrl)
+    : undefined
+  const sameAs = Array.from(
+    new Set(
+      (options.sameAs ?? [])
+        .map((item) => toAbsoluteUrlFromSite(item, siteUrl))
+        .filter((item): item is string => Boolean(item)),
+    ),
+  )
+  const mainEntityOfPage = options.mainEntityOfPage
+    ? (toAbsoluteUrlFromSite(options.mainEntityOfPage, siteUrl) ??
+      options.mainEntityOfPage)
+    : undefined
   const isSimilarTo = normalizeRelatedEntities(siteUrl, options.isSimilarTo)
   const additionalProperty = normalizeAdditionalProperties(
     options.additionalProperty,
@@ -274,7 +325,7 @@ export function buildProductStructuredData(
   const aggregateRating = normalizeAggregateRating(options.aggregateRating)
   const offers = normalizeOffer(options.offers)
 
-  return {
+  return omitUndefined({
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": id,
@@ -289,11 +340,15 @@ export function buildProductStructuredData(
     dateModified,
     creator,
     manufacturer,
+    brand,
+    logo,
+    sameAs: sameAs.length ? sameAs : undefined,
+    mainEntityOfPage,
     isSimilarTo,
     additionalProperty,
     aggregateRating,
     offers,
-  }
+  })
 }
 
 export const defaultProductStructuredData = buildProductStructuredData()
