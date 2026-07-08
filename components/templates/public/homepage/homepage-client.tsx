@@ -17,6 +17,7 @@ import { BadgeCheck, ChevronUp } from "lucide-react"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
@@ -798,37 +799,49 @@ export function HomepageDropsInfiniteList({
 
   return (
     <div className="space-y-3">
-      {visibleSections.map((section) => (
-        <Fragment key={section.key}>
-          <section className="space-y-3">
-            <div className="flex items-center gap-3">
-              <h4 className="shrink-0 text-lg font-semibold text-black">
-                {section.title}
-              </h4>
-              <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
-            </div>
-            <div className="space-y-3">
-              {section.items.length > 0 ? (
-                section.items.map((product) => (
-                  <HomepageDropRow key={dropKey(product)} product={product} />
-                ))
-              ) : (
-                <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
-                  <CardContent className="p-4 text-sm text-[#475569]">
-                    No launches in this window yet.
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </section>
-          {section.key === "yesterday" && afterYesterdaySlot ? (
-            <div className="py-3">{afterYesterdaySlot}</div>
-          ) : null}
-          {section.key === "today" && afterTodaySlot ? (
-            <div className="py-3">{afterTodaySlot}</div>
-          ) : null}
-        </Fragment>
-      ))}
+      {visibleSections.map((section) => {
+        const lastSponsoredIndex = section.items.reduce(
+          (lastIndex, product, index) =>
+            product.isSponsored ? index : lastIndex,
+          -1,
+        )
+        const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+
+        return (
+          <Fragment key={section.key}>
+            <section className="space-y-3">
+              <div className="flex items-center gap-3">
+                <h4 className="shrink-0 text-lg font-semibold text-black">
+                  {section.title}
+                </h4>
+                <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
+              </div>
+              <div className="space-y-3">
+                {section.items.length > 0 ? (
+                  section.items.map((product, index) => (
+                    <Fragment key={dropKey(product)}>
+                      <HomepageDropRow product={product} />
+                      {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
+                    </Fragment>
+                  ))
+                ) : (
+                  <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
+                    <CardContent className="p-4 text-sm text-[#475569]">
+                      No launches in this window yet.
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </section>
+            {section.key === "yesterday" && afterYesterdaySlot ? (
+              <div className="py-3">{afterYesterdaySlot}</div>
+            ) : null}
+            {section.key === "today" && afterTodaySlot ? (
+              <div className="py-3">{afterTodaySlot}</div>
+            ) : null}
+          </Fragment>
+        )
+      })}
 
       <div ref={sentinelRef} className="min-h-10" aria-hidden />
 
