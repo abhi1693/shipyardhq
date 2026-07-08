@@ -1,7 +1,9 @@
+import { Fragment } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, BadgeCheck, ImageIcon, Sparkles } from "lucide-react"
 
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type {
   ProductCardBase,
   ProductCardItem,
@@ -113,13 +115,21 @@ export function BrowseProductRows({
 }: {
   products: ProductCardBase[]
 }) {
+  const items = products.map((product) => toProductCardItem(product))
+  const lastSponsoredIndex = items.reduce(
+    (lastIndex, item, index) =>
+      Boolean(item.sponsored ?? item.isSponsored) ? index : lastIndex,
+    -1,
+  )
+  const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+
   return (
     <div className="space-y-3">
-      {products.map((product) => (
-        <BrowseProductRow
-          key={product.id}
-          product={toProductCardItem(product)}
-        />
+      {items.map((item, index) => (
+        <Fragment key={item.id}>
+          <BrowseProductRow product={item} />
+          {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
+        </Fragment>
       ))}
     </div>
   )

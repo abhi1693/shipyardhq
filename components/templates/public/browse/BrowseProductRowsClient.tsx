@@ -1,8 +1,16 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { BrowseProductRow } from "@/components/templates/public/browse/BrowseProductRows"
@@ -146,12 +154,24 @@ export function BrowseProductRowsClient({
     return () => observer.disconnect()
   }, [hasMore, loadMore, resetKey])
 
+  const lastSponsoredIndex = items.reduce(
+    (lastIndex, current, currentIndex) =>
+      Boolean(current.sponsored ?? current.isSponsored)
+        ? currentIndex
+        : lastIndex,
+    -1,
+  )
+  const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+
   return (
     <section className="space-y-6" data-testid="browse-product-rows-client">
       {items.length ? (
         <div className="space-y-3">
-          {items.map((item) => (
-            <BrowseProductRow key={item.id} product={item} />
+          {items.map((item, index) => (
+            <Fragment key={item.id}>
+              <BrowseProductRow product={item} />
+              {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
+            </Fragment>
           ))}
         </div>
       ) : null}

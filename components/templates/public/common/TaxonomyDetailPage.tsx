@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { type ReactNode } from "react"
 
+import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
@@ -175,6 +176,7 @@ export function TaxonomyDetailPage({
             {trafficStats}
 
             <TaxonomySponsorsSidebar products={sponsorProducts} />
+            <GoogleAdsenseDisplayUnit />
           </aside>
         ) : null}
       </div>

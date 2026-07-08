@@ -1,9 +1,11 @@
+import { Fragment, type ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { categoryPath, productPath } from "@/lib/routes"
 import { toProductCardItem } from "@/lib/products/card-item"
@@ -217,28 +219,50 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
 
 export function TaxonomyProductSections({
   sections,
+  renderAfterSponsoredProduct,
 }: {
   sections: TaxonomyProductSection[]
+  renderAfterSponsoredProduct?: (context: {
+    product: HomepageFeedItem
+    section: TaxonomyProductSection
+  }) => ReactNode
 }) {
   return (
     <div className="space-y-12">
-      {sections.map((section) => (
-        <section key={section.key} className="space-y-3">
-          <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-4">
-            <h2 className="text-2xl font-semibold tracking-tight text-black">
-              {section.title}
-            </h2>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#43474c]">
-              {section.dateLabel}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {section.products.map((product) => (
-              <TaxonomyProductRow key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      ))}
+      {sections.map((section) => {
+        const lastSponsoredIndex = section.products.reduce(
+          (lastIndex, current, currentIndex) =>
+            current.isSponsored ? currentIndex : lastIndex,
+          -1,
+        )
+        const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+
+        return (
+          <section key={section.key} className="space-y-3">
+            <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-4">
+              <h2 className="text-2xl font-semibold tracking-tight text-black">
+                {section.title}
+              </h2>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#43474c]">
+                {section.dateLabel}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {section.products.map((product, index) => (
+                <Fragment key={product.id}>
+                  <TaxonomyProductRow product={product} />
+                  {index === adBoundaryIndex
+                    ? (renderAfterSponsoredProduct?.({
+                        product,
+                        section,
+                      }) ?? <GoogleAdsenseUnit />)
+                    : null}
+                </Fragment>
+              ))}
+            </div>
+          </section>
+        )
+      })}
     </div>
   )
 }

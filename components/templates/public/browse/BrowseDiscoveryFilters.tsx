@@ -13,6 +13,7 @@ import {
   Trophy,
 } from "lucide-react"
 
+import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type { BrowseSort } from "@/lib/browse/cache"
 import { BROWSE_PATH, tagPath } from "@/lib/routes"
 import { buildQuery } from "@/lib/urlParams"
@@ -716,6 +717,7 @@ export function BrowseDiscoveryFilters({
           </div>
         </div>
       </section>
+      <GoogleAdsenseDisplayUnit />
     </aside>
   )
 }

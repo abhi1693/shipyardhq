@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import type { ComponentProps } from "react"
 
 import { Badge } from "@/components/atoms/badge"
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
@@ -122,6 +123,7 @@ export function DirectoryProductList<T extends BaseProductListItem>({
     <ProductGrid
       items={paging.initialItems}
       className={listClassName}
+      renderAfterSponsoredCard={() => <GoogleAdsenseUnit />}
       infinite={{
         hasMore: paging.initialHasMore,
         initialPage: 2,

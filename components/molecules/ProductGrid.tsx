@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { Fragment, type ReactNode } from "react"
 
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
 import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
@@ -30,6 +30,10 @@ interface ProductGridProps {
   infinite?: InfiniteConfig
   emptyState?: ReactNode
   endMessage?: ReactNode
+  renderAfterSponsoredCard?: (context: {
+    product: ProductCardItem
+    index: number
+  }) => ReactNode
 }
 
 const renderSkeleton = (count: number, className?: string) => (
@@ -46,16 +50,34 @@ export default function ProductGrid({
   infinite,
   emptyState,
   endMessage,
+  renderAfterSponsoredCard,
 }: ProductGridProps) {
   const listClassName = cn("space-y-4", className)
 
-  const renderItems = (list: ProductCardItem[]) => (
-    <div className={listClassName} data-slot="product-grid-feed">
-      {list.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
-  )
+  const renderItems = (list: ProductCardItem[]) => {
+    const renderAd = renderAfterSponsoredCard
+    const lastSponsoredIndex = list.reduce(
+      (lastIndex, product, index) =>
+        Boolean(product.sponsored ?? product.isSponsored) ? index : lastIndex,
+      -1,
+    )
+    const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+
+    return (
+      <div className={listClassName} data-slot="product-grid-feed">
+        {list.map((product, index) => {
+          const shouldRenderAd = Boolean(renderAd) && index === adBoundaryIndex
+
+          return (
+            <Fragment key={product.id}>
+              <ProductCard product={product} />
+              {shouldRenderAd && renderAd ? renderAd({ product, index }) : null}
+            </Fragment>
+          )
+        })}
+      </div>
+    )
+  }
 
   if (infinite) {
     return (

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react"
 
+import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { toProductCardItem as buildProductCardItem } from "@/lib/products/card-item"
@@ -92,6 +93,7 @@ export default function ProductGridClient({
   return (
     <ProductGrid
       items={initialItems}
+      renderAfterSponsoredCard={() => <GoogleAdsenseUnit />}
       infinite={{
         hasMore: initialHasMore,
         initialPage,
