@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
+import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
@@ -1511,6 +1512,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             ) : null}
             {productDetailsCard}
             {sponsoredProductCard}
+            <GoogleAdsenseDisplayUnit />
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 You may also like

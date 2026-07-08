@@ -4,6 +4,10 @@ import { format } from "date-fns"
 import { Award, BadgeCheck, BarChart3, Star } from "lucide-react"
 
 import { Image } from "@/components/atoms/image"
+import {
+  GoogleAdsenseDisplayUnit,
+  GoogleAdsenseUnit,
+} from "@/components/molecules/GoogleAdsenseUnit"
 import { PartnerSpotlightStaticPlacement } from "@/components/organisms/PartnerSpotlightStaticPlacement"
 import { UserFeedClient } from "@/components/templates/public/users/detail/UserFeedClient"
 import {
@@ -165,6 +169,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
               {productsPage.items.length ? (
                 <>
                   <UserProductGrid items={productsPage.items} />
+                  <GoogleAdsenseUnit />
                   {productsPage.hasMore ? (
                     <UserFeedClient
                       userId={profile.id}
@@ -182,6 +187,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
             </section>
 
             <PartnerSpotlightStaticPlacement className="mx-auto w-full rounded-lg" />
+            <GoogleAdsenseDisplayUnit />
           </div>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">
@@ -210,6 +216,7 @@ export async function UserProfilePageContent({ params }: PageProps) {
                 </div>
               </div>
             </section>
+            <GoogleAdsenseDisplayUnit />
           </aside>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Fragment } from "react"
 import {
   Archive,
   ArrowRight,
@@ -14,6 +15,10 @@ import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Image } from "@/components/atoms/image"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
+import {
+  GoogleAdsenseDisplayUnit,
+  GoogleAdsenseUnit,
+} from "@/components/molecules/GoogleAdsenseUnit"
 import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { LeaderboardUpvoteButton } from "@/components/templates/public/leaderboard/leaderboard-upvote-button"
 import { PromotedShips } from "@/components/templates/public/leaderboard/promoted-ships"
@@ -377,8 +382,11 @@ export async function LeaderboardPageContent({
             <h2 className="sr-only">Ranked products</h2>
             {leaderboardItems.length > 0 ? (
               <>
-                {leaderboardItems.slice(0, 10).map((item) => (
-                  <LeaderboardProductCard key={item.id} item={item} />
+                {leaderboardItems.slice(0, 10).map((item, index) => (
+                  <Fragment key={item.id}>
+                    <LeaderboardProductCard item={item} />
+                    {index === 0 ? <GoogleAdsenseUnit /> : null}
+                  </Fragment>
                 ))}
                 <div className="flex justify-center pt-8">
                   <Link
@@ -397,6 +405,7 @@ export async function LeaderboardPageContent({
           <aside className="space-y-6 lg:col-span-4">
             <LazyTrafficStatsPanel initialStats={stats} />
             <PromotedShips products={partnerSpotlightProducts} />
+            <GoogleAdsenseDisplayUnit />
             <DodoPaymentsCard />
           </aside>
         </div>

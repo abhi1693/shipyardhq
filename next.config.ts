@@ -12,6 +12,14 @@ const googleAnalyticsHosts = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
 ] as const
+const googleAdsHosts = [
+  "https://pagead2.googlesyndication.com",
+  "https://*.googlesyndication.com",
+  "https://googleads.g.doubleclick.net",
+  "https://*.doubleclick.net",
+  "https://www.google.com",
+  "https://www.gstatic.com",
+] as const
 const faroCollectorOrigin = normalizeCspOrigin(process.env.NEXT_PUBLIC_FARO_URL)
 
 function normalizeCspOrigin(value: string | undefined) {
@@ -64,6 +72,7 @@ function buildContentSecurityPolicy() {
       "'unsafe-inline'",
       ...(isDev ? ["'unsafe-eval'"] : []),
       ...googleAnalyticsHosts,
+      ...googleAdsHosts,
       ...clerkScriptHosts,
     ],
     [
@@ -71,6 +80,7 @@ function buildContentSecurityPolicy() {
       "'self'",
       ...devConnectSources,
       ...googleAnalyticsHosts,
+      ...googleAdsHosts,
       ...clerkConnectHosts,
       ...(faroCollectorOrigin ? [faroCollectorOrigin] : []),
     ],
@@ -78,7 +88,7 @@ function buildContentSecurityPolicy() {
     ["img-src", "'self'", "blob:", "data:", "https:"],
     ["font-src", "'self'", "data:"],
     ["media-src", "'self'", "blob:", "data:", "https:"],
-    ["frame-src", "'self'", ...clerkFrameHosts],
+    ["frame-src", "'self'", ...clerkFrameHosts, ...googleAdsHosts],
     ["worker-src", "'self'", "blob:"],
     ["manifest-src", "'self'"],
     ["object-src", "'none'"],
