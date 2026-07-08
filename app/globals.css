@@ -930,3 +930,13 @@ body {
 @utility animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
 }
+
+.shipyard-adsense-unit:has(.adsbygoogle[data-ad-status="unfilled"]) {
+  display: none;
+}
+
+.shipyard-adsense-unit .adsbygoogle[data-ad-status="unfilled"] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}

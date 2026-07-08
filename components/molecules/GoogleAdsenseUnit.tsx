@@ -1,6 +1,5 @@
 "use client"
 
-import Script from "next/script"
 import { useEffect, type CSSProperties } from "react"
 
 import { cn } from "@/lib/utils"
@@ -60,6 +59,21 @@ export function GoogleAdsenseUnit({
     if (!ADSENSE_CLIENT || !normalizedSlot) return
 
     try {
+      const scriptSrc = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(
+        ADSENSE_CLIENT,
+      )}`
+      const scriptId = "google-adsense-script"
+      const existingScript = document.getElementById(scriptId)
+
+      if (!existingScript) {
+        const script = document.createElement("script")
+        script.id = scriptId
+        script.async = true
+        script.src = scriptSrc
+        script.crossOrigin = "anonymous"
+        document.head.appendChild(script)
+      }
+
       window.adsbygoogle = window.adsbygoogle || []
       window.adsbygoogle.push({})
     } catch {
@@ -73,21 +87,9 @@ export function GoogleAdsenseUnit({
 
   return (
     <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-[#e2e8f0] bg-white",
-        className,
-      )}
+      className={cn("shipyard-adsense-unit overflow-hidden", className)}
       aria-label="Advertisement"
     >
-      <Script
-        id="google-adsense-script"
-        async
-        strategy="afterInteractive"
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(
-          ADSENSE_CLIENT,
-        )}`}
-        crossOrigin="anonymous"
-      />
       <ins
         className="adsbygoogle"
         style={{ display: "block", ...style }}

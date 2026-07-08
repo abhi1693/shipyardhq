@@ -20,6 +20,17 @@ const googleAdsHosts = [
   "https://www.google.com",
   "https://www.gstatic.com",
 ] as const
+const googleAdsConnectHosts = [
+  ...googleAdsHosts,
+  "https://ep1.adtrafficquality.google",
+  "https://ep2.adtrafficquality.google",
+  "https://*.adtrafficquality.google",
+] as const
+const cloudflareInsightsHosts = [
+  "https://static.cloudflareinsights.com",
+  "https://cloudflareinsights.com",
+  "https://*.cloudflareinsights.com",
+] as const
 const faroCollectorOrigin = normalizeCspOrigin(process.env.NEXT_PUBLIC_FARO_URL)
 
 function normalizeCspOrigin(value: string | undefined) {
@@ -73,6 +84,8 @@ function buildContentSecurityPolicy() {
       ...(isDev ? ["'unsafe-eval'"] : []),
       ...googleAnalyticsHosts,
       ...googleAdsHosts,
+      ...googleAdsConnectHosts,
+      ...cloudflareInsightsHosts,
       ...clerkScriptHosts,
     ],
     [
@@ -80,7 +93,8 @@ function buildContentSecurityPolicy() {
       "'self'",
       ...devConnectSources,
       ...googleAnalyticsHosts,
-      ...googleAdsHosts,
+      ...googleAdsConnectHosts,
+      ...cloudflareInsightsHosts,
       ...clerkConnectHosts,
       ...(faroCollectorOrigin ? [faroCollectorOrigin] : []),
     ],
@@ -88,7 +102,13 @@ function buildContentSecurityPolicy() {
     ["img-src", "'self'", "blob:", "data:", "https:"],
     ["font-src", "'self'", "data:"],
     ["media-src", "'self'", "blob:", "data:", "https:"],
-    ["frame-src", "'self'", ...clerkFrameHosts, ...googleAdsHosts],
+    [
+      "frame-src",
+      "'self'",
+      ...clerkFrameHosts,
+      ...googleAdsHosts,
+      ...googleAdsConnectHosts,
+    ],
     ["worker-src", "'self'", "blob:"],
     ["manifest-src", "'self'"],
     ["object-src", "'none'"],
