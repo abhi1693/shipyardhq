@@ -439,10 +439,8 @@ async function HomepageDataSections() {
                   <HomepageUpvoteButton
                     productId={launch.id}
                     productSlug={launch.slug}
-                    initialCount={launch.score ?? 0}
+                    initialCount={launch.score}
                     initialUpvoted={launch.isVoted}
-                    countIncrement={10}
-                    syncResponseCount={false}
                     fullLabel
                     hideZeroCount
                     className="px-6"

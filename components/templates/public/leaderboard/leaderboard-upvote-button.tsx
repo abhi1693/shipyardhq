@@ -8,15 +8,14 @@ import { cn } from "@/lib/utils"
 export function LeaderboardUpvoteButton({
   productSlug,
   productName,
-  count,
+  scoreCount,
 }: {
   productSlug: string
   productName?: string
-  count: number
+  scoreCount: number
 }) {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [state, setState] = useState(() => ({
-    upvotes: count,
     upvoted: false,
     pending: false,
   }))
@@ -24,13 +23,12 @@ export function LeaderboardUpvoteButton({
 
   useEffect(() => {
     const next = {
-      upvotes: count,
       upvoted: false,
       pending: false,
     }
     setState(next)
     previous.current = next
-  }, [count])
+  }, [scoreCount])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -47,7 +45,6 @@ export function LeaderboardUpvoteButton({
 
     const rollback = { ...state, pending: false }
     const optimistic = {
-      upvotes: state.upvotes + 1,
       upvoted: true,
       pending: true,
     }
@@ -61,7 +58,6 @@ export function LeaderboardUpvoteButton({
         { method: "POST" },
       )
       const payload = (await response.json().catch(() => ({}))) as Partial<{
-        upvotes: number
         upvoted: boolean
       }>
 
@@ -75,10 +71,6 @@ export function LeaderboardUpvoteButton({
       }
 
       const next = {
-        upvotes:
-          typeof payload.upvotes === "number"
-            ? payload.upvotes
-            : optimistic.upvotes,
         upvoted:
           typeof payload.upvoted === "boolean"
             ? payload.upvoted
@@ -114,7 +106,7 @@ export function LeaderboardUpvoteButton({
           aria-hidden
         />
       </span>
-      <span>{state.upvotes.toLocaleString("en-US")}</span>
+      <span>{scoreCount.toLocaleString("en-US")}</span>
     </>
   )
 
@@ -124,7 +116,7 @@ export function LeaderboardUpvoteButton({
       className={buttonClassName}
       disabled={state.pending || state.upvoted}
       onClick={handleUpvote}
-      aria-label={`Upvote ${accessibleName}, ${state.upvotes.toLocaleString("en-US")} votes`}
+      aria-label={`Upvote ${accessibleName}, ${scoreCount.toLocaleString("en-US")} points`}
     >
       {content}
     </button>

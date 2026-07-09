@@ -27,8 +27,12 @@ function ProductLogo({ product }: { product: ProductCardBase }) {
 
 export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
   const risingProducts = products
-    .slice()
-    .sort((a, b) => (b.scoreCount ?? 0) - (a.scoreCount ?? 0))
+    .filter(
+      (product) =>
+        typeof product.scoreCount === "number" &&
+        Number.isFinite(product.scoreCount),
+    )
+    .sort((a, b) => Number(b.scoreCount) - Number(a.scoreCount))
     .slice(0, 3)
 
   return (
@@ -60,11 +64,7 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
             ))
           : null}
         {risingProducts.map((product) => {
-          const score =
-            typeof product.scoreCount === "number" &&
-            Number.isFinite(product.scoreCount)
-              ? product.scoreCount
-              : 0
+          const score = Number(product.scoreCount)
           return (
             <Link
               key={product.id}

@@ -154,19 +154,15 @@ export function HomepageUpvoteButton({
   dark = false,
   fullLabel = false,
   hideZeroCount = false,
-  countIncrement = 1,
-  syncResponseCount = true,
 }: {
   productId?: string
   productSlug?: string
-  initialCount: number
+  initialCount?: number | null
   initialUpvoted?: boolean
   className?: string
   dark?: boolean
   fullLabel?: boolean
   hideZeroCount?: boolean
-  countIncrement?: number
-  syncResponseCount?: boolean
 }) {
   const voteState = useHomepageVoteState()
   const redirectUrl = useCurrentRedirect()
@@ -174,14 +170,20 @@ export function HomepageUpvoteButton({
     initialUpvoted || voteState.isVoted(productId),
   )
   const [state, setState] = useState({
-    count: initialCount,
+    count:
+      typeof initialCount === "number" && Number.isFinite(initialCount)
+        ? initialCount
+        : null,
     upvoted: resolvedInitialUpvoted,
     pending: false,
   })
 
   useEffect(() => {
     setState({
-      count: initialCount,
+      count:
+        typeof initialCount === "number" && Number.isFinite(initialCount)
+          ? initialCount
+          : null,
       upvoted: resolvedInitialUpvoted,
       pending: false,
     })
@@ -192,11 +194,10 @@ export function HomepageUpvoteButton({
     if (state.upvoted) return
 
     const nextUpvoted = true
-    const optimisticCount = Math.max(0, state.count + countIncrement)
     const previous = state
 
     setState({
-      count: optimisticCount,
+      count: state.count,
       upvoted: nextUpvoted,
       pending: Boolean(productSlug),
     })
@@ -211,7 +212,6 @@ export function HomepageUpvoteButton({
         { method: "POST" },
       )
       const payload = (await response.json().catch(() => ({}))) as Partial<{
-        upvotes: number
         upvoted: boolean
       }>
 
@@ -225,10 +225,7 @@ export function HomepageUpvoteButton({
       }
 
       setState({
-        count:
-          syncResponseCount && typeof payload.upvotes === "number"
-            ? payload.upvotes
-            : optimisticCount,
+        count: state.count,
         upvoted:
           typeof payload.upvoted === "boolean" ? payload.upvoted : nextUpvoted,
         pending: false,
@@ -250,7 +247,9 @@ export function HomepageUpvoteButton({
         ? "border-[#C0FF00] bg-[#C0FF00] text-[#061d31] hover:bg-[#C0FF00]/90"
         : "bg-[#0051d5] text-white hover:bg-[#0048bf]"),
   )
-  const shouldDisplayCount = !hideZeroCount || state.count > 0
+  const displayCount = typeof state.count === "number" ? state.count : null
+  const shouldDisplayCount =
+    displayCount !== null && (!hideZeroCount || displayCount > 0)
   const content = (
     <>
       <span
@@ -267,7 +266,7 @@ export function HomepageUpvoteButton({
       <span>
         {fullLabel ? "Upvote" : ""}
         {shouldDisplayCount
-          ? `${fullLabel ? " " : ""}${formatter.format(state.count)}`
+          ? `${fullLabel ? " " : ""}${formatter.format(displayCount)}`
           : ""}
       </span>
     </>
@@ -638,10 +637,8 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           <HomepageUpvoteButton
             productId={product.id}
             productSlug={product.slug}
-            initialCount={product.scoreCount ?? 0}
+            initialCount={product.scoreCount}
             initialUpvoted={product.isVoted}
-            countIncrement={10}
-            syncResponseCount={false}
             dark={sponsored}
             className={cn(
               "min-w-16 flex-col gap-0 rounded-r-xl bg-transparent px-3 py-2 shadow-none",

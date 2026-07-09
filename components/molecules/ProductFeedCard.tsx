@@ -201,12 +201,14 @@ export function ProductFeedCard({
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:ml-auto sm:flex-nowrap sm:justify-end">
           {meta ? <span className="shrink-0">{meta}</span> : null}
-          <ProductScore
-            count={scoreCount ?? 0}
-            label={scoreLabel}
-            compact
-            className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
-          />
+          {scoreCount !== null ? (
+            <ProductScore
+              count={scoreCount}
+              label={scoreLabel}
+              compact
+              className="border-border/50 bg-background px-3 py-1.5 text-xs shadow-none transition-colors"
+            />
+          ) : null}
         </div>
       </div>
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-2">

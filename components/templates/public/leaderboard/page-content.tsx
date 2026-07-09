@@ -44,7 +44,7 @@ import { cn } from "@/lib/utils"
 
 type LeaderboardListItem = ProductCardBase & {
   rank: number
-  scoreCount?: number
+  scoreCount: number
 }
 
 function formatBadgeLabel(value: string) {
@@ -132,7 +132,6 @@ function Pill({
 }
 
 function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
-  const upvotes = item.analytics?.upvotes ?? 0
   const interestBadges = buildProductInterestBadges(item.interest, {
     maxBadges: 2,
     includeBuildersClicked: true,
@@ -199,7 +198,7 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
               <LeaderboardUpvoteButton
                 productSlug={item.slug}
                 productName={item.name}
-                count={upvotes}
+                scoreCount={item.scoreCount}
               />
             </div>
           </div>
@@ -330,19 +329,23 @@ export async function LeaderboardPageContent({
       const base = mapProductCardRecordToBase(product, now, {
         priorityPlanIds,
       })
+      if (typeof base.scoreCount !== "number") {
+        throw new Error(
+          `Leaderboard product ${base.slug} is missing scoreCount`,
+        )
+      }
 
       return {
         ...base,
         rank: index + 1,
+        scoreCount: base.scoreCount,
         interest: interestMap.get(base.id) ?? null,
       }
     },
   )
   const siteUrl = resolveSiteUrl()
   const pagePath = filters.categorySlug
-    ? `${LEADERBOARD_PATH}?category=${encodeURIComponent(
-        filters.categorySlug,
-      )}`
+    ? `${LEADERBOARD_PATH}?category=${encodeURIComponent(filters.categorySlug)}`
     : LEADERBOARD_PATH
   const itemList = {
     "@context": "https://schema.org",

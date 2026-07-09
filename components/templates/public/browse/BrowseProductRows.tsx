@@ -39,7 +39,7 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
     typeof product.scoreCount === "number" &&
     Number.isFinite(product.scoreCount)
       ? product.scoreCount
-      : 0
+      : null
   const badges = product.badges ?? []
 
   return (
@@ -99,12 +99,18 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
       <Link
         href={href}
         className="flex shrink-0 cursor-pointer flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
-        aria-label={`View ${product.name}, score ${score.toLocaleString("en-US")}`}
+        aria-label={
+          score !== null
+            ? `View ${product.name}, score ${score.toLocaleString("en-US")}`
+            : `View ${product.name}`
+        }
       >
         <ArrowUp className="h-5 w-5" aria-hidden />
-        <span className="text-sm font-bold leading-none">
-          {score.toLocaleString("en-US")}
-        </span>
+        {score !== null ? (
+          <span className="text-sm font-bold leading-none">
+            {score.toLocaleString("en-US")}
+          </span>
+        ) : null}
       </Link>
     </article>
   )
