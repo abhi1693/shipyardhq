@@ -1,5 +1,4 @@
 import {
-  ANALYTICS_PATH,
   BROWSE_PATH,
   LEADERBOARD_PATH,
   PRICING_PATH,
@@ -8,7 +7,6 @@ import {
 export const publicHeaderLinks = [
   { label: "Explore", href: BROWSE_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
-  { label: "Analytics", href: ANALYTICS_PATH },
   { label: "Pricing", href: PRICING_PATH },
 ] as const
 
