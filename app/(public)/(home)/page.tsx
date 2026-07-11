@@ -15,7 +15,6 @@ import {
   getHomepageLaunchOfDay,
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { getHomepageBuilderSummaryPublic } from "@/actions/public/users/actions"
 import { Button } from "@/components/atoms/button"
 import {
   HomepageDropsInfiniteList,
@@ -24,6 +23,7 @@ import {
 } from "@/components/templates/public/homepage/homepage-client"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
+import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
@@ -36,7 +36,7 @@ import {
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { siteConfig, siteGrowthMetrics } from "@/lib/siteConfig"
+import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 
@@ -66,10 +66,6 @@ type DisplayDrop = {
   publishedAt?: string | null
   createdAt?: string
 }
-
-type HomepageBuilderSummary = Awaited<
-  ReturnType<typeof getHomepageBuilderSummaryPublic>
->
 
 const HOMEPAGE_VALUE_POINTS = [
   {
@@ -107,34 +103,9 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
   },
 ] as const
 
-const fallbackBuilderSummary: HomepageBuilderSummary = {
-  builderCount: siteGrowthMetrics.builderCount,
-  topFounder: null,
-}
-
-const numberFormatter = new Intl.NumberFormat("en-US")
-
-function formatCount(value: number) {
-  return numberFormatter.format(Math.max(0, value))
-}
-
-function formatBuilderCountBadge(value: number) {
-  const safeValue = Math.max(0, value)
-  if (safeValue < 1000) {
-    return formatCount(safeValue)
-  }
-
-  const roundedValue = Math.floor(safeValue / 100) * 100
-  return `${formatCount(roundedValue)}+`
-}
-
 function formatPercent(value: number) {
   const sign = value > 0 ? "+" : ""
   return `${sign}${value.toFixed(0)}%`
-}
-
-function pluralize(value: number, singular: string, plural: string) {
-  return value === 1 ? singular : plural
 }
 
 function toDisplayDrop(
@@ -198,25 +169,14 @@ function ProductLogo({
   )
 }
 
-function HomepageHero({
-  builderSummary,
-}: {
-  builderSummary: HomepageBuilderSummary
-}) {
-  const builderCount = Math.max(
-    builderSummary.builderCount,
-    siteGrowthMetrics.builderCount,
-  )
-  const builderCountLabel = formatBuilderCountBadge(builderCount)
-  const builderNoun = pluralize(builderCount, "builder", "builders")
-
+function HomepageHero() {
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff]">
       <div className="mx-auto max-w-[1200px] px-4 py-10 text-center sm:px-6 md:py-14">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#166534]">
           <Rocket className="size-[18px] fill-current" aria-hidden />
           <span className="text-xs font-semibold uppercase tracking-wider">
-            Join {builderCountLabel} {builderNoun} launching in public
+            <PublicBuilderCountMessage />
           </span>
         </div>
         <h1 className="mx-auto mb-5 max-w-4xl text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
@@ -255,21 +215,6 @@ function HomepageHero({
   )
 }
 
-async function HomepageHeroWithBuilderSummary() {
-  const builderSummary = await getCachedHomepageBuilderSummary().catch(
-    () => fallbackBuilderSummary,
-  )
-
-  return <HomepageHero builderSummary={builderSummary} />
-}
-
-async function getCachedHomepageBuilderSummary() {
-  "use cache"
-  applyCache([TAGS.homepage, TAGS.users, TAGS.products], DEFAULT_TTL.slow)
-
-  return getHomepageBuilderSummaryPublic()
-}
-
 export default function HomePage() {
   return (
     <div className="relative isolate bg-[#F8FAFC] pb-16 text-[#0b1c30]">
@@ -281,7 +226,7 @@ export default function HomePage() {
         }}
       />
 
-      <HomepageHeroWithBuilderSummary />
+      <HomepageHero />
       <AnswerBlocks
         blocks={[
           {

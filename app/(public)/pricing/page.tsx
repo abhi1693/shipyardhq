@@ -26,10 +26,11 @@ import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
+import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
-import { resolveSiteUrl, siteGrowthMetrics } from "@/lib/siteConfig"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import { BRAND_NAME } from "@/lib/brand"
 
 const PAGE_TITLE = "Pricing"
@@ -37,18 +38,6 @@ const PRICING_DASHBOARD_IMAGE_URL =
   "https://media.shipyardhq.dev/global/pricing/dashboard-preview.webp"
 const PRICING_DASHBOARD_IMAGE_SIZES =
   "(min-width: 1024px) 560px, calc(100vw - 32px)"
-const numberFormatter = new Intl.NumberFormat("en-US")
-
-function formatBuilderCountBadge(value: number) {
-  const safeValue = Math.max(0, value)
-  if (safeValue < 1000) {
-    return numberFormatter.format(safeValue)
-  }
-
-  const roundedValue = Math.floor(safeValue / 100) * 100
-  return `${numberFormatter.format(roundedValue)}+`
-}
-
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
   description: `Transparent pricing to list, launch, promote, and measure your product on ${BRAND_NAME}.`,
@@ -219,9 +208,6 @@ function buildPricingStructuredData(plans: PricingSchemaPlan[]) {
 
 export default async function PricingPage() {
   const plans = await getPublicPlans()
-  const builderCountLabel = formatBuilderCountBadge(
-    siteGrowthMetrics.builderCount,
-  )
   const pricingStructuredData = buildPricingStructuredData(plans)
   const faqStructuredData = buildFaqStructuredData(
     PRICING_FAQS.map((faq) => ({ question: faq.question, answer: faq.answer })),
@@ -259,7 +245,7 @@ export default async function PricingPage() {
           <div className="relative z-10">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
               <Sparkles className="size-4" aria-hidden />
-              Join {builderCountLabel} builders
+              <PublicBuilderCountMessage />
             </div>
 
             <h1 className="mx-auto max-w-3xl text-3xl font-bold leading-10 text-black sm:text-5xl sm:leading-[1.1] md:text-[56px]">
