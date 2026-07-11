@@ -145,9 +145,7 @@ export function resolveMetricValue(
   totals: protos.google.analytics.data.v1beta.IMetricValue[] | undefined,
   index: number,
   rows:
-    | protos.google.analytics.data.v1beta.IRow[]
-    | null
-    | undefined = undefined,
+    protos.google.analytics.data.v1beta.IRow[] | null | undefined = undefined,
   mode: "sum" | "avg" = "sum",
 ) {
   const totalEntry = totals?.[index]

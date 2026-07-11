@@ -120,9 +120,7 @@ export async function renderDirectoryMarkdownForPath(pathname: string) {
     return renderCategorySliceMarkdown({
       categorySlug: decodeURIComponent(categorySliceMatch[1]),
       segment: categorySliceMatch[2] as
-        | "pricing"
-        | "platforms"
-        | "product-types",
+        "pricing" | "platforms" | "product-types",
       valueSlug: decodeURIComponent(categorySliceMatch[3]),
     })
   }

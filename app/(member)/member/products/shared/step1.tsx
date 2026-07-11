@@ -241,8 +241,7 @@ export default function Step1({
       }
 
       const suggestion = payload?.suggestion as
-        | ProductAutofillSuggestion
-        | undefined
+        ProductAutofillSuggestion | undefined
       const warnings: string[] = Array.isArray(payload?.warnings)
         ? payload.warnings
         : []

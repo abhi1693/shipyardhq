@@ -1,8 +1,4 @@
-import {
-  BROWSE_PATH,
-  LEADERBOARD_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
+import { BROWSE_PATH, LEADERBOARD_PATH, PRICING_PATH } from "@/lib/routes"
 
 export const publicHeaderLinks = [
   { label: "Explore", href: BROWSE_PATH },

@@ -23,11 +23,7 @@ export type ProductInterestSignals = {
 }
 
 export type ProductInterestBadgeVariant =
-  | "default"
-  | "secondary"
-  | "destructive"
-  | "outline"
-  | "success"
+  "default" | "secondary" | "destructive" | "outline" | "success"
 
 export type ProductInterestBadgeSpec = {
   key: string

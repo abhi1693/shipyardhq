@@ -335,10 +335,7 @@ async function setProductPlanAction(
 }
 
 // Start checkout on DodoPayments when plan has externalId
-async function startPlanCheckoutAction(
-  productId: string,
-  planId: string,
-) {
+async function startPlanCheckoutAction(productId: string, planId: string) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 

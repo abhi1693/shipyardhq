@@ -6,10 +6,7 @@ import { loadEnvConfig } from "@next/env"
 import sharp from "sharp"
 
 type ImageKind =
-  | "alternative-logo"
-  | "product-banner"
-  | "product-logo"
-  | "product-media"
+  "alternative-logo" | "product-banner" | "product-logo" | "product-media"
 
 type OutputFormat = "avif" | "webp"
 

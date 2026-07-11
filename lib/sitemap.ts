@@ -10,13 +10,7 @@ export type SitemapIndexEntry = {
 }
 
 export type SitemapChangeFrequency =
-  | "always"
-  | "hourly"
-  | "daily"
-  | "weekly"
-  | "monthly"
-  | "yearly"
-  | "never"
+  "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never"
 
 export type SitemapUrlEntry = {
   loc: string

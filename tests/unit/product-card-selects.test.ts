@@ -10,7 +10,10 @@ const baseProduct = {
   logo: "https://example.com/logo.png",
   tagline: "A useful product",
   planId: null,
+  type: "saas",
   pricingModel: "free",
+  platforms: ["web"],
+  keywords: [],
   startingPriceCents: null,
   currencyCode: "USD",
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -19,6 +22,7 @@ const baseProduct = {
   verification: { isVerified: false },
   category: { name: "Developer Tools", slug: "developer-tools" },
   ProductBadge: [],
+  alternatives: [],
 } satisfies ProductCardRecord
 
 describe("mapProductCardRecordToBase", () => {

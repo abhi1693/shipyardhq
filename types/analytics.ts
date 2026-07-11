@@ -41,11 +41,7 @@ export interface ProductTrafficReferrerBreakdownItem extends ProductTrafficBreak
 }
 
 export type ProductTrafficReferrerCategory =
-  | "direct"
-  | "search"
-  | "social"
-  | "email"
-  | "other"
+  "direct" | "search" | "social" | "email" | "other"
 
 export interface ProductTrafficPathBreakdownItem extends ProductTrafficBreakdownItem {
   path: string
@@ -197,9 +193,7 @@ export interface OnboardingOutcomeDeltaItem {
 }
 
 export type IntentOutcomeStageKey =
-  | "shippedProduct"
-  | "upvotedProduct"
-  | "purchasedPlan"
+  "shippedProduct" | "upvotedProduct" | "purchasedPlan"
 
 export interface IntentOutcomeStageSpeedBucket {
   label: string

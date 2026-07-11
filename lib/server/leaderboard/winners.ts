@@ -445,8 +445,7 @@ export async function processLeaderboardWinnersForRun(runId: string) {
   }))
 
   const winnerProduct = topThreeWithRank[0]?.product as
-    | WinnerProduct
-    | undefined
+    WinnerProduct | undefined
   if (winnerProduct) {
     await grantWinnerPerks(winnerProduct, now)
   }

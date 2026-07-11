@@ -1,8 +1,7 @@
 import { createClient, createSentinel } from "redis"
 
 export type RedisClient =
-  | ReturnType<typeof createClient>
-  | ReturnType<typeof createSentinel>
+  ReturnType<typeof createClient> | ReturnType<typeof createSentinel>
 
 const globalForRedis = globalThis as unknown as {
   __redisClient?: RedisClient | null

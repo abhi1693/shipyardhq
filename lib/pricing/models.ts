@@ -1,11 +1,7 @@
 import type { PricingModel } from "@/lib/vendor/prisma/client"
 
 export type PricingModelSlug =
-  | "free"
-  | "freemium"
-  | "subscription"
-  | "one-time"
-  | "custom"
+  "free" | "freemium" | "subscription" | "one-time" | "custom"
 
 type PricingModelMeta = {
   slug: PricingModelSlug

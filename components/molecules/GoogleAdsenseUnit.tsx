@@ -44,13 +44,11 @@ export function GoogleAdsenseUnit({
 }: GoogleAdsenseUnitProps) {
   const isDisplay = variant === "display"
   const normalizedSlot = (
-    slot ??
-    (isDisplay ? ADSENSE_DISPLAY_SLOT : ADSENSE_IN_FEED_SLOT)
+    slot ?? (isDisplay ? ADSENSE_DISPLAY_SLOT : ADSENSE_IN_FEED_SLOT)
   ).trim()
   const resolvedFormat = format ?? (isDisplay ? "auto" : "fluid")
   const normalizedLayoutKey = (
-    layoutKey ??
-    (isDisplay ? "" : ADSENSE_IN_FEED_LAYOUT_KEY)
+    layoutKey ?? (isDisplay ? "" : ADSENSE_IN_FEED_LAYOUT_KEY)
   ).trim()
   const resolvedFullWidthResponsive =
     fullWidthResponsive ?? (isDisplay ? true : undefined)

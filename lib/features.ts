@@ -2,8 +2,7 @@
 
 type PlanWithFeatures = {
   assignments?:
-    | { enabled: boolean; feature?: { key?: string | null } | null }[]
-    | null
+    { enabled: boolean; feature?: { key?: string | null } | null }[] | null
 } | null
 
 export function hasPlanFeature(plan: PlanWithFeatures, key: string): boolean {
