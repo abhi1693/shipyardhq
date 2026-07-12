@@ -47,7 +47,7 @@ export default function PublicMobileMenu() {
           type="button"
           variant="ghost"
           size="icon"
-          className="size-10 rounded-[10px] border border-[#E2E8F0] bg-white text-[#0b1c30] shadow-none hover:border-[#c4c6cd] hover:bg-[#F8FAFC] md:hidden"
+          className="size-10 rounded-[10px] border border-[#E2E8F0] bg-white text-[#0b1c30] shadow-none hover:border-[#c4c6cd] hover:bg-[#F8FAFC] lg:hidden"
           aria-label="Open menu"
         >
           <Menu className="size-5" aria-hidden />

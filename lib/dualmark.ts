@@ -28,6 +28,7 @@ import {
   productTypePath,
   TAGS_PATH,
   tagPath,
+  TOOLS_PATH,
   USE_CASES_PATH,
   usecaseCategoryPath,
   usecasePath,
@@ -39,6 +40,8 @@ import {
   WHY_SHIPYARD_PATH,
 } from "@/lib/routes"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
+import { FREE_SEO_TOOLS, freeToolPath } from "@/lib/tools/catalog"
+import type { FreeToolDefinition } from "@/lib/tools/types"
 
 export const DUALMARK_INTERNAL_NAMESPACE = "md"
 
@@ -98,6 +101,45 @@ function parameterizedPage(pattern: string, description: string) {
         `Canonical: ${absoluteUrl(path)}`,
       ].join("\n")
     },
+  }
+}
+
+function freeToolMarkdownPage(tool: FreeToolDefinition) {
+  const path = freeToolPath(tool.slug)
+
+  return {
+    pattern: path,
+    render: () =>
+      [
+        `# ${tool.name}`,
+        "",
+        tool.description,
+        "",
+        `- Category: ${tool.category}`,
+        `- Result: ${tool.resultLabel}`,
+        "- Price: Free",
+        "- Account required: No",
+        "",
+        "## What it includes",
+        "",
+        ...tool.features.map((feature) => `- ${feature}`),
+        "",
+        ...tool.guide.flatMap((section) => [
+          `## ${section.title}`,
+          "",
+          section.body,
+          "",
+        ]),
+        "## Frequently asked questions",
+        "",
+        ...tool.faqs.flatMap((entry) => [
+          `### ${entry.question}`,
+          "",
+          entry.answer,
+          "",
+        ]),
+        `Canonical: ${absoluteUrl(path)}`,
+      ].join("\n"),
   }
 }
 
@@ -204,6 +246,24 @@ export const llmsTxtSections: LlmsTxtSection[] = [
         description:
           "Public traffic and discovery context for Shipyard. Treat these as Shipyard-specific site metrics.",
       },
+    ],
+  },
+  {
+    title: "Free founder SEO tools",
+    description:
+      "Browser-based tools for preparing startup product pages, search snippets, social cards, structured data, crawler rules, and XML sitemaps. The tools are free and do not require an account.",
+    links: [
+      {
+        title: "Free SEO tools hub",
+        href: absoluteUrl(TOOLS_PATH),
+        description:
+          "Index of ten practical SEO tools designed around a founder's product-launch workflow.",
+      },
+      ...FREE_SEO_TOOLS.map((tool) => ({
+        title: tool.name,
+        href: absoluteUrl(freeToolPath(tool.slug)),
+        description: tool.description,
+      })),
     ],
   },
   {
@@ -408,6 +468,11 @@ export const llmsTxtSections: LlmsTxtSection[] = [
         description: "Tag pages under /tags/{slug}.",
       },
       {
+        title: "Free tools sitemap",
+        href: absoluteUrl("/sitemap-tools.xml"),
+        description: "Free SEO tool pages under /tools/{slug}.",
+      },
+      {
         title: "Markdown home",
         href: markdownUrl(HOME_PATH),
         description:
@@ -530,7 +595,7 @@ export const dualmarkConfig = {
   siteUrl,
   internalNamespace: DUALMARK_INTERNAL_NAMESPACE,
   middleware: {
-    skipPaths: ["/api", "/admin", "/member", "/.well-known"],
+    skipPaths: ["/api", "/member", "/.well-known"],
   },
   headers: {
     cacheControl: PUBLIC_CONTENT_CACHE_CONTROL,
@@ -542,6 +607,11 @@ export const dualmarkConfig = {
       BROWSE_PATH,
       "Browse products, apps, SaaS tools, APIs, and startup launches.",
     ),
+    staticPage(
+      TOOLS_PATH,
+      "Free browser-based SEO tools for startup and product launches.",
+    ),
+    ...FREE_SEO_TOOLS.map(freeToolMarkdownPage),
     staticPage(CATEGORIES_PATH, "Explore product launch categories."),
     staticPage(
       "/analytics",

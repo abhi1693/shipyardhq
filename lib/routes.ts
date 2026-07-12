@@ -13,6 +13,7 @@ export const ALTERNATIVES_PATH = "/alternatives" as const
 export const PLATFORMS_PATH = "/platforms" as const
 
 export const BROWSE_PATH = "/browse" as const
+export const TOOLS_PATH = "/tools" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
@@ -122,6 +123,7 @@ export const usecasePricingPath = (useCaseSlug: string, pricingModel: string) =>
 export const usecasePlatformPath = (useCaseSlug: string, platform: string) =>
   `${usecasePath(useCaseSlug)}/platforms/${platform}`
 export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`
+export const toolPath = (slug: string) => `${TOOLS_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 

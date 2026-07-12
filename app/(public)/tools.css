@@ -1,0 +1,13 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss" source(none);
+@import "../tailwind-theme.css";
+@import "../theme.css";
+@import "./_public-common.css";
+
+@source "./tools/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/atoms/checkbox.tsx";
+@source "../../components/atoms/label.tsx";
+@source "../../components/atoms/textarea.tsx";
+@source "../../components/molecules/CopyButton.tsx";
+@source "../../components/organisms/tools/**/*.{js,ts,jsx,tsx}";
+@source "../../components/templates/public/tools/**/*.{js,ts,jsx,tsx}";

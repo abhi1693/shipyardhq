@@ -5,7 +5,7 @@ import { publicHeaderLinks } from "./public-header-links"
 
 export default function PublicHeaderNav() {
   return (
-    <nav className="hidden items-center gap-6 md:flex">
+    <nav className="hidden items-center gap-6 lg:flex">
       {publicHeaderLinks.map((link) => {
         return (
           <Button

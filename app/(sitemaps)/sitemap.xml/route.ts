@@ -11,6 +11,7 @@ export async function GET() {
       { loc: `${base}/sitemap-products.xml` },
       { loc: `${base}/sitemap-alternatives.xml` },
       { loc: `${base}/sitemap-tags.xml` },
+      { loc: `${base}/sitemap-tools.xml` },
     ]),
   )
 }

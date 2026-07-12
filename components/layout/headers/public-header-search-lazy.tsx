@@ -16,7 +16,7 @@ function PublicHeaderSearchFallback() {
       role="search"
       aria-label="Search products"
       action={BROWSE_PATH}
-      className="relative hidden items-center md:flex"
+      className="relative hidden items-center lg:flex"
     >
       <Search className="pointer-events-none absolute left-3 size-5 text-[#74777d]" />
       <input

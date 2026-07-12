@@ -180,7 +180,7 @@ export default function PublicHeaderSearch() {
     <form
       role="search"
       aria-label="Search products"
-      className="relative hidden items-center md:flex"
+      className="relative hidden items-center lg:flex"
       onSubmit={handleSubmit}
       onFocus={handleFocus}
       onBlur={handleBlur}
