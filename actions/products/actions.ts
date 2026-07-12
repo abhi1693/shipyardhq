@@ -1,6 +1,5 @@
 "use server"
 
-import { Resolver } from "node:dns/promises"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -29,34 +28,7 @@ import { productForEditWizardSelect } from "@/types/product-wizard"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
-
-const DNS_LOOKUP_TIMEOUT_MS = 5_000
-
-function dnsTimeoutError() {
-  const error = new Error("DNS lookup timed out") as NodeJS.ErrnoException
-  error.code = "ETIMEOUT"
-  return error
-}
-
-async function resolveTxtRecords(domain: string) {
-  const resolver = new Resolver()
-  resolver.setServers(["1.1.1.1", "8.8.8.8"])
-  let timeout: ReturnType<typeof setTimeout> | undefined
-
-  try {
-    return await Promise.race([
-      resolver.resolveTxt(domain),
-      new Promise<string[][]>((_, reject) => {
-        timeout = setTimeout(() => {
-          resolver.cancel()
-          reject(dnsTimeoutError())
-        }, DNS_LOOKUP_TIMEOUT_MS)
-      }),
-    ])
-  } finally {
-    if (timeout) clearTimeout(timeout)
-  }
-}
+import { resolveTxtRecords } from "@/lib/server/dns"
 
 async function refreshHomepageFeedCacheAfterProductChange(
   reason: string,
