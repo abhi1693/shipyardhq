@@ -7,7 +7,10 @@ export const REVALIDATE_PROFILE = "max" as const
 
 export type CacheInvalidationMode = "revalidate" | "update"
 
-const loggedContextlessInvalidations = new Set<string>()
+const loggedContextlessInvalidation = {
+  revalidate: false,
+  update: false,
+}
 
 function shouldFallbackToRevalidate(error: unknown): boolean {
   if (!(error instanceof Error)) return false
@@ -25,10 +28,10 @@ function isMissingStaticGenerationStore(error: unknown): boolean {
 
 function logSkippedInvalidation(tag: string, error: unknown) {
   const message = error instanceof Error ? error.message : String(error)
-  const key = `${tag}:${message}`
-  if (loggedContextlessInvalidations.has(key)) return
+  const mode = message.includes("updateTag") ? "update" : "revalidate"
+  if (loggedContextlessInvalidation[mode]) return
 
-  loggedContextlessInvalidations.add(key)
+  loggedContextlessInvalidation[mode] = true
   console.warn(
     "[cache] skipped Next cache invalidation outside request context",
     {

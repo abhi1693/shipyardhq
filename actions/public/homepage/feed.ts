@@ -43,7 +43,6 @@ const HOMEPAGE_FEED_CACHE_VERSION = "v2"
 const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v3"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
-const HOMEPAGE_FEED_IN_PROCESS_TTL_MS = 15_000
 
 const homepageFeedSelect = {
   id: true,
@@ -714,7 +713,6 @@ async function getHomepageWeekFeedPools() {
   return cacheGetOrSet({
     key: cacheKey,
     ttlSeconds: HOMEPAGE_FEED_CACHE_TTL_SECONDS,
-    inProcessTtlMs: HOMEPAGE_FEED_IN_PROCESS_TTL_MS,
     loader: () => getHomepageWeekFeedPoolsImpl(now),
     onError: (error) => {
       console.error("[homepage] failed to use Redis week feed pool cache", {
@@ -1086,7 +1084,6 @@ export async function getHomepageFeedView(
   return cacheGetOrSet({
     key: cacheKey,
     ttlSeconds: HOMEPAGE_FEED_CACHE_TTL_SECONDS,
-    inProcessTtlMs: HOMEPAGE_FEED_IN_PROCESS_TTL_MS,
     loader: () => getHomepageFeedViewImpl(params),
     onError: (error) => {
       console.error("[homepage] failed to use Redis feed cache", {

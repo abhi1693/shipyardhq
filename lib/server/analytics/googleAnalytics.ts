@@ -88,7 +88,6 @@ const SITE_SNAPSHOT_CACHE_PREFIX = "analytics:site:snapshot:v3"
 const SITE_SNAPSHOT_CACHE_TTL_SECONDS = DAILY_TRAFFIC_CACHE_TTL_SECONDS
 const PRODUCT_TRAFFIC_CACHE_PREFIX = "analytics:product:traffic:v2"
 const PRODUCT_TRAFFIC_CACHE_TTL_SECONDS = DAILY_TRAFFIC_CACHE_TTL_SECONDS
-const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 const DEFAULT_GA_REPORT_TIMEOUT_MS = 10_000
 const DEFAULT_GA_REALTIME_REPORT_TIMEOUT_MS = 4_000
 const CACHE_KEY_JITTER_BUCKETS = Math.max(
@@ -801,7 +800,6 @@ export async function getProductTrafficFromGa(args: {
 
   const cached = await cacheHit<GaProductTrafficSummary>({
     key: cacheKey,
-    inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.error("[analytics] failed to read GA product traffic cache", {
         cacheKey,
@@ -824,7 +822,6 @@ export async function getProductTrafficFromGa(args: {
       key: cacheKey,
       value: fresh,
       ttlSeconds: PRODUCT_TRAFFIC_CACHE_TTL_SECONDS,
-      inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
       onError: (error) => {
         console.error("[analytics] failed to cache GA product traffic", {
           cacheKey,

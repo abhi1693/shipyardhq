@@ -88,7 +88,6 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
         key: "analytics:realtime:visitors:v1",
         value: 0,
         ttlSeconds: 120,
-        inProcessTtlMs: 30_000,
       }),
     )
 
@@ -112,7 +111,6 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
         key: "analytics:realtime:visitors:v1",
         value: 0,
         ttlSeconds: 120,
-        inProcessTtlMs: 30_000,
       }),
     )
 

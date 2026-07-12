@@ -57,7 +57,6 @@ const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_PREFIX = [
   "historical",
   "v1",
 ] as const
-const HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS = 60_000
 const HISTORICAL_PERIODIC_LEADERBOARD_WARM_DAYS = 14
 
 const startOfUtcDay = (date: Date) =>
@@ -766,7 +765,6 @@ async function getHistoricalPeriodicLeaderboardCacheVersion() {
   const version = await cacheHit<string>({
     key: HISTORICAL_PERIODIC_LEADERBOARD_CACHE_VERSION_KEY,
     deserialize: (value) => value,
-    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.warn("[leaderboard.periodic.cache] version read failed", error)
     },
@@ -783,7 +781,6 @@ export async function invalidateHistoricalPeriodicLeaderboardCache(
     key: HISTORICAL_PERIODIC_LEADERBOARD_CACHE_VERSION_KEY,
     value: version,
     serialize: (value) => value,
-    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.warn("[leaderboard.periodic.cache] version write failed", error)
     },
@@ -910,7 +907,6 @@ async function getHistoricalPeriodicLeaderboard(
   const key = await getHistoricalPeriodicLeaderboardCacheKey(args)
   return cacheGetOrSet({
     key,
-    inProcessTtlMs: HISTORICAL_PERIODIC_LEADERBOARD_IN_PROCESS_TTL_MS,
     serialize: serializePeriodicLeaderboardPayload,
     deserialize: deserializePeriodicLeaderboardPayload,
     onError: (error) => {

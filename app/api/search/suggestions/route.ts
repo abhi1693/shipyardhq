@@ -9,7 +9,6 @@ import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discover
 const MIN_QUERY_LENGTH = 2
 const PRODUCT_LIMIT = 8
 const CACHE_TTL_SECONDS = 60
-const IN_PROCESS_TTL_MS = 15_000
 
 export type SearchSuggestion = {
   id: string
@@ -98,7 +97,6 @@ export async function GET(request: Request) {
   const items = await cacheGetOrSet({
     key: buildSearchSuggestionsCacheKey(query),
     ttlSeconds: CACHE_TTL_SECONDS,
-    inProcessTtlMs: IN_PROCESS_TTL_MS,
     loader: () => loadSuggestions(query),
   })
 

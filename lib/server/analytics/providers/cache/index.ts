@@ -28,15 +28,10 @@ const REALTIME_VISITORS_CACHE_KEY = buildCacheKey(
 )
 const DAILY_TRAFFIC_TTL_SECONDS = 60 * 60 * 24
 const REALTIME_VISITORS_TTL_SECONDS = 120
-const REALTIME_VISITORS_IN_PROCESS_TTL_MS = 30_000
 const PRODUCT_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
-const PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 const PRODUCT_TRAFFIC_MAP_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
-const PRODUCT_TRAFFIC_MAP_IN_PROCESS_TTL_MS = 60_000
 const SITE_SNAPSHOT_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
-const SITE_SNAPSHOT_IN_PROCESS_TTL_MS = 60_000
 const HOMEPAGE_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
-const HOMEPAGE_TRAFFIC_IN_PROCESS_TTL_MS = 60_000
 
 function normalizeRealtimeVisitors(value: number) {
   return value === 0 ? 1 : value
@@ -171,7 +166,6 @@ async function getCachedRealtimeVisitors(): Promise<number | null> {
     onError: (error) => {
       console.error("[analytics] failed to read realtime cache", { error })
     },
-    inProcessTtlMs: REALTIME_VISITORS_IN_PROCESS_TTL_MS,
   })
 
   if (!Number.isFinite(cached ?? NaN)) {
@@ -190,7 +184,6 @@ async function storeRealtimeVisitors(value: number) {
     onError: (error) => {
       console.error("[analytics] failed to write realtime cache", { error })
     },
-    inProcessTtlMs: REALTIME_VISITORS_IN_PROCESS_TTL_MS,
   })
 }
 
@@ -233,7 +226,6 @@ async function fetchProductTrafficWithCache(args: {
         error,
       })
     },
-    inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
   })
 
   if (cached) {
@@ -261,7 +253,6 @@ async function fetchProductTrafficWithCache(args: {
         error,
       })
     },
-    inProcessTtlMs: PRODUCT_TRAFFIC_IN_PROCESS_TTL_MS,
   })
 
   return fresh
@@ -300,7 +291,6 @@ async function fetchProductTrafficMapWithCache(args: {
     onError: (error) => {
       console.error("[analytics] failed to read product map cache", { error })
     },
-    inProcessTtlMs: PRODUCT_TRAFFIC_MAP_IN_PROCESS_TTL_MS,
   })
 
   if (cached) {
@@ -323,7 +313,6 @@ async function fetchProductTrafficMapWithCache(args: {
     onError: (error) => {
       console.error("[analytics] failed to write product map cache", { error })
     },
-    inProcessTtlMs: PRODUCT_TRAFFIC_MAP_IN_PROCESS_TTL_MS,
   })
 
   return fresh
@@ -339,7 +328,6 @@ async function fetchSiteSnapshotWithCache(args?: {
     onError: (error) => {
       console.error("[analytics] failed to read site snapshot cache", { error })
     },
-    inProcessTtlMs: SITE_SNAPSHOT_IN_PROCESS_TTL_MS,
   })
 
   if (cached) {
@@ -363,7 +351,6 @@ async function fetchSiteSnapshotWithCache(args?: {
         error,
       })
     },
-    inProcessTtlMs: SITE_SNAPSHOT_IN_PROCESS_TTL_MS,
   })
 
   return fresh
@@ -377,7 +364,6 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
         error,
       })
     },
-    inProcessTtlMs: HOMEPAGE_TRAFFIC_IN_PROCESS_TTL_MS,
   })
 
   if (cached) {
@@ -405,7 +391,6 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
         error,
       })
     },
-    inProcessTtlMs: HOMEPAGE_TRAFFIC_IN_PROCESS_TTL_MS,
   })
 
   return fresh

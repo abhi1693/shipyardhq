@@ -14,7 +14,6 @@ type CacheErrorHandler = (error: unknown) => void
 type CacheKeyPart = string | number | boolean
 type CacheKeyArray = ReadonlyArray<CacheKeyPart | null | undefined>
 type CacheKeyInput = string | CacheKeyArray
-type InProcessCacheEntry = { value: unknown; expiresAt: number }
 type CacheScanOptions = { MATCH: string; COUNT: number }
 type CacheScanIterator = (
   this: unknown,
@@ -26,7 +25,8 @@ type CacheScan = (
   options: CacheScanOptions,
 ) => Promise<{ cursor: string | number; keys: string[] }>
 
-const inProcessCache = new Map<string, InProcessCacheEntry>()
+// This only coalesces concurrent misses. It never retains resolved values and
+// every entry is removed in cacheGetOrSet's finally block.
 const pendingLoads = new Map<string, Promise<unknown>>()
 const CACHE_DEBUG = process.env.CACHE_DEBUG?.trim() === "true"
 
@@ -138,7 +138,6 @@ interface CacheHitOptions<T> {
   deserialize?: (value: string) => T
   onError?: CacheErrorHandler
   client?: CacheClient | null
-  inProcessTtlMs?: number
 }
 
 export async function cacheHit<T>({
@@ -146,23 +145,7 @@ export async function cacheHit<T>({
   deserialize,
   onError,
   client: providedClient,
-  inProcessTtlMs,
 }: CacheHitOptions<T>): Promise<T | null> {
-  const resolvedKey = resolveCacheKeyInput(key)
-  const now = Date.now()
-
-  if (inProcessTtlMs && inProcessTtlMs > 0) {
-    const memo = inProcessCache.get(resolvedKey)
-    if (memo && memo.expiresAt > now) {
-      logCacheEvent("hit (in-process)", resolvedKey)
-      return memo.value as T
-    }
-
-    if (memo) {
-      inProcessCache.delete(resolvedKey)
-    }
-  }
-
   const { client, namespacedKey } = await resolveClientForOperation({
     key,
     providedClient,
@@ -183,15 +166,7 @@ export async function cacheHit<T>({
     }
 
     logCacheEvent("hit", namespacedKey)
-    const value = parser(cached)
-    if (inProcessTtlMs && inProcessTtlMs > 0) {
-      inProcessCache.set(namespacedKey, {
-        value,
-        expiresAt: now + inProcessTtlMs,
-      })
-    }
-
-    return value
+    return parser(cached)
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)
@@ -206,7 +181,6 @@ interface CacheMissOptions<T> {
   serialize?: (value: T) => string
   onError?: CacheErrorHandler
   client?: CacheClient | null
-  inProcessTtlMs?: number
 }
 
 export async function cacheMiss<T>({
@@ -216,7 +190,6 @@ export async function cacheMiss<T>({
   serialize,
   onError,
   client: providedClient,
-  inProcessTtlMs,
 }: CacheMissOptions<T>): Promise<void> {
   const { client, namespacedKey } = await resolveClientForOperation({
     key,
@@ -230,20 +203,7 @@ export async function cacheMiss<T>({
       ? ttlSeconds
       : undefined
 
-  const now = Date.now()
-
-  // If no client is available, still memoize in-process so repeated calls within
-  // the TTL avoid extra work during builds when Redis is unavailable locally.
   if (!client) {
-    if (inProcessTtlMs && inProcessTtlMs > 0) {
-      inProcessCache.set(namespacedKey, {
-        value,
-        expiresAt: now + inProcessTtlMs,
-      })
-      logCacheEvent("store (in-process)", namespacedKey, {
-        ttlSeconds: ttl ?? null,
-      })
-    }
     return
   }
 
@@ -254,12 +214,6 @@ export async function cacheMiss<T>({
       ttl ? { EX: ttl } : undefined,
     )
     logCacheEvent("store", namespacedKey, { ttlSeconds: ttl })
-    if (inProcessTtlMs && inProcessTtlMs > 0) {
-      inProcessCache.set(namespacedKey, {
-        value,
-        expiresAt: now + inProcessTtlMs,
-      })
-    }
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)
@@ -269,7 +223,6 @@ export async function cacheMiss<T>({
 interface CacheGetOrSetOptions<T> {
   key: CacheKeyInput
   ttlSeconds?: number
-  inProcessTtlMs?: number
   deserialize?: (value: string) => T
   serialize?: (value: T) => string
   onError?: CacheErrorHandler
@@ -280,23 +233,6 @@ interface InvalidateCachePrefixOptions {
   keyPrefix: CacheKeyInput
   onError?: CacheErrorHandler
   client?: CacheClient | null
-}
-
-function clearInProcessCacheByPrefix(prefix: string) {
-  let deleted = 0
-
-  for (const key of inProcessCache.keys()) {
-    if (!key.startsWith(prefix)) continue
-    inProcessCache.delete(key)
-    deleted += 1
-  }
-
-  for (const key of pendingLoads.keys()) {
-    if (!key.startsWith(prefix)) continue
-    pendingLoads.delete(key)
-  }
-
-  return deleted
 }
 
 async function* scanKeysByPrefix(
@@ -344,10 +280,8 @@ export async function invalidateCacheByPrefix({
 }: InvalidateCachePrefixOptions): Promise<{
   prefix: string
   redisKeysDeleted: number
-  inProcessKeysDeleted: number
 }> {
   const resolvedPrefix = resolveCacheKeyInput(keyPrefix)
-  const inProcessKeysDeleted = clearInProcessCacheByPrefix(resolvedPrefix)
   const { client, namespacedKey } = await resolveClientForOperation({
     key: resolvedPrefix,
     providedClient,
@@ -358,7 +292,6 @@ export async function invalidateCacheByPrefix({
     return {
       prefix: namespacedKey,
       redisKeysDeleted: 0,
-      inProcessKeysDeleted,
     }
   }
 
@@ -368,10 +301,7 @@ export async function invalidateCacheByPrefix({
     for await (const batch of scanKeysByPrefix(client, namespacedKey)) {
       redisKeysDeleted += await client.del(batch)
     }
-    logCacheEvent("invalidate prefix", namespacedKey, {
-      redisKeysDeleted,
-      inProcessKeysDeleted,
-    })
+    logCacheEvent("invalidate prefix", namespacedKey, { redisKeysDeleted })
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })
     onError?.(error)
@@ -380,14 +310,12 @@ export async function invalidateCacheByPrefix({
   return {
     prefix: namespacedKey,
     redisKeysDeleted,
-    inProcessKeysDeleted,
   }
 }
 
 export async function cacheGetOrSet<T>({
   key,
   ttlSeconds,
-  inProcessTtlMs,
   deserialize,
   serialize,
   onError,
@@ -398,7 +326,6 @@ export async function cacheGetOrSet<T>({
     key,
     deserialize,
     onError,
-    inProcessTtlMs,
   })
 
   if (cached !== null) {
@@ -418,7 +345,6 @@ export async function cacheGetOrSet<T>({
       ttlSeconds,
       serialize,
       onError,
-      inProcessTtlMs,
     })
 
     return fresh

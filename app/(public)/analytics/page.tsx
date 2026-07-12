@@ -50,7 +50,6 @@ const PAGE_TITLE = "Analytics"
 
 const ANALYTICS_PAGE_TOP_PRODUCT_LIMIT = 8
 const ANALYTICS_PAGE_CACHE_TTL_SECONDS = 60 * 60 * 24
-const ANALYTICS_PAGE_IN_PROCESS_TTL_MS = 60_000
 const numberFormatter = new Intl.NumberFormat("en-US")
 
 function computeDelta(current: number, previous: number) {
@@ -659,7 +658,6 @@ async function getCachedAnalyticsPageData({
       `top${ANALYTICS_PAGE_TOP_PRODUCT_LIMIT}`,
     ],
     ttlSeconds: ANALYTICS_PAGE_CACHE_TTL_SECONDS,
-    inProcessTtlMs: ANALYTICS_PAGE_IN_PROCESS_TTL_MS,
     onError: (error) => {
       console.error("[analytics] failed to read/write page cache", { error })
     },

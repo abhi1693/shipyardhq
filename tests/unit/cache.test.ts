@@ -1,5 +1,23 @@
 import { describe, expect, it, vi } from "vitest"
-import { invalidateCacheByPrefix } from "@/lib/server/cache"
+import {
+  cacheHit,
+  cacheMiss,
+  invalidateCacheByPrefix,
+} from "@/lib/server/cache"
+
+describe("Valkey-only cache", () => {
+  it("does not retain values when no cache client is available", async () => {
+    await cacheMiss({
+      key: "test:no-cache-client",
+      value: { retained: false },
+      client: null,
+    })
+
+    await expect(
+      cacheHit({ key: "test:no-cache-client", client: null }),
+    ).resolves.toBeNull()
+  })
+})
 
 describe("invalidateCacheByPrefix", () => {
   it("falls back to SCAN when the Redis client has no scanIterator", async () => {
@@ -45,7 +63,6 @@ describe("invalidateCacheByPrefix", () => {
     expect(result).toEqual({
       prefix: "production:homepage:feed",
       redisKeysDeleted: 3,
-      inProcessKeysDeleted: 0,
     })
   })
 })
