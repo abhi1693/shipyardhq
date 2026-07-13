@@ -5,6 +5,7 @@ import { BROWSE_PATH, productPath } from "@/lib/routes"
 import { cacheGetOrSet } from "@/lib/server/cache"
 import { buildSearchSuggestionsCacheKey } from "@/lib/server/search/suggestions-cache"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+import { resolveProductCategories } from "@/lib/products/categories"
 
 const MIN_QUERY_LENGTH = 2
 const PRODUCT_LIMIT = 8
@@ -46,6 +47,15 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
             is: { name: { contains: query, mode: "insensitive" } },
           },
         },
+        {
+          categories: {
+            some: {
+              category: {
+                is: { name: { contains: query, mode: "insensitive" } },
+              },
+            },
+          },
+        },
         ...(tokens.length ? [{ keywords: { hasSome: tokens } }] : []),
         ...(tokensLower.length ? [{ keywords: { hasSome: tokensLower } }] : []),
         { keywords: { has: query } },
@@ -58,6 +68,13 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
       tagline: true,
       logo: true,
       category: { select: { name: true } },
+      categories: {
+        orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+        take: 3,
+        select: {
+          category: { select: { name: true, slug: true } },
+        },
+      },
       analytics: { select: { upvotes: true } },
     },
     orderBy: [{ analytics: { upvotes: "desc" } }, { publishedAt: "desc" }],
@@ -65,7 +82,9 @@ async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
   })
 
   return products.map((product): SearchSuggestion => {
-    const meta = [product.category?.name].filter(Boolean).join(" / ")
+    const meta = resolveProductCategories(product.category, product.categories)
+      .map((category) => category.name)
+      .join(" / ")
 
     return {
       id: product.id,

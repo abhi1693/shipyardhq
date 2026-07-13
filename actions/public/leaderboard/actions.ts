@@ -22,6 +22,20 @@ import {
   type ProductCardRecord,
 } from "@/lib/products/selects"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+import type { Prisma } from "@/lib/vendor/prisma/client"
+
+const buildCategorySlugFilter = (
+  categorySlug: string,
+): Prisma.ProductWhereInput => ({
+  OR: [
+    { category: { is: { slug: categorySlug } } },
+    {
+      categories: {
+        some: { category: { is: { slug: categorySlug } } },
+      },
+    },
+  ],
+})
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -55,7 +69,7 @@ const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_PREFIX = [
   "leaderboard",
   "periodic",
   "historical",
-  "v1",
+  "v2",
 ] as const
 const HISTORICAL_PERIODIC_LEADERBOARD_WARM_DAYS = 14
 
@@ -476,13 +490,7 @@ export async function getTopRankedProducts(args?: {
   }
 
   const productWhere = buildPublicDiscoveryProductWhere(
-    categorySlug
-      ? {
-          category: {
-            slug: categorySlug,
-          },
-        }
-      : undefined,
+    categorySlug ? buildCategorySlugFilter(categorySlug) : undefined,
   )
 
   const scores = await prisma.productLeaderboardScore.findMany({
@@ -685,13 +693,7 @@ async function mapRunRowsToProducts(params: {
       : null
 
   const productWhere = buildPublicDiscoveryProductWhere(
-    categorySlug
-      ? {
-          category: {
-            slug: categorySlug,
-          },
-        }
-      : undefined,
+    categorySlug ? buildCategorySlugFilter(categorySlug) : undefined,
   )
 
   const rows = await prisma.productLeaderboardScore.findMany({
@@ -844,11 +846,9 @@ async function loadPeriodicLeaderboard(
   const filteredProductIds = categorySlug
     ? (
         await prisma.product.findMany({
-          where: buildPublicDiscoveryProductWhere({
-            category: {
-              slug: categorySlug,
-            },
-          }),
+          where: buildPublicDiscoveryProductWhere(
+            buildCategorySlugFilter(categorySlug),
+          ),
           select: { id: true },
         })
       ).map((row: { id: string }) => row.id)

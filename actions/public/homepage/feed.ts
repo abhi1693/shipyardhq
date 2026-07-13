@@ -33,14 +33,18 @@ import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { revalidateHomepage } from "@/lib/cache/revalidate"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { getSponsoredPlacementPlanIds } from "@/lib/products/priority-plans"
+import {
+  resolveProductCategories,
+  type ProductCategorySummary,
+} from "@/lib/products/categories"
 
 const EDITOR_PICK_BADGE = "editor-pick"
 const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_FEED_POOL_LIMIT = 200
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
-const HOMEPAGE_FEED_CACHE_VERSION = "v2"
-const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v3"
+const HOMEPAGE_FEED_CACHE_VERSION = "v3"
+const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v4"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
 
@@ -73,6 +77,18 @@ const homepageFeedSelect = {
       slug: true,
     },
   },
+  categories: {
+    orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+    take: 3,
+    select: {
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  },
   ProductBadge: {
     select: {
       badge: true,
@@ -100,6 +116,7 @@ export interface HomepageFeedItem {
   badges: string[]
   category: string | null
   categorySlug: string | null
+  categories: ProductCategorySummary[]
   upvoteCount: number
   scoreCount?: number
   updatesCount?: number
@@ -367,6 +384,7 @@ function mapProductToFeedItem(
     badges: activeBadges,
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,
+    categories: resolveProductCategories(product.category, product.categories),
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: typeof scoreCount === "number" ? scoreCount : undefined,
     isSponsored,

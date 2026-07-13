@@ -24,6 +24,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
   Tooltip,
@@ -87,6 +88,7 @@ import {
 } from "@/lib/product-types/models"
 import { getProductScoreForCurrentWindow } from "@/lib/server/leaderboard/v2"
 import { buildSignedImgproxyResponsiveImage } from "@/lib/images/imgproxy"
+import { resolveProductCategories } from "@/lib/products/categories"
 import {
   PRODUCT_GALLERY_MAIN_IMAGE_DEFAULT_WIDTH,
   PRODUCT_GALLERY_MAIN_IMAGE_QUALITY,
@@ -533,6 +535,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     : "SP"
   const makerName = ownerDisplayName || ownerName || null
   const categoryLabel = product.category?.name?.trim() ?? null
+  const productCategories = resolveProductCategories(
+    sidebarProduct.category,
+    sidebarProduct.categories,
+  )
   const platformFactLabels = Array.from(
     new Set(
       platformValues
@@ -834,15 +840,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   )
   const taxonomyLinks = uniqueInternalLinks(
     [
-      ...(primaryCategorySlug && categoryLabel
-        ? [
-            {
-              label: `More in ${categoryLabel}`,
-              href: categoryPath(primaryCategorySlug),
-              description: `Browse more ${categoryLabel.toLowerCase()} products and compare where ${product.name} fits in the category.`,
-            },
-          ]
-        : []),
+      ...productCategories.flatMap((category) =>
+        category.slug
+          ? [
+              {
+                label: `More in ${category.name}`,
+                href: categoryPath(category.slug),
+                description: `Browse more ${category.name.toLowerCase()} products and compare where ${product.name} fits in the category.`,
+              },
+            ]
+          : [],
+      ),
       ...(productTypeHref && productTypeLabel
         ? [
             {
@@ -949,15 +957,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             },
           ]
         : []),
-      ...(primaryCategorySlug && categoryLabel
-        ? [
-            {
-              label: `Similar ${categoryLabel} products`,
-              href: categoryPath(primaryCategorySlug),
-              description: `Browse more products in ${categoryLabel.toLowerCase()} and compare them with ${product.name}.`,
-            },
-          ]
-        : []),
+      ...productCategories.flatMap((category) =>
+        category.slug
+          ? [
+              {
+                label: `Similar ${category.name} products`,
+                href: categoryPath(category.slug),
+                description: `Browse more products in ${category.name.toLowerCase()} and compare them with ${product.name}.`,
+              },
+            ]
+          : [],
+      ),
     ],
     4,
   )
@@ -1111,24 +1121,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
         <div className="flex items-center justify-between gap-4 border-b border-border py-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Category
+            Categories
           </span>
-          {categoryLabel && product.category?.slug ? (
-            <Link
-              href={categoryPath(product.category.slug)}
-              className="text-right text-sm font-semibold text-foreground underline-offset-4 hover:underline"
-            >
-              {categoryLabel}
-            </Link>
-          ) : categoryLabel ? (
-            <span className="text-right text-sm font-semibold">
-              {categoryLabel}
-            </span>
-          ) : (
-            <span className="text-sm text-muted-foreground">
-              Not categorized
-            </span>
-          )}
+          <ProductCategoryPills
+            categories={productCategories}
+            emptyLabel="Not categorized"
+            className="justify-end"
+            pillClassName="rounded-md bg-muted/60 px-2.5 py-1 text-[11px]"
+          />
         </div>
         <div className="flex items-center justify-between gap-4 py-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

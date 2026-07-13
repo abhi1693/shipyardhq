@@ -3,9 +3,11 @@ import { Rocket } from "lucide-react"
 
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
+import { resolveProductCategories } from "@/lib/products/categories"
 import {
   getPublicProductsByCategory,
   getPublicProductsByUseCase,
@@ -96,6 +98,7 @@ export async function SimilarProductsServer({
             slug: item.category.slug ?? null,
           }
         : undefined,
+      categories: resolveProductCategories(item.category, item.categories),
       isVerified: item.verification?.isVerified ?? false,
     }),
   )
@@ -134,6 +137,12 @@ export async function SimilarProductsServer({
               <span className="block truncate text-xs text-muted-foreground">
                 {item.tagline}
               </span>
+              <ProductCategoryPills
+                categories={item.categories}
+                linkCategories={false}
+                className="mt-1 gap-1"
+                pillClassName="rounded border-0 bg-muted/60 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.04em] text-muted-foreground"
+              />
             </span>
           </Link>
         ))}

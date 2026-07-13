@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ExternalLink, ImageIcon } from "lucide-react"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -28,14 +29,11 @@ function ProductImage({ item }: { item: HomepageFeedItem }) {
 
 function ProductCard({ item }: { item: HomepageFeedItem }) {
   const href = productPath(item.slug)
-  const tags = [item.category, item.pricingModel]
-    .filter(Boolean)
-    .map((tag) =>
-      String(tag)
+  const pricingLabel = item.pricingModel
+    ? item.pricingModel
         .replace(/_/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase()),
-    )
-    .slice(0, 2)
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : null
 
   return (
     <article className="group overflow-hidden rounded-lg border border-[#e2e8f0] bg-white transition hover:shadow-xl">
@@ -64,20 +62,20 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
         </p>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            {tags.length ? (
-              tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#43474c]"
-                >
-                  {tag}
-                </span>
-              ))
-            ) : (
+            <ProductCategoryPills
+              categories={item.categories}
+              className="gap-2"
+              pillClassName="rounded border-0 bg-[#f8fafc] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-[#43474c]"
+            />
+            {pricingLabel ? (
+              <span className="rounded bg-[#eff6ff] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-[#0051d5]">
+                {pricingLabel}
+              </span>
+            ) : !item.categories.length ? (
               <span className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
                 Product
               </span>
-            )}
+            ) : null}
           </div>
           <Link
             href={href}

@@ -63,7 +63,7 @@ export async function getUserProfilePayload(
   const [
     upvoteAggregate,
     verifiedCount,
-    categoryCounts,
+    categoryProducts,
     activeBadges,
     earliestLaunchRow,
     productsPage,
@@ -78,17 +78,13 @@ export async function getUserProfilePayload(
         verification: { is: { isVerified: true } },
       },
     }),
-    prisma.category.findMany({
-      where: {
-        products: { some: publishedProductWhere },
-      },
+    prisma.product.findMany({
+      where: publishedProductWhere,
       select: {
-        name: true,
-        _count: {
+        category: { select: { name: true } },
+        categories: {
           select: {
-            products: {
-              where: publishedProductWhere,
-            },
+            category: { select: { name: true } },
           },
         },
       },
@@ -119,11 +115,20 @@ export async function getUserProfilePayload(
     productsPage.total ?? 0,
   )
 
-  const categoryEntries = categoryCounts
-    .map((category: { name: string; _count: { products: number } }) => ({
-      name: category.name,
-      count: category._count.products,
-    }))
+  const categoryCountByName = new Map<string, number>()
+  for (const product of categoryProducts) {
+    const names = new Set<string>([
+      product.category.name,
+      ...product.categories.map((assignment) => assignment.category.name),
+    ])
+
+    for (const name of names) {
+      categoryCountByName.set(name, (categoryCountByName.get(name) ?? 0) + 1)
+    }
+  }
+
+  const categoryEntries = Array.from(categoryCountByName.entries())
+    .map(([name, count]) => ({ name, count }))
     .sort(
       (
         a: { name: string; count: number },

@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { resolveProductCategories } from "@/lib/products/categories"
 
 const PRIORITY_PLACEMENT_FEATURE_KEY = "priorityPlacement"
 
@@ -32,6 +33,18 @@ export const productCardSelect = {
     select: {
       name: true,
       slug: true,
+    },
+  },
+  categories: {
+    orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+    take: 3,
+    select: {
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
   },
   ProductBadge: {
@@ -106,6 +119,7 @@ export const mapProductCardRecordToBase = (
     currencyCode: product.currencyCode,
     analytics: product.analytics,
     category: product.category,
+    categories: resolveProductCategories(product.category, product.categories),
     badges: resolveBadges(product, now),
     alternatives: product.alternatives,
     sponsored: priorityPlanIdsHas(options?.priorityPlanIds, product.planId),

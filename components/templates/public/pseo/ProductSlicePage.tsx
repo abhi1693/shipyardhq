@@ -28,6 +28,7 @@ import {
 } from "@/lib/routes"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
+import { resolveProductCategories } from "@/lib/products/categories"
 import { productTypeSlugFromValue } from "@/lib/product-types/models"
 import { buildQuery } from "@/lib/urlParams"
 import { cn } from "@/lib/utils"
@@ -162,7 +163,20 @@ function buildAdjacentFilterLinks({
   const links: RelatedLink[] = []
 
   for (const product of products.slice(0, 8)) {
-    const categorySlug = product.category?.slug ?? searchParams.category
+    const productCategories = resolveProductCategories(
+      product.category,
+      product.categories,
+    )
+    const activeCategory = searchParams.category
+      ? (productCategories.find(
+          (category) => category.slug === searchParams.category,
+        ) ?? {
+          name: product.category?.name ?? "Category",
+          slug: searchParams.category,
+        })
+      : productCategories[0]
+    const categorySlug = activeCategory?.slug
+    const categoryName = activeCategory?.name ?? "Category"
     const productTypeSlug = product.type
       ? productTypeSlugFromValue(
           product.type as Parameters<typeof productTypeSlugFromValue>[0],
@@ -173,17 +187,20 @@ function buildAdjacentFilterLinks({
       : undefined
 
     if (categorySlug) {
-      if (!searchParams.category && product.category?.name) {
-        links.push({
-          label: product.category.name,
-          href: categoryPath(categorySlug),
-          description: `Browse the ${product.category.name} category.`,
-        })
+      if (!searchParams.category) {
+        for (const category of productCategories) {
+          if (!category.slug) continue
+          links.push({
+            label: category.name,
+            href: categoryPath(category.slug),
+            description: `Browse the ${category.name} category.`,
+          })
+        }
       }
 
       if (pricingSlug && !searchParams.pricingModel) {
         links.push({
-          label: `${product.category?.name ?? "Category"} with ${pricingSlug.replace(/-/g, " ")} pricing`,
+          label: `${categoryName} with ${pricingSlug.replace(/-/g, " ")} pricing`,
           href: categoryPricingPath(categorySlug, pricingSlug),
           description: "Narrow this category by pricing model.",
         })
@@ -191,7 +208,7 @@ function buildAdjacentFilterLinks({
 
       if (productTypeSlug && !searchParams.productType) {
         links.push({
-          label: `${product.category?.name ?? "Category"} ${productTypeSlug.replace(/-/g, " ")}`,
+          label: `${categoryName} ${productTypeSlug.replace(/-/g, " ")}`,
           href: categoryProductTypePath(categorySlug, productTypeSlug),
           description: "Narrow this category by product type.",
         })
@@ -201,7 +218,7 @@ function buildAdjacentFilterLinks({
         const platformMeta = getPlatformMetaByValue(platform)
         if (!platformMeta || searchParams.platform) continue
         links.push({
-          label: `${product.category?.name ?? "Category"} for ${platformMeta.label}`,
+          label: `${categoryName} for ${platformMeta.label}`,
           href: categoryPlatformPath(categorySlug, platformMeta.slug),
           description: "Narrow this category by supported platform.",
         })

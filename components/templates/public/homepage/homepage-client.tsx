@@ -22,8 +22,10 @@ import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
 } from "@/actions/public/homepage/feed"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
+import type { ProductCategorySummary } from "@/lib/products/categories"
 import type { HomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
-import { BROWSE_PATH, categoryPath, productPath } from "@/lib/routes"
+import { BROWSE_PATH, productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const formatter = new Intl.NumberFormat("en-US")
@@ -293,6 +295,7 @@ export type HomepageDropListItem = {
   logo?: string | null
   category?: string | null
   categorySlug?: string | null
+  categories: ProductCategorySummary[]
   scoreCount?: number | null
   isSponsored?: boolean
   isVoted?: boolean
@@ -323,6 +326,7 @@ function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
     logo: item.logo,
     category: item.category,
     categorySlug: item.categorySlug,
+    categories: item.categories,
     scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
     isVoted: item.isVoted,
@@ -571,13 +575,6 @@ function DropProductLogo({
 function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const sponsored = Boolean(product.isSponsored)
   const href = product.slug ? productPath(product.slug) : BROWSE_PATH
-  const categoryLabel = product.category ?? "New Tool"
-  const categoryClassName = cn(
-    "hidden shrink-0 rounded px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px] sm:inline-flex",
-    sponsored
-      ? "bg-[#C0FF00] text-black hover:bg-[#C0FF00]/90"
-      : "bg-[#F8FAFC] text-[#334155] hover:bg-[#e5eeff] hover:text-[#0051d5]",
-  )
 
   return (
     <Card
@@ -606,16 +603,6 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
             >
               {product.name}
             </Link>
-            {product.categorySlug ? (
-              <Link
-                href={categoryPath(product.categorySlug)}
-                className={categoryClassName}
-              >
-                {categoryLabel}
-              </Link>
-            ) : (
-              <span className={categoryClassName}>{categoryLabel}</span>
-            )}
           </div>
           <p
             className={cn(
@@ -625,6 +612,22 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           >
             {product.tagline}
           </p>
+          <ProductCategoryPills
+            categories={product.categories}
+            emptyLabel="New Tool"
+            className="mt-2 gap-1.5"
+            pillClassName={cn(
+              "rounded border-0 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
+              sponsored
+                ? "bg-[#C0FF00] text-black"
+                : "bg-[#F8FAFC] text-[#334155]",
+            )}
+            linkClassName={
+              sponsored
+                ? "hover:bg-[#C0FF00]/90 hover:text-black"
+                : "hover:bg-[#e5eeff]"
+            }
+          />
         </div>
         <div
           className={cn(

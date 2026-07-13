@@ -16,6 +16,7 @@ import {
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import {
   HomepageDropsInfiniteList,
   HomepageUpvoteButton,
@@ -39,6 +40,7 @@ import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
+import type { ProductCategorySummary } from "@/lib/products/categories"
 
 const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
 const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
@@ -57,6 +59,7 @@ type DisplayDrop = {
   logo?: string | null
   category?: string | null
   categorySlug?: string | null
+  categories: ProductCategorySummary[]
   score?: number | null
   scoreCount?: number | null
   rank?: number | null
@@ -119,6 +122,7 @@ function toDisplayDrop(
     logo: item.logo,
     category: item.category,
     categorySlug: item.categorySlug,
+    categories: item.categories,
     score: item.scoreCount,
     scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
@@ -366,6 +370,12 @@ async function HomepageDataSections() {
                       <p className="max-w-lg text-sm leading-snug text-[#43474c]">
                         {launch.tagline}
                       </p>
+                      <ProductCategoryPills
+                        categories={launch.categories}
+                        className="mt-2 gap-1.5"
+                        pillClassName="rounded border-0 bg-[#F8FAFC] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
+                        linkClassName="hover:bg-[#0051d5]/10"
+                      />
                     </div>
                   </div>
                   {launchSignalLabel ? (

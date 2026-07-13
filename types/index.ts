@@ -28,7 +28,14 @@ export const featuredProductSelect = {
       bannerImage: true,
       analytics: { select: { upvotes: true } },
       user: { select: { firstName: true, lastName: true } },
-      category: { select: { name: true } },
+      category: { select: { name: true, slug: true } },
+      categories: {
+        orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+        take: 3,
+        select: {
+          category: { select: { name: true, slug: true } },
+        },
+      },
       ProductBadge: {
         select: {
           id: true,

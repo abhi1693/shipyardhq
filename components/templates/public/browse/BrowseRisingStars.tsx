@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowUp, ImageIcon, TrendingUp } from "lucide-react"
 
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productPath } from "@/lib/routes"
 
 interface BrowseRisingStarsProps {
@@ -87,11 +88,13 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
                 {product.tagline ||
                   "Discover launch-ready tools from indie makers worldwide."}
               </p>
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <span className="truncate rounded bg-[#f8fafc] px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#43474c]">
-                  {product.category?.name ?? "Product"}
-                </span>
-              </div>
+              <ProductCategoryPills
+                categories={product.categories}
+                linkCategories={false}
+                emptyLabel="Product"
+                className="mt-4 gap-1.5"
+                pillClassName="rounded border-0 bg-[#f8fafc] px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.06em] text-[#43474c]"
+              />
             </Link>
           )
         })}

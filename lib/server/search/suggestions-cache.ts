@@ -1,6 +1,6 @@
 import { buildCacheKey, invalidateCacheByPrefix } from "@/lib/server/cache"
 
-const SEARCH_SUGGESTIONS_CACHE_VERSION = "v3"
+const SEARCH_SUGGESTIONS_CACHE_VERSION = "v4"
 const SEARCH_SUGGESTIONS_CACHE_PREFIX = buildCacheKey(
   "search",
   "suggestions",

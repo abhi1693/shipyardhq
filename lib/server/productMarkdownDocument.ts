@@ -8,6 +8,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { AI_SEARCH_READY_PLAN_FEATURE_KEY } from "@/lib/constants"
 import { hasPlanFeature } from "@/lib/features"
+import { resolveProductCategories } from "@/lib/products/categories"
 
 const PRODUCT_TYPE_BY_VALUE: Record<string, { slug: string; label: string }> = {
   saas: { slug: "saas", label: "SaaS" },
@@ -63,6 +64,7 @@ export type ProductMarkdownDetail = {
   createdAt?: string | Date | null
   updatedAt?: string | Date | null
   category?: ProductMarkdownCategory | null
+  categories?: Array<{ category: ProductMarkdownCategory | null }> | null
   user?: ProductMarkdownUser | null
   metadata?: {
     videoUrl?: string | null
@@ -118,6 +120,7 @@ export type ProductMarkdownMeta = {
     imageUrl?: string | null
   }> | null
   category?: ProductMarkdownCategory | null
+  categories?: Array<{ category: ProductMarkdownCategory | null }> | null
 }
 
 function cleanText(value?: string | null) {
@@ -225,6 +228,16 @@ function mediaItems(product: ProductMarkdownMeta) {
   ])
 }
 
+function productCategories(
+  product: ProductMarkdownDetail,
+  meta: ProductMarkdownMeta,
+) {
+  return resolveProductCategories(product.category ?? meta.category, [
+    ...(product.categories ?? []),
+    ...(meta.categories ?? []),
+  ])
+}
+
 function productLinks(
   product: ProductMarkdownDetail,
   meta: ProductMarkdownMeta,
@@ -235,7 +248,7 @@ function productLinks(
   const pricingSlug = pricingModel
     ? PRICING_MODEL_BY_VALUE[pricingModel]?.slug
     : null
-  const categorySlug = product.category?.slug ?? meta.category?.slug
+  const categories = productCategories(product, meta)
   const websiteUrl = safeExternalUrl(product.websiteUrl)
   const videoUrl = safeExternalUrl(product.metadata?.videoUrl)
 
@@ -243,9 +256,12 @@ function productLinks(
     `Canonical Shipyard page: ${absoluteSiteUrl(productPath(product.slug))}`,
     websiteUrl ? `Product website: ${websiteUrl}` : null,
     videoUrl ? `Video: ${videoUrl}` : null,
-    categorySlug
-      ? `Category: ${absoluteSiteUrl(categoryPath(categorySlug))}`
-      : null,
+    ...categories
+      .filter((category) => Boolean(category.slug))
+      .map(
+        (category) =>
+          `Category: ${absoluteSiteUrl(categoryPath(category.slug as string))}`,
+      ),
     productTypeSlug
       ? `Product type: ${absoluteSiteUrl(productTypePath(productTypeSlug))}`
       : null,
@@ -272,6 +288,7 @@ function factItems(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
     typeof product._count?.ProductUpvote === "number"
       ? product._count.ProductUpvote
       : product.analytics?.upvotes
+  const categories = productCategories(product, meta)
 
   return [
     cleanText(product.tagline)
@@ -282,7 +299,9 @@ function factItems(product: ProductMarkdownDetail, meta: ProductMarkdownMeta) {
       : null,
     pricingLabel(product) ? `Pricing model: ${pricingLabel(product)}` : null,
     startingPrice ? `Starting price: ${startingPrice}` : null,
-    meta.category?.name ? `Category: ${meta.category.name}` : null,
+    categories.length
+      ? `Categories: ${categories.map((category) => category.name).join(", ")}`
+      : null,
     platforms.length ? `Platforms: ${platforms.join(", ")}` : null,
     publishedDate ? `Published: ${publishedDate}` : null,
     updatedDate ? `Updated: ${updatedDate}` : null,

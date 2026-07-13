@@ -13,6 +13,7 @@ import {
   GoogleAdsenseDisplayUnit,
   GoogleAdsenseUnit,
 } from "@/components/molecules/GoogleAdsenseUnit"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
@@ -186,31 +187,23 @@ function RankBadge({ rank }: { rank: number }) {
   )
 }
 
-function CategoryPill({
+function CategoryPills({
   item,
   dark = false,
 }: {
   item: LeaderboardCardItem
   dark?: boolean
 }) {
-  const category = item.category
-  if (!category?.name) return null
-
-  const pill = (
-    <span
-      className={cn(
-        "inline-flex rounded px-2 py-1 text-[11px] font-medium uppercase leading-[14px]",
+  return (
+    <ProductCategoryPills
+      categories={item.categories}
+      className="gap-1.5"
+      pillClassName={cn(
+        "rounded border-0 px-2 py-1 text-[11px] font-medium uppercase leading-[14px]",
         dark ? "bg-white/10 text-white/80" : "bg-[#F8FAFC] text-[#43474c]",
       )}
-    >
-      {category.name}
-    </span>
-  )
-
-  return category.slug ? (
-    <Link href={categoryPath(category.slug)}>{pill}</Link>
-  ) : (
-    pill
+      linkClassName={dark ? "hover:text-white" : undefined}
+    />
   )
 }
 
@@ -316,7 +309,7 @@ function FeaturedArchiveCard({
               {item.tagline}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <CategoryPill item={item} />
+              <CategoryPills item={item} />
               <AwardPills rank={rank} />
             </div>
           </div>
@@ -353,12 +346,10 @@ function CompactArchiveRow({
             <p className="line-clamp-1 text-[14px] leading-5 text-[#43474c]">
               {item.tagline}
             </p>
+            <CategoryPills item={item} />
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-4">
-          <div className="hidden md:block">
-            <CategoryPill item={item} />
-          </div>
           <ArchiveUpvoteStat compact />
         </div>
       </CardContent>
@@ -863,7 +854,7 @@ function WeeklyLeaderboardCard({
             </div>
           </div>
           <div className="flex flex-wrap gap-2 pt-2">
-            <CategoryPill item={item} />
+            <CategoryPills item={item} />
             <WeeklyAwardPills rank={rank} />
           </div>
         </div>
@@ -1083,7 +1074,7 @@ function DailyProductCard({
           {item.tagline}
         </p>
         <div className="flex flex-wrap items-center gap-2">
-          <CategoryPill item={item} />
+          <CategoryPills item={item} />
           <DailyAwardPills rank={rank} isNewLaunch={Boolean(isNewLaunch)} />
         </div>
       </div>

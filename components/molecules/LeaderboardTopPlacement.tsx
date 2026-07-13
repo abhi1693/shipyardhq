@@ -4,7 +4,12 @@ import Medal from "@/components/atoms/Medal"
 import { cn } from "@/lib/utils"
 import { productPath } from "@/lib/routes"
 import { IconAnchor } from "@tabler/icons-react"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { SquareImage } from "@/components/molecules/SquareImage"
+import {
+  resolveProductCategories,
+  type ProductCategorySummary,
+} from "@/lib/products/categories"
 
 export type LeaderboardPlacementProduct = {
   slug: string
@@ -13,6 +18,7 @@ export type LeaderboardPlacementProduct = {
   logo?: string | null
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null } | null
+  categories?: ProductCategorySummary[] | null
   user?: { firstName?: string | null; lastName?: string | null } | null
 }
 
@@ -32,7 +38,10 @@ export function TopPlacementCard({
   const authorName =
     `${product.user?.firstName ?? ""} ${product.user?.lastName ?? ""}`.trim() ||
     "Unknown maker"
-  const categoryName = product.category?.name ?? ""
+  const categories = resolveProductCategories(
+    product.category,
+    product.categories,
+  )
   const fallbackMeta = (
     <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
       <IconAnchor className="h-3.5 w-3.5 text-[color:var(--brand-1)]" />
@@ -84,11 +93,12 @@ export function TopPlacementCard({
               <p className="text-xl font-semibold tracking-tight text-foreground">
                 {product.name}
               </p>
-              {categoryName ? (
-                <span className="inline-flex items-center rounded-full border border-border/70 bg-muted/50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                  {categoryName}
-                </span>
-              ) : null}
+              <ProductCategoryPills
+                categories={categories}
+                linkCategories={false}
+                className="gap-1.5"
+                pillClassName="border-border/70 bg-muted/50 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"
+              />
             </div>
             <p className="line-clamp-2 text-sm text-muted-foreground">
               {product.tagline}

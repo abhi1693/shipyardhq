@@ -186,6 +186,15 @@ export async function getBrowseProducts({
                 is: { name: { contains: q, mode: "insensitive" } },
               },
             },
+            {
+              categories: {
+                some: {
+                  category: {
+                    is: { name: { contains: q, mode: "insensitive" } },
+                  },
+                },
+              },
+            },
             // Keyword array matches (best-effort for case)
             ...(tokens.length ? [{ keywords: { hasSome: tokens } }] : []),
             ...(tokensLower.length

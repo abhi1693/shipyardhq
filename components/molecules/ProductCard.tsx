@@ -4,6 +4,10 @@ import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import type { ProductCardVariant } from "@/types/product-card"
 import type { ProductInterestSignals } from "@/types/product-interest"
+import {
+  resolveProductCategories,
+  type ProductCategorySummary,
+} from "@/lib/products/categories"
 import { stableUnitInterval } from "@/lib/stable-random"
 export type { ProductCardVariant } from "@/types/product-card"
 
@@ -18,6 +22,7 @@ export type ProductCardBase = {
   currencyCode?: string | null
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null; slug?: string | null } | null
+  categories?: ProductCategorySummary[] | null
   type?: string | null
   platforms?: string[] | null
   keywords?: string[] | null
@@ -51,8 +56,18 @@ const resolveCategoryName = (product: ProductCardItem) =>
     ? (product.categoryName ?? null)
     : (product.category?.name ?? null)
 
+const resolveCategorySlug = (product: ProductCardItem) =>
+  typeof product.categorySlug !== "undefined"
+    ? (product.categorySlug ?? null)
+    : (product.category?.slug ?? null)
+
 function toFeedItem(product: ProductCardItem): HomepageFeedItem {
   const categoryName = resolveCategoryName(product)
+  const categorySlug = resolveCategorySlug(product)
+  const categories = resolveProductCategories(
+    { name: categoryName, slug: categorySlug },
+    product.categories,
+  )
   const isSponsored = Boolean(product.sponsored ?? product.isSponsored)
   const variant = product.variant ?? (isSponsored ? "sponsored" : "default")
   return {
@@ -65,7 +80,8 @@ function toFeedItem(product: ProductCardItem): HomepageFeedItem {
     updatedAt: product.updatedAt ?? "",
     badges: product.badges ?? [],
     category: categoryName,
-    categorySlug: product.categorySlug ?? null,
+    categorySlug,
+    categories,
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: product.scoreCount,
     updatesCount: product.updatesCount,

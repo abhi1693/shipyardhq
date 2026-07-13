@@ -19,6 +19,7 @@ import {
   GoogleAdsenseDisplayUnit,
   GoogleAdsenseUnit,
 } from "@/components/molecules/GoogleAdsenseUnit"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { LeaderboardUpvoteButton } from "@/components/templates/public/leaderboard/leaderboard-upvote-button"
 import { PromotedShips } from "@/components/templates/public/leaderboard/promoted-ships"
@@ -33,7 +34,6 @@ import {
   LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
-  categoryPath,
   currentMonthlyLeaderboardPath,
   productPath,
 } from "@/lib/routes"
@@ -203,13 +203,11 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {item.category?.name && item.category.slug ? (
-              <Link href={categoryPath(item.category.slug)}>
-                <Pill className="bg-[#F8FAFC] uppercase text-[#43474c] hover:text-[#0051d5]">
-                  {item.category.name}
-                </Pill>
-              </Link>
-            ) : null}
+            <ProductCategoryPills
+              categories={item.categories}
+              className="gap-1.5"
+              pillClassName="rounded border-0 bg-[#F8FAFC] px-2 py-1 text-[11px] font-medium uppercase leading-[14px] text-[#43474c]"
+            />
             {interestBadges.map((badge) => (
               <Pill
                 key={badge.key}

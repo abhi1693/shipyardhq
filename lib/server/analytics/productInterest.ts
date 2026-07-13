@@ -14,6 +14,7 @@ type ProductCategoryRef = {
   id: string
   slug: string
   categorySlug: string | null
+  categorySlugs: string[]
 }
 
 type ProductInterestCacheValue = {
@@ -406,16 +407,37 @@ export async function refreshProductInterestCache(args?: {
     id: string
     slug: string
     category: { slug: string | null } | null
+    categories: Array<{ category: { slug: string | null } }>
   }> = (await prisma.product.findMany({
     where: { status: "published" },
-    select: { id: true, slug: true, category: { select: { slug: true } } },
+    select: {
+      id: true,
+      slug: true,
+      category: { select: { slug: true } },
+      categories: {
+        select: { category: { select: { slug: true } } },
+      },
+    },
   })) as any
 
-  const productRefs: ProductCategoryRef[] = products.map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    categorySlug: product.category?.slug ?? null,
-  }))
+  const productRefs: ProductCategoryRef[] = products.map((product) => {
+    const categorySlug = product.category?.slug ?? null
+    const categorySlugs = Array.from(
+      new Set(
+        [
+          categorySlug,
+          ...product.categories.map((assignment) => assignment.category.slug),
+        ].filter((slug): slug is string => Boolean(slug)),
+      ),
+    )
+
+    return {
+      id: product.id,
+      slug: product.slug,
+      categorySlug,
+      categorySlugs,
+    }
+  })
 
   const currentRange = resolveRangeForLastNDays(days)
   const previousRange = resolvePreviousRange(currentRange, days)
@@ -499,14 +521,15 @@ export async function refreshProductInterestCache(args?: {
     Array<{ id: string; signals: ProductInterestSignals }>
   >()
   for (const product of productRefs) {
-    const categorySlug = product.categorySlug
-    if (!categorySlug) continue
     const signals = signalsByProductId.get(product.id)
     if (!signals) continue
     if ((signals.clicks7d ?? 0) <= 0) continue
-    const list = byCategory.get(categorySlug) ?? []
-    list.push({ id: product.id, signals })
-    byCategory.set(categorySlug, list)
+
+    for (const categorySlug of product.categorySlugs) {
+      const list = byCategory.get(categorySlug) ?? []
+      list.push({ id: product.id, signals })
+      byCategory.set(categorySlug, list)
+    }
   }
 
   let storedCategories = 0

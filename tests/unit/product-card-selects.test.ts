@@ -21,6 +21,7 @@ const baseProduct = {
   analytics: { upvotes: 0 },
   verification: { isVerified: false },
   category: { name: "Developer Tools", slug: "developer-tools" },
+  categories: [],
   ProductBadge: [],
   alternatives: [],
 } satisfies ProductCardRecord
@@ -56,5 +57,46 @@ describe("mapProductCardRecordToBase", () => {
     }
 
     expect(mapProductCardRecordToBase(product).sponsored).toBe(false)
+  })
+
+  it("maps the primary category first and exposes up to three unique categories", () => {
+    const product = {
+      ...baseProduct,
+      categories: [
+        {
+          category: {
+            name: "Developer Tools",
+            slug: "developer-tools",
+          },
+        },
+        {
+          category: {
+            name: "Analytics",
+            slug: "analytics",
+          },
+        },
+        {
+          category: {
+            name: "Artificial Intelligence",
+            slug: "artificial-intelligence",
+          },
+        },
+        {
+          category: {
+            name: "Marketing",
+            slug: "marketing",
+          },
+        },
+      ],
+    } satisfies ProductCardRecord
+
+    expect(mapProductCardRecordToBase(product).categories).toEqual([
+      { name: "Developer Tools", slug: "developer-tools" },
+      { name: "Analytics", slug: "analytics" },
+      {
+        name: "Artificial Intelligence",
+        slug: "artificial-intelligence",
+      },
+    ])
   })
 })

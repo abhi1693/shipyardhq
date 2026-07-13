@@ -430,6 +430,7 @@ const mapUserProductToFeedItem = (
     badges,
     category: categoryName,
     categorySlug,
+    categories: product.categories ?? [],
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount:
       typeof product.scoreCount === "number" ? product.scoreCount : undefined,

@@ -6,6 +6,7 @@ import UniformCard from "@/components/molecules/UniformCard"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import type { ProductCardItem } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
+import { resolveProductCategories } from "@/lib/products/categories"
 import { FeaturedProduct } from "@/types"
 import { cn } from "@/lib/utils"
 
@@ -27,14 +28,16 @@ export function FeaturedProductGrid({
     <div className={cn("grid gap-5", columns, className)}>
       {items.map(({ product, id }) => {
         const p = product
+        const { categories: assignedCategories, ...productBase } = p
         const badges = filterExpiredBadges
           ? p.ProductBadge.filter(
               (pb) => !pb.expiresAt || new Date(pb.expiresAt) > now,
             ).map((pb) => pb.badge)
           : p.ProductBadge.map((pb) => pb.badge)
 
-        const productCard: ProductCardItem = toProductCardItem(p, {
+        const productCard: ProductCardItem = toProductCardItem(productBase, {
           badges,
+          categories: resolveProductCategories(p.category, assignedCategories),
         })
 
         return (

@@ -44,6 +44,18 @@ const publicProductSelect = {
       },
     },
   },
+  categories: {
+    orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+    take: 3,
+    select: {
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  },
   alternatives: {
     orderBy: { name: "asc" },
     select: {
@@ -162,6 +174,13 @@ const publicProductMetaSelect = {
     },
   },
   category: { select: { name: true, slug: true } },
+  categories: {
+    orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+    take: 3,
+    select: {
+      category: { select: { name: true, slug: true } },
+    },
+  },
   user: { select: { id: true, firstName: true, lastName: true } },
   analytics: { select: { upvotes: true } },
   metadata: { select: { videoUrl: true, utmCampaign: true } },
@@ -580,6 +599,18 @@ const compactProductInclude = {
     select: {
       name: true,
       slug: true,
+    },
+  },
+  categories: {
+    orderBy: [{ createdAt: "asc" }, { categoryId: "asc" }],
+    take: 3,
+    select: {
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
   },
   verification: {

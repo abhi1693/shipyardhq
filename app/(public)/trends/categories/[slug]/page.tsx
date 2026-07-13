@@ -138,7 +138,14 @@ async function TrendingToolsInCategoryPageContent({
     ? ((await prisma.product.findMany({
         where: buildPublicDiscoveryProductWhere({
           id: { in: ids },
-          category: { is: { slug: category.slug } },
+          OR: [
+            { category: { is: { slug: category.slug } } },
+            {
+              categories: {
+                some: { category: { is: { slug: category.slug } } },
+              },
+            },
+          ],
         }),
         select: productCardSelect,
       })) as unknown as ProductCardRecord[])

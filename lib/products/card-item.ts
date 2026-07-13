@@ -2,6 +2,7 @@ import type {
   ProductCardBase,
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
+import { resolveProductCategories } from "@/lib/products/categories"
 
 const coerceDate = (value?: string | Date | null): string | undefined => {
   if (!value) return undefined
@@ -16,6 +17,7 @@ export const toProductCardItem = (
     scoreCount: overrideScoreCount,
     categoryName: overrideCategoryName,
     categorySlug: overrideCategorySlug,
+    categories: overrideCategories,
     createdAt: overrideCreatedAt,
     updatedAt: overrideUpdatedAt,
     isSponsored: overrideIsSponsored,
@@ -46,6 +48,11 @@ export const toProductCardItem = (
         ? (base.category?.slug ?? null)
         : null
 
+  const categories = resolveProductCategories(
+    { name: categoryName, slug: categorySlug },
+    overrideCategories ?? base.categories,
+  )
+
   const badges = overrideBadges ?? base.badges ?? []
 
   const createdAt = overrideCreatedAt ?? coerceDate(base.createdAt)
@@ -75,6 +82,7 @@ export const toProductCardItem = (
     scoreCount,
     categoryName,
     categorySlug,
+    categories,
     createdAt,
     updatedAt,
     isSponsored,

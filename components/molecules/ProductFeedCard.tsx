@@ -13,6 +13,7 @@ import {
 } from "@/components/atoms/tooltip"
 import { ProductScore } from "@/components/molecules/ProductScore"
 import { ProductClickLink } from "@/components/molecules/ProductClickLink"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { cn } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
@@ -213,15 +214,13 @@ export function ProductFeedCard({
       </div>
       <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-2">
         <div className="flex flex-wrap items-center gap-2">
-          {item.category ? (
-            <span className="hidden items-center rounded-full border border-border/60 bg-neutral-100 px-3 py-1 text-xs font-semibold text-foreground sm:inline-flex">
-              {item.category}
-            </span>
-          ) : (
-            <span className="hidden text-xs text-muted-foreground sm:inline">
-              Uncategorized
-            </span>
-          )}
+          <ProductCategoryPills
+            categories={item.categories}
+            linkCategories={false}
+            emptyLabel="Uncategorized"
+            className="gap-1.5"
+            pillClassName="px-2.5 py-1 text-[11px]"
+          />
           {interestBadges.length
             ? interestBadges.map((badge) => (
                 <Badge

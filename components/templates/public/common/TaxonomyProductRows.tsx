@@ -6,8 +6,9 @@ import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import { categoryPath, productPath } from "@/lib/routes"
+import { productPath } from "@/lib/routes"
 import { toProductCardItem } from "@/lib/products/card-item"
 
 export type TaxonomyProductSection = {
@@ -76,6 +77,7 @@ export function mapProductCardBaseToTaxonomyFeedItem(
     badges: item.badges ?? [],
     category: categoryName,
     categorySlug,
+    categories: item.categories ?? [],
     upvoteCount: item.analytics?.upvotes ?? 0,
     scoreCount: item.scoreCount,
     updatesCount: item.updatesCount,
@@ -181,18 +183,13 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
         </Link>
         <p className="line-clamp-1 text-sm text-[#43474c]">{product.tagline}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {product.categorySlug ? (
-            <Link
-              href={categoryPath(product.categorySlug)}
-              className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] transition hover:bg-[#0051d5]/10 hover:text-[#0051d5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2"
-            >
-              {product.category ?? "Product"}
-            </Link>
-          ) : (
-            <span className="rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c]">
-              {product.category ?? "Product"}
-            </span>
-          )}
+          <ProductCategoryPills
+            categories={product.categories}
+            emptyLabel="Product"
+            className="gap-1.5"
+            pillClassName="rounded border-0 bg-[#f8fafc] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
+            linkClassName="hover:bg-[#0051d5]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2"
+          />
           {product.isSponsored || product.badges.length > 0 ? (
             <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2 py-1 text-[11px] font-semibold text-[#9a3412]">
               <Sparkles className="h-3 w-3" aria-hidden />

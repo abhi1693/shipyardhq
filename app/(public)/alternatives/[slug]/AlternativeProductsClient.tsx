@@ -42,6 +42,7 @@ function toFeedItem(product: AlternativeDetailProduct): HomepageFeedItem {
     badges: product.badges ?? [],
     category: product.category?.name ?? null,
     categorySlug: product.category?.slug ?? null,
+    categories: product.categories ?? [],
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: product.scoreCount,
     isSponsored,

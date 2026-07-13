@@ -4,12 +4,13 @@ import Link from "next/link"
 import { ArrowUp, BadgeCheck, ImageIcon, Sparkles } from "lucide-react"
 
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
+import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type {
   ProductCardBase,
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { categoryPath, productPath } from "@/lib/routes"
+import { productPath } from "@/lib/routes"
 
 function ProductLogo({ product }: { product: ProductCardItem }) {
   if (!product.logo) {
@@ -33,8 +34,6 @@ function ProductLogo({ product }: { product: ProductCardItem }) {
 
 export function BrowseProductRow({ product }: { product: ProductCardItem }) {
   const href = productPath(product.slug)
-  const categoryName = product.categoryName ?? product.category?.name ?? null
-  const categorySlug = product.categorySlug ?? product.category?.slug ?? null
   const score =
     typeof product.scoreCount === "number" &&
     Number.isFinite(product.scoreCount)
@@ -80,20 +79,12 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
             "Discover launch-ready tools from indie makers worldwide."}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {categoryName ? (
-            categorySlug ? (
-              <Link
-                href={categoryPath(categorySlug)}
-                className="hidden rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] transition hover:bg-[#0051d5]/10 hover:text-[#0051d5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 sm:inline-flex"
-              >
-                {categoryName}
-              </Link>
-            ) : (
-              <span className="hidden rounded bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#43474c] sm:inline-flex">
-                {categoryName}
-              </span>
-            )
-          ) : null}
+          <ProductCategoryPills
+            categories={product.categories}
+            className="gap-1.5"
+            pillClassName="rounded border-0 bg-[#f8fafc] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
+            linkClassName="hover:bg-[#0051d5]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2"
+          />
         </div>
       </div>
       <Link

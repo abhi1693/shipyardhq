@@ -1,5 +1,6 @@
 import { productPath } from "@/lib/routes"
 import { siteConfig } from "@/lib/siteConfig"
+import { resolveProductCategories } from "@/lib/products/categories"
 
 export type DirectoryMarkdownProduct = {
   slug: string
@@ -7,6 +8,7 @@ export type DirectoryMarkdownProduct = {
   tagline?: string | null
   category?: string | { name?: string | null; slug?: string | null } | null
   categoryName?: string | null
+  categories?: Array<{ name: string; slug: string | null }> | null
   analytics?: { upvotes?: number | null } | null
   upvoteCount?: number | null
   isVerified?: boolean | null
@@ -42,18 +44,26 @@ const productUpvotes = (product: DirectoryMarkdownProduct) => {
   return null
 }
 
-const productCategory = (product: DirectoryMarkdownProduct) =>
-  cleanText(product.categoryName) ??
-  (typeof product.category === "string"
-    ? cleanText(product.category)
-    : cleanText(product.category?.name))
+const productCategories = (product: DirectoryMarkdownProduct) => {
+  const primary =
+    typeof product.category === "string"
+      ? { name: product.category, slug: null }
+      : {
+          name: product.categoryName ?? product.category?.name,
+          slug: product.category?.slug,
+        }
+
+  return resolveProductCategories(primary, product.categories).map(
+    (category) => category.name,
+  )
+}
 
 function productLine(product: DirectoryMarkdownProduct) {
   const upvotes = productUpvotes(product)
-  const category = productCategory(product)
+  const categories = productCategories(product)
   const details = [
     cleanText(product.tagline),
-    category ? `Category: ${category}` : null,
+    categories.length ? `Categories: ${categories.join(", ")}` : null,
     upvotes !== null ? `Upvotes: ${upvotes}` : null,
     product.isVerified ? "Verified" : null,
     product.isSponsored || product.sponsored ? "Promoted" : null,
