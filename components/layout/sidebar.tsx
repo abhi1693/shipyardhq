@@ -267,11 +267,11 @@ export default function AppSidebar(props: SidebarProps) {
           <ProductDraftStartButton
             mode="member"
             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-transform active:scale-[0.98] group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:px-0"
-            aria-label="Launch new project"
+            aria-label="Launch a product"
           >
             <Rocket className="h-4 w-4" aria-hidden />
             <span className="group-data-[collapsible=icon]:hidden">
-              Launch New Project
+              Launch a Product
             </span>
           </ProductDraftStartButton>
         ) : null}

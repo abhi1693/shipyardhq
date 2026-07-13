@@ -4,6 +4,7 @@ import Image from "next/image"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { formatDistanceToNow } from "date-fns"
 import {
+  ArrowRight,
   ExternalLink,
   Eye,
   Package,
@@ -86,7 +87,7 @@ export async function MemberOverviewPageContent() {
           className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
         >
           <Rocket className="h-4 w-4" aria-hidden />
-          Launch new project
+          Launch a product
         </ProductDraftStartButton>
       </header>
 
@@ -102,6 +103,10 @@ async function MemberOverviewDashboard() {
     getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS),
     getMemberDashboardSnapshot(),
   ])
+
+  if (!snapshot.products.length) {
+    return <FirstLaunchActivationPanel />
+  }
 
   const stats: StatDefinition[] = [
     {
@@ -192,6 +197,73 @@ async function getMemberDashboardSnapshot(): Promise<MemberDashboardSnapshot> {
   })
 
   return { products }
+}
+
+function FirstLaunchActivationPanel() {
+  const nextSteps = [
+    "Add your product details and launch assets.",
+    "Choose a free launch or optional paid reach.",
+    "Publish and track views, visitors, and upvotes here.",
+  ] as const
+
+  return (
+    <section
+      aria-labelledby="first-launch-title"
+      className="relative overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm"
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.16),transparent_52%)]"
+        aria-hidden
+      />
+      <div className="relative grid gap-8 px-6 py-8 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] md:px-10 md:py-10">
+        <div className="flex flex-col items-start">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
+            <Rocket className="h-4 w-4" aria-hidden />
+            Your next step
+          </div>
+          <h2
+            id="first-launch-title"
+            className="mt-5 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl"
+          >
+            Launch your first product
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+            Your dashboard starts measuring views, visitors, and upvotes after
+            you publish. Create your product page to generate the first
+            meaningful signals.
+          </p>
+          <ProductDraftStartButton
+            mode="member"
+            className="group mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
+          >
+            Start your first launch
+            <ArrowRight
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </ProductDraftStartButton>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white/85 p-5 shadow-sm backdrop-blur">
+          <h3 className="text-sm font-semibold text-slate-950">
+            What happens next
+          </h3>
+          <ol className="mt-4 space-y-4">
+            {nextSteps.map((step, index) => (
+              <li key={step} className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-700">
+                  {index + 1}
+                </span>
+                <span className="pt-0.5 text-sm leading-5 text-slate-600">
+                  {step}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function AnalyticsStatRow({ stats }: { stats: StatDefinition[] }) {

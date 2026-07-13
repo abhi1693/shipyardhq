@@ -249,12 +249,11 @@ export default async function PricingPage() {
             </div>
 
             <h1 className="mx-auto max-w-3xl text-3xl font-bold leading-10 text-black sm:text-5xl sm:leading-[1.1] md:text-[56px]">
-              Scale Your Launch.
-              <br className="hidden md:block" /> Clear pricing for every stage.
+              Turn your launch into measurable discovery.
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[#43474c] sm:text-lg sm:leading-7">
-              Simple placements you can toggle as you grow. Start free, add
-              reach when you need it, and keep ownership of your page.
+              Publish free, earn votes and clicks, and buy extra reach only when
+              the timing is right.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
