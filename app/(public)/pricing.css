@@ -15,7 +15,14 @@
 @source "../../components/molecules/PricingFeature.tsx";
 @source "../../components/molecules/TrafficTimeseriesChart.tsx";
 @source "../../components/organisms/PricingTable.tsx";
+@source "../../components/organisms/PricingConversionJourney.tsx";
 @source "../../components/templates/public/common/Taxonomy*.tsx";
 @source "../../components/templates/public/common/Traffic*.tsx";
 @source "../../components/templates/public/common/taxonomy-sponsors.ts";
 @source "../../components/templates/public/pricing/**/*.{js,ts,jsx,tsx}";
+
+@media (max-width: 47.999rem) {
+  body:has([data-pricing-mobile-cta]) [data-partner-spotlight] {
+    display: none;
+  }
+}

@@ -24,7 +24,10 @@ export function PartnerSpotlight({
   const logoFallback = product.name.slice(0, 1).toUpperCase()
 
   return (
-    <div className="fixed bottom-0 left-0 z-[60] w-full border-t border-white/10 bg-[#213145] text-white shadow-2xl">
+    <div
+      data-partner-spotlight
+      className="fixed bottom-0 left-0 z-[60] w-full border-t border-white/10 bg-[#213145] text-white shadow-2xl"
+    >
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 px-4 sm:gap-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
           <div className="flex shrink-0 items-center gap-2 sm:border-r sm:border-white/20 sm:pr-6">

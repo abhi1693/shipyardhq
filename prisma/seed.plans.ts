@@ -14,7 +14,8 @@ type PlanSeed = {
   description?: string
   type: PlanType
   price: number
-  externalId?: string
+  discount?: number | null
+  externalId?: string | null
   isDefault?: boolean
   boostForDays?: number
   features: PlanFeatureAssignmentSeed[]
@@ -27,10 +28,11 @@ type PlanSeed = {
 type PlanFeatureAssignmentSeed = {
   key: string
   enabled?: boolean
+  isExperimental?: boolean
   config?: Prisma.JsonValue
 }
 
-// Prod-safe plans with additive feature assignments; uses upsert and compound unique
+// Prod-safe catalog mirrored from production; known assignments are reconciled.
 const PLANS: PlanSeed[] = [
   {
     name: "Free",
@@ -38,17 +40,38 @@ const PLANS: PlanSeed[] = [
     description: "Basic listing",
     type: PlanType.one_time_price,
     price: 0,
+    discount: null,
+    externalId: null,
     isDefault: true,
     boostForDays: 1,
     features: [{ key: "analytics.basic" }, { key: "product.sitemap" }],
+  },
+  {
+    name: "Spotlight",
+    slug: "spotlight",
+    description: "Front and Center",
+    type: PlanType.one_time_price,
+    price: 499,
+    discount: null,
+    externalId: "pdt_0NULM85YTaN4DsrTMUNBk",
+    isDefault: false,
+    boostForDays: 7,
+    features: [
+      { key: "analytics.basic" },
+      { key: "backlink" },
+      { key: "featured" },
+      { key: "product.sitemap" },
+      { key: "sponsoredProducts" },
+    ],
   },
   {
     name: "Featured",
     slug: "featured",
     description: "Boosted listing",
     type: PlanType.one_time_price,
-    price: 1900,
-    externalId: "pdt_0Nh18siTMjG0nm64hnhF3",
+    price: 999,
+    discount: 0,
+    externalId: "pdt_6y67LxOz1COCrcvI21KUy",
     isDefault: false,
     boostForDays: 14,
     features: [
@@ -57,6 +80,7 @@ const PLANS: PlanSeed[] = [
       { key: "product.sitemap" },
       { key: "featured" },
       { key: "priorityPlacement" },
+      { key: "product.aiSearchReady", enabled: false },
       { key: "sponsoredProducts" },
     ],
   },
@@ -65,12 +89,13 @@ const PLANS: PlanSeed[] = [
     slug: "featured-recurring",
     description: "Boosted listing",
     type: PlanType.recurring_price,
-    price: 1900,
-    externalId: "pdt_0Nh1A7b0Tw1qKTqVfjQBg",
+    price: 899,
+    discount: 0,
+    externalId: "pdt_0NVULVEm6a1xvyPf0tWPC",
     isDefault: false,
     boostForDays: 14,
-    paymentFrequencyCount: 2,
-    paymentFrequencyInterval: TimeInterval.week,
+    paymentFrequencyCount: 14,
+    paymentFrequencyInterval: TimeInterval.day,
     subscriptionPeriodCount: 10,
     subscriptionPeriodInterval: TimeInterval.year,
     features: [
@@ -79,6 +104,7 @@ const PLANS: PlanSeed[] = [
       { key: "product.sitemap" },
       { key: "featured" },
       { key: "priorityPlacement" },
+      { key: "product.aiSearchReady", enabled: false },
       { key: "sponsoredProducts" },
     ],
   },
@@ -87,8 +113,9 @@ const PLANS: PlanSeed[] = [
     slug: "pro",
     description: "Maximum visibility",
     type: PlanType.one_time_price,
-    price: 4900,
-    externalId: "pdt_0Nh1ABFqHjSwvJsQVyWH0",
+    price: 2499,
+    discount: 0,
+    externalId: "pdt_mIH43Ic1aYKkgnYE9ZzpQ",
     isDefault: false,
     boostForDays: 30,
     features: [
@@ -108,8 +135,9 @@ const PLANS: PlanSeed[] = [
     slug: "pro-recurring",
     description: "Maximum visibility",
     type: PlanType.recurring_price,
-    price: 4900,
-    externalId: "pdt_0Nh1ABzqD2ZM6Gqveuzj9",
+    price: 2499,
+    discount: 0,
+    externalId: "pdt_0NVULf0GCJuuTKJpNkW6Y",
     isDefault: false,
     boostForDays: 30,
     paymentFrequencyCount: 1,
@@ -138,6 +166,13 @@ export async function seedPlans(prisma: PrismaClient) {
     select: { id: true, key: true },
   })
   const featureByKey = new Map(allFeatures.map((f) => [f.key, f.id]))
+  const managedFeatureIds = Array.from(
+    new Set(
+      PLANS.flatMap((plan) => plan.features)
+        .map((assignment) => featureByKey.get(assignment.key))
+        .filter((featureId): featureId is string => Boolean(featureId)),
+    ),
+  )
 
   for (const p of PLANS) {
     const exists = await prisma.plan.findUnique({ where: { slug: p.slug } })
@@ -150,13 +185,14 @@ export async function seedPlans(prisma: PrismaClient) {
         description: p.description,
         type: p.type,
         price: p.price,
+        discount: p.discount,
         externalId: p.externalId,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
-        paymentFrequencyCount: p.paymentFrequencyCount,
-        paymentFrequencyInterval: p.paymentFrequencyInterval,
-        subscriptionPeriodCount: p.subscriptionPeriodCount,
-        subscriptionPeriodInterval: p.subscriptionPeriodInterval,
+        paymentFrequencyCount: p.paymentFrequencyCount ?? null,
+        paymentFrequencyInterval: p.paymentFrequencyInterval ?? null,
+        subscriptionPeriodCount: p.subscriptionPeriodCount ?? null,
+        subscriptionPeriodInterval: p.subscriptionPeriodInterval ?? null,
       },
       create: {
         name: p.name,
@@ -164,6 +200,7 @@ export async function seedPlans(prisma: PrismaClient) {
         description: p.description,
         type: p.type,
         price: p.price,
+        discount: p.discount,
         externalId: p.externalId,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
@@ -173,6 +210,23 @@ export async function seedPlans(prisma: PrismaClient) {
         subscriptionPeriodInterval: p.subscriptionPeriodInterval,
       },
     })
+
+    const configuredFeatureIds = new Set(
+      p.features
+        .map((assignment) => featureByKey.get(assignment.key))
+        .filter((featureId): featureId is string => Boolean(featureId)),
+    )
+    const staleManagedFeatureIds = managedFeatureIds.filter(
+      (featureId) => !configuredFeatureIds.has(featureId),
+    )
+    if (staleManagedFeatureIds.length) {
+      await prisma.planFeatureAssignment.deleteMany({
+        where: {
+          planId: plan.id,
+          featureId: { in: staleManagedFeatureIds },
+        },
+      })
+    }
 
     for (const assignment of p.features) {
       const featureId = featureByKey.get(assignment.key)
@@ -186,12 +240,14 @@ export async function seedPlans(prisma: PrismaClient) {
         where: { planId_featureId: { planId: plan.id, featureId } },
         update: {
           enabled: assignment.enabled ?? true,
+          isExperimental: assignment.isExperimental ?? false,
           config: assignment.config ?? Prisma.JsonNull,
         },
         create: {
           planId: plan.id,
           featureId,
           enabled: assignment.enabled ?? true,
+          isExperimental: assignment.isExperimental ?? false,
           config: assignment.config ?? Prisma.JsonNull,
         },
       })

@@ -1,41 +1,36 @@
 # Pricing & Plans
 
-Clear, fair tiers that start generous and scale with growth. Free is the default so every product can launch confidently; upgrades add visibility and time‑boxed spotlighting.
+This file mirrors the production `Plan` and `PlanFeatureAssignment` rows verified through the `shipyardhq` Kubernetes workload.
 
-## Plan Summary
+## Customer-facing offer
 
-| Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                               | Primary Value                                                                        |
-| -------------- | ------------------- | -----------: | --------------------: | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                    | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
-| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `sponsoredProducts`, `stickyBanner`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
-| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features                                                                                    | Extra visibility for larger launches                                                 |
+The pricing page packages the catalog into three comparable tiers:
 
-Notes
+| Tier     | Default one-time offer |    Recurring option |     Launch window |
+| -------- | ---------------------: | ------------------: | ----------------: |
+| Free     |                     $0 |                   — | Permanent listing |
+| Featured |             $9.99 once | $8.99 every 14 days |           14 days |
+| Pro      |            $24.99 once |      $24.99 monthly |           30 days |
 
-- Keep Free feeling complete: listing + upvotes + product page + basic click/upvote analytics.
-- Reserve sponsored placement/featured/banner surfaces for Spotlight to protect feed quality.
-- Pro remains compelling via ongoing outcomes: traffic lift + better on‑page conversion + earlier access.
+One-time pricing is selected by default. The recurring control is labeled “Keep my placement running.” The legacy 7-day Spotlight plan remains in production, but Featured is the canonical middle tier; Spotlight is used only when Featured is unavailable.
 
-## Feature Comparison
+## Production catalog
 
-| Feature Key         | Free | Pro | Team | Spotlight |
-| ------------------- | :--: | :-: | :--: | :-------: |
-| `analytics.basic`   |  ✓   |  ✓  |  ✓   |
-| `priorityPlacement` |  —   |  ✓  |  ✓   |
-| `featured`          |  —   |  ✓  |  ✓   |
-| `sponsoredProducts` |  —   |  ✓  |  ✓   |
-| `stickyBanner`      |  —   |  ✓  |  ✓   |
-| `backlink`          |  ✓   |  ✓  |  ✓   |
-| `product.sitemap`   |  ✓   |  ✓  |  ✓   |
+| Slug                 | Type             |  Price |  Window | Enabled feature keys                                                                                   |
+| -------------------- | ---------------- | -----: | ------: | ------------------------------------------------------------------------------------------------------ |
+| `free`               | One-time/default |     $0 |   1 day | `analytics.basic`, `product.sitemap`                                                                   |
+| `spotlight`          | One-time         |  $4.99 |  7 days | `analytics.basic`, `backlink`, `featured`, `product.sitemap`, `sponsoredProducts`                      |
+| `featured`           | One-time         |  $9.99 | 14 days | `analytics.basic`, `backlink`, `featured`, `priorityPlacement`, `product.sitemap`, `sponsoredProducts` |
+| `featured-recurring` | Every 14 days    |  $8.99 | 14 days | Same as `featured`                                                                                     |
+| `pro`                | One-time         | $24.99 | 30 days | All Featured keys plus `analytics.advanced`, `partnerSpotlight`, `product.aiSearchReady`               |
+| `pro-recurring`      | Monthly          | $24.99 | 30 days | Same as `pro`                                                                                          |
 
-## Implementation Notes
+`product.aiSearchReady` has an explicit disabled assignment on both Featured plans in production.
 
-- Plans
-  - Free: create a `Plan` with `price=0`, `isDefault=true`.
-  - Pro/Team: `Plan.type=one_time_price` (lifetime entitlements); assign Pro features including former Spotlight surfaces (`featured`, `sponsoredProducts`, `stickyBanner`).
-- Feature Keys: use the existing constants in `lib/constants.ts` for `PlanFeature` records.
-- Entitlements
-  - Pro/Team purchases grant lifetime feature access; time‑boxed placements can still be scheduled editorially (use `boostForDays` if desired per placement).
-  - Product page UI should reference assignments via `lib/features.ts` helpers.
+## Fulfilled surfaces
 
-Pricing can be tuned later; the structure keeps Free generous while upgrades deliver tangible, trustworthy value.
+- Free: public product page, standard homepage launch-feed card, standard Browse/directory discovery, basic product analytics, and product-sitemap inclusion.
+- Featured: everything in Free, plus a sponsored card in the homepage launch feed, priority position in Browse and supported filtered result feeds, and a direct do-follow product-page link.
+- Pro: everything in Featured, plus advanced referrer/channel/device/location insights, AI-search ready badge and dedicated Markdown profile, and eligibility for the sitewide Partner Spotlight bar and product, leaderboard, and directory sponsor panels.
+
+The `featured` entitlement is present in production data but does not currently create a `ProductBadge("featured")` when a plan is purchased. Do not promise a Featured badge until that fulfillment bridge exists.

@@ -18,6 +18,12 @@ import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { choosePlanAction } from "@/actions/member/products/actions"
 import { Button } from "@/components/atoms/button"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
+import {
+  getPricingOfferPresentation,
+  resolveInitialPricingPlanType,
+  resolveRecommendedPlanId,
+  selectPricingOfferPlans,
+} from "@/lib/pricing/offer"
 import { cn } from "@/lib/utils"
 
 type PlanType = PublicPlan["type"]
@@ -38,8 +44,11 @@ export type ProductUpgradePlanStatus = {
 }
 
 const PLAN_TYPE_OPTIONS: { value: PlanType; label: string }[] = [
-  { value: "one_time_price" as PlanType, label: "One-time boost" },
-  { value: "recurring_price" as PlanType, label: "Monthly subscription" },
+  { value: "one_time_price" as PlanType, label: "One-time launch boost" },
+  {
+    value: "recurring_price" as PlanType,
+    label: "Keep my placement running",
+  },
 ]
 
 const EMPTY_PERFORMANCE_SNAPSHOT: ProductUpgradePerformanceSnapshot = {
@@ -48,27 +57,6 @@ const EMPTY_PERFORMANCE_SNAPSHOT: ProductUpgradePerformanceSnapshot = {
   productUniqueVisitors30d: 0,
   productPageViews30d: 0,
   productUpvotes: 0,
-}
-
-const FALLBACK_FEATURES = {
-  free: [
-    "Shipyard listing",
-    "Optional badge embed",
-    "Basic analytics",
-    "Search indexing",
-  ],
-  featured: [
-    "Featured badge",
-    "Front page discovery",
-    "Sponsored product placement",
-    "Priority placement",
-  ],
-  pro: [
-    "Partner spotlight placement",
-    "Advanced analytics",
-    "Sponsored discovery slots",
-    "30-day launch boost",
-  ],
 }
 
 function formatPrice(cents: number) {
@@ -96,39 +84,8 @@ function planRank(plan: PublicPlan) {
   return 1
 }
 
-function choosePopularPlanId(plans: PublicPlan[], selectedType: PlanType) {
-  const paidPlans = plans.filter((plan) => (plan.price || 0) > 0)
-  if (!paidPlans.length) return undefined
-
-  const preferredName =
-    selectedType === "recurring_price" ? /featured/i : /spotlight/i
-  const preferredPlan = paidPlans.find((plan) => preferredName.test(plan.name))
-  if (preferredPlan) return preferredPlan.id
-
-  const maxCount = Math.max(...paidPlans.map((plan) => plan.productCount || 0))
-  if (maxCount > 0) {
-    return paidPlans
-      .filter((plan) => (plan.productCount || 0) === maxCount)
-      .sort((a, b) => (b.price || 0) - (a.price || 0))[0]?.id
-  }
-
-  const sortedByPrice = [...paidPlans].sort(
-    (a, b) => (a.price || 0) - (b.price || 0),
-  )
-  return sortedByPrice[Math.floor((sortedByPrice.length - 1) / 2)]?.id
-}
-
 function isPaidPlan(plan?: PublicPlan | null) {
   return Boolean(plan && !plan.isDefault && (plan.price || 0) > 0)
-}
-
-function enabledPlanFeatures(plan: PublicPlan, fallback: string[]) {
-  const enabledFeatures = plan.features
-    .filter((feature) => feature.enabled)
-    .map((feature) => feature.displayName || feature.name)
-    .slice(0, 4)
-
-  return enabledFeatures.length ? enabledFeatures : fallback
 }
 
 function planExposureShare(rank: number) {
@@ -155,6 +112,7 @@ function siteAudienceSignal(snapshot: ProductUpgradePerformanceSnapshot) {
 function planMetrics(
   plan: PublicPlan,
   snapshot: ProductUpgradePerformanceSnapshot,
+  comparisonPlans: PublicPlan[],
 ) {
   const rank = planRank(plan)
   const siteAudience = siteAudienceSignal(snapshot)
@@ -182,13 +140,16 @@ function planMetrics(
     : rank > 0
       ? 15
       : 0
+  const offerFeatures = getPricingOfferPresentation(plan, comparisonPlans)
+    .items.map((item) => item.label)
+    .slice(0, 4)
 
   if (rank === 0) {
     return {
       score,
       reach: formatCompactCount(estimatedReach),
       label: "Standard Review",
-      features: enabledPlanFeatures(plan, FALLBACK_FEATURES.free),
+      features: offerFeatures,
     }
   }
   if (rank === 2) {
@@ -196,14 +157,14 @@ function planMetrics(
       score,
       reach: formatCompactCount(estimatedReach),
       label: "Pro Acceleration",
-      features: enabledPlanFeatures(plan, FALLBACK_FEATURES.pro),
+      features: offerFeatures,
     }
   }
   return {
     score,
     reach: formatCompactCount(estimatedReach),
     label: "Featured Injection",
-    features: enabledPlanFeatures(plan, FALLBACK_FEATURES.featured),
+    features: offerFeatures,
   }
 }
 
@@ -285,12 +246,7 @@ export function ProductUpgradeProvisioning({
     if (requestedPlan && (requestedPlan.price || 0) > 0) {
       return requestedPlan.type
     }
-    return (
-      availableTypes.find((option) => option.value === "recurring_price")
-        ?.value ??
-      availableTypes[0]?.value ??
-      ("one_time_price" as PlanType)
-    )
+    return resolveInitialPricingPlanType(plans)
   })
   const [badgeDialogOpen, setBadgeDialogOpen] = useState(false)
   const hasPaidPlanForSelectedType = plans.some(
@@ -301,24 +257,35 @@ export function ProductUpgradeProvisioning({
       ? availableTypes[0].value
       : selectedType
 
-  const visiblePlans = useMemo(() => {
-    if (subscriptionLocked && currentPlanId) {
-      return plans.filter((plan) => plan.id === currentPlanId)
-    }
-
-    const freePlans = plans.filter((plan) => (plan.price || 0) === 0)
-    const paidPlans = plans.filter(
-      (plan) => (plan.price || 0) > 0 && plan.type === effectiveSelectedType,
-    )
-    return [...freePlans, ...paidPlans].sort((a, b) => {
-      const rankDiff = planRank(a) - planRank(b)
-      return rankDiff || (a.price || 0) - (b.price || 0)
-    })
-  }, [currentPlanId, effectiveSelectedType, plans, subscriptionLocked])
-  const popularPlanId = useMemo(
-    () => choosePopularPlanId(visiblePlans, effectiveSelectedType),
-    [effectiveSelectedType, visiblePlans],
+  const canonicalOfferPlans = selectPricingOfferPlans(
+    plans,
+    effectiveSelectedType,
   )
+  const pinnedPlanIds = new Set(
+    [currentPlanId, requestedPlanId].filter((planId): planId is string =>
+      Boolean(planId),
+    ),
+  )
+  const pinnedPlans = plans.filter(
+    (plan) =>
+      pinnedPlanIds.has(plan.id) &&
+      ((plan.price || 0) === 0 || plan.type === effectiveSelectedType),
+  )
+  const visiblePlans =
+    subscriptionLocked && currentPlanId
+      ? plans.filter((plan) => plan.id === currentPlanId)
+      : [
+          ...new Map(
+            [...canonicalOfferPlans, ...pinnedPlans].map((plan) => [
+              plan.id,
+              plan,
+            ]),
+          ).values(),
+        ].sort((a, b) => {
+          const rankDiff = planRank(a) - planRank(b)
+          return rankDiff || (a.price || 0) - (b.price || 0)
+        })
+  const recommendedPlanId = resolveRecommendedPlanId(visiblePlans)
 
   const defaultSelected =
     visiblePlans.find((plan) => plan.id === requestedPlanId) ??
@@ -341,7 +308,7 @@ export function ProductUpgradeProvisioning({
     defaultSelected ??
     null
   const metrics = selectedPlan
-    ? planMetrics(selectedPlan, performanceSnapshot)
+    ? planMetrics(selectedPlan, performanceSnapshot, visiblePlans)
     : null
   const selectedIsCurrent = Boolean(
     selectedPlan && currentPlanId && selectedPlan.id === currentPlanId,
@@ -353,7 +320,7 @@ export function ProductUpgradeProvisioning({
   const gaugeOffset = circumference - (score / 100) * circumference
   const currentPaidPlan = isPaidPlan(currentPlan) ? currentPlan : null
   const currentPaidMetrics = currentPaidPlan
-    ? planMetrics(currentPaidPlan, performanceSnapshot)
+    ? planMetrics(currentPaidPlan, performanceSnapshot, plans)
     : null
   const currentPlanAssignedDate = formatDateLabel(currentPlanStatus.assignedAt)
   const currentBoostEndsDate = formatDateLabel(currentPlanStatus.boostEndsAt)
@@ -588,8 +555,13 @@ export function ProductUpgradeProvisioning({
             const selected = selectedPlan.id === plan.id
             const current = currentPlanId === plan.id
             const rank = planRank(plan)
-            const popular = plan.id === popularPlanId && (plan.price || 0) > 0
-            const planCopy = planMetrics(plan, performanceSnapshot)
+            const recommended =
+              plan.id === recommendedPlanId && (plan.price || 0) > 0
+            const planCopy = planMetrics(
+              plan,
+              performanceSnapshot,
+              visiblePlans,
+            )
             return (
               <div
                 key={plan.id}
@@ -608,9 +580,9 @@ export function ProductUpgradeProvisioning({
                   if (!subscriptionLocked) setSelectedPlanId(plan.id)
                 }}
               >
-                {popular ? (
+                {recommended ? (
                   <div className="absolute right-0 top-0 rounded-bl-xl bg-[#0051d5] px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white">
-                    Popular Choice
+                    Recommended
                   </div>
                 ) : null}
 

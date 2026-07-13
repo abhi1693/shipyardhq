@@ -1,13 +1,21 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import clsx from "clsx"
 import { PricingCard } from "@/components/molecules/PricingCard"
 import type { PublicPlan } from "@/actions/public/plans/actions"
+import {
+  getPricingOfferPresentation,
+  getPricingPlanCtaLabel,
+  getPricingPlanDescription,
+  resolveInitialPricingPlanType,
+  resolveRecommendedPlanId,
+  selectPricingOfferPlans,
+} from "@/lib/pricing/offer"
 
 const PLAN_TYPE_OPTIONS = [
-  { value: "recurring_price", label: "Subscription" },
-  { value: "one_time_price", label: "One-time" },
+  { value: "one_time_price", label: "One-time launch boost" },
+  { value: "recurring_price", label: "Keep my placement running" },
 ] as const
 
 type PlanTypeOption = (typeof PLAN_TYPE_OPTIONS)[number]["value"]
@@ -20,29 +28,6 @@ type PricingTableProps = {
   cardVariant?: "default" | "placement"
 }
 
-function choosePopularPlanId(
-  plans: PublicPlan[],
-  selectedType: PlanTypeOption,
-) {
-  const paidPlans = plans.filter((plan) => plan.price > 0)
-  if (!paidPlans.length) return undefined
-
-  const preferredName =
-    selectedType === "recurring_price" ? /featured/i : /spotlight/i
-  const preferredPlan = paidPlans.find((plan) => preferredName.test(plan.name))
-  if (preferredPlan) return preferredPlan.id
-
-  const maxCount = Math.max(...paidPlans.map((plan) => plan.productCount || 0))
-  if (maxCount > 0) {
-    return paidPlans
-      .filter((plan) => (plan.productCount || 0) === maxCount)
-      .sort((a, b) => b.price - a.price)[0]?.id
-  }
-
-  const sortedByPrice = [...paidPlans].sort((a, b) => a.price - b.price)
-  return sortedByPrice[Math.floor((sortedByPrice.length - 1) / 2)]?.id
-}
-
 export function PricingTable({
   plans,
   renderPlanCTA,
@@ -50,16 +35,22 @@ export function PricingTable({
   showTypeToggle = false,
   cardVariant = "default",
 }: PricingTableProps) {
-  const hasRecurring = plans.some((plan) => plan.type === "recurring_price")
-  const hasOneTime = plans.some((plan) => plan.type === "one_time_price")
-  const [selectedType, setSelectedType] = useState<PlanTypeOption>(() =>
-    hasRecurring ? "recurring_price" : "one_time_price",
+  const availableOptions = PLAN_TYPE_OPTIONS.filter((option) =>
+    plans.some((plan) => plan.price > 0 && plan.type === option.value),
   )
-  const shouldShowToggle = showTypeToggle && (hasRecurring || hasOneTime)
+  const [selectedType, setSelectedType] = useState<PlanTypeOption>(() =>
+    resolveInitialPricingPlanType(plans),
+  )
+  const effectiveSelectedType = availableOptions.some(
+    (option) => option.value === selectedType,
+  )
+    ? selectedType
+    : resolveInitialPricingPlanType(plans)
+  const shouldShowToggle = showTypeToggle && availableOptions.length > 1
   const displayPlans = showTypeToggle
-    ? plans.filter((plan) => plan.type === selectedType)
+    ? selectPricingOfferPlans(plans, effectiveSelectedType)
     : plans
-  const popularPlanId = choosePopularPlanId(displayPlans, selectedType)
+  const recommendedPlanId = resolveRecommendedPlanId(displayPlans)
 
   const gridClassName = clsx(
     cardVariant === "placement"
@@ -70,7 +61,7 @@ export function PricingTable({
       (cardVariant === "placement" ? "lg:grid-cols-3" : "xl:grid-cols-3"),
   )
   const emptyStateLabel = showTypeToggle
-    ? selectedType === "recurring_price"
+    ? effectiveSelectedType === "recurring_price"
       ? "subscription"
       : "one-time"
     : "plans"
@@ -83,7 +74,7 @@ export function PricingTable({
       )}
     >
       {shouldShowToggle ? (
-        <div className="mb-8 flex justify-center">
+        <div className="mb-8 flex flex-col items-center">
           <div
             role="tablist"
             aria-label="Plan type"
@@ -95,7 +86,13 @@ export function PricingTable({
             )}
           >
             {PLAN_TYPE_OPTIONS.map((option) => {
-              const isActive = selectedType === option.value
+              if (
+                !availableOptions.some(({ value }) => value === option.value)
+              ) {
+                return null
+              }
+
+              const isActive = effectiveSelectedType === option.value
               return (
                 <button
                   key={option.value}
@@ -119,6 +116,11 @@ export function PricingTable({
               )
             })}
           </div>
+          <p className="mt-3 text-center text-xs text-[#43474c]">
+            {effectiveSelectedType === "recurring_price"
+              ? "Renews automatically so your placement stays active. Cancel anytime."
+              : "One payment. Your plan ends after the stated launch window."}
+          </p>
         </div>
       ) : null}
       {displayPlans.length ? (
@@ -129,24 +131,29 @@ export function PricingTable({
               p.price > 0
                 ? recurringSuffix
                   ? `${recurringSuffix} / product`
-                  : "per product"
+                  : p.type === "recurring_price"
+                    ? "recurring / product"
+                    : "one-time / product"
                 : undefined
+            const offer = getPricingOfferPresentation(p, displayPlans)
 
             return (
-              <CardWrapper key={p.id}>
-                <PricingCard
-                  name={p.name}
-                  description={p.description}
-                  price={p.price}
-                  priceSuffix={priceSuffix}
-                  discount={p.discount}
-                  isPopular={p.price > 0 && p.id === popularPlanId}
-                  features={p.features}
-                  boostForDays={p.boostForDays}
-                  ctaSlot={renderPlanCTA?.(p)}
-                  variant={cardVariant}
-                />
-              </CardWrapper>
+              <PricingCard
+                key={p.id}
+                name={p.name}
+                description={getPricingPlanDescription(p)}
+                price={p.price}
+                priceSuffix={priceSuffix}
+                discount={p.discount}
+                isRecommended={p.price > 0 && p.id === recommendedPlanId}
+                features={p.features}
+                featureIntro={offer.intro}
+                offerItems={offer.items}
+                boostForDays={p.boostForDays}
+                ctaLabel={getPricingPlanCtaLabel(p)}
+                ctaSlot={renderPlanCTA?.(p)}
+                variant={cardVariant}
+              />
             )
           })}
         </div>
@@ -163,35 +170,4 @@ export function PricingTable({
   }
 
   return <section className="py-12">{content}</section>
-}
-
-function CardWrapper({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    function equalize() {
-      const nodes = Array.from(
-        document.querySelectorAll<HTMLDivElement>(
-          "[data-pricing-card-wrapper]",
-        ),
-      )
-      // Reset heights to natural to measure
-      nodes.forEach((n) => (n.style.height = "auto"))
-      const baseMin = 30 * 16 // ensure a comfortable minimum height
-      const heights = nodes.map((n) => Math.max(n.offsetHeight, baseMin))
-      const maxContent = heights.reduce((m, h) => Math.max(m, h), baseMin)
-      const target = Math.max(maxContent, baseMin) + 24
-      nodes.forEach((n) => (n.style.height = `${target}px`))
-    }
-
-    equalize()
-    window.addEventListener("resize", equalize)
-    return () => window.removeEventListener("resize", equalize)
-  }, [])
-
-  return (
-    <div ref={ref} data-pricing-card-wrapper className="h-full w-full">
-      {children}
-    </div>
-  )
 }

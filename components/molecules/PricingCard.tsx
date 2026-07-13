@@ -14,6 +14,7 @@ import clsx from "clsx"
 import { IconAnchor, IconArrowUpRight, IconBolt } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"
 import { MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
+import { formatPricingOfferPrice } from "@/lib/pricing/offer"
 
 export type PricingCardProps = {
   name: string
@@ -21,7 +22,7 @@ export type PricingCardProps = {
   price: number
   priceSuffix?: string
   discount?: number | null
-  isPopular?: boolean
+  isRecommended?: boolean
   features: {
     id: string
     name: string
@@ -31,6 +32,8 @@ export type PricingCardProps = {
     enabled: boolean
     isExperimental: boolean
   }[]
+  featureIntro?: string
+  offerItems?: { id: string; label: string }[]
   ctaHref?: string
   ctaLabel?: string
   boostForDays?: number | null
@@ -44,34 +47,34 @@ export function PricingCard({
   price,
   priceSuffix,
   discount,
-  isPopular,
+  isRecommended,
   features,
+  featureIntro,
+  offerItems,
   boostForDays,
   ctaHref = MEMBER_PRODUCTS_ADD_PATH,
-  ctaLabel = "Get Started",
+  ctaLabel = "Choose this plan",
   ctaSlot,
   variant = "default",
 }: PricingCardProps) {
   const isFree = price === 0
-  const currency = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  })
   const pctRaw = discount ?? 0
   const pct = Math.min(Math.max(pctRaw, 0), 100)
   const hasDiscount = !isFree && pct > 0 && pct < 100
   const discountedCents = hasDiscount
     ? Math.round(price * (1 - pct / 100))
     : price
-  const originalPrice = !isFree ? currency.format(price / 100) : null
-  const displayPrice = isFree ? "Free" : currency.format(discountedCents / 100)
+  const originalPrice = !isFree ? formatPricingOfferPrice(price) : null
+  const displayPrice = isFree
+    ? "Free"
+    : formatPricingOfferPrice(discountedCents)
   const formattedDiscount = hasDiscount
     ? new Intl.NumberFormat("en-US", {
         maximumFractionDigits: 2,
       }).format(pct)
     : null
   const boostDuration =
-    typeof boostForDays === "number" && boostForDays > 0
+    !isFree && typeof boostForDays === "number" && boostForDays > 0
       ? Math.round(boostForDays)
       : null
   const boostLabel =
@@ -81,15 +84,23 @@ export function PricingCard({
         }`
       : null
   const emphasizedFeaturePattern = /advanced|spotlight|priority/i
+  const displayedOfferItems =
+    offerItems ??
+    features
+      .filter((feature) => feature.enabled)
+      .map((feature) => ({
+        id: feature.id,
+        label: feature.displayName || feature.name,
+      }))
 
   if (variant === "placement") {
     const isPro = /pro/i.test(name)
-    const accentClassName = isPopular
+    const accentClassName = isRecommended
       ? "text-[#16a34a]"
       : isPro
         ? "text-black"
         : "text-[#0051d5]"
-    const checkClassName = isPopular
+    const checkClassName = isRecommended
       ? "text-[#16a34a]"
       : isPro
         ? "text-black"
@@ -98,16 +109,16 @@ export function PricingCard({
     return (
       <Card
         className={clsx(
-          "relative flex h-full min-h-[34rem] flex-col overflow-visible rounded-2xl border bg-white/80 p-0 shadow-none backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)]",
-          isPopular
+          "relative flex h-full min-h-0 flex-col overflow-visible rounded-2xl border bg-white/80 p-0 shadow-none backdrop-blur transition-all duration-200 hover:-translate-y-1 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] lg:min-h-[34rem]",
+          isRecommended
             ? "z-10 border-2 border-[#16a34a] bg-white shadow-xl md:scale-[1.03]"
             : "border-[#E2E8F0]",
         )}
       >
-        {isPopular && !isFree ? (
+        {isRecommended && !isFree ? (
           <div className="absolute -top-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-[#16a34a] px-4 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-lg">
             <IconAnchor className="size-3.5" aria-hidden />
-            Most Popular
+            Recommended
           </div>
         ) : null}
 
@@ -169,30 +180,37 @@ export function PricingCard({
         </CardHeader>
 
         <CardContent className="flex flex-1 flex-col p-8 pt-6">
+          <div className="border-t border-[#E2E8F0] pt-6">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#74777d]">
+              Where you appear & what you get
+            </p>
+            {featureIntro ? (
+              <p className="mt-2 text-sm font-semibold leading-5 text-black">
+                {featureIntro}
+              </p>
+            ) : null}
+          </div>
           <ul className="flex-1 space-y-4 border-t border-[#E2E8F0] pt-6">
-            {features
-              .filter((feature) => feature.enabled)
-              .map((feature) => (
-                <li
-                  key={feature.id}
-                  className="flex items-start gap-3 text-sm leading-5 text-[#0b1c30]"
-                  title={feature.description || undefined}
+            {displayedOfferItems.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-start gap-3 text-sm leading-5 text-[#0b1c30]"
+              >
+                <Check
+                  className={clsx("mt-0.5 size-4 shrink-0", checkClassName)}
+                  aria-hidden
+                />
+                <span
+                  className={clsx(
+                    emphasizedFeaturePattern.test(item.label)
+                      ? "font-semibold"
+                      : "font-medium",
+                  )}
                 >
-                  <Check
-                    className={clsx("mt-0.5 size-4 shrink-0", checkClassName)}
-                    aria-hidden
-                  />
-                  <span
-                    className={clsx(
-                      emphasizedFeaturePattern.test(feature.key)
-                        ? "font-semibold"
-                        : "font-medium",
-                    )}
-                  >
-                    {feature.displayName || feature.name}
-                  </span>
-                </li>
-              ))}
+                  {item.label}
+                </span>
+              </li>
+            ))}
           </ul>
 
           <div className="mt-8">
@@ -201,7 +219,7 @@ export function PricingCard({
                 asChild
                 className={clsx(
                   "h-auto w-full rounded-lg py-3 text-sm font-semibold shadow-none active:scale-[0.98]",
-                  isPopular
+                  isRecommended
                     ? "border-0 bg-black text-white hover:bg-black/90"
                     : isPro
                       ? "border border-black bg-white text-black hover:bg-black hover:text-white"
@@ -209,7 +227,7 @@ export function PricingCard({
                 )}
               >
                 <a href={ctaHref}>
-                  {isFree ? "Start for free" : ctaLabel}
+                  {ctaLabel}
                   {!isFree && (
                     <IconArrowUpRight className="size-4 transition-transform group-hover:translate-x-1" />
                   )}
@@ -226,7 +244,7 @@ export function PricingCard({
     <Card
       className={clsx(
         "flex h-full min-h-[34rem] flex-col overflow-hidden rounded-2xl border-none bg-white shadow-[0px_22px_55px_-38px_rgba(15,23,42,0.45)] transition-transform duration-200 ease-out",
-        isPopular && "shadow-[0px_28px_70px_-34px_rgba(15,23,42,0.48)]",
+        isRecommended && "shadow-[0px_28px_70px_-34px_rgba(15,23,42,0.48)]",
       )}
     >
       <CardHeader className="space-y-6">
@@ -241,9 +259,9 @@ export function PricingCard({
               </p>
             )}
           </div>
-          {isPopular && !isFree ? (
+          {isRecommended && !isFree ? (
             <Badge className="inline-flex items-center gap-1 rounded-full border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.15] text-[color:var(--brand-2-text,#0a5678)]">
-              <IconAnchor className="h-3.5 w-3.5" /> Most popular
+              <IconAnchor className="h-3.5 w-3.5" /> Recommended
             </Badge>
           ) : null}
         </div>
@@ -283,18 +301,32 @@ export function PricingCard({
 
       <CardContent className="flex flex-1 flex-col">
         <div className="flex-1">
+          {featureIntro ? (
+            <p className="mb-3 text-sm font-semibold text-foreground">
+              {featureIntro}
+            </p>
+          ) : null}
           <ul className="space-y-3">
-            {features
-              .filter((f) => f.enabled)
-              .map((f) => (
-                <PricingFeature
-                  key={f.id}
-                  label={f.displayName || f.name}
-                  enabled={true}
-                  isExperimental={f.isExperimental}
-                  description={f.description}
-                />
-              ))}
+            {offerItems
+              ? offerItems.map((item) => (
+                  <PricingFeature
+                    key={item.id}
+                    label={item.label}
+                    enabled={true}
+                    isExperimental={false}
+                  />
+                ))
+              : features
+                  .filter((f) => f.enabled)
+                  .map((f) => (
+                    <PricingFeature
+                      key={f.id}
+                      label={f.displayName || f.name}
+                      enabled={true}
+                      isExperimental={f.isExperimental}
+                      description={f.description}
+                    />
+                  ))}
           </ul>
         </div>
 
@@ -310,7 +342,7 @@ export function PricingCard({
               )}
             >
               <a href={ctaHref}>
-                {isFree ? "Start for free" : ctaLabel}
+                {ctaLabel}
                 {!isFree && (
                   <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 )}

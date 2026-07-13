@@ -1,14 +1,7 @@
 import Link from "next/link"
 import { Suspense } from "react"
 import { JsonLdScript } from "next-seo"
-import {
-  BarChart3,
-  CheckCircle2,
-  Megaphone,
-  Pin,
-  Sparkles,
-  TrendingUp,
-} from "lucide-react"
+import { BarChart3, Megaphone, Pin, Sparkles } from "lucide-react"
 
 import {
   PRICING_FAQS,
@@ -27,6 +20,11 @@ import { Image } from "@/components/atoms/image"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
+import {
+  FreeLaunchDeliverable,
+  PricingFinalCta,
+  PricingMobileStickyCta,
+} from "@/components/organisms/PricingConversionJourney"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
@@ -43,24 +41,6 @@ export const metadata = buildPageMetadata({
   description: `Transparent pricing to list, launch, promote, and measure your product on ${BRAND_NAME}.`,
   canonical: PRICING_PATH,
 })
-
-const HERO_POINTS = [
-  {
-    icon: CheckCircle2,
-    title: "Free to list",
-    body: "Launch with a free placement and built-in analytics.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Upgrade on demand",
-    body: "Add featured or sponsored reach only when you need it.",
-  },
-  {
-    icon: BarChart3,
-    title: "Always-on insights",
-    body: "Keep referrer insights and priority placement rolling.",
-  },
-] as const
 
 const PLACEMENT_POINTS = [
   {
@@ -236,14 +216,14 @@ export default async function PricingPage() {
       ) : null}
 
       <main className="overflow-hidden bg-[#f8f9ff] text-[#0b1c30]">
-        <section className="relative mx-auto max-w-[1200px] px-4 pb-16 pt-20 text-center sm:px-6">
+        <section className="relative mx-auto max-w-[1200px] px-4 pb-12 pt-12 text-center sm:px-6 sm:pb-16 sm:pt-20">
           <div
             className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-80 bg-[radial-gradient(ellipse_at_top,#dce9ff_0%,rgba(248,249,255,0)_68%)] opacity-80"
             aria-hidden
           />
 
           <div className="relative z-10">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#0051d5]/10 bg-[#EFF6FF] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#0051d5] sm:mb-6">
               <Sparkles className="size-4" aria-hidden />
               <PublicBuilderCountMessage />
             </div>
@@ -256,48 +236,25 @@ export default async function PricingPage() {
               the timing is right.
             </p>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:flex sm:items-center sm:justify-center">
               <Button
                 asChild
-                className="h-auto w-full rounded-lg border-0 bg-black px-8 py-3 text-lg font-semibold text-white shadow-none hover:bg-black/90 sm:w-auto"
+                className="h-auto w-full rounded-lg border-0 bg-black px-3 py-3 text-base font-semibold text-white shadow-none hover:bg-black/90 sm:w-auto sm:px-8 sm:text-lg"
               >
                 <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-                  Start for free
+                  Launch free
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="h-auto w-full rounded-lg border-[#E2E8F0] bg-white px-8 py-3 text-lg font-semibold text-black shadow-none hover:bg-[#eff4ff] sm:w-auto"
+                className="h-auto w-full rounded-lg border-[#E2E8F0] bg-white px-3 py-3 text-base font-semibold text-black shadow-none hover:bg-[#eff4ff] sm:w-auto sm:px-8 sm:text-lg"
               >
                 <Link href="#plans">Compare plans</Link>
               </Button>
             </div>
 
-            <div className="mt-16 grid grid-cols-1 gap-4 md:grid-cols-3">
-              {HERO_POINTS.map((point) => {
-                const Icon = point.icon
-
-                return (
-                  <div
-                    key={point.title}
-                    className="flex items-start gap-4 rounded-lg border border-[#E2E8F0] bg-white p-6 text-left"
-                  >
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#0051d5]">
-                      <Icon className="size-5" aria-hidden />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold leading-5 text-black">
-                        {point.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] font-medium leading-[14px] text-[#43474c]">
-                        {point.body}
-                      </p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <FreeLaunchDeliverable />
           </div>
         </section>
 
@@ -313,7 +270,7 @@ export default async function PricingPage() {
             },
             {
               title: "How placement works",
-              body: "Free listings can enter public discovery surfaces. Paid plans can add eligible featured, sponsored, priority, spotlight, or analytics benefits depending on the active plan configuration.",
+              body: "Free launches receive a public product page plus standard homepage and directory discovery. Featured adds a sponsored homepage card and priority in supported result feeds. Pro adds advanced insights and eligibility for Partner Spotlight panels.",
             },
             {
               title: "Freshness policy",
@@ -332,8 +289,8 @@ export default async function PricingPage() {
                 Launch placements
               </h2>
               <p className="mt-3 text-sm leading-5 text-[#43474c]">
-                Choose the reach that matches your launch window. Upgrade
-                anytime.
+                Compare Free, Featured, and Pro together. Pay once by default,
+                or keep your placement running.
               </p>
             </div>
 
@@ -424,6 +381,9 @@ export default async function PricingPage() {
             </Accordion>
           </div>
         </section>
+
+        <PricingFinalCta />
+        <PricingMobileStickyCta />
       </main>
     </>
   )

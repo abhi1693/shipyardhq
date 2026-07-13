@@ -11,7 +11,7 @@ export const PRICING_FAQS = [
   {
     question: "Can I start for free and upgrade later?",
     answer:
-      "Absolutely. Every maker can list for free. Upgrade any product for extra reach with featured badges and sponsored placements whenever you need a boost.",
+      "Yes. Free includes a public product page, a standard card in the homepage launch feed, standard directory discovery, basic analytics, and sitemap inclusion. You can add a paid placement later.",
   },
   {
     question: "Do plans renew automatically?",
@@ -19,14 +19,14 @@ export const PRICING_FAQS = [
       "One-time boosts never auto-renew. Subscription plans stay active on the billing cadence you choose until you cancel, so perks keep running without manual re-ups.",
   },
   {
-    question: "What level of support is included?",
+    question: "Where do paid placements appear?",
     answer:
-      "All plans include launch guidance, template assets, and async support from our team. Premium placements add one-on-one review sessions and priority feature requests.",
+      "Featured adds a sponsored card to the homepage launch feed and priority position in Browse, alternatives, use-case, platform, pricing-model, and product-type results. Pro also adds eligibility for the sitewide Partner Spotlight bar plus product, leaderboard, and directory sponsor panels.",
   },
   {
     question: "What does AI-search ready profile mean?",
     answer:
-      "Paid listings can include structured product facts, schema, markdown retrieval, sitemap inclusion, and crawler-readable metadata. This makes the Shipyard page easier for search and AI retrieval systems to parse, but it does not guarantee rankings or citations.",
+      "Pro adds an AI-search ready badge and a dedicated profile section to the Markdown version of your listing. It helps retrieval systems interpret the page, but it does not guarantee rankings or citations.",
   },
   {
     question: "Can my team collaborate on launches?",
@@ -45,36 +45,14 @@ export async function PricingPlansList({
   cardVariant?: "default" | "placement"
 } = {}) {
   const plans = await getPublicPlans()
-  const defaultPlan = plans.find((plan) => plan.isDefault)
-  const visiblePlans = defaultPlan
-    ? plans.filter((plan) => plan.id !== defaultPlan.id)
-    : plans
-  const table = visiblePlans.length ? (
+  return plans.length ? (
     <PricingTable
-      plans={visiblePlans}
+      plans={plans}
       disableSectionWrapper={disableSectionWrapper}
       showTypeToggle={showTypeToggle}
       cardVariant={cardVariant}
     />
   ) : null
-
-  if (!defaultPlan) {
-    return table
-  }
-  const description = defaultPlan.description?.trim()
-
-  return (
-    <div className="space-y-4">
-      {table}
-      <p className="text-center text-sm text-muted-foreground">
-        Default plan:{" "}
-        <span className="font-semibold text-foreground">
-          {defaultPlan.name}
-        </span>
-        {description ? ` - ${description}` : ""}.
-      </p>
-    </div>
-  )
 }
 
 export function PricingPlansSkeleton({
@@ -96,20 +74,10 @@ export function PricingPlansSkeleton({
       ))}
     </div>
   )
-  const defaultLine = (
-    <div className="flex justify-center">
-      <Skeleton
-        className="h-3 w-64 rounded-full"
-        tone="muted"
-        shimmer={false}
-      />
-    </div>
-  )
   const content = (
     <div className="space-y-4">
       {toggle}
       {grid}
-      {defaultLine}
     </div>
   )
 
