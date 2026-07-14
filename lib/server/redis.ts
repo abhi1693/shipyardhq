@@ -162,3 +162,25 @@ export async function getRedisClient(): Promise<RedisClient | null> {
     return null
   }
 }
+
+export async function closeRedisClient(): Promise<void> {
+  const pendingClient = globalForRedis.__redisClientPromise
+    ? await globalForRedis.__redisClientPromise.catch(() => null)
+    : null
+  const client = globalForRedis.__redisClient ?? pendingClient
+
+  globalForRedis.__redisClient = null
+  globalForRedis.__redisClientPromise = null
+  globalForRedis.__redisDisabledUntil = 0
+
+  if (!client?.isOpen) {
+    return
+  }
+
+  if (typeof client.close === "function") {
+    await client.close()
+    return
+  }
+
+  client.destroy()
+}

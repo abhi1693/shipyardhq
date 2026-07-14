@@ -49,9 +49,35 @@ function formatWindowLabel(start: string, end: string) {
 async function insertBatches<T>(
   records: T[],
   createMany: (batch: T[]) => Promise<unknown>,
+  options?: {
+    label?: string
+    onProgress?: AnalyticsIngestionProgressReporter
+    progressEveryRows?: number
+  },
 ) {
+  const progressEveryRows = Math.max(1, options?.progressEveryRows ?? 5_000)
+  const shouldReportBatches = Boolean(
+    options?.onProgress && records.length >= progressEveryRows,
+  )
+  let stored = 0
+  let nextProgressAt = progressEveryRows
+
   for (const batch of chunkArray(records, 500)) {
     await createMany(batch)
+    stored += batch.length
+
+    if (!shouldReportBatches) continue
+    if (stored < nextProgressAt && stored < records.length) continue
+
+    options?.onProgress?.(
+      `Stored ${formatProgressCount(stored)}/${formatProgressCount(
+        records.length,
+      )} ${options.label ?? "rows"}`,
+    )
+
+    while (nextProgressAt <= stored) {
+      nextProgressAt += progressEveryRows
+    }
   }
 }
 
@@ -445,6 +471,8 @@ export async function syncSiteTrafficBreakdowns(args: {
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
     }),
   ])
+  args.onProgress?.("Cleared existing site breakdown rows for this range")
+
   await insertBatches(browsers, (data) =>
     prisma.siteTrafficBrowserDaily.createMany({ data }),
   )
@@ -485,8 +513,13 @@ export async function syncSiteTrafficBreakdowns(args: {
   args.onProgress?.(
     `Stored ${formatProgressCount(aiCrawlerStatuses.length)} AI crawler status rows`,
   )
-  await insertBatches(aiCrawlerEndpoints, (data) =>
-    prisma.siteAiCrawlerEndpointDaily.createMany({ data }),
+  await insertBatches(
+    aiCrawlerEndpoints,
+    (data) => prisma.siteAiCrawlerEndpointDaily.createMany({ data }),
+    {
+      label: "AI crawler endpoint rows",
+      onProgress: args.onProgress,
+    },
   )
   args.onProgress?.(
     `Stored ${formatProgressCount(aiCrawlerEndpoints.length)} AI crawler endpoint rows`,

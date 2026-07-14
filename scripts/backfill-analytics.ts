@@ -294,10 +294,12 @@ async function main() {
     "[analytics.backfill] analytics rows in this range will be replaced idempotently",
   )
 
-  const [{ runAnalyticsIngestion }, { default: prisma }] = await Promise.all([
-    import("@/lib/server/analytics/ingestion"),
-    import("@/lib/prisma"),
-  ])
+  const [{ runAnalyticsIngestion }, { default: prisma }, { closeRedisClient }] =
+    await Promise.all([
+      import("@/lib/server/analytics/ingestion"),
+      import("@/lib/prisma"),
+      import("@/lib/server/redis"),
+    ])
 
   try {
     const result = await runAnalyticsIngestion({
@@ -356,7 +358,12 @@ async function main() {
       } through ${result.window.endDate})`,
     )
   } finally {
-    await prisma.$disconnect()
+    try {
+      await prisma.$disconnect()
+    } finally {
+      await closeRedisClient()
+      console.info("[analytics.backfill] cleanup complete; exiting")
+    }
   }
 }
 

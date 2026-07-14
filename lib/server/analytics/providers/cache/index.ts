@@ -191,11 +191,13 @@ export async function invalidateAnalyticsCache(reason = "manual") {
     }),
   ])
 
-  console.info("[analytics] cache invalidated", {
-    reason,
-    analytics,
-    pages,
-  })
+  console.info(
+    `[analytics] cache invalidated (${reason}): ${analytics.redisKeysDeleted.toLocaleString(
+      "en-US",
+    )} analytics keys, ${pages.redisKeysDeleted.toLocaleString(
+      "en-US",
+    )} page keys`,
+  )
 
   return { analytics, pages }
 }
