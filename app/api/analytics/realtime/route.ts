@@ -1,13 +1,12 @@
-import { NextResponse } from "next/server"
+import { connection, NextResponse } from "next/server"
 
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
 
 const REALTIME_CACHE_CONTROL = "private, no-store, max-age=0"
 
 export async function GET() {
+  await connection()
+
   try {
     const views = await getAnalyticsProvider("cache").getRealtimeVisitors()
     return NextResponse.json(
