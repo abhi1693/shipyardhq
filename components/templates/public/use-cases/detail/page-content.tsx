@@ -54,6 +54,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
     productsPage.products,
   )
   const referenceDate = referenceDateIso ? new Date(referenceDateIso) : null
+  const placementNow = new Date(productsPage.generatedAt)
   const useCaseFeedItems = productsPage.products.map((product) =>
     mapProductCardBaseToTaxonomyFeedItem(
       mapProductCardRecordToBase(
@@ -61,6 +62,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
         referenceDate ?? product.updatedAt ?? product.createdAt,
         {
           priorityPlanIds,
+          placementNow,
         },
       ),
     ),

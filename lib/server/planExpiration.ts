@@ -1,9 +1,20 @@
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
-import { PlanType } from "@/lib/vendor/prisma/client"
+import {
+  PlanType,
+  ProductPlanGrantSource,
+  ProductPlanGrantStatus,
+} from "@/lib/vendor/prisma/client"
+import {
+  projectEffectiveProductPlanGrant,
+  syncDodoSubscriptionGrant,
+  UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON,
+} from "@/lib/server/productPlanGrants"
+import { refreshProductPlanGrantCachesFromWorker } from "@/lib/server/productPlanGrantCache"
+import { enqueueProductPlanGrantBoundaryJobs } from "@/lib/server/productPlanGrantBoundarySchedule"
+import { hasVerifiedDodoSubscriptionPlanChangePayment } from "@/lib/server/dodoSubscriptionPayments"
+import { reconcileRecentDodoOneTimePayments } from "@/lib/server/dodoOneTimeReconciliation"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
-import { refreshHomepageFeedCacheFromWorker } from "@/lib/server/homepage/refresh"
-import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 
 const MS_PER_SECOND = 1000
 const MS_PER_MINUTE = 60 * MS_PER_SECOND
@@ -17,32 +28,8 @@ const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "expired",
   "failed",
   "on_hold",
+  "paused",
 ])
-
-async function refreshHomepageFeedCacheAfterPlanExpiration(reason: string) {
-  try {
-    await refreshHomepageFeedCacheFromWorker(reason)
-  } catch (error) {
-    console.error("[cron] expire plans homepage refresh failed", {
-      reason,
-      error,
-    })
-  }
-}
-
-async function invalidateProductAnalyticsAfterPlanExpiration(
-  productIds: string[],
-  reason: string,
-) {
-  const uniqueProductIds = Array.from(new Set(productIds)).filter(Boolean)
-  if (!uniqueProductIds.length) return
-
-  await Promise.allSettled(
-    uniqueProductIds.map((productId) =>
-      invalidateProductAnalyticsRecordCache(productId, reason),
-    ),
-  )
-}
 
 type DurationDisplay = {
   value: number
@@ -106,6 +93,12 @@ type PaidPlanRemaining = {
   timeLeftLabel: string
 }
 
+function metadataRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null
+}
+
 export async function expireBoostedPlans(now: Date = new Date()) {
   const startedAtMs = Date.now()
   const runAt =
@@ -126,97 +119,74 @@ export async function expireBoostedPlans(now: Date = new Date()) {
     throw new Error("No default plan configured; cannot expire boosts.")
   }
 
-  const defaultBoostDays = defaultPlan.boostForDays ?? 0
-
   console.info("[cron] expire plans resolved default plan", {
     defaultPlanId: defaultPlan.id,
-    defaultBoostDays,
+    defaultBoostDays: defaultPlan.boostForDays ?? 0,
   })
 
-  const candidates = await prisma.product.findMany({
-    where: {
-      planId: { not: null },
-      planAssignedAt: { not: null },
-      plan: {
-        type: PlanType.one_time_price,
-        boostForDays: { gt: defaultBoostDays },
-        price: { gt: 0 },
-      },
+  const grantSelect = {
+    id: true,
+    productId: true,
+    expiresAt: true,
+    product: { select: { name: true } },
+    plan: {
+      select: { name: true, boostForDays: true, price: true },
     },
-    select: {
-      id: true,
-      name: true,
-      planAssignedAt: true,
-      plan: {
-        select: {
-          boostForDays: true,
-          name: true,
-          isDefault: true,
-          price: true,
-        },
+  } as const
+  const [expiredGrantCandidates, remainingGrantCandidates] = await Promise.all([
+    prisma.productPlanGrant.findMany({
+      where: {
+        status: ProductPlanGrantStatus.active,
+        expiresAt: { lte: now },
+        plan: { type: PlanType.one_time_price, price: { gt: 0 } },
       },
-    },
-  })
+      select: grantSelect,
+    }),
+    prisma.productPlanGrant.findMany({
+      where: {
+        status: ProductPlanGrantStatus.active,
+        startsAt: { lte: now },
+        expiresAt: { gt: now },
+        plan: { type: PlanType.one_time_price, price: { gt: 0 } },
+      },
+      select: grantSelect,
+    }),
+  ])
 
   console.info("[cron] expire plans fetched candidates", {
-    count: candidates.length,
+    count: expiredGrantCandidates.length + remainingGrantCandidates.length,
   })
 
-  const expired: ExpiredBoost[] = []
-  const paidPlanRemaining: PaidPlanRemaining[] = []
-  const evaluation = {
-    totalCandidates: candidates.length,
-    expiredCount: 0,
-    paidPlanRemainingCount: 0,
-    skippedDefaultPlan: 0,
-    skippedMissingPlan: 0,
-    skippedMissingAssignedAt: 0,
-    skippedNotExpired: 0,
-  }
-
-  for (const product of candidates) {
-    const assignedAt = product.planAssignedAt
-    const plan = product.plan
-    if (!assignedAt) {
-      evaluation.skippedMissingAssignedAt += 1
-      continue
-    }
-    if (!plan) {
-      evaluation.skippedMissingPlan += 1
-      continue
-    }
-    if (plan.isDefault) {
-      evaluation.skippedDefaultPlan += 1
-      continue
-    }
-    const boostDays = plan.boostForDays ?? 0
-    if (!isPlanExpired(assignedAt, boostDays, now)) {
-      evaluation.skippedNotExpired += 1
-      const priceCents = plan.price ?? 0
-      if (priceCents > 0) {
-        const expiresAt = addDays(assignedAt, boostDays)
-        const timeLeftMs = Math.max(0, expiresAt.getTime() - nowMs)
-        const timeLeft = formatDuration(timeLeftMs)
-        paidPlanRemaining.push({
-          productId: product.id,
-          productName: product.name,
-          planName: plan.name,
-          boostForDays: boostDays,
-          priceCents,
-          expiresAt: expiresAt.toISOString(),
-          timeLeftLabel: `${timeLeft.value} ${timeLeft.unit}`,
-        })
-        evaluation.paidPlanRemainingCount += 1
+  const expired: ExpiredBoost[] = expiredGrantCandidates.map((grant) => ({
+    productId: grant.productId,
+    productName: grant.product.name,
+    planName: grant.plan.name,
+    boostForDays: grant.plan.boostForDays ?? 0,
+  }))
+  const paidPlanRemaining: PaidPlanRemaining[] = remainingGrantCandidates
+    .filter(
+      (grant): grant is typeof grant & { expiresAt: Date } =>
+        grant.expiresAt !== null,
+    )
+    .map((grant) => {
+      const timeLeft = formatDuration(
+        Math.max(0, grant.expiresAt.getTime() - nowMs),
+      )
+      return {
+        productId: grant.productId,
+        productName: grant.product.name,
+        planName: grant.plan.name,
+        boostForDays: grant.plan.boostForDays ?? 0,
+        priceCents: grant.plan.price,
+        expiresAt: grant.expiresAt.toISOString(),
+        timeLeftLabel: `${timeLeft.value} ${timeLeft.unit}`,
       }
-      continue
-    }
-    evaluation.expiredCount += 1
-    expired.push({
-      productId: product.id,
-      productName: product.name,
-      planName: plan.name,
-      boostForDays: boostDays,
     })
+  const evaluation = {
+    totalCandidates:
+      expiredGrantCandidates.length + remainingGrantCandidates.length,
+    expiredCount: expired.length,
+    paidPlanRemainingCount: paidPlanRemaining.length,
   }
 
   console.info("[cron] expire plans evaluation summary", evaluation)
@@ -232,14 +202,30 @@ export async function expireBoostedPlans(now: Date = new Date()) {
       durationMs: Date.now() - startedAtMs,
     })
   } else {
-    const updateResult = await prisma.product.updateMany({
-      where: { id: { in: expired.map((item) => item.productId) } },
-      data: {
-        planId: defaultPlan.id,
-        planAssignedAt: null,
-        subscriptionId: null,
-      },
+    const productIds = Array.from(
+      new Set(expiredGrantCandidates.map((grant) => grant.productId)),
+    )
+    const updateResult = await prisma.$transaction(async (tx) => {
+      const grants = await tx.productPlanGrant.updateMany({
+        where: {
+          id: { in: expiredGrantCandidates.map((grant) => grant.id) },
+          status: ProductPlanGrantStatus.active,
+          expiresAt: { lte: now },
+        },
+        data: { status: ProductPlanGrantStatus.expired },
+      })
+      const projections = await Promise.all(
+        productIds.map((productId) =>
+          projectEffectiveProductPlanGrant(tx, productId, now),
+        ),
+      )
+      return {
+        grantsExpired: grants.count,
+        productsChanged: projections.filter((item) => item.changed).length,
+        boundaryJobs: projections.flatMap((item) => item.boundaryJobs),
+      }
     })
+    enqueueProductPlanGrantBoundaryJobs(updateResult.boundaryJobs)
 
     console.info("[cron] expire plans reverted boosts", {
       expired: expired.map((item) => ({
@@ -248,27 +234,37 @@ export async function expireBoostedPlans(now: Date = new Date()) {
         planName: item.planName,
         boostForDays: item.boostForDays,
       })),
-      updatedCount: updateResult?.count ?? 0,
+      grantsExpired: updateResult.grantsExpired,
+      productsChanged: updateResult.productsChanged,
       durationMs: Date.now() - startedAtMs,
     })
-    await refreshHomepageFeedCacheAfterPlanExpiration("boosts.expired")
-    await invalidateProductAnalyticsAfterPlanExpiration(
-      expired.map((item) => item.productId),
-      "boosts.expired",
-    )
+    await refreshProductPlanGrantCachesFromWorker(productIds, "boosts.expired")
   }
 
   let recurringResult: Awaited<
     ReturnType<typeof expireInactiveRecurringPlans>
   > = { expired: [], count: 0 }
+  const reconciliationErrors: unknown[] = []
   try {
     recurringResult = await expireInactiveRecurringPlans({
-      defaultPlanId: defaultPlan.id,
       now:
         now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
     })
   } catch (error) {
     console.error("[cron] expire plans recurring failed", error)
+    reconciliationErrors.push(error)
+  }
+
+  let oneTimeReconciliation: Awaited<
+    ReturnType<typeof reconcileRecentDodoOneTimePayments>
+  > | null = null
+  try {
+    oneTimeReconciliation = await reconcileRecentDodoOneTimePayments(
+      now instanceof Date && !Number.isNaN(now.valueOf()) ? now : new Date(),
+    )
+  } catch (error) {
+    console.error("[cron] expire plans one-time reconciliation failed", error)
+    reconciliationErrors.push(error)
   }
 
   if (recurringResult.count) {
@@ -284,165 +280,222 @@ export async function expireBoostedPlans(now: Date = new Date()) {
     })
   }
 
+  if (reconciliationErrors.length) {
+    throw new AggregateError(
+      reconciliationErrors,
+      `${reconciliationErrors.length} billing reconciliation operation(s) failed`,
+    )
+  }
+
   return {
     expired,
     count: expired.length,
     recurringExpired: recurringResult.expired,
     recurringCount: recurringResult.count,
+    oneTimeReconciliation,
   }
 }
 
-async function expireInactiveRecurringPlans(args: {
-  defaultPlanId: string
-  now: Date
-}) {
-  const recurringPlans = await prisma.plan.findMany({
-    where: { type: PlanType.recurring_price },
-    select: {
-      id: true,
-      name: true,
-      externalId: true,
-      price: true,
-      type: true,
-      isDefault: true,
-    },
-  })
-  if (!recurringPlans.length) {
-    return { expired: [], count: 0 }
-  }
-
-  const planById = new Map(recurringPlans.map((plan) => [plan.id, plan]))
-  const planIdByExternal: Record<string, string> = {}
-  for (const plan of recurringPlans) {
-    if (plan.externalId) {
-      planIdByExternal[plan.externalId] = plan.id
-    }
-  }
-
-  const activeByProductId = new Map<string, (typeof recurringPlans)[number]>()
-  const inactiveByProductId = new Map<
+async function expireInactiveRecurringPlans(args: { now: Date }) {
+  const touchedProductIds = new Set<string>()
+  const terminalChanges = new Map<
     string,
-    { planId: string; status: string; subscriptionId?: string | null }
+    { productId: string; status: string; subscriptionId: string }
   >()
+  let reconciliationFailures = 0
+  const activeSubscriptionGrants = await prisma.productPlanGrant.findMany({
+    where: {
+      source: ProductPlanGrantSource.dodo_subscription,
+      status: ProductPlanGrantStatus.active,
+      externalSubscriptionId: { not: null },
+    },
+    select: { externalSubscriptionId: true },
+  })
+  const activeSubscriptionIds = new Set(
+    activeSubscriptionGrants.flatMap((grant) =>
+      grant.externalSubscriptionId ? [grant.externalSubscriptionId] : [],
+    ),
+  )
   const subscriptionListParams = {
     page_size: 100,
   } satisfies Parameters<typeof dodoClient.subscriptions.list>[0]
 
-  for await (const subscription of dodoClient.subscriptions.list(
-    subscriptionListParams,
-  )) {
-    const status = (subscription?.status || "").toString().toLowerCase()
-    const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
-    const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
-    if (!isActive && !isInactive) continue
-
-    const metadata =
-      typeof subscription?.metadata === "object" && subscription.metadata
-        ? (subscription.metadata as Record<string, unknown>)
-        : null
-    const productId = readMetadataString(metadata, "productId", "product_id")
-    if (!productId) continue
-
-    const planIdFromMeta = readMetadataString(metadata, "planId", "plan_id")
-    const productExternalId =
-      typeof subscription?.product_id === "string"
-        ? subscription.product_id
-        : undefined
-    const planId =
-      (productExternalId ? planIdByExternal[productExternalId] : undefined) ||
-      planIdFromMeta
-    if (!planId) continue
-
-    const plan = planById.get(planId)
-    if (!plan || plan.type !== PlanType.recurring_price) continue
-
-    if (isActive) {
-      const existing = activeByProductId.get(productId)
-      const planPrice = plan.price ?? 0
-      const existingPrice = existing?.price ?? 0
-      if (!existing || planPrice > existingPrice) {
-        activeByProductId.set(productId, plan)
+  try {
+    for await (const listedSubscription of dodoClient.subscriptions.list(
+      subscriptionListParams,
+    )) {
+      const listedStatus = (listedSubscription?.status || "")
+        .toString()
+        .toLowerCase()
+      const listedAsActive = ACTIVE_SUBSCRIPTION_STATUSES.has(listedStatus)
+      const metadata = metadataRecord(listedSubscription.metadata)
+      const hasProductPlanMetadata = Boolean(
+        readMetadataString(metadata, "productId", "product_id") &&
+        readMetadataString(metadata, "planId", "plan_id"),
+      )
+      if (
+        !activeSubscriptionIds.has(listedSubscription.subscription_id) &&
+        !(listedAsActive && hasProductPlanMetadata)
+      ) {
+        continue
       }
-      continue
-    }
 
-    if (!activeByProductId.has(productId)) {
-      const rawSubscriptionId =
-        (subscription as any)?.subscription_id ||
-        (subscription as any)?.id ||
-        null
-      inactiveByProductId.set(productId, {
-        planId,
-        status,
-        subscriptionId:
-          typeof rawSubscriptionId === "string" ? rawSubscriptionId : null,
+      try {
+        const subscription = await dodoClient.subscriptions.retrieve(
+          listedSubscription.subscription_id,
+        )
+        const providerObservedAt = new Date()
+        const status = (subscription?.status || "").toString().toLowerCase()
+        const isActive = ACTIVE_SUBSCRIPTION_STATUSES.has(status)
+        const isInactive = INACTIVE_SUBSCRIPTION_STATUSES.has(status)
+        if (!isActive && !isInactive) continue
+        const planChangePaymentSucceeded =
+          await hasVerifiedDodoSubscriptionPlanChangePayment({
+            subscriptionId: subscription.subscription_id,
+            productId: subscription.product_id,
+            status: subscription.status,
+            metadata: subscription.metadata,
+          })
+        const reconciliation = await syncDodoSubscriptionGrant(subscription, {
+          now: args.now,
+          providerObservedAt,
+          planChangePaymentSucceeded,
+        })
+        if (
+          reconciliation.outcome === "invalid" ||
+          reconciliation.reason === UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON
+        ) {
+          reconciliationFailures += 1
+          console.error("[cron] subscription reconciliation invalid", {
+            subscriptionId: subscription.subscription_id,
+            status,
+            productId: reconciliation.productId,
+            reason: reconciliation.reason,
+          })
+          continue
+        }
+        if (reconciliation.productId && reconciliation.outcome !== "ignored") {
+          touchedProductIds.add(reconciliation.productId)
+        }
+        if (
+          reconciliation.productId &&
+          (reconciliation.grantChanged || reconciliation.projectionChanged)
+        ) {
+          if (isInactive) {
+            terminalChanges.set(subscription.subscription_id, {
+              productId: reconciliation.productId,
+              status,
+              subscriptionId: subscription.subscription_id,
+            })
+          }
+        }
+      } catch (error) {
+        reconciliationFailures += 1
+        console.error("[cron] subscription reconciliation failed", {
+          subscriptionId: listedSubscription.subscription_id,
+          listedStatus,
+          error,
+        })
+      }
+    }
+  } catch (error) {
+    reconciliationFailures += 1
+    console.error("[cron] subscription discovery failed", { error })
+  }
+
+  const staleLocalGrants = await prisma.productPlanGrant.findMany({
+    where: {
+      source: ProductPlanGrantSource.dodo_subscription,
+      status: ProductPlanGrantStatus.active,
+      expiresAt: { lte: args.now },
+      externalSubscriptionId: { not: null },
+    },
+    select: { id: true, productId: true, externalSubscriptionId: true },
+  })
+  if (staleLocalGrants.length) {
+    const staleProductIds = [
+      ...new Set(staleLocalGrants.map((grant) => grant.productId)),
+    ]
+    const projections = await prisma.$transaction(async (tx) => {
+      await tx.productPlanGrant.updateMany({
+        where: {
+          id: { in: staleLocalGrants.map((grant) => grant.id) },
+          status: ProductPlanGrantStatus.active,
+          expiresAt: { lte: args.now },
+        },
+        data: { status: ProductPlanGrantStatus.expired },
       })
+      return Promise.all(
+        staleProductIds.map((productId) =>
+          projectEffectiveProductPlanGrant(tx, productId, args.now),
+        ),
+      )
+    })
+    enqueueProductPlanGrantBoundaryJobs(
+      projections.flatMap((projection) => projection.boundaryJobs),
+    )
+    staleProductIds.forEach((productId) => {
+      touchedProductIds.add(productId)
+    })
+    staleLocalGrants.forEach((grant) => {
+      if (!grant.externalSubscriptionId) return
+      terminalChanges.set(grant.externalSubscriptionId, {
+        productId: grant.productId,
+        status: "billing_window_expired",
+        subscriptionId: grant.externalSubscriptionId,
+      })
+    })
+  }
+
+  if (touchedProductIds.size) {
+    try {
+      await refreshProductPlanGrantCachesFromWorker(
+        [...touchedProductIds],
+        "subscriptions.reconciled",
+      )
+    } catch (error) {
+      reconciliationFailures += 1
+      console.error("[cron] subscription cache refresh failed", { error })
     }
   }
 
-  if (!inactiveByProductId.size) {
+  if (reconciliationFailures > 0) {
+    throw new Error(
+      `${reconciliationFailures} subscription reconciliation operation(s) failed`,
+    )
+  }
+
+  if (!terminalChanges.size) {
     return { expired: [], count: 0 }
   }
 
-  const productIds = Array.from(inactiveByProductId.keys())
-  const products = await prisma.product.findMany({
+  const changedSubscriptionIds = [...terminalChanges.keys()]
+  const grants = await prisma.productPlanGrant.findMany({
     where: {
-      id: { in: productIds },
-      plan: { type: PlanType.recurring_price },
+      externalSubscriptionId: { in: changedSubscriptionIds },
     },
     select: {
-      id: true,
-      name: true,
-      planId: true,
-      plan: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          isDefault: true,
-        },
-      },
+      externalSubscriptionId: true,
+      product: { select: { id: true, name: true } },
+      plan: { select: { name: true } },
     },
   })
 
-  const expired: ExpiredSubscriptionPlan[] = []
-  const updates: Array<ReturnType<typeof prisma.product.update>> = []
-
-  for (const product of products) {
-    if (activeByProductId.has(product.id)) continue
-    const plan = product.plan
-    const inactive = inactiveByProductId.get(product.id)
-    if (!inactive || !plan || plan.isDefault) continue
-    if (plan.id !== inactive.planId) continue
-
-    expired.push({
-      productId: product.id,
-      productName: product.name,
-      planName: plan.name,
-      status: inactive.status,
-      subscriptionId: inactive.subscriptionId,
-    })
-
-    updates.push(
-      prisma.product.update({
-        where: { id: product.id },
-        data: {
-          planId: args.defaultPlanId,
-          planAssignedAt: null,
-          subscriptionId: null,
-        },
-      }),
-    )
-  }
-
-  if (updates.length) {
-    await Promise.all(updates)
-    await refreshHomepageFeedCacheAfterPlanExpiration("subscriptions.expired")
-    await invalidateProductAnalyticsAfterPlanExpiration(
-      expired.map((item) => item.productId),
-      "subscriptions.expired",
-    )
-  }
+  const expired: ExpiredSubscriptionPlan[] = grants.flatMap((grant) => {
+    const subscriptionId = grant.externalSubscriptionId
+    if (!subscriptionId) return []
+    const change = terminalChanges.get(subscriptionId)
+    if (!change) return []
+    return [
+      {
+        productId: grant.product.id,
+        productName: grant.product.name,
+        planName: grant.plan.name,
+        status: change.status,
+        subscriptionId,
+      },
+    ]
+  })
 
   return { expired, count: expired.length }
 }

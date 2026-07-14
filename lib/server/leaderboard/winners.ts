@@ -10,6 +10,12 @@ import {
 } from "@/lib/server/leaderboard/v2"
 import { normalizeMonth, toMonthKey } from "@/lib/server/leaderboard/months"
 import { getIsoWeekYearAndNumber } from "@/lib/server/leaderboard/weeks"
+import {
+  ProductPlanGrantSource,
+  ProductPlanGrantStatus,
+} from "@/lib/vendor/prisma/client"
+import { projectEffectiveProductPlanGrant } from "@/lib/server/productPlanGrants"
+import { enqueueProductPlanGrantBoundaryJobs } from "@/lib/server/productPlanGrantBoundarySchedule"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -329,47 +335,69 @@ async function upsertEditorPickBadge(productId: string, now: Date) {
 
 async function assignWinnerBoostPlan(product: WinnerProduct, now: Date) {
   const minimumExpiry = new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
-
-  if (product.plan && product.plan.boostForDays && product.planAssignedAt) {
-    const currentExpiry = new Date(
-      product.planAssignedAt.getTime() + product.plan.boostForDays * DAY_MS,
-    )
-    if (currentExpiry >= minimumExpiry && !product.plan.isDefault) {
-      return
-    }
+  const activeGrant = await prisma.productPlanGrant.findFirst({
+    where: {
+      productId: product.id,
+      status: ProductPlanGrantStatus.active,
+      startsAt: { lte: now },
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    orderBy: [{ startsAt: "desc" }, { createdAt: "desc" }],
+    select: { planId: true, expiresAt: true },
+  })
+  if (!activeGrant?.expiresAt || activeGrant.expiresAt >= minimumExpiry) {
+    if (activeGrant) return
   }
 
-  let planId = product.planId
-  let planBoostDays = product.plan?.boostForDays ?? null
-  let isDefaultPlan = product.plan?.isDefault ?? true
-
-  if (!planId || isDefaultPlan) {
+  let planId = activeGrant?.planId ?? null
+  if (!planId) {
     const fallbackPlan = await prisma.plan.findUnique({
       where: { slug: WINNER_PLAN_SLUG },
-      select: { id: true, boostForDays: true },
+      select: { id: true },
     })
     if (!fallbackPlan) return
     planId = fallbackPlan.id
-    planBoostDays = fallbackPlan.boostForDays ?? WINNER_BOOST_DAYS
-    isDefaultPlan = false
   }
 
-  if (!planId) return
+  const projection = await prisma.$transaction(async (tx) => {
+    const existingWinnerGrant = await tx.productPlanGrant.findFirst({
+      where: {
+        productId: product.id,
+        source: ProductPlanGrantSource.leaderboard,
+        status: ProductPlanGrantStatus.active,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, expiresAt: true },
+    })
 
-  const boostDays = Math.max(
-    planBoostDays ?? WINNER_BOOST_DAYS,
-    WINNER_BOOST_DAYS,
-  )
-  const offsetDays = Math.max(boostDays - WINNER_BOOST_DAYS, 0)
-  const planAssignedAt = new Date(now.getTime() - offsetDays * DAY_MS)
+    if (existingWinnerGrant) {
+      if (
+        existingWinnerGrant.expiresAt &&
+        existingWinnerGrant.expiresAt < minimumExpiry
+      ) {
+        await tx.productPlanGrant.update({
+          where: { id: existingWinnerGrant.id },
+          data: { planId, expiresAt: minimumExpiry },
+        })
+      }
+    } else {
+      await tx.productPlanGrant.create({
+        data: {
+          productId: product.id,
+          planId,
+          source: ProductPlanGrantSource.leaderboard,
+          status: ProductPlanGrantStatus.active,
+          startsAt: now,
+          expiresAt: minimumExpiry,
+          metadata: { reason: "monthly-leaderboard-winner" },
+        },
+      })
+    }
 
-  await prisma.product.update({
-    where: { id: product.id },
-    data: {
-      planId,
-      planAssignedAt,
-    },
+    return projectEffectiveProductPlanGrant(tx, product.id, now)
   })
+  enqueueProductPlanGrantBoundaryJobs(projection.boundaryJobs)
 }
 
 async function grantWinnerPerks(product: WinnerProduct, now: Date) {

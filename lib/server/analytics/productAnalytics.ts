@@ -10,6 +10,19 @@ import {
 } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
+import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
+
+const analyticsPlanSelect = {
+  name: true,
+  price: true,
+  isDefault: true,
+  assignments: {
+    select: {
+      enabled: true,
+      feature: { select: { key: true } },
+    },
+  },
+} satisfies Prisma.PlanSelect
 
 const productAnalyticsSelect = {
   id: true,
@@ -19,28 +32,34 @@ const productAnalyticsSelect = {
   createdAt: true,
   updatedAt: true,
   analytics: { select: { upvotes: true } },
-  plan: {
+  planGrants: {
     select: {
-      name: true,
-      price: true,
-      isDefault: true,
-      assignments: {
-        select: {
-          enabled: true,
-          feature: { select: { key: true } },
-        },
-      },
+      id: true,
+      source: true,
+      startsAt: true,
+      expiresAt: true,
+      createdAt: true,
+      plan: { select: analyticsPlanSelect },
     },
   },
 } satisfies Prisma.ProductSelect
 
-export type ProductAnalyticsRecord = Prisma.ProductGetPayload<{
+type RawProductAnalyticsRecord = Prisma.ProductGetPayload<{
   select: typeof productAnalyticsSelect
 }>
+type AnalyticsPlan = Prisma.PlanGetPayload<{
+  select: typeof analyticsPlanSelect
+}>
+
+export type ProductAnalyticsRecord = Omit<
+  RawProductAnalyticsRecord,
+  "planGrants"
+> & {
+  plan: AnalyticsPlan | null
+}
 
 export async function getProductAnalyticsRecord(id: string) {
-  // v2 to bust older cache entries that lacked plan defaults
-  const cacheKey = buildCacheKey("analytics", "productAnalytics", "v2", id)
+  const cacheKey = buildCacheKey("analytics", "productAnalytics", "v3", id)
   const cacheTtlSeconds = resolveCacheTtl("fast")
 
   const cachedRecord = await cacheHit<ProductAnalyticsRecord | null>({
@@ -58,15 +77,40 @@ export async function getProductAnalyticsRecord(id: string) {
     return cachedRecord
   }
 
-  let record = await prisma.product.findUnique({
+  const now = new Date()
+  const rawRecord = await prisma.product.findUnique({
     where: { id },
-    select: productAnalyticsSelect,
+    select: {
+      ...productAnalyticsSelect,
+      planGrants: {
+        ...productAnalyticsSelect.planGrants,
+        where: {
+          status: "active",
+          startsAt: { lte: now },
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+      },
+    },
   })
 
-  if (record && !record.plan) {
-    const defaultPlan = await getDefaultPlanWithFeatures()
-    if (defaultPlan) {
-      record = { ...record, plan: defaultPlan }
+  let record: ProductAnalyticsRecord | null = null
+  let recordTtlSeconds = cacheTtlSeconds
+  if (rawRecord) {
+    const { planGrants, ...recordWithoutGrants } = rawRecord
+    const effectiveGrant = resolveEffectivePlanGrant(planGrants)
+    const defaultPlan = effectiveGrant
+      ? null
+      : await getDefaultPlanWithFeatures()
+    record = {
+      ...recordWithoutGrants,
+      plan: effectiveGrant?.plan ?? defaultPlan ?? null,
+    }
+    if (effectiveGrant?.expiresAt) {
+      const secondsUntilExpiry = Math.max(
+        1,
+        Math.ceil((effectiveGrant.expiresAt.getTime() - now.getTime()) / 1000),
+      )
+      recordTtlSeconds = Math.min(recordTtlSeconds, secondsUntilExpiry)
     }
   }
 
@@ -74,7 +118,7 @@ export async function getProductAnalyticsRecord(id: string) {
     await cacheMiss({
       key: cacheKey,
       value: record,
-      ttlSeconds: cacheTtlSeconds,
+      ttlSeconds: recordTtlSeconds,
       onError: (error) => {
         console.error("[analytics] failed to cache product analytics", {
           productId: id,
@@ -93,7 +137,7 @@ export async function invalidateProductAnalyticsRecordCache(
   reason = "manual",
 ) {
   return invalidateCacheByPrefix({
-    keyPrefix: buildCacheKey("analytics", "productAnalytics", "v2", productId),
+    keyPrefix: buildCacheKey("analytics", "productAnalytics", "v3", productId),
     onError: (error) => {
       console.error(
         "[analytics] failed to invalidate product analytics cache",

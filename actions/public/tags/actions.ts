@@ -312,12 +312,14 @@ export async function getKeywordTagProducts(slug: string, page: number = 1) {
     )
 
   const hasMore = offset + productIds.length < total
+  const now = new Date()
 
   const baseProducts: ProductCardBase[] = orderedProducts.map(
     (product: ProductCardRecord) =>
-      mapProductCardRecordToBase(product, new Date(), {
+      mapProductCardRecordToBase(product, now, {
         scoreByProductId: scoreMap,
         priorityPlanIds,
+        placementNow: now,
       }),
   )
 

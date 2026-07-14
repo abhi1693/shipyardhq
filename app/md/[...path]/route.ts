@@ -3,6 +3,7 @@ import { createDualmarkRouteHandler } from "@dualmark/nextjs"
 import type { NextRequest } from "next/server"
 
 import { dualmarkConfig, dualmarkExtraHeaders } from "@/lib/dualmark"
+import { PRODUCT_MARKDOWN_CACHE_CONTROL } from "@/lib/public-cache"
 import { renderDirectoryMarkdownForPath } from "@/lib/server/directoryMarkdown"
 import { renderProductMarkdownForPath } from "@/lib/server/productMarkdown"
 
@@ -44,7 +45,7 @@ async function productMarkdownResponse(path: string) {
   }
 
   return markdownResponse(body, {
-    cacheControl: dualmarkConfig.headers.cacheControl,
+    cacheControl: PRODUCT_MARKDOWN_CACHE_CONTROL,
     noindex: dualmarkConfig.headers.noindex,
     extraHeaders: dualmarkExtraHeaders,
   })

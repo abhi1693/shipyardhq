@@ -86,6 +86,7 @@ export const ModelName = {
   PlanFeature: 'PlanFeature',
   PlanFeatureAssignment: 'PlanFeatureAssignment',
   UserPlanPurchase: 'UserPlanPurchase',
+  ProductPlanGrant: 'ProductPlanGrant',
   ProductBadge: 'ProductBadge',
   UseCase: 'UseCase',
   UseCaseCategory: 'UseCaseCategory',
@@ -658,6 +659,29 @@ export const UserPlanPurchaseScalarFieldEnum = {
 } as const
 
 export type UserPlanPurchaseScalarFieldEnum = (typeof UserPlanPurchaseScalarFieldEnum)[keyof typeof UserPlanPurchaseScalarFieldEnum]
+
+
+export const ProductPlanGrantScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  planId: 'planId',
+  externalPaymentId: 'externalPaymentId',
+  externalSubscriptionId: 'externalSubscriptionId',
+  externalCustomerId: 'externalCustomerId',
+  externalRefundId: 'externalRefundId',
+  source: 'source',
+  startsAt: 'startsAt',
+  expiresAt: 'expiresAt',
+  status: 'status',
+  amountCents: 'amountCents',
+  currencyCode: 'currencyCode',
+  refundedAt: 'refundedAt',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductPlanGrantScalarFieldEnum = (typeof ProductPlanGrantScalarFieldEnum)[keyof typeof ProductPlanGrantScalarFieldEnum]
 
 
 export const ProductBadgeScalarFieldEnum = {

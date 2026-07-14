@@ -108,13 +108,22 @@ type PeriodicLeaderboardArgs = {
   categorySlug?: string | null
 }
 
-type CachedProductCardRecord = ProductCardRecord & {
+type CachedProductCardRecord = Omit<
+  ProductCardRecord,
+  "createdAt" | "updatedAt" | "ProductBadge" | "planGrants"
+> & {
   createdAt: Date | string
   updatedAt: Date | string
   ProductBadge?: Array<{
     badge: string
     expiresAt: Date | string | null
   }> | null
+  planGrants?: Array<
+    Omit<ProductCardRecord["planGrants"][number], "startsAt" | "expiresAt"> & {
+      startsAt: Date | string
+      expiresAt: Date | string | null
+    }
+  > | null
 }
 
 function getPeriodWindow(
@@ -739,6 +748,12 @@ function hydrateProductCardRecord(product: CachedProductCardRecord) {
       product.ProductBadge?.map((badge) => ({
         ...badge,
         expiresAt: badge.expiresAt ? new Date(badge.expiresAt) : null,
+      })) ?? [],
+    planGrants:
+      product.planGrants?.map((grant) => ({
+        ...grant,
+        startsAt: new Date(grant.startsAt),
+        expiresAt: grant.expiresAt ? new Date(grant.expiresAt) : null,
       })) ?? [],
   } as ProductCardRecord
 }

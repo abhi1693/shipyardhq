@@ -1,11 +1,27 @@
 import prisma from "@/lib/prisma"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { PRIORITY_FEATURE_KEY } from "@/lib/products/selects"
+import {
+  buildActivePlacementPlanFilter,
+  buildRegularPlacementPlanFilter,
+} from "@/lib/products/placement-grants"
+
+export {
+  buildActivePlacementPlanFilter,
+  hasActivePlacementGrant,
+} from "@/lib/products/placement-grants"
+export type {
+  ProductPlacementGrant,
+  ProductPlacementGrantRecord,
+} from "@/lib/products/placement-grants"
+
+export const PRIORITY_FEATURE_KEY = "priorityPlacement" as const
+export const SPONSORED_PRODUCTS_FEATURE_KEY = "sponsoredProducts" as const
+export const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const
 
 export const SPONSORED_PLACEMENT_FEATURE_KEYS = [
   PRIORITY_FEATURE_KEY,
-  "sponsoredProducts",
+  SPONSORED_PRODUCTS_FEATURE_KEY,
 ] as const
 
 async function getEnabledPlanIdsForFeatureKeys(featureKeys: readonly string[]) {
@@ -48,20 +64,44 @@ export async function getSponsoredPlacementPlanIds() {
   return getEnabledPlanIdsForFeatureKeys(SPONSORED_PLACEMENT_FEATURE_KEYS)
 }
 
+export async function getSponsoredProductsPlanIds() {
+  "use cache"
+  applyCache(
+    [
+      "products:sponsored-products-plan-ids",
+      TAGS.plans,
+      TAGS.planFeature(SPONSORED_PRODUCTS_FEATURE_KEY),
+    ],
+    DEFAULT_TTL.slow,
+  )
+
+  return getEnabledPlanIdsForFeatureKeys([SPONSORED_PRODUCTS_FEATURE_KEY])
+}
+
+export async function getPartnerSpotlightPlanIds() {
+  "use cache"
+  applyCache(
+    [
+      "products:partner-spotlight-plan-ids",
+      TAGS.plans,
+      TAGS.planFeature(PARTNER_SPOTLIGHT_FEATURE_KEY),
+    ],
+    DEFAULT_TTL.slow,
+  )
+
+  return getEnabledPlanIdsForFeatureKeys([PARTNER_SPOTLIGHT_FEATURE_KEY])
+}
+
 export function buildPriorityPlanFilter(
   priorityPlanIds: string[],
+  now: Date,
 ): Prisma.ProductWhereInput {
-  return priorityPlanIds.length
-    ? { planId: { in: priorityPlanIds } }
-    : { id: { in: [] } }
+  return buildActivePlacementPlanFilter(priorityPlanIds, now)
 }
 
 export function buildRegularPlanFilter(
   priorityPlanIds: string[],
+  now: Date,
 ): Prisma.ProductWhereInput {
-  return priorityPlanIds.length
-    ? {
-        OR: [{ planId: null }, { planId: { notIn: priorityPlanIds } }],
-      }
-    : {}
+  return buildRegularPlacementPlanFilter(priorityPlanIds, now)
 }

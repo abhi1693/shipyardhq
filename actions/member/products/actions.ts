@@ -3,7 +3,6 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
-import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import { Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
 import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
@@ -12,14 +11,17 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
-import { memberProductPath } from "@/lib/routes"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
 import { revalidateProduct } from "@/lib/cache/revalidate"
 import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
+import { PAID_PLACEMENT_GRANT_SOURCES } from "@/lib/products/placement-grants"
+import { getAppBaseUrl } from "@/lib/app-url"
+import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
+import { projectEffectiveProductPlanGrant } from "@/lib/server/productPlanGrants"
+import { enqueueProductPlanGrantBoundaryJobs } from "@/lib/server/productPlanGrantBoundarySchedule"
 
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
@@ -63,21 +65,32 @@ async function invalidateProductAnalyticsAfterMemberProductChange(
   }
 }
 
+const memberProductPlanGrantSelect = {
+  id: true,
+  source: true,
+  startsAt: true,
+  createdAt: true,
+  plan: {
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      isDefault: true,
+      assignments: {
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductPlanGrantSelect
+
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
     category: { select: { id: true; name: true; slug: true } }
-    plan: {
-      select: {
-        id: true
-        name: true
-        isDefault: true
-        assignments: {
-          select: {
-            enabled: true
-            feature: { select: { key: true } }
-          }
-        }
-      }
+    planGrants: {
+      select: typeof memberProductPlanGrantSelect
     }
     verification: { select: { isVerified: true } }
     analytics: { select: { upvotes: true } }
@@ -194,6 +207,7 @@ export async function getUserProducts(params?: ListParams) {
       orderBy = { createdAt: "desc" }
   }
 
+  const now = new Date()
   const [products, total] = (await Promise.all([
     prisma.product.findMany({
       where,
@@ -202,18 +216,13 @@ export async function getUserProducts(params?: ListParams) {
       take: limit,
       include: {
         category: { select: { id: true, name: true, slug: true } },
-        plan: {
-          select: {
-            id: true,
-            name: true,
-            isDefault: true,
-            assignments: {
-              select: {
-                enabled: true,
-                feature: { select: { key: true } },
-              },
-            },
+        planGrants: {
+          where: {
+            status: "active",
+            startsAt: { lte: now },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
           },
+          select: memberProductPlanGrantSelect,
         },
         verification: { select: { isVerified: true } },
         analytics: { select: { upvotes: true } },
@@ -222,13 +231,15 @@ export async function getUserProducts(params?: ListParams) {
     prisma.product.count({ where }),
   ])) as [ProductListItem[], number]
 
-  // Fallback to the default plan's features when a product has no plan attached
-  const defaultPlan = products.some((product) => !product.plan)
+  // Fallback to the default plan when no active grant exists.
+  const defaultPlan = products.some((product) => !product.planGrants.length)
     ? await getDefaultPlanWithFeatures()
     : null
 
   const productsWithPermissions = products.map((product: ProductListItem) => {
-    const planForAccess = product.plan ?? defaultPlan
+    const { planGrants, ...rest } = product
+    const effectiveGrant = resolveEffectivePlanGrant(planGrants)
+    const planForAccess = effectiveGrant?.plan ?? defaultPlan
 
     const hasAdvancedAnalytics = hasPlanFeature(
       planForAccess ?? null,
@@ -238,8 +249,7 @@ export async function getUserProducts(params?: ListParams) {
       hasAdvancedAnalytics ||
       hasPlanFeature(planForAccess ?? null, "analytics.basic")
 
-    const { plan, ...rest } = product
-    const planForDisplay = plan ?? defaultPlan
+    const planForDisplay = planForAccess
     const planSummary = planForDisplay
       ? {
           id: planForDisplay.id,
@@ -250,7 +260,7 @@ export async function getUserProducts(params?: ListParams) {
     return {
       ...rest,
       plan: planSummary,
-      hasValidatedPlan: Boolean(plan),
+      hasValidatedPlan: Boolean(product.planId),
       canDelete: product.userId === user.id,
       canViewAnalytics,
     }
@@ -262,8 +272,7 @@ export async function getUserProducts(params?: ListParams) {
 // Attach or remove a plan from a product owned by the current user
 async function setProductPlanAction(
   productId: string,
-  planId: string | null,
-  subscriptionId?: string | null,
+  planId: string,
   options: { publish?: boolean } = {},
 ) {
   const { userId } = await auth()
@@ -277,50 +286,35 @@ async function setProductPlanAction(
     select: {
       id: true,
       status: true,
-      planAssignedAt: true,
-      plan: { select: { boostForDays: true, isDefault: true } },
     },
   })
   if (!product) return { error: "Product not found or not owned by user" }
 
-  let planAssignedAt: Date | null = null
-  let subscriptionIdUpdate: string | null | undefined
-  if (planId) {
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { id: true, boostForDays: true, isDefault: true, type: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-    planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
-    if (plan.type !== "recurring_price") {
-      subscriptionIdUpdate = null
-    } else if (subscriptionId !== undefined) {
-      subscriptionIdUpdate = subscriptionId
-    }
-  } else {
-    subscriptionIdUpdate = null
-  }
-
-  const data: Prisma.ProductUncheckedUpdateInput = {
-    planId: planId ?? null,
-    planAssignedAt,
-  }
-  if (options.publish && product.status === ProductStatus.draft) {
-    data.status = ProductStatus.published
-    data.publishedAt = new Date()
-  }
-  if (subscriptionIdUpdate !== undefined) {
-    data.subscriptionId = subscriptionIdUpdate
-  }
-
-  await prisma.product.update({
-    where: { id: productId },
-    data,
+  const plan = await prisma.plan.findUnique({
+    where: { id: planId },
+    select: { id: true, isDefault: true, price: true },
   })
+  if (!plan) return { error: "Plan not found" }
+  if (!plan.isDefault || plan.price > 0) {
+    return { error: "Paid plans require verified checkout" }
+  }
+
+  const now = new Date()
+  const projection = await prisma.$transaction(async (tx) => {
+    const projectedPlan = await projectEffectiveProductPlanGrant(
+      tx,
+      productId,
+      now,
+    )
+    if (options.publish && product.status === ProductStatus.draft) {
+      await tx.product.update({
+        where: { id: productId },
+        data: { status: ProductStatus.published, publishedAt: now },
+      })
+    }
+    return projectedPlan
+  })
+  enqueueProductPlanGrantBoundaryJobs(projection.boundaryJobs)
   revalidateProduct(productId, "revalidate")
   await refreshHomepageFeedCacheAfterMemberProductChange(
     "member.product.plan.updated",
@@ -342,22 +336,26 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
   const user = await getActiveUserByClerkId(userId)
   if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
+  const now = new Date()
   const product = await prisma.product.findFirst({
     where: { id: productId, userId: user.id },
     select: {
       id: true,
       slug: true,
-      plan: {
-        select: { isDefault: true, price: true },
+      planGrants: {
+        where: {
+          source: { in: [...PAID_PLACEMENT_GRANT_SOURCES] },
+          status: "active",
+          startsAt: { lte: now },
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+        take: 1,
+        select: { id: true },
       },
     },
   })
   if (!product) return { error: "Product not found or not owned by user" }
-  if (
-    product.plan &&
-    !product.plan.isDefault &&
-    (product.plan.price ?? 0) > 0
-  ) {
+  if (product.planGrants.length > 0) {
     return { error: "Plan changes are only available for free products" }
   }
 
@@ -370,14 +368,9 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
     return { error: "Checkout not required for this plan" }
   }
 
-  // Build return URL using current host if available
-  let returnUrl: string | undefined
-  try {
-    const hdrs = await headers()
-    const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
-    const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
-    if (host) returnUrl = `${proto}://${host}${memberProductPath(product.slug)}`
-  } catch {}
+  const returnUrl = new URL("/api/billing/dodo/return", getAppBaseUrl())
+  returnUrl.searchParams.set("productId", product.id)
+  returnUrl.searchParams.set("planId", plan.id)
 
   try {
     const checkout = await createPlanCheckout({
@@ -386,164 +379,13 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
         email: user.email,
         name: `${user.firstName} ${user.lastName}`.trim(),
       },
-      metadata: { productId, planId },
-      returnUrl,
+      metadata: { productId, planId, userId: user.id },
+      returnUrl: returnUrl.toString(),
     })
     return { redirectUrl: checkout.url }
   } catch (e) {
     console.error("Failed to start checkout:", e)
     return { error: "Checkout initialization failed" }
-  }
-}
-
-// Validate payment by ID and attach plan to product using metadata from Dodo
-export async function validatePaymentAndAttachPlan(paymentId: string) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
-
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
-
-  try {
-    const payment = await dodoClient.payments.retrieve(paymentId)
-    if (!payment) return { error: "Payment not found" }
-
-    // Only attach on successful payment
-    if (payment.status !== "succeeded") {
-      return { error: `Payment not succeeded: ${payment.status}` }
-    }
-
-    const meta = (payment.metadata || {}) as any
-    const productId = meta.productId as string | undefined
-    const planId = meta.planId as string | undefined
-    if (!productId || !planId) {
-      return { error: "Missing metadata for product/plan" }
-    }
-
-    // Ownership check
-    const product = await prisma.product.findFirst({
-      where: { id: productId, userId: user.id },
-      select: {
-        id: true,
-        userId: true,
-        status: true,
-        planAssignedAt: true,
-        plan: { select: { boostForDays: true, isDefault: true } },
-      },
-    })
-    if (!product) return { error: "Product not found or not owned" }
-
-    // Attach plan
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { boostForDays: true, isDefault: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-    const planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        planId,
-        planAssignedAt,
-        subscriptionId: null,
-      },
-    })
-    revalidateProduct(productId, "revalidate")
-    await refreshHomepageFeedCacheAfterMemberProductChange(
-      "member.product.payment.validated",
-      productId,
-    )
-    await invalidateProductAnalyticsAfterMemberProductChange(
-      "member.product.payment.validated",
-      productId,
-    )
-    return { success: true }
-  } catch (e) {
-    console.error("Payment validation failed:", e)
-    return { error: "Payment validation failed" }
-  }
-}
-
-// Validate subscription by ID and attach plan to product using metadata from Dodo
-export async function validateSubscriptionAndAttachPlan(
-  subscriptionId: string,
-) {
-  const { userId } = await auth()
-  if (!userId) return { error: "Unauthenticated" }
-
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
-
-  try {
-    const subscription = await dodoClient.subscriptions.retrieve(subscriptionId)
-    if (!subscription) return { error: "Subscription not found" }
-
-    const status = (subscription.status || "").toString().toLowerCase()
-    if (status !== "active") {
-      return { error: `Subscription not active: ${subscription.status}` }
-    }
-
-    const meta = (subscription.metadata || {}) as any
-    const productId = (meta.productId || meta.product_id) as string | undefined
-    const planId = (meta.planId || meta.plan_id) as string | undefined
-    if (!productId || !planId) {
-      return { error: "Missing metadata for product/plan" }
-    }
-
-    const product = await prisma.product.findFirst({
-      where: { id: productId, userId: user.id },
-      select: {
-        id: true,
-        userId: true,
-        status: true,
-        planAssignedAt: true,
-        plan: { select: { boostForDays: true, isDefault: true } },
-      },
-    })
-    if (!product) return { error: "Product not found or not owned" }
-
-    const plan = await prisma.plan.findUnique({
-      where: { id: planId },
-      select: { boostForDays: true, isDefault: true },
-    })
-    if (!plan) return { error: "Plan not found" }
-
-    const planAssignedAt = resolvePlanAssignedAt({
-      currentPlan: product.plan,
-      currentAssignedAt: product.planAssignedAt,
-      newPlan: plan,
-    })
-    const rawSubscriptionId =
-      (subscription as any)?.subscription_id ||
-      (subscription as any)?.id ||
-      subscriptionId
-    const subscriptionExternalId =
-      typeof rawSubscriptionId === "string" ? rawSubscriptionId : subscriptionId
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        planId,
-        planAssignedAt,
-        subscriptionId: subscriptionExternalId,
-      },
-    })
-    revalidateProduct(productId, "revalidate")
-    await refreshHomepageFeedCacheAfterMemberProductChange(
-      "member.product.subscription.validated",
-      productId,
-    )
-    await invalidateProductAnalyticsAfterMemberProductChange(
-      "member.product.subscription.validated",
-      productId,
-    )
-    return { success: true }
-  } catch (e) {
-    console.error("Subscription validation failed:", e)
-    return { error: "Subscription validation failed" }
   }
 }
 
@@ -573,24 +415,30 @@ export async function choosePlanAction(
   const ownership = await requireOwnedProduct(ctx.productId)
   if ("error" in ownership) return
 
+  const now = new Date()
   const currentPlan = await prisma.product.findUnique({
     where: { id: ctx.productId },
     select: {
-      plan: {
-        select: { type: true, isDefault: true, price: true },
+      planGrants: {
+        where: {
+          source: { in: [...PAID_PLACEMENT_GRANT_SOURCES] },
+          status: "active",
+          startsAt: { lte: now },
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+        take: 1,
+        select: { id: true },
       },
     },
   })
-  const activePlan = currentPlan?.plan
-  const hasPaidPlan =
-    !!activePlan && !activePlan.isDefault && (activePlan.price ?? 0) > 0
+  const hasPaidPlan = Boolean(currentPlan?.planGrants.length)
   if (hasPaidPlan) {
     redirect(errorRedirect("plan_already_paid"))
   }
 
   // Free plans (no price): attach immediately
   if ((plan.price || 0) === 0) {
-    await setProductPlanAction(ctx.productId, planId, null, { publish: true })
+    await setProductPlanAction(ctx.productId, planId, { publish: true })
     redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 

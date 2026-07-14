@@ -57,6 +57,7 @@ model Product {
   rewardTransactions      RewardTransaction[]
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
+  planGrants              ProductPlanGrant[]
   alternatives            AlternativeProduct[]                 @relation("ProductAlternativeProducts")
 
   @@index([categoryId, createdAt])
@@ -801,6 +802,7 @@ model Plan {
   products    Product[]
   assignments PlanFeatureAssignment[]
   purchases   UserPlanPurchase[]
+  grants      ProductPlanGrant[]
 
   @@index([type])
   @@index([createdAt])
@@ -868,6 +870,52 @@ model UserPlanPurchase {
   plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@unique([userId, planId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+enum ProductPlanGrantSource {
+  dodo_payment
+  dodo_subscription
+  leaderboard
+  migration
+  admin
+}
+
+enum ProductPlanGrantStatus {
+  active
+  expired
+  canceled
+  refunded
+  revoked
+}
+
+model ProductPlanGrant {
+  id                     String                 @id @default(cuid())
+  productId              String
+  planId                 String
+  externalPaymentId      String?                @unique
+  externalSubscriptionId String?                @unique
+  externalCustomerId     String?
+  externalRefundId       String?                @unique
+  source                 ProductPlanGrantSource
+  startsAt               DateTime
+  expiresAt              DateTime?
+  status                 ProductPlanGrantStatus
+  amountCents            Int?
+  currencyCode           String?
+  refundedAt             DateTime?
+  metadata               Json?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([productId, status, startsAt, expiresAt])
+  @@index([planId, status])
+  @@index([status, expiresAt])
+  @@index([externalCustomerId])
   @@index([createdAt])
   @@index([updatedAt])
 }

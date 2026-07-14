@@ -98,9 +98,11 @@ async function removeExistingEventEnvelopeJob(
   if (!existingJob) return
 
   const state = await existingJob.getState()
-  if (state === "active") {
-    throw new Error(`Cannot replace active BullMQ event job "${jobId}"`)
-  }
+  // A waiting, delayed, or active job already represents this envelope.
+  // Removing it would reset queue order and can starve old jobs while the
+  // database reconciler repeatedly scans the same batch. Only terminal Bull
+  // jobs can block a still-pending Postgres envelope from being enqueued.
+  if (state !== "completed" && state !== "failed") return
 
   await existingJob.remove()
 }

@@ -14,6 +14,7 @@ export const APP_EVENTS = {
   PRODUCT_PUBLISHED: "product.published",
   PRODUCT_DELETED: "product.deleted",
   PRODUCT_UPVOTED: "product.upvoted",
+  PRODUCT_PLAN_GRANT_BOUNDARY: "product.plan-grant-boundary",
   LEADERBOARD_REFRESH: "leaderboard.refresh",
   BADGE_ASSIGNED: "badge.assigned",
   BADGE_REMOVED: "badge.removed",

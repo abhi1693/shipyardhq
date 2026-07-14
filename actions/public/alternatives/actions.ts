@@ -200,14 +200,15 @@ export async function getAlternativeProductsPage({
     },
   })
 
+  const now = new Date()
   const priorityPlanIds = await getPriorityPlacementPlanIds()
 
   const priorityWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds, now)],
   }
 
   const regularWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds, now)],
   }
 
   const orderBy: Prisma.ProductOrderByWithRelationInput[] = [
@@ -263,13 +264,13 @@ export async function getAlternativeProductsPage({
       : Promise.resolve([] as ProductCardRecord[]),
   ])
 
-  const now = new Date()
   const allProducts = [...priorityProducts, ...regularProducts]
   const scoreMap = await getCurrentScoreMap(allProducts.map((p) => p.id))
   const baseItems = allProducts.map((product) =>
     mapProductCardRecordToBase(product, now, {
       scoreByProductId: scoreMap,
       priorityPlanIds,
+      placementNow: now,
     }),
   )
 

@@ -8,7 +8,6 @@ import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
 import { canOpenDodoBillingPortalByEmail } from "@/lib/dodoCustomerPortal"
-import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
@@ -23,6 +22,7 @@ import {
 } from "@/lib/routes"
 import { redirect } from "next/navigation"
 import { connection } from "next/server"
+import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import "./member.css"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
@@ -78,12 +78,6 @@ async function MemberGate({ children }: { children: React.ReactNode }) {
 
   const activeUser = await requireActiveUserOrRedirect(userId)
 
-  try {
-    await syncCurrentUserBilling()
-  } catch (error) {
-    console.error("Failed to sync current user billing", error)
-  }
-
   if (!activeUser.onboardedAt) {
     const headerList = await headers()
     const nextUrl = headerList.get("next-url") ?? ""
@@ -118,6 +112,7 @@ async function MemberGate({ children }: { children: React.ReactNode }) {
 
   return (
     <Providers>
+      <PurchasePlanToast />
       <SidebarProvider defaultOpen>
         <AppSidebar
           navItems={items}

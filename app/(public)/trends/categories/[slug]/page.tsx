@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma"
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import {
   getProductInterestSignalsMap,
-  getTrendingCategoryProductIds,
+  getTrendingCategoryProductSnapshot,
 } from "@/lib/server/analytics/productInterest"
 import {
   mapProductCardRecordToBase,
@@ -120,11 +120,12 @@ async function TrendingToolsInCategoryPageContent({
 
   if (!category) notFound()
 
-  const ids = await getTrendingCategoryProductIds({
+  const trendsSnapshot = await getTrendingCategoryProductSnapshot({
     categorySlug: category.slug,
     days: TREND_WINDOW_DAYS,
     limit: 60,
   })
+  const ids = trendsSnapshot.productIds
 
   const path = `/trends/categories/${category.slug}`
   const breadcrumbs = [
@@ -175,11 +176,13 @@ async function TrendingToolsInCategoryPageContent({
   const badgeReferenceDate = referenceDateIso
     ? new Date(referenceDateIso)
     : (ordered[0]?.updatedAt ?? ordered[0]?.createdAt)
+  const placementNow = new Date(trendsSnapshot.generatedAt)
   const items = ordered.map((record) =>
     toProductCardItem({
       ...mapProductCardRecordToBase(record, badgeReferenceDate, {
         priorityPlanIds,
         scoreByProductId: scoreMap,
+        placementNow,
       }),
       interest: interestMap.get(record.id) ?? null,
     }),

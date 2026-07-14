@@ -323,6 +323,7 @@ export type PlanWhereInput = {
   products?: Prisma.ProductListRelationFilter
   assignments?: Prisma.PlanFeatureAssignmentListRelationFilter
   purchases?: Prisma.UserPlanPurchaseListRelationFilter
+  grants?: Prisma.ProductPlanGrantListRelationFilter
 }
 
 export type PlanOrderByWithRelationInput = {
@@ -345,6 +346,7 @@ export type PlanOrderByWithRelationInput = {
   products?: Prisma.ProductOrderByRelationAggregateInput
   assignments?: Prisma.PlanFeatureAssignmentOrderByRelationAggregateInput
   purchases?: Prisma.UserPlanPurchaseOrderByRelationAggregateInput
+  grants?: Prisma.ProductPlanGrantOrderByRelationAggregateInput
 }
 
 export type PlanWhereUniqueInput = Prisma.AtLeast<{
@@ -370,6 +372,7 @@ export type PlanWhereUniqueInput = Prisma.AtLeast<{
   products?: Prisma.ProductListRelationFilter
   assignments?: Prisma.PlanFeatureAssignmentListRelationFilter
   purchases?: Prisma.UserPlanPurchaseListRelationFilter
+  grants?: Prisma.ProductPlanGrantListRelationFilter
 }, "id" | "externalId" | "slug">
 
 export type PlanOrderByWithAggregationInput = {
@@ -438,6 +441,7 @@ export type PlanCreateInput = {
   products?: Prisma.ProductCreateNestedManyWithoutPlanInput
   assignments?: Prisma.PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateInput = {
@@ -460,6 +464,7 @@ export type PlanUncheckedCreateInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutPlanInput
   assignments?: Prisma.PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUpdateInput = {
@@ -482,6 +487,7 @@ export type PlanUpdateInput = {
   products?: Prisma.ProductUpdateManyWithoutPlanNestedInput
   assignments?: Prisma.PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateInput = {
@@ -504,6 +510,7 @@ export type PlanUncheckedUpdateInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutPlanNestedInput
   assignments?: Prisma.PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateManyInput = {
@@ -706,6 +713,20 @@ export type PlanUpdateOneRequiredWithoutPurchasesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PlanUpdateToOneWithWhereWithoutPurchasesInput, Prisma.PlanUpdateWithoutPurchasesInput>, Prisma.PlanUncheckedUpdateWithoutPurchasesInput>
 }
 
+export type PlanCreateNestedOneWithoutGrantsInput = {
+  create?: Prisma.XOR<Prisma.PlanCreateWithoutGrantsInput, Prisma.PlanUncheckedCreateWithoutGrantsInput>
+  connectOrCreate?: Prisma.PlanCreateOrConnectWithoutGrantsInput
+  connect?: Prisma.PlanWhereUniqueInput
+}
+
+export type PlanUpdateOneRequiredWithoutGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.PlanCreateWithoutGrantsInput, Prisma.PlanUncheckedCreateWithoutGrantsInput>
+  connectOrCreate?: Prisma.PlanCreateOrConnectWithoutGrantsInput
+  upsert?: Prisma.PlanUpsertWithoutGrantsInput
+  connect?: Prisma.PlanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PlanUpdateToOneWithWhereWithoutGrantsInput, Prisma.PlanUpdateWithoutGrantsInput>, Prisma.PlanUncheckedUpdateWithoutGrantsInput>
+}
+
 export type PlanCreateWithoutProductsInput = {
   id?: string
   externalId?: string | null
@@ -725,6 +746,7 @@ export type PlanCreateWithoutProductsInput = {
   updatedAt?: Date | string
   assignments?: Prisma.PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutProductsInput = {
@@ -746,6 +768,7 @@ export type PlanUncheckedCreateWithoutProductsInput = {
   updatedAt?: Date | string
   assignments?: Prisma.PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutProductsInput = {
@@ -783,6 +806,7 @@ export type PlanUpdateWithoutProductsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutProductsInput = {
@@ -804,6 +828,7 @@ export type PlanUncheckedUpdateWithoutProductsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateWithoutAssignmentsInput = {
@@ -825,6 +850,7 @@ export type PlanCreateWithoutAssignmentsInput = {
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutAssignmentsInput = {
@@ -846,6 +872,7 @@ export type PlanUncheckedCreateWithoutAssignmentsInput = {
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutPlanInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutAssignmentsInput = {
@@ -883,6 +910,7 @@ export type PlanUpdateWithoutAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutAssignmentsInput = {
@@ -904,6 +932,7 @@ export type PlanUncheckedUpdateWithoutAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutPlanNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanCreateWithoutPurchasesInput = {
@@ -925,6 +954,7 @@ export type PlanCreateWithoutPurchasesInput = {
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutPlanInput
   assignments?: Prisma.PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantCreateNestedManyWithoutPlanInput
 }
 
 export type PlanUncheckedCreateWithoutPurchasesInput = {
@@ -946,6 +976,7 @@ export type PlanUncheckedCreateWithoutPurchasesInput = {
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutPlanInput
   assignments?: Prisma.PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
+  grants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutPlanInput
 }
 
 export type PlanCreateOrConnectWithoutPurchasesInput = {
@@ -983,6 +1014,7 @@ export type PlanUpdateWithoutPurchasesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutPlanNestedInput
   assignments?: Prisma.PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUpdateManyWithoutPlanNestedInput
 }
 
 export type PlanUncheckedUpdateWithoutPurchasesInput = {
@@ -1004,6 +1036,111 @@ export type PlanUncheckedUpdateWithoutPurchasesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutPlanNestedInput
   assignments?: Prisma.PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
+  grants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutPlanNestedInput
+}
+
+export type PlanCreateWithoutGrantsInput = {
+  id?: string
+  externalId?: string | null
+  name: string
+  slug: string
+  description?: string | null
+  type: $Enums.PlanType
+  price: number
+  discount?: number | null
+  boostForDays?: number
+  isDefault?: boolean
+  paymentFrequencyCount?: number | null
+  paymentFrequencyInterval?: $Enums.TimeInterval | null
+  subscriptionPeriodCount?: number | null
+  subscriptionPeriodInterval?: $Enums.TimeInterval | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  products?: Prisma.ProductCreateNestedManyWithoutPlanInput
+  assignments?: Prisma.PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
+  purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutPlanInput
+}
+
+export type PlanUncheckedCreateWithoutGrantsInput = {
+  id?: string
+  externalId?: string | null
+  name: string
+  slug: string
+  description?: string | null
+  type: $Enums.PlanType
+  price: number
+  discount?: number | null
+  boostForDays?: number
+  isDefault?: boolean
+  paymentFrequencyCount?: number | null
+  paymentFrequencyInterval?: $Enums.TimeInterval | null
+  subscriptionPeriodCount?: number | null
+  subscriptionPeriodInterval?: $Enums.TimeInterval | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutPlanInput
+  assignments?: Prisma.PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutPlanInput
+}
+
+export type PlanCreateOrConnectWithoutGrantsInput = {
+  where: Prisma.PlanWhereUniqueInput
+  create: Prisma.XOR<Prisma.PlanCreateWithoutGrantsInput, Prisma.PlanUncheckedCreateWithoutGrantsInput>
+}
+
+export type PlanUpsertWithoutGrantsInput = {
+  update: Prisma.XOR<Prisma.PlanUpdateWithoutGrantsInput, Prisma.PlanUncheckedUpdateWithoutGrantsInput>
+  create: Prisma.XOR<Prisma.PlanCreateWithoutGrantsInput, Prisma.PlanUncheckedCreateWithoutGrantsInput>
+  where?: Prisma.PlanWhereInput
+}
+
+export type PlanUpdateToOneWithWhereWithoutGrantsInput = {
+  where?: Prisma.PlanWhereInput
+  data: Prisma.XOR<Prisma.PlanUpdateWithoutGrantsInput, Prisma.PlanUncheckedUpdateWithoutGrantsInput>
+}
+
+export type PlanUpdateWithoutGrantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPlanTypeFieldUpdateOperationsInput | $Enums.PlanType
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  discount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  boostForDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentFrequencyCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentFrequencyInterval?: Prisma.NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+  subscriptionPeriodCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  subscriptionPeriodInterval?: Prisma.NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  products?: Prisma.ProductUpdateManyWithoutPlanNestedInput
+  assignments?: Prisma.PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
+  purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutPlanNestedInput
+}
+
+export type PlanUncheckedUpdateWithoutGrantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumPlanTypeFieldUpdateOperationsInput | $Enums.PlanType
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  discount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  boostForDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentFrequencyCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  paymentFrequencyInterval?: Prisma.NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+  subscriptionPeriodCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  subscriptionPeriodInterval?: Prisma.NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  products?: Prisma.ProductUncheckedUpdateManyWithoutPlanNestedInput
+  assignments?: Prisma.PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutPlanNestedInput
 }
 
 
@@ -1015,12 +1152,14 @@ export type PlanCountOutputType = {
   products: number
   assignments: number
   purchases: number
+  grants: number
 }
 
 export type PlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | PlanCountOutputTypeCountProductsArgs
   assignments?: boolean | PlanCountOutputTypeCountAssignmentsArgs
   purchases?: boolean | PlanCountOutputTypeCountPurchasesArgs
+  grants?: boolean | PlanCountOutputTypeCountGrantsArgs
 }
 
 /**
@@ -1054,6 +1193,13 @@ export type PlanCountOutputTypeCountPurchasesArgs<ExtArgs extends runtime.Types.
   where?: Prisma.UserPlanPurchaseWhereInput
 }
 
+/**
+ * PlanCountOutputType without action
+ */
+export type PlanCountOutputTypeCountGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductPlanGrantWhereInput
+}
+
 
 export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1075,6 +1221,7 @@ export type PlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   products?: boolean | Prisma.Plan$productsArgs<ExtArgs>
   assignments?: boolean | Prisma.Plan$assignmentsArgs<ExtArgs>
   purchases?: boolean | Prisma.Plan$purchasesArgs<ExtArgs>
+  grants?: boolean | Prisma.Plan$grantsArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["plan"]>
 
@@ -1140,6 +1287,7 @@ export type PlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   products?: boolean | Prisma.Plan$productsArgs<ExtArgs>
   assignments?: boolean | Prisma.Plan$assignmentsArgs<ExtArgs>
   purchases?: boolean | Prisma.Plan$purchasesArgs<ExtArgs>
+  grants?: boolean | Prisma.Plan$grantsArgs<ExtArgs>
   _count?: boolean | Prisma.PlanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PlanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1151,6 +1299,7 @@ export type $PlanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     products: Prisma.$ProductPayload<ExtArgs>[]
     assignments: Prisma.$PlanFeatureAssignmentPayload<ExtArgs>[]
     purchases: Prisma.$UserPlanPurchasePayload<ExtArgs>[]
+    grants: Prisma.$ProductPlanGrantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1566,6 +1715,7 @@ export interface Prisma__PlanClient<T, Null = never, ExtArgs extends runtime.Typ
   products<T extends Prisma.Plan$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.Plan$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlanFeatureAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   purchases<T extends Prisma.Plan$purchasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPlanPurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  grants<T extends Prisma.Plan$grantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Plan$grantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPlanGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2073,6 +2223,30 @@ export type Plan$purchasesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.UserPlanPurchaseScalarFieldEnum | Prisma.UserPlanPurchaseScalarFieldEnum[]
+}
+
+/**
+ * Plan.grants
+ */
+export type Plan$grantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductPlanGrant
+   */
+  select?: Prisma.ProductPlanGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductPlanGrant
+   */
+  omit?: Prisma.ProductPlanGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductPlanGrantInclude<ExtArgs> | null
+  where?: Prisma.ProductPlanGrantWhereInput
+  orderBy?: Prisma.ProductPlanGrantOrderByWithRelationInput | Prisma.ProductPlanGrantOrderByWithRelationInput[]
+  cursor?: Prisma.ProductPlanGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductPlanGrantScalarFieldEnum | Prisma.ProductPlanGrantScalarFieldEnum[]
 }
 
 /**

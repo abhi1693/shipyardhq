@@ -8,6 +8,10 @@ export async function registerEventHandlers(): Promise<void> {
       path: "@/lib/server/leaderboard/listeners",
       load: () => import("@/lib/server/leaderboard/listeners"),
     },
+    {
+      path: "@/lib/server/productPlanGrantBoundaryListener",
+      load: () => import("@/lib/server/productPlanGrantBoundaryListener"),
+    },
   ]
 
   const results = await Promise.allSettled(

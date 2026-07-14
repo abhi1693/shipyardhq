@@ -298,6 +298,7 @@ export type HomepageDropListItem = {
   categories: ProductCategorySummary[]
   scoreCount?: number | null
   isSponsored?: boolean
+  variant?: HomepageFeedItem["variant"]
   isVoted?: boolean
   publishedAt?: string | null
   createdAt?: string
@@ -329,6 +330,7 @@ function toDropListItem(item: HomepageFeedItem): HomepageDropListItem {
     categories: item.categories,
     scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
+    variant: item.variant,
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
     createdAt: item.createdAt,
@@ -350,6 +352,10 @@ function initials(name: string) {
 
 function getDropDate(item: HomepageDropListItem) {
   return item.publishedAt ?? item.createdAt
+}
+
+function isPromotedDrop(item: HomepageDropListItem) {
+  return Boolean(item.isSponsored) || item.variant === "promoted"
 }
 
 function startOfUtcDay(date: Date) {
@@ -398,7 +404,7 @@ function buildDropSections(
   const startThisMonth = startOfUtcMonth(referenceTime)
   const startPreviousMonth = startOfPreviousUtcMonth(referenceTime)
   const startThisYear = startOfUtcYear(referenceTime)
-  const sponsoredItems = items.filter((item) => item.isSponsored)
+  const sponsoredItems = items.filter(isPromotedDrop)
 
   if (launchPeriod && launchPeriod !== "recent") {
     const sectionItems = [...items]
@@ -440,7 +446,7 @@ function buildDropSections(
   )
 
   items
-    .filter((item) => !item.isSponsored)
+    .filter((item) => !isPromotedDrop(item))
     .forEach((item) => {
       const published = new Date(getDropDate(item) ?? referenceDateIso)
       const publishedTime = published.getTime()
@@ -574,6 +580,7 @@ function DropProductLogo({
 
 function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const sponsored = Boolean(product.isSponsored)
+  const editorPick = !sponsored && product.variant === "promoted"
   const href = product.slug ? productPath(product.slug) : BROWSE_PATH
 
   return (
@@ -586,10 +593,15 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
       )}
     >
       <CardContent className="flex items-center gap-4 p-5 sm:gap-6">
-        {sponsored ? (
-          <div className="absolute right-2 top-2 flex items-center gap-1 text-white/60">
+        {sponsored || editorPick ? (
+          <div
+            className={cn(
+              "absolute right-2 top-2 flex items-center gap-1",
+              sponsored ? "text-white/60" : "text-[#7C3AED]",
+            )}
+          >
             <span className="text-[9px] font-extrabold uppercase leading-[10px] tracking-widest">
-              Sponsored
+              {sponsored ? "Sponsored" : "Editor's Pick"}
             </span>
             <BadgeCheck className="size-3" aria-hidden />
           </div>

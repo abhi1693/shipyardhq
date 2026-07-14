@@ -41,6 +41,7 @@ export type UseCaseProductsPage = {
   products: Array<UseCaseProduct & { scoreCount?: number }>
   hasMore: boolean
   total: number
+  generatedAt: string
 }
 
 export type UseCaseCategoriesWithCounts = {
@@ -303,9 +304,15 @@ export async function getPublicUseCaseProductsPage(
     where: { slug: options.slug },
     select: { id: true },
   })
+  const now = new Date()
 
   if (!useCase) {
-    return { products: [], hasMore: false, total: 0 }
+    return {
+      products: [],
+      hasMore: false,
+      total: 0,
+      generatedAt: now.toISOString(),
+    }
   }
 
   const categoryRefs = await prisma.useCaseCategory.findMany({
@@ -317,7 +324,12 @@ export async function getPublicUseCaseProductsPage(
     (ref: (typeof categoryRefs)[number]) => ref.categoryId,
   )
   if (!categoryIds.length) {
-    return { products: [], hasMore: false, total: 0 }
+    return {
+      products: [],
+      hasMore: false,
+      total: 0,
+      generatedAt: now.toISOString(),
+    }
   }
 
   const baseWhere: Prisma.ProductWhereInput = buildPublicDiscoveryProductWhere({
@@ -337,11 +349,11 @@ export async function getPublicUseCaseProductsPage(
   const priorityPlanIds = await getPriorityPlacementPlanIds()
 
   const priorityWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds, now)],
   }
 
   const regularWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds, now)],
   }
 
   const [totalPriority, totalRegular] = priorityPlanIds.length
@@ -403,5 +415,6 @@ export async function getPublicUseCaseProductsPage(
     })),
     hasMore,
     total,
+    generatedAt: now.toISOString(),
   }
 }

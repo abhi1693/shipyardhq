@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
 const defaultPlanSelect = {
@@ -19,17 +20,25 @@ type PlanFeatureSummary = Prisma.PlanGetPayload<{
   select: typeof defaultPlanSelect
 }>
 
+async function getCachedDefaultPlanWithFeatures(): Promise<PlanFeatureSummary | null> {
+  "use cache"
+  applyCache([TAGS.plans], DEFAULT_TTL.slow)
+
+  return prisma.plan.findFirst({
+    where: { isDefault: true },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    select: defaultPlanSelect,
+  })
+}
+
 /**
  * Fetch the default plan with feature assignments.
- * We keep it small and sync to avoid bringing in full client types.
+ * Cache the shared fallback independently from product records so free-product
+ * metadata and detail reads do not repeat the same plan query.
  */
 export async function getDefaultPlanWithFeatures(): Promise<PlanFeatureSummary | null> {
   try {
-    const plan = await prisma.plan.findFirst({
-      where: { isDefault: true },
-      select: defaultPlanSelect,
-    })
-    return plan ?? null
+    return (await getCachedDefaultPlanWithFeatures()) ?? null
   } catch (error) {
     console.error("[plans] failed to load default plan with features", error)
     return null

@@ -13,6 +13,7 @@ import {
 import {
   getHomepageFeedPage,
   getHomepageLaunchOfDay,
+  type HomepageFeedItem,
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
@@ -65,6 +66,7 @@ type DisplayDrop = {
   rank?: number | null
   upvoteGrowthPercent?: number | null
   isSponsored?: boolean
+  variant?: HomepageFeedItem["variant"]
   isVoted?: boolean
   publishedAt?: string | null
   createdAt?: string
@@ -126,6 +128,7 @@ function toDisplayDrop(
     score: item.scoreCount,
     scoreCount: item.scoreCount,
     isSponsored: item.isSponsored,
+    variant: item.variant,
     isVoted: item.isVoted,
     publishedAt: item.publishedAt,
     createdAt: item.createdAt,
@@ -332,6 +335,8 @@ async function HomepageDataSections() {
     ? formatPercent(launchGrowth)
     : null
   const launchIsSponsored = Boolean(launch?.isSponsored)
+  const launchIsEditorPick =
+    !launchIsSponsored && launch?.variant === "promoted"
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
@@ -361,9 +366,9 @@ async function HomepageDataSections() {
                         <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
                           Launch of the Day
                         </span>
-                        {launchIsSponsored ? (
+                        {launchIsSponsored || launchIsEditorPick ? (
                           <span className="rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#A33105]">
-                            Sponsored
+                            {launchIsSponsored ? "Sponsored" : "Editor's Pick"}
                           </span>
                         ) : null}
                       </div>

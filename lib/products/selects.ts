@@ -1,8 +1,10 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { resolveProductCategories } from "@/lib/products/categories"
-
-const PRIORITY_PLACEMENT_FEATURE_KEY = "priorityPlacement"
+import {
+  hasActivePlacementGrant,
+  PAID_PLACEMENT_GRANT_SOURCES,
+} from "@/lib/products/placement-grants"
 
 export const productCardSelect = {
   id: true,
@@ -53,6 +55,19 @@ export const productCardSelect = {
       expiresAt: true,
     },
   },
+  planGrants: {
+    where: {
+      source: { in: [...PAID_PLACEMENT_GRANT_SOURCES] },
+      status: "active",
+    },
+    select: {
+      planId: true,
+      source: true,
+      status: true,
+      startsAt: true,
+      expiresAt: true,
+    },
+  },
   alternatives: {
     select: {
       name: true,
@@ -68,15 +83,6 @@ export type ProductCardRecord = Prisma.ProductGetPayload<{
 }>
 
 type PriorityPlanIds = ReadonlySet<string> | readonly string[]
-
-const priorityPlanIdsHas = (
-  priorityPlanIds: PriorityPlanIds | undefined,
-  planId: string | null | undefined,
-) => {
-  if (!priorityPlanIds || !planId) return false
-  if ("has" in priorityPlanIds) return priorityPlanIds.has(planId)
-  return priorityPlanIds.includes(planId)
-}
 
 const resolveBadges = (
   product: ProductCardRecord,
@@ -95,6 +101,7 @@ export const mapProductCardRecordToBase = (
   options?: {
     scoreByProductId?: Map<string, number>
     priorityPlanIds?: PriorityPlanIds
+    placementNow?: Date
   },
 ): ProductCardBase => {
   const scoreOverride = options?.scoreByProductId?.get(product.id)
@@ -122,12 +129,16 @@ export const mapProductCardRecordToBase = (
     categories: resolveProductCategories(product.category, product.categories),
     badges: resolveBadges(product, now),
     alternatives: product.alternatives,
-    sponsored: priorityPlanIdsHas(options?.priorityPlanIds, product.planId),
+    sponsored: options?.priorityPlanIds
+      ? hasActivePlacementGrant(
+          product,
+          options.priorityPlanIds,
+          options.placementNow ?? new Date(),
+        )
+      : false,
     isVerified: Boolean(product.verification?.isVerified),
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
     scoreCount,
   }
 }
-
-export const PRIORITY_FEATURE_KEY = PRIORITY_PLACEMENT_FEATURE_KEY

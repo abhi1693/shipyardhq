@@ -12,8 +12,8 @@ import {
   ProductUpgradeProvisioning,
   type ProductUpgradePerformanceSnapshot,
 } from "@/components/templates/member/products/ProductUpgradeProvisioning"
-import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import prisma from "@/lib/prisma"
+import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
 
 function getTrafficWindowStart() {
   const start = new Date()
@@ -78,6 +78,7 @@ export default async function ProductUpgradePage({
     unauthorizedRedirect: memberProductsStatusPath("unauthorized"),
   })
 
+  const now = new Date()
   const [allPlans, productPlan, performanceSnapshot] = await Promise.all([
     getPublicPlans().catch(() => []),
     prisma.product.findUnique({
@@ -85,27 +86,43 @@ export default async function ProductUpgradePage({
       select: {
         status: true,
         pricingModel: true,
-        subscriptionId: true,
-        planAssignedAt: true,
-        plan: {
+        planGrants: {
+          where: {
+            status: "active",
+            startsAt: { lte: now },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
           select: {
             id: true,
-            name: true,
-            type: true,
-            price: true,
-            isDefault: true,
-            boostForDays: true,
+            source: true,
+            startsAt: true,
+            expiresAt: true,
+            createdAt: true,
+            externalSubscriptionId: true,
+            plan: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                price: true,
+                isDefault: true,
+                boostForDays: true,
+              },
+            },
           },
         },
       },
     }),
     getPerformanceSnapshot(product.id),
   ])
-  const currentPlan = productPlan?.plan ?? null
+  const activeGrant = resolveEffectivePlanGrant(productPlan?.planGrants ?? [])
+  const currentPlan = activeGrant?.plan ?? null
   const currentPlanPublic =
-    allPlans.find((plan) => plan.id === currentPlan?.id) ?? null
+    allPlans.find((plan) => plan.id === currentPlan?.id) ??
+    allPlans.find((plan) => plan.isDefault) ??
+    null
   const hasActivePaidSubscription = Boolean(
-    productPlan?.subscriptionId &&
+    activeGrant?.externalSubscriptionId &&
     currentPlan &&
     currentPlan.type === "recurring_price" &&
     !currentPlan.isDefault &&
@@ -126,12 +143,8 @@ export default async function ProductUpgradePage({
     currentPlan &&
     !currentPlan.isDefault &&
     currentPlan.type !== "recurring_price" &&
-    productPlan?.planAssignedAt &&
-    (currentPlan.boostForDays ?? 0) > 0
-      ? new Date(
-          productPlan.planAssignedAt.getTime() +
-            (currentPlan.boostForDays ?? 0) * 24 * 60 * 60 * 1000,
-        ).toISOString()
+    activeGrant?.expiresAt
+      ? activeGrant.expiresAt.toISOString()
       : null
 
   const productHref = memberProductPath(product.slug)
@@ -141,14 +154,13 @@ export default async function ProductUpgradePage({
 
   return (
     <div className="px-4 py-8 md:px-8">
-      <PurchasePlanToast />
       <div className="mx-auto w-full max-w-[1100px]">
         <ProductUpgradeProvisioning
           plans={upgradePlans}
           productId={product.id}
           redirectPath={productHref}
           errorRedirectPath={productUpgradeHref}
-          currentPlanId={currentPlan?.id}
+          currentPlanId={currentPlanPublic?.id}
           currentPlan={currentPlanPublic}
           productStatus={productPlan?.status ?? null}
           preferFreePlan={preferFreePlan}
@@ -156,7 +168,7 @@ export default async function ProductUpgradePage({
           subscriptionLocked={hasActivePaidSubscription}
           currentPlanStatus={{
             hasActiveSubscription: hasActivePaidSubscription,
-            assignedAt: productPlan?.planAssignedAt?.toISOString() ?? null,
+            assignedAt: activeGrant?.startsAt.toISOString() ?? null,
             boostEndsAt,
           }}
           productPublicPath={publicProductHref}

@@ -1112,6 +1112,7 @@ export async function PeriodicLeaderboardView({
   const items = leaderboard.products.map((product) => {
     const base = mapProductCardRecordToBase(product, now, {
       priorityPlanIds,
+      placementNow: now,
     })
     const productRank = (product as unknown as { leaderboardRank?: unknown })
       .leaderboardRank

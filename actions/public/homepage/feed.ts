@@ -32,7 +32,12 @@ import {
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import { revalidateHomepage } from "@/lib/cache/revalidate"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
-import { getSponsoredPlacementPlanIds } from "@/lib/products/priority-plans"
+import {
+  buildActivePlacementPlanFilter,
+  getSponsoredPlacementPlanIds,
+  hasActivePlacementGrant,
+} from "@/lib/products/priority-plans"
+import { PAID_PLACEMENT_GRANT_SOURCES } from "@/lib/products/placement-grants"
 import {
   resolveProductCategories,
   type ProductCategorySummary,
@@ -43,8 +48,8 @@ const HOMEPAGE_SPONSORED_LIMIT = 12
 const HOMEPAGE_SPONSORED_INTERVAL = 8
 const HOMEPAGE_FEED_POOL_LIMIT = 200
 const HOMEPAGE_ROTATION_SEED = "homepage-organic-rotation"
-const HOMEPAGE_FEED_CACHE_VERSION = "v3"
-const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v4"
+const HOMEPAGE_FEED_CACHE_VERSION = "v4"
+const HOMEPAGE_FEED_POOL_CACHE_VERSION = "v5"
 const HOMEPAGE_FEED_CACHE_PREFIX = buildCacheKey("homepage", "feed")
 const HOMEPAGE_FEED_CACHE_TTL_SECONDS = resolveCacheTtl("slow")
 
@@ -92,6 +97,19 @@ const homepageFeedSelect = {
   ProductBadge: {
     select: {
       badge: true,
+      expiresAt: true,
+    },
+  },
+  planGrants: {
+    where: {
+      source: { in: [...PAID_PLACEMENT_GRANT_SOURCES] },
+      status: "active",
+    },
+    select: {
+      planId: true,
+      source: true,
+      status: true,
+      startsAt: true,
       expiresAt: true,
     },
   },
@@ -277,7 +295,7 @@ function buildSponsoredPlacementWhere(
   sponsoredPlanIds: readonly string[],
 ): Prisma.ProductWhereInput {
   const planWhere: Prisma.ProductWhereInput[] = sponsoredPlanIds.length
-    ? [{ planId: { in: [...sponsoredPlanIds] } }]
+    ? [buildActivePlacementPlanFilter(sponsoredPlanIds, now)]
     : []
 
   return {
@@ -355,11 +373,12 @@ function mapProductToFeedItem(
       (badge) => !badge.expiresAt || badge.expiresAt > now,
     ).map((badge) => badge.badge) ?? []
 
-  const isSponsoredPlan = Boolean(
-    product.planId && sponsoredPlanIds.has(product.planId),
+  const isSponsoredPlan = hasActivePlacementGrant(
+    product,
+    sponsoredPlanIds,
+    now,
   )
   const isEditorPick = hasEditorPickBadge(activeBadges)
-  const isSponsored = isSponsoredPlan || isEditorPick
   const variant: ProductCardVariant = isSponsoredPlan
     ? "sponsored"
     : isEditorPick
@@ -387,7 +406,7 @@ function mapProductToFeedItem(
     categories: resolveProductCategories(product.category, product.categories),
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount: typeof scoreCount === "number" ? scoreCount : undefined,
-    isSponsored,
+    isSponsored: isSponsoredPlan,
     isVoted: upvoted.has(product.id),
     isVerified: Boolean(product.verification?.isVerified),
     variant,
@@ -556,6 +575,7 @@ async function applyViewerVoteStateToGroups(
 }
 
 interface GetOrderedHomepageFeedParams extends GetHomepageFeedPageParams {
+  now: Date
   orderBy: Prisma.ProductOrderByWithRelationInput[]
   where?: Prisma.ProductWhereInput
   rotate?: boolean
@@ -886,6 +906,7 @@ async function getOrderedHomepageFeedPage({
   excludeProductIds = [],
   rotate = false,
   sponsoredPlanIds,
+  now,
 }: GetOrderedHomepageFeedParams): Promise<HomepageFeedPageResult> {
   const safePage = normalizePage(page, 1)
   const safePageSize = normalizePageSize(pageSize, HOMEPAGE_FEED_PAGE_SIZE)
@@ -944,6 +965,7 @@ async function getOrderedHomepageFeedPage({
     products,
     clerkUserId,
     sponsoredPlanIds,
+    now,
   )
   const hasMore = absoluteStart + items.length < total
 
@@ -1031,6 +1053,7 @@ export async function getHomepageNewFeedPage(
     where: { AND: organicWhereParts },
     orderBy,
     sponsoredPlanIds: sponsoredPlanIdSet,
+    now,
   })
 
   if (organicPage.items.length === 0) {
@@ -1051,6 +1074,7 @@ export async function getHomepageNewFeedPage(
     ),
     clerkUserId,
     sponsoredPlanIdSet,
+    now,
   )
 
   return {
@@ -1285,7 +1309,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
 
   const sponsoredPlanIds = new Set(await getSponsoredPlacementPlanIds())
   const item = (
-    await buildFeedItemsFromProducts([product], null, sponsoredPlanIds)
+    await buildFeedItemsFromProducts([product], null, sponsoredPlanIds, now)
   )[0]
   if (!item) return null
 

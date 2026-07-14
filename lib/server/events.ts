@@ -55,6 +55,10 @@ export type ProductUpvotedEvent = {
   upvoteId: string
   occurredAt: Date
 }
+export type ProductPlanGrantBoundaryEvent = {
+  productId: string
+  boundaryAt: string
+}
 
 export type LeaderboardMonthlyWinnersEvent = {
   monthKey: string
@@ -91,6 +95,7 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
+  [APP_EVENTS.PRODUCT_PLAN_GRANT_BOUNDARY]: ProductPlanGrantBoundaryEvent
   [APP_EVENTS.LEADERBOARD_REFRESH]: LeaderboardRefreshEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent

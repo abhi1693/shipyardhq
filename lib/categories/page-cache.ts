@@ -8,7 +8,10 @@ import {
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
 import type { FeaturedProduct } from "@/types"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
-import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
+import {
+  buildPriorityPlanFilter,
+  getPriorityPlacementPlanIds,
+} from "@/lib/products/priority-plans"
 
 type CategoryPageResult = NonNullable<
   Awaited<ReturnType<typeof getCategoryWithProducts>>
@@ -80,12 +83,15 @@ const buildCategoryMetrics = async (
   })
 
   const priorityPlanIds = await getPriorityPlacementPlanIds()
+  const now = new Date()
 
   const [priorityCount, upvotes] = await Promise.all([
     prisma.product.count({
       where: {
-        ...productCategoryWhere,
-        planId: { in: priorityPlanIds },
+        AND: [
+          productCategoryWhere,
+          buildPriorityPlanFilter(priorityPlanIds, now),
+        ],
       },
     }),
     prisma.productAnalytics.aggregate({

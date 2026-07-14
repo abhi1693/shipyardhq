@@ -326,6 +326,7 @@ export async function LeaderboardPageContent({
     (product, index) => {
       const base = mapProductCardRecordToBase(product, now, {
         priorityPlanIds,
+        placementNow: now,
       })
       if (typeof base.scoreCount !== "number") {
         throw new Error(

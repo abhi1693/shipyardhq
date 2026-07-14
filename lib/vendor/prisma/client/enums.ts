@@ -197,6 +197,28 @@ export const TimeInterval = {
 export type TimeInterval = (typeof TimeInterval)[keyof typeof TimeInterval]
 
 
+export const ProductPlanGrantSource = {
+  dodo_payment: 'dodo_payment',
+  dodo_subscription: 'dodo_subscription',
+  leaderboard: 'leaderboard',
+  migration: 'migration',
+  admin: 'admin'
+} as const
+
+export type ProductPlanGrantSource = (typeof ProductPlanGrantSource)[keyof typeof ProductPlanGrantSource]
+
+
+export const ProductPlanGrantStatus = {
+  active: 'active',
+  expired: 'expired',
+  canceled: 'canceled',
+  refunded: 'refunded',
+  revoked: 'revoked'
+} as const
+
+export type ProductPlanGrantStatus = (typeof ProductPlanGrantStatus)[keyof typeof ProductPlanGrantStatus]
+
+
 export const EventEnvelopeStatus = {
   pending: 'pending',
   processing: 'processing',

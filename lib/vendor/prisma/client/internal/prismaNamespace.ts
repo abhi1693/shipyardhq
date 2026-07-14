@@ -419,6 +419,7 @@ export const ModelName = {
   PlanFeature: 'PlanFeature',
   PlanFeatureAssignment: 'PlanFeatureAssignment',
   UserPlanPurchase: 'UserPlanPurchase',
+  ProductPlanGrant: 'ProductPlanGrant',
   ProductBadge: 'ProductBadge',
   UseCase: 'UseCase',
   UseCaseCategory: 'UseCaseCategory',
@@ -446,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productPlanGrant" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3040,6 +3041,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductPlanGrant: {
+      payload: Prisma.$ProductPlanGrantPayload<ExtArgs>
+      fields: Prisma.ProductPlanGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductPlanGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductPlanGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductPlanGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductPlanGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        findMany: {
+          args: Prisma.ProductPlanGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>[]
+        }
+        create: {
+          args: Prisma.ProductPlanGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        createMany: {
+          args: Prisma.ProductPlanGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductPlanGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductPlanGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        update: {
+          args: Prisma.ProductPlanGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductPlanGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductPlanGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductPlanGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductPlanGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductPlanGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductPlanGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductPlanGrant>
+        }
+        groupBy: {
+          args: Prisma.ProductPlanGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPlanGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductPlanGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductPlanGrantCountAggregateOutputType> | number
+        }
+      }
+    }
     ProductBadge: {
       payload: Prisma.$ProductBadgePayload<ExtArgs>
       fields: Prisma.ProductBadgeFieldRefs
@@ -4511,6 +4586,29 @@ export const UserPlanPurchaseScalarFieldEnum = {
 export type UserPlanPurchaseScalarFieldEnum = (typeof UserPlanPurchaseScalarFieldEnum)[keyof typeof UserPlanPurchaseScalarFieldEnum]
 
 
+export const ProductPlanGrantScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  planId: 'planId',
+  externalPaymentId: 'externalPaymentId',
+  externalSubscriptionId: 'externalSubscriptionId',
+  externalCustomerId: 'externalCustomerId',
+  externalRefundId: 'externalRefundId',
+  source: 'source',
+  startsAt: 'startsAt',
+  expiresAt: 'expiresAt',
+  status: 'status',
+  amountCents: 'amountCents',
+  currencyCode: 'currencyCode',
+  refundedAt: 'refundedAt',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductPlanGrantScalarFieldEnum = (typeof ProductPlanGrantScalarFieldEnum)[keyof typeof ProductPlanGrantScalarFieldEnum]
+
+
 export const ProductBadgeScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -5020,6 +5118,34 @@ export type ListEnumTimeIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'ProductPlanGrantSource'
+ */
+export type EnumProductPlanGrantSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantSource'>
+
+
+
+/**
+ * Reference to a field of type 'ProductPlanGrantSource[]'
+ */
+export type ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantSource[]'>
+
+
+
+/**
+ * Reference to a field of type 'ProductPlanGrantStatus'
+ */
+export type EnumProductPlanGrantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantStatus'>
+
+
+
+/**
+ * Reference to a field of type 'ProductPlanGrantStatus[]'
+ */
+export type ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantStatus[]'>
+
+
+
+/**
  * Reference to a field of type 'RewardRuleCategory'
  */
 export type EnumRewardRuleCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RewardRuleCategory'>
@@ -5289,6 +5415,7 @@ export type GlobalOmitConfig = {
   planFeature?: Prisma.PlanFeatureOmit
   planFeatureAssignment?: Prisma.PlanFeatureAssignmentOmit
   userPlanPurchase?: Prisma.UserPlanPurchaseOmit
+  productPlanGrant?: Prisma.ProductPlanGrantOmit
   productBadge?: Prisma.ProductBadgeOmit
   useCase?: Prisma.UseCaseOmit
   useCaseCategory?: Prisma.UseCaseCategoryOmit
@@ -5363,4 +5490,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

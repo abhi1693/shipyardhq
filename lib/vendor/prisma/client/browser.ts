@@ -193,6 +193,11 @@ export type PlanFeatureAssignment = Prisma.PlanFeatureAssignmentModel
  */
 export type UserPlanPurchase = Prisma.UserPlanPurchaseModel
 /**
+ * Model ProductPlanGrant
+ *
+ */
+export type ProductPlanGrant = Prisma.ProductPlanGrantModel
+/**
  * Model ProductBadge
  * 
  */

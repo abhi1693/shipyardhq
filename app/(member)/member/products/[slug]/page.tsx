@@ -7,11 +7,7 @@ import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import {
-  choosePlanAction,
-  validatePaymentAndAttachPlan,
-  validateSubscriptionAndAttachPlan,
-} from "@/actions/member/products/actions"
+import { choosePlanAction } from "@/actions/member/products/actions"
 import {
   memberProductAnalyticsPath,
   memberProductDeletePath,
@@ -37,7 +33,6 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import { resolveProductAnalyticsAccess } from "@/lib/server/analytics/productAnalytics"
-import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
 import MemberProductHeaderActions from "@/components/molecules/MemberProductHeaderActions"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
@@ -94,23 +89,11 @@ export default async function ViewUserProductPage({
 }) {
   const { slug } = await params
   const sp = (await searchParams) || {}
-  const paymentId = (sp["payment_id"] as string) || ""
-  const subscriptionId = (sp["subscription_id"] as string) || ""
-  const status = (sp["status"] as string) || ""
   const celebrateValue = sp["celebrate"]
   const celebrate = Array.isArray(celebrateValue)
     ? celebrateValue.includes("1")
     : celebrateValue === "1"
 
-  if (paymentId && status) {
-    await validatePaymentAndAttachPlan(paymentId)
-    // Clean URL params regardless of outcome
-    redirect(memberProductPath(slug))
-  }
-  if (subscriptionId) {
-    await validateSubscriptionAndAttachPlan(subscriptionId)
-    redirect(memberProductPath(slug))
-  }
   const { product: manageableProduct, currentUser } =
     await requireManageableProduct(slug, {
       unauthorizedRedirect: null,
@@ -402,7 +385,6 @@ export default async function ViewUserProductPage({
         initialOpen={celebrate}
         productPublicPath={publicPath}
       />
-      <PurchasePlanToast />
       <PrivateHeaderSlot>
         <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-center gap-3">

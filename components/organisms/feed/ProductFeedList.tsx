@@ -61,6 +61,10 @@ function getFeedItemDate(item: HomepageFeedItem) {
   return item.publishedAt ?? item.createdAt
 }
 
+function isPromotedFeedItem(item: HomepageFeedItem) {
+  return item.isSponsored || item.variant === "promoted"
+}
+
 function compareBucketItems(a: HomepageFeedItem, b: HomepageFeedItem) {
   const aRank = Number.isFinite(a.shuffleRank) ? a.shuffleRank : null
   const bRank = Number.isFinite(b.shuffleRank) ? b.shuffleRank : null
@@ -107,7 +111,7 @@ function buildNewViewSections(
     bucketOrder.map((bucket) => [bucket.key, []]),
   )
 
-  const organicItems = items.filter((item) => !item.isSponsored)
+  const organicItems = items.filter((item) => !isPromotedFeedItem(item))
   organicItems.forEach((item) => {
     const published = new Date(getFeedItemDate(item))
     const publishedTime = published.getTime()
@@ -132,7 +136,7 @@ function buildNewViewSections(
     }
   })
 
-  const promotedItems = items.filter((item) => item.isSponsored)
+  const promotedItems = items.filter(isPromotedFeedItem)
 
   const sections: FeedSection[] = []
   let promotedIndex = 0

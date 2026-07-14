@@ -23,22 +23,118 @@ const baseProduct = {
   category: { name: "Developer Tools", slug: "developer-tools" },
   categories: [],
   ProductBadge: [],
+  planGrants: [],
   alternatives: [],
 } satisfies ProductCardRecord
 
 describe("mapProductCardRecordToBase", () => {
-  it("marks priority plan products as sponsored without loading plan relations", () => {
+  it("marks products sponsored only while a matching priority grant is active", () => {
+    const now = new Date("2026-01-15T00:00:00.000Z")
     const product = {
       ...baseProduct,
       planId: "priority-plan",
+      planGrants: [
+        {
+          planId: "priority-plan",
+          source: "dodo_payment",
+          status: "active",
+          startsAt: new Date("2026-01-14T00:00:00.000Z"),
+          expiresAt: new Date("2026-01-16T00:00:00.000Z"),
+        },
+      ],
     } satisfies ProductCardRecord
 
     expect(
-      mapProductCardRecordToBase(product, new Date(), {
+      mapProductCardRecordToBase(product, now, {
         priorityPlanIds: ["priority-plan"],
+        placementNow: now,
       }).sponsored,
     ).toBe(true)
   })
+
+  it.each([
+    {
+      name: "missing",
+      grants: [],
+    },
+    {
+      name: "expired",
+      grants: [
+        {
+          planId: "priority-plan",
+          source: "dodo_payment" as const,
+          status: "active" as const,
+          startsAt: new Date("2026-01-01T00:00:00.000Z"),
+          expiresAt: new Date("2026-01-15T00:00:00.000Z"),
+        },
+      ],
+    },
+    {
+      name: "not started",
+      grants: [
+        {
+          planId: "priority-plan",
+          source: "dodo_payment" as const,
+          status: "active" as const,
+          startsAt: new Date("2026-01-16T00:00:00.000Z"),
+          expiresAt: null,
+        },
+      ],
+    },
+    {
+      name: "different plan",
+      grants: [
+        {
+          planId: "other-priority-plan",
+          source: "dodo_payment" as const,
+          status: "active" as const,
+          startsAt: new Date("2026-01-01T00:00:00.000Z"),
+          expiresAt: null,
+        },
+      ],
+    },
+  ])("does not sponsor a product with a $name grant", ({ grants }) => {
+    const now = new Date("2026-01-15T00:00:00.000Z")
+    const product = {
+      ...baseProduct,
+      planId: "priority-plan",
+      planGrants: grants,
+    } satisfies ProductCardRecord
+
+    expect(
+      mapProductCardRecordToBase(product, now, {
+        priorityPlanIds: ["priority-plan", "other-priority-plan"],
+        placementNow: now,
+      }).sponsored,
+    ).toBe(false)
+  })
+
+  it.each(["admin", "leaderboard", "migration"] as const)(
+    "does not mark an active %s grant as sponsored",
+    (source) => {
+      const now = new Date("2026-01-15T00:00:00.000Z")
+      const product = {
+        ...baseProduct,
+        planId: "priority-plan",
+        planGrants: [
+          {
+            planId: "priority-plan",
+            source,
+            status: "active",
+            startsAt: new Date("2026-01-14T00:00:00.000Z"),
+            expiresAt: new Date("2026-01-16T00:00:00.000Z"),
+          },
+        ],
+      } satisfies ProductCardRecord
+
+      expect(
+        mapProductCardRecordToBase(product, now, {
+          priorityPlanIds: ["priority-plan"],
+          placementNow: now,
+        }).sponsored,
+      ).toBe(false)
+    },
+  )
 
   it("does not use legacy plan-assignment records as sponsored fallback", () => {
     const product = {

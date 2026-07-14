@@ -11,14 +11,22 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
 
     const user = await getActiveUserByClerkId(clerkId)
     if (!user) return false
+    const now = new Date()
 
     // 1) Any owned product whose plan grants this feature
     const ownedProductWithFeature = await prisma.product.findFirst({
       where: {
         userId: user.id,
-        plan: {
-          assignments: {
-            some: { enabled: true, feature: { key } },
+        planGrants: {
+          some: {
+            status: "active",
+            startsAt: { lte: now },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+            plan: {
+              assignments: {
+                some: { enabled: true, feature: { key } },
+              },
+            },
           },
         },
       },
@@ -26,21 +34,6 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
     })
 
     if (ownedProductWithFeature) return true
-
-    // 2) Any plan the user has purchased that grants this feature
-    const userPurchaseWithFeature = await prisma.userPlanPurchase.findFirst({
-      where: {
-        userId: user.id,
-        plan: {
-          assignments: {
-            some: { enabled: true, feature: { key } },
-          },
-        },
-      },
-      select: { id: true },
-    })
-
-    if (userPurchaseWithFeature) return true
 
     return false
   } catch {

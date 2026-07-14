@@ -1,16 +1,43 @@
 import prisma from "@/lib/prisma"
+import { connection } from "next/server"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 import { safelyReadStaticParams } from "@/lib/staticParams"
-import { getSponsoredPlacementPlanIds } from "@/lib/products/priority-plans"
+import {
+  buildActivePlacementPlanFilter,
+  getSponsoredPlacementPlanIds,
+} from "@/lib/products/priority-plans"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import {
   buildPublicDiscoveryProductWhere,
   buildPublicDiscoverySqlFilter,
 } from "@/lib/products/public-discovery"
 import { getCurrentLeaderboardRun } from "@/lib/server/leaderboard/v2"
+import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
+import { getDefaultPlanWithFeatures } from "@/lib/server/planDefaults"
+
+const publicProductPlanGrantSelect = {
+  id: true,
+  source: true,
+  startsAt: true,
+  expiresAt: true,
+  createdAt: true,
+  plan: {
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      assignments: {
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductPlanGrantSelect
 
 const publicProductSelect = {
   id: true,
@@ -136,14 +163,10 @@ const publicProductSelect = {
       },
     },
   },
-  plan: {
+  planGrants: {
+    where: { status: "active" },
     select: {
-      assignments: {
-        select: {
-          enabled: true,
-          feature: { select: { key: true } },
-        },
-      },
+      ...publicProductPlanGrantSelect,
     },
   },
 } satisfies Prisma.ProductSelect
@@ -192,19 +215,9 @@ const publicProductMetaSelect = {
     },
     orderBy: { createdAt: "asc" },
   },
-  plan: {
-    select: {
-      assignments: {
-        select: {
-          enabled: true,
-          feature: { select: { key: true } },
-        },
-      },
-    },
-  },
 } satisfies Prisma.ProductSelect
 
-async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
+async function fetchPublicProductRecord(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,
     select: publicProductSelect,
@@ -212,27 +225,49 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
 
   if (!product || product.status !== "published") return null
 
-  const fullProduct = product as PublicProduct
+  return product as PublicProduct
+}
+
+async function resolvePublicProductPlan(
+  planGrants: PublicProduct["planGrants"],
+  now: Date,
+) {
+  const effectiveGrant = resolveEffectivePlanGrant(
+    planGrants.filter(
+      (grant) =>
+        grant.startsAt <= now && (!grant.expiresAt || grant.expiresAt > now),
+    ),
+  )
+  return effectiveGrant?.plan ?? (await getDefaultPlanWithFeatures())
+}
+
+async function getCachedPublicProductBySlug(slug: string) {
+  "use cache"
+  applyCache([TAGS.products, TAGS.product(String(slug))], DEFAULT_TTL.medium)
+
+  return fetchPublicProductRecord({ slug })
+}
+
+export async function getPublicProductBySlug(slug: string) {
+  const fullProduct = await getCachedPublicProductBySlug(slug)
+  if (!fullProduct) return null
+  await connection()
+  const now = new Date()
+  const { planGrants, ...product } = fullProduct
 
   const activeBadges = fullProduct.ProductBadge.filter(
     (badge: PublicProduct["ProductBadge"][number]) =>
-      !badge.expiresAt || badge.expiresAt > new Date(),
+      !badge.expiresAt || badge.expiresAt > now,
   ).map((badge) => badge.badge)
 
   return {
-    ...fullProduct,
+    ...product,
+    plan: await resolvePublicProductPlan(planGrants, now),
     badges: activeBadges,
   }
 }
 
-export async function getPublicProductBySlug(slug: string) {
-  "use cache"
-  applyCache([TAGS.products, TAGS.product(String(slug))], DEFAULT_TTL.medium)
-
-  return fetchPublicProduct({ slug })
-}
-
-export async function getPublicProductMetaBySlug(slug: string) {
+async function getCachedPublicProductMetaBySlug(slug: string) {
   "use cache"
   applyCache([TAGS.products, TAGS.product(String(slug))], 600)
 
@@ -241,9 +276,11 @@ export async function getPublicProductMetaBySlug(slug: string) {
     select: publicProductMetaSelect,
   })
 
-  if (!product || product.status !== "published") return null
+  return product?.status === "published" ? product : null
+}
 
-  return product
+export async function getPublicProductMetaBySlug(slug: string) {
+  return getCachedPublicProductMetaBySlug(slug)
 }
 
 const MAX_PRODUCT_STATIC_PARAMS_LIMIT = 1000
@@ -298,7 +335,7 @@ function buildHomepageSponsoredWhere(
   sponsoredPlanIds: readonly string[],
 ): Prisma.ProductWhereInput {
   const planWhere: Prisma.ProductWhereInput[] = sponsoredPlanIds.length
-    ? [{ planId: { in: [...sponsoredPlanIds] } }]
+    ? [buildActivePlacementPlanFilter(sponsoredPlanIds, now)]
     : []
 
   return {

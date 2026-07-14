@@ -203,25 +203,45 @@ export async function getMostClickedProductIds(args?: {
   return ids.slice(0, Math.max(0, Math.floor(limit)))
 }
 
-export async function getTrendingCategoryProductIds(args: {
+export type TrendingCategoryProductSnapshot = {
+  productIds: string[]
+  generatedAt: string
+}
+
+export async function getTrendingCategoryProductSnapshot(args: {
   categorySlug: string
   days?: number
   limit?: number
-}): Promise<string[]> {
+}): Promise<TrendingCategoryProductSnapshot> {
+  "use cache"
+
   const categorySlug = args.categorySlug?.trim()
-  if (!categorySlug) return []
+  applyCache(
+    [
+      TAGS.analytics,
+      TAGS.products,
+      categorySlug ? TAGS.category(categorySlug) : TAGS.categories,
+    ],
+    DEFAULT_TTL.fast,
+  )
+
+  const generatedAt = new Date().toISOString()
+  if (!categorySlug) return { productIds: [], generatedAt }
 
   const days = typeof args.days === "number" ? args.days : 7
   const limit = typeof args.limit === "number" ? args.limit : 60
 
   const redis = await getRedisClient().catch(() => null)
-  if (!redis) return []
+  if (!redis) return { productIds: [], generatedAt }
 
   const payload = parseJson<{ productIds: string[] }>(
     await readRedisValue(redis, categoryTrendingIndexKey(categorySlug, days)),
   )
   const ids = payload?.productIds ?? []
-  return ids.slice(0, Math.max(0, Math.floor(limit)))
+  return {
+    productIds: ids.slice(0, Math.max(0, Math.floor(limit))),
+    generatedAt,
+  }
 }
 
 export async function getAlsoClickedProductIds(args: {

@@ -88,7 +88,6 @@ const mapProductToFeedItem = (
   const categorySlug = product.category?.slug ?? null
   const isEditorPick = hasEditorPickBadge(badges)
   const isPriorityPlacement = Boolean(product.sponsored)
-  const isSponsored = isPriorityPlacement || isEditorPick
   const variant = isPriorityPlacement
     ? "sponsored"
     : isEditorPick
@@ -110,7 +109,7 @@ const mapProductToFeedItem = (
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount:
       typeof product.scoreCount === "number" ? product.scoreCount : undefined,
-    isSponsored,
+    isSponsored: isPriorityPlacement,
     isVoted: false,
     isVerified: Boolean(product.isVerified),
     variant,
@@ -284,6 +283,7 @@ export async function getCategoryWithProducts(
     mapProductCardRecordToBase(product, now, {
       scoreByProductId: scoreMap,
       priorityPlanIds,
+      placementNow: now,
     }),
   )
 

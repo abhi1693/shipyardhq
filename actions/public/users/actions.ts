@@ -166,6 +166,7 @@ async function getUserProductsWithPaging(
     mapProductCardRecordToBase(product, now, {
       scoreByProductId: scoreMap,
       priorityPlanIds,
+      placementNow: now,
     }),
   )
 
@@ -410,7 +411,6 @@ const mapUserProductToFeedItem = (
   const badges = product.badges ?? []
   const isEditorPick = hasEditorPickBadge(badges)
   const isPriorityPlacement = Boolean((product as any).sponsored)
-  const isSponsored = isPriorityPlacement || isEditorPick
   const variant = isPriorityPlacement
     ? "sponsored"
     : isEditorPick
@@ -434,7 +434,7 @@ const mapUserProductToFeedItem = (
     upvoteCount: product.analytics?.upvotes ?? 0,
     scoreCount:
       typeof product.scoreCount === "number" ? product.scoreCount : undefined,
-    isSponsored,
+    isSponsored: isPriorityPlacement,
     isVoted: false,
     isVerified: Boolean(product.isVerified),
     variant,

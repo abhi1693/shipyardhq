@@ -29,6 +29,7 @@ import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
 import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 import { resolveTxtRecords } from "@/lib/server/dns"
+import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
 
 async function refreshHomepageFeedCacheAfterProductChange(
   reason: string,
@@ -107,7 +108,8 @@ async function generateUniqueSlug(base: string): Promise<string> {
 
 export async function getProductById(id: string) {
   try {
-    let product = await prisma.product.findUnique({
+    const now = new Date()
+    const product = await prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
@@ -117,17 +119,30 @@ export async function getProductById(id: string) {
         verification: true,
         ProductMedia: true,
         ProductBadge: true,
-        plan: {
+        planGrants: {
+          where: {
+            status: "active",
+            startsAt: { lte: now },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+          },
           select: {
             id: true,
-            name: true,
-            price: true,
-            type: true,
-            boostForDays: true,
-            isDefault: true,
-            assignments: {
-              include: {
-                feature: true,
+            source: true,
+            startsAt: true,
+            createdAt: true,
+            plan: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                type: true,
+                boostForDays: true,
+                isDefault: true,
+                assignments: {
+                  include: {
+                    feature: true,
+                  },
+                },
               },
             },
           },
@@ -139,13 +154,17 @@ export async function getProductById(id: string) {
         },
       },
     })
-    if (product && !product.plan) {
-      const defaultPlan = await getDefaultPlanWithFeatures()
-      if (defaultPlan) {
-        product = { ...product, plan: defaultPlan }
-      }
+    if (!product) return null
+
+    const { planGrants, ...productRecord } = product
+    const effectiveGrant = resolveEffectivePlanGrant(planGrants)
+    const defaultPlan = effectiveGrant
+      ? null
+      : await getDefaultPlanWithFeatures()
+    return {
+      ...productRecord,
+      plan: effectiveGrant?.plan ?? defaultPlan ?? null,
     }
-    return product
   } catch (error) {
     console.error("Error fetching product by ID:", error)
     throw new Error("Failed to fetch product")
@@ -480,7 +499,6 @@ export async function updateProductAction(
     where: { id },
     include: {
       verification: true,
-      plan: { select: { boostForDays: true, isDefault: true } },
       alternatives: { select: { id: true } },
       categories: { select: { categoryId: true } },
     },

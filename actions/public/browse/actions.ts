@@ -219,11 +219,11 @@ export async function getBrowseProducts({
   const priorityPlanIds = await getPriorityPlacementPlanIds()
 
   const priorityWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildPriorityPlanFilter(priorityPlanIds, now)],
   }
 
   const regularWhere: Prisma.ProductWhereInput = {
-    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds)],
+    AND: [baseWhere, buildRegularPlanFilter(priorityPlanIds, now)],
   }
 
   // Compute counts to perform correct merged pagination
@@ -290,6 +290,7 @@ export async function getBrowseProducts({
     mapProductCardRecordToBase(product, now, {
       scoreByProductId: scoreMap,
       priorityPlanIds,
+      placementNow: now,
     }),
   )
   const total = totalPriority + totalRegular

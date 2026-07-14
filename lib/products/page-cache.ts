@@ -1,4 +1,3 @@
-import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getPublicProductBySlug,
   getPublicProductsByUseCase,
@@ -141,12 +140,6 @@ export function buildProductStructuredData(product: PublicProduct) {
 export async function getProductPagePayload(
   slug: string,
 ): Promise<ProductPagePayload | null> {
-  "use cache"
-  applyCache(
-    ["products:detail:payload", TAGS.products, TAGS.product(String(slug))],
-    DEFAULT_TTL.medium,
-  )
-
   const product = await getPublicProductBySlug(slug)
   if (!product) {
     return null

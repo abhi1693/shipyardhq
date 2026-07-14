@@ -5,8 +5,31 @@ import {
   trackPlanPurchaseInGa,
   trackRefundInGa,
 } from "@/lib/server/analytics/planPurchaseTracking"
+import { refreshProductPlanGrantCaches } from "@/lib/server/productPlanGrantCache"
+import { hasVerifiedDodoSubscriptionPlanChangePayment } from "@/lib/server/dodoSubscriptionPayments"
+import {
+  fulfillDodoOneTimePayment,
+  refundDodoOneTimePayment,
+  revokeDodoOneTimePaymentForDispute,
+  syncDodoSubscriptionGrant,
+  type ProductPlanGrantResult,
+  UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON,
+} from "@/lib/server/productPlanGrants"
 
 const WEBHOOK_SECRET = process.env.DODO_WEBHOOK_SECRET?.trim()
+
+async function refreshChangedProjection(
+  grantResult: ProductPlanGrantResult,
+  reason: string,
+) {
+  if (grantResult.outcome === "invalid") {
+    throw new Error(
+      `Invalid product plan grant result: ${grantResult.reason ?? "unknown"}`,
+    )
+  }
+  if (grantResult.outcome === "ignored" || !grantResult.productId) return
+  await refreshProductPlanGrantCaches(grantResult.productId, reason)
+}
 
 export async function POST(req: Request) {
   if (!WEBHOOK_SECRET) {
@@ -18,7 +41,6 @@ export async function POST(req: Request) {
   }
 
   const rawBody = await req.text()
-  console.info("[dodo-webhook] received", rawBody)
 
   let event:
     | Awaited<ReturnType<typeof dodoClient.webhooks.unwrap>>
@@ -38,38 +60,140 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "payment.succeeded": {
         const payment = event.data
-        const userId = payment.customer?.customer_id
-        if (!userId) {
-          console.error("[dodo-webhook] payment missing customer_id")
-          return NextResponse.json(
-            { error: "missing customer_id" },
-            { status: 400 },
+        let grantResult: ProductPlanGrantResult
+        if (payment.subscription_id) {
+          const subscription = await dodoClient.subscriptions.retrieve(
+            payment.subscription_id,
           )
+          const providerObservedAt = new Date()
+          const planChangePaymentSucceeded =
+            await hasVerifiedDodoSubscriptionPlanChangePayment({
+              subscriptionId: subscription.subscription_id,
+              productId: subscription.product_id,
+              status: subscription.status,
+              metadata: subscription.metadata,
+            })
+          grantResult = await syncDodoSubscriptionGrant(subscription, {
+            providerObservedAt,
+            planChangePaymentSucceeded,
+          })
+        } else {
+          grantResult = await fulfillDodoOneTimePayment(payment)
+        }
+        await refreshChangedProjection(grantResult, "dodo.payment.succeeded")
+        if (grantResult.reason === UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON) {
+          throw new Error(UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON)
         }
 
-        await trackPlanPurchaseInGa({
-          userId,
+        console.info("[dodo-webhook] payment entitlement handled", {
           paymentId: payment.payment_id,
-          payment,
+          productId: grantResult.productId,
+          outcome: grantResult.outcome,
+          reason: grantResult.reason,
         })
+
+        const customerId = payment.customer?.customer_id
+        if (customerId) {
+          await trackPlanPurchaseInGa({
+            userId: customerId,
+            paymentId: payment.payment_id,
+            payment,
+          })
+        }
         break
       }
       case "refund.succeeded": {
         const refund = event.data
-        const userId = refund.customer?.customer_id
-        if (!userId) {
-          console.error("[dodo-webhook] refund missing customer_id")
-          return NextResponse.json(
-            { error: "missing customer_id" },
-            { status: 400 },
-          )
+        const paymentId = refund.payment_id?.trim()
+        if (!paymentId) {
+          throw new Error("Missing payment id for refund.succeeded")
         }
+        const payment = await dodoClient.payments.retrieve(paymentId)
+        const grantResult = await refundDodoOneTimePayment(payment, refund)
+        await refreshChangedProjection(grantResult, "dodo.refund.succeeded")
+
+        console.info("[dodo-webhook] refund entitlement handled", {
+          paymentId,
+          refundId: refund.refund_id,
+          productId: grantResult.productId,
+          outcome: grantResult.outcome,
+          reason: grantResult.reason,
+        })
 
         await trackRefundInGa({
-          userId,
+          userId: refund.customer?.customer_id,
           transactionId: refund.payment_id || refund.refund_id,
           amountCents: typeof refund.amount === "number" ? refund.amount : null,
           currency: refund.currency,
+        })
+        break
+      }
+      case "dispute.accepted":
+      case "dispute.lost": {
+        const dispute = event.data
+        const paymentId = dispute.payment_id?.trim()
+        if (!paymentId) {
+          throw new Error(`Missing payment id for ${event.type}`)
+        }
+        const payment = await dodoClient.payments.retrieve(paymentId)
+        const grantResult = await revokeDodoOneTimePaymentForDispute(
+          payment,
+          dispute,
+        )
+        await refreshChangedProjection(grantResult, `dodo.${event.type}`)
+
+        console.info("[dodo-webhook] dispute entitlement handled", {
+          paymentId,
+          disputeId: dispute.dispute_id,
+          productId: grantResult.productId,
+          outcome: grantResult.outcome,
+          reason: grantResult.reason,
+        })
+        break
+      }
+      case "subscription.active":
+      case "subscription.renewed":
+      case "subscription.updated":
+      case "subscription.plan_changed":
+      case "subscription.cancelled":
+      case "subscription.expired":
+      case "subscription.failed":
+      case "subscription.on_hold": {
+        const deliveredSubscription = event.data
+        const subscriptionId = deliveredSubscription.subscription_id?.trim()
+        if (!subscriptionId) {
+          throw new Error(`Missing subscription id for ${event.type}`)
+        }
+        // Webhooks can arrive out of order. Re-read the provider's current
+        // snapshot instead of applying the potentially stale event payload.
+        const subscription =
+          await dodoClient.subscriptions.retrieve(subscriptionId)
+        const providerObservedAt = new Date()
+        const planChangePaymentSucceeded =
+          await hasVerifiedDodoSubscriptionPlanChangePayment({
+            subscriptionId,
+            productId: subscription.product_id,
+            status: subscription.status,
+            metadata: subscription.metadata,
+          })
+        const grantResult = await syncDodoSubscriptionGrant(subscription, {
+          providerObservedAt,
+          planChangePaymentSucceeded,
+        })
+        await refreshChangedProjection(
+          grantResult,
+          `dodo.${event.type.replaceAll(".", "-")}`,
+        )
+        if (grantResult.reason === UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON) {
+          throw new Error(UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON)
+        }
+
+        console.info("[dodo-webhook] subscription entitlement handled", {
+          subscriptionId,
+          productId: grantResult.productId,
+          eventType: event.type,
+          outcome: grantResult.outcome,
+          reason: grantResult.reason,
         })
         break
       }

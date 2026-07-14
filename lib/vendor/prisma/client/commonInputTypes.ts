@@ -528,6 +528,40 @@ export type EnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumTimeIntervalNullableFilter<$PrismaModel>
 }
 
+export type EnumProductPlanGrantSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantSource | Prisma.EnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel> | $Enums.ProductPlanGrantSource
+}
+
+export type EnumProductPlanGrantStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantStatus | Prisma.EnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel> | $Enums.ProductPlanGrantStatus
+}
+
+export type EnumProductPlanGrantSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantSource | Prisma.EnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantSourceWithAggregatesFilter<$PrismaModel> | $Enums.ProductPlanGrantSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel>
+}
+
+export type EnumProductPlanGrantStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantStatus | Prisma.EnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductPlanGrantStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel>
+}
+
 export type EnumRewardRuleCategoryFilter<$PrismaModel = never> = {
   equals?: $Enums.RewardRuleCategory | Prisma.EnumRewardRuleCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.RewardRuleCategory[] | Prisma.ListEnumRewardRuleCategoryFieldRefInput<$PrismaModel>
@@ -1130,6 +1164,40 @@ export type NestedEnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel = ne
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTimeIntervalNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTimeIntervalNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumProductPlanGrantSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantSource | Prisma.EnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel> | $Enums.ProductPlanGrantSource
+}
+
+export type NestedEnumProductPlanGrantStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantStatus | Prisma.EnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel> | $Enums.ProductPlanGrantStatus
+}
+
+export type NestedEnumProductPlanGrantSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantSource | Prisma.EnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantSource[] | Prisma.ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantSourceWithAggregatesFilter<$PrismaModel> | $Enums.ProductPlanGrantSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductPlanGrantSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumProductPlanGrantStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductPlanGrantStatus | Prisma.EnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductPlanGrantStatus[] | Prisma.ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductPlanGrantStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductPlanGrantStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductPlanGrantStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumRewardRuleCategoryFilter<$PrismaModel = never> = {

@@ -183,6 +183,7 @@ export async function getProductFeedPage(
           mapProductCardRecordToBase(record, now, {
             scoreByProductId: scoreMap,
             priorityPlanIds,
+            placementNow: now,
           }),
       })
 

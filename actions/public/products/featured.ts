@@ -4,11 +4,13 @@ import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { stableUnitInterval } from "@/lib/stable-random"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
-import {
-  buildPublicDiscoveryProductWhere,
-  buildPublicDiscoverySqlFilter,
-} from "@/lib/products/public-discovery"
+import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import {
+  buildActivePlacementPlanFilter,
+  getPartnerSpotlightPlanIds,
+  getSponsoredProductsPlanIds,
+} from "@/lib/products/priority-plans"
 
 type SponsoredProduct = Prisma.ProductGetPayload<{
   select: {
@@ -178,8 +180,6 @@ export async function getFeaturedByCategorySlug(
   )) as unknown as FeaturedProduct[]
 }
 
-const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const
-
 // Get published products whose assigned plan includes Partner Spotlight.
 type PartnerSpotlightProductResult = {
   id: string
@@ -190,16 +190,6 @@ type PartnerSpotlightProductResult = {
 }
 
 export type PartnerSpotlightProduct = PartnerSpotlightProductResult
-
-type PartnerSpotlightPlacementProduct = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    slug: true
-    name: true
-    logo: true
-    tagline: true
-  }
-}>
 
 export async function getPartnerSpotlightProducts(
   limit = 100,
@@ -216,81 +206,35 @@ export async function getPartnerSpotlightProducts(
   )
 
   const effectiveLimit = Math.max(1, limit)
-
-  const planIds = await prisma.$queryRaw<{ id: string }[]>(
-    Prisma.sql`
-        SELECT ids.id
-        FROM (
-          SELECT p.id,
-                 COALESCE(p."planAssignedAt", p."createdAt") AS assigned_at,
-                 p."createdAt" AS created_at
-          FROM "Product" AS p
-          WHERE p.status = 'published'
-            ${buildPublicDiscoverySqlFilter("p")}
-            AND p."planId" IS NOT NULL
-            AND EXISTS (
-              SELECT 1
-              FROM "PlanFeatureAssignment" AS a
-              INNER JOIN "PlanFeature" AS f
-                ON f.id = a."featureId"
-              WHERE a."planId" = p."planId"
-                AND a.enabled = true
-                AND f.key = ${PARTNER_SPOTLIGHT_FEATURE_KEY}
-            )
-        ) AS ids
-        ORDER BY ids.assigned_at DESC, ids.created_at DESC, ids.id ASC
-        LIMIT ${effectiveLimit}
-      `,
-  )
-
-  const combinedIds = planIds.map((entry: { id: string }) => entry.id)
-
-  if (!combinedIds.length) {
+  const now = new Date()
+  const partnerPlanIds = await getPartnerSpotlightPlanIds()
+  if (!partnerPlanIds.length) {
     return []
   }
 
-  const products: PartnerSpotlightPlacementProduct[] =
-    await prisma.product.findMany({
-      where: {
-        id: {
-          in: combinedIds,
-        },
-      },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        logo: true,
-        tagline: true,
-      },
-    })
+  const products = await prisma.product.findMany({
+    where: {
+      AND: [
+        buildPublicDiscoveryProductWhere(),
+        buildActivePlacementPlanFilter(partnerPlanIds, now),
+      ],
+    },
+    orderBy: [
+      { planAssignedAt: { sort: "desc", nulls: "last" } },
+      { createdAt: "desc" },
+      { id: "asc" },
+    ],
+    take: effectiveLimit,
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      tagline: true,
+    },
+  })
 
-  type FeaturedProductRecord = (typeof products)[number]
-  const productMap: Map<string, FeaturedProductRecord> = new Map(
-    products.map((product) => [product.id, product]),
-  )
-  const ordered: typeof products = []
-  const seen = new Set<string>()
-
-  for (const id of combinedIds) {
-    const product = productMap.get(id)
-    if (!product || seen.has(id)) {
-      continue
-    }
-    ordered.push(product)
-    seen.add(id)
-    if (ordered.length >= effectiveLimit) {
-      break
-    }
-  }
-
-  const pool = ordered.length > 0 ? ordered : products
-
-  if (!pool.length) {
-    return []
-  }
-
-  return pool.map((product) => ({
+  return products.map((product) => ({
     id: product.id,
     slug: product.slug,
     name: product.name,
@@ -329,8 +273,6 @@ export async function getPartnerSpotlightProduct(
   })[0]
 }
 
-const SPONSORED_PLACEMENT_FEATURE_KEY = "sponsoredProducts" as const
-
 // Get products that have the sponsored placement plan feature enabled
 export async function getSponsoredProducts(limit = 12) {
   "use cache"
@@ -345,45 +287,25 @@ export async function getSponsoredProducts(limit = 12) {
   )
 
   const effectiveLimit = Math.max(1, limit)
-  const sponsoredFeatureKey = SPONSORED_PLACEMENT_FEATURE_KEY
-
-  const planRows = await prisma.$queryRaw<{ id: string }[]>(
-    Prisma.sql`
-        SELECT ids.id
-        FROM (
-          SELECT DISTINCT p.id
-          FROM "Product" AS p
-          WHERE p.status = 'published'
-            ${buildPublicDiscoverySqlFilter("p")}
-            AND p."planId" IS NOT NULL
-            AND EXISTS (
-              SELECT 1
-              FROM "PlanFeatureAssignment" AS a
-              INNER JOIN "PlanFeature" AS f
-                ON f.id = a."featureId"
-              WHERE a."planId" = p."planId"
-                AND a.enabled = true
-                AND f.key = ${sponsoredFeatureKey}
-            )
-        ) AS ids
-        ORDER BY RANDOM()
-        LIMIT ${effectiveLimit}
-      `,
-  )
-
-  const productIds = planRows.map((row: { id: string }) => row.id)
-
-  if (!productIds.length) {
+  const now = new Date()
+  const sponsoredPlanIds = await getSponsoredProductsPlanIds()
+  if (!sponsoredPlanIds.length) {
     return []
   }
 
   const products = await prisma.product.findMany({
     where: {
-      id: {
-        in: productIds,
-      },
-      ...buildPublicDiscoveryProductWhere(),
+      AND: [
+        buildPublicDiscoveryProductWhere(),
+        buildActivePlacementPlanFilter(sponsoredPlanIds, now),
+      ],
     },
+    orderBy: [
+      { planAssignedAt: { sort: "desc", nulls: "last" } },
+      { createdAt: "desc" },
+      { id: "asc" },
+    ],
+    take: effectiveLimit,
     select: {
       id: true,
       slug: true,
@@ -394,18 +316,11 @@ export async function getSponsoredProducts(limit = 12) {
     },
   })
 
-  const productMap = new Map(
-    products.map((product: (typeof products)[number]) => [product.id, product]),
-  )
   const placements: SponsoredProductPlacement[] = []
-  const seen = new Set<string>()
 
-  for (const planRow of planRows) {
-    const product = productMap.get(planRow.id) as SponsoredProduct | undefined
-    if (!product || seen.has(product.id)) continue
-    seen.add(product.id)
+  for (const product of products as SponsoredProduct[]) {
     placements.push({
-      id: `plan:${planRow.id}`,
+      id: `plan:${product.id}`,
       product,
       origin: "plan",
     })

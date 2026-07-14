@@ -65,10 +65,13 @@ export async function reconcileDueEventEnvelopeJobs(
 
   for (const row of rows) {
     try {
-      await enqueueEventEnvelopeJob({
-        envelopeId: row.id,
-        queue: coerceEventQueue(row.queue) ?? DEFAULT_EVENT_QUEUE,
-      })
+      await enqueueEventEnvelopeJob(
+        {
+          envelopeId: row.id,
+          queue: coerceEventQueue(row.queue) ?? DEFAULT_EVENT_QUEUE,
+        },
+        { replaceExisting: true },
+      )
       enqueued += 1
     } catch (error) {
       failed += 1

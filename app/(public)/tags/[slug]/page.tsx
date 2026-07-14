@@ -108,7 +108,6 @@ function mapProductCardItemToFeedItem(
       ? product.isSponsored
       : Boolean(product.sponsored)
   const isEditorPick = hasEditorPickBadge(product.badges ?? [])
-  const isSponsored = isPriorityPlacement || isEditorPick
 
   const variant =
     typeof product.variant !== "undefined"
@@ -135,7 +134,7 @@ function mapProductCardItemToFeedItem(
     scoreCount:
       typeof product.scoreCount === "number" ? product.scoreCount : undefined,
     updatesCount: product.updatesCount,
-    isSponsored,
+    isSponsored: isPriorityPlacement,
     isVoted: Boolean(product.isVoted),
     isVerified: Boolean(product.isVerified),
     variant,
