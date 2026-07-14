@@ -20,6 +20,7 @@ const DEFAULT_QUERY_TIMEOUT_MS = 10_000
 const DEFAULT_GROUP_LIMIT = 10_000
 const DEFAULT_RETENTION_DAYS = 8
 const MAX_QUERY_WINDOW_MS = 24 * 60 * 60 * 1000
+const MIN_QUERY_SPLIT_WINDOW_MS = 60 * 1000
 export const CLOUDFLARE_ANALYTICS_DATASET =
   "httpRequestsAdaptiveGroups:v1" as const
 export const CLOUDFLARE_ANALYTICS_MIN_START_DATE =
@@ -246,7 +247,6 @@ function splitQueryWindows(times: { start: string; end: string }) {
 function mergeHttpGroups(
   groupSets: CloudflareHttpGroup[][],
   dimensions: CloudflareHttpDimension[],
-  limit: number,
 ) {
   const merged = new Map<string, CloudflareHttpGroup>()
 
@@ -275,9 +275,7 @@ function mergeHttpGroups(
     }
   }
 
-  return Array.from(merged.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, limit)
+  return Array.from(merged.values()).sort((a, b) => b.count - a.count)
 }
 
 export type CloudflareHttpQuery = {
@@ -289,11 +287,19 @@ export type CloudflareHttpQuery = {
   pathPrefix?: string
   verifiedBotCategories?: string[]
   limit?: number
+  limitScope?: "total" | "per-window"
+  splitOnLimit?: boolean
 }
 
-export async function queryCloudflareHttpGroups(
+export type CloudflareHttpQueryResult = {
+  groups: CloudflareHttpGroup[]
+  truncated: boolean
+  windowsQueried: number
+}
+
+export async function queryCloudflareHttpGroupsWithMetadata(
   args: CloudflareHttpQuery,
-): Promise<CloudflareHttpGroup[]> {
+): Promise<CloudflareHttpQueryResult> {
   const config = readCloudflareConfig()
   if (!config) {
     throw new CloudflareAnalyticsError(
@@ -345,14 +351,17 @@ export async function queryCloudflareHttpGroups(
 
   const windows = splitQueryWindows(times)
   const groupSets: CloudflareHttpGroup[][] = []
-  for (const window of windows) {
+  let truncated = false
+  let windowsQueried = 0
+
+  const fetchWindow = async (window: { start: string; end: string }) => {
     const filter = buildHttpFilter({
       ...window,
       pagePaths: args.pagePaths,
       pathPrefix: args.pathPrefix,
       verifiedBotCategories: args.verifiedBotCategories,
     })
-    if (!filter) return []
+    if (!filter) return
 
     const controller = new AbortController()
     const timeout = setTimeout(
@@ -364,6 +373,7 @@ export async function queryCloudflareHttpGroups(
     )
 
     try {
+      windowsQueried += 1
       const response = await fetch(CLOUDFLARE_GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: {
@@ -394,13 +404,46 @@ export async function queryCloudflareHttpGroups(
         )
       }
 
-      groupSets.push(payload.data?.viewer?.zones?.[0]?.groups ?? [])
+      const groups = payload.data?.viewer?.zones?.[0]?.groups ?? []
+      if (args.splitOnLimit && groups.length >= limit) {
+        const startMs = new Date(window.start).getTime()
+        const endMs = new Date(window.end).getTime()
+        if (endMs - startMs > MIN_QUERY_SPLIT_WINDOW_MS) {
+          const midpoint = new Date(
+            startMs + Math.floor((endMs - startMs) / 2),
+          ).toISOString()
+          await fetchWindow({ start: window.start, end: midpoint })
+          await fetchWindow({ start: midpoint, end: window.end })
+          return
+        }
+      }
+
+      groupSets.push(groups)
+      truncated ||= groups.length >= limit
     } finally {
       clearTimeout(timeout)
     }
   }
 
-  return mergeHttpGroups(groupSets, dimensions, limit)
+  for (const window of windows) {
+    await fetchWindow(window)
+  }
+
+  const mergedGroups = mergeHttpGroups(groupSets, dimensions)
+  const enforceTotalLimit = args.limitScope !== "per-window"
+
+  return {
+    groups: enforceTotalLimit ? mergedGroups.slice(0, limit) : mergedGroups,
+    truncated: truncated || (enforceTotalLimit && mergedGroups.length > limit),
+    windowsQueried,
+  }
+}
+
+export async function queryCloudflareHttpGroups(
+  args: CloudflareHttpQuery,
+): Promise<CloudflareHttpGroup[]> {
+  const result = await queryCloudflareHttpGroupsWithMetadata(args)
+  return result.groups
 }
 
 function pageViews(group: CloudflareHttpGroup) {

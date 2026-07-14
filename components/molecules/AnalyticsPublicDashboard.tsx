@@ -82,7 +82,6 @@ export type PublicTrafficComposition = {
 }
 
 export type AnalyticsPublicDashboardProps = {
-  windowDays: number
   rangeLabel: string
   updatedAt: string
   requests: number
@@ -132,10 +131,7 @@ function heatmapColor(intensity: number) {
   ).join(", ")})`
 }
 
-function formatDelta(value: number | null, windowDays: number) {
-  if (value == null || !Number.isFinite(value)) {
-    return `${windowDays}-day window`
-  }
+function formatDelta(value: number) {
   const sign = value > 0 ? "+" : ""
   return `${sign}${value.toFixed(1)}%`
 }
@@ -208,7 +204,6 @@ function MetricPanel({
   label,
   value,
   delta,
-  windowDays,
   data,
   dataKey,
   color,
@@ -216,7 +211,6 @@ function MetricPanel({
   label: string
   value: string
   delta: number | null
-  windowDays: number
   data: Array<Record<string, number | string>>
   dataKey: string
   color: string
@@ -231,21 +225,17 @@ function MetricPanel({
           <span className="text-[22px] font-semibold leading-7 text-[#17202a]">
             {value}
           </span>
-          <span
-            className={cn(
-              "inline-flex items-center gap-0.5 text-[11px] font-medium",
-              delta == null
-                ? "text-[#7a828d]"
-                : positive
-                  ? "text-[#168344]"
-                  : "text-[#c53a32]",
-            )}
-          >
-            {delta == null ? null : (
+          {delta == null ? null : (
+            <span
+              className={cn(
+                "inline-flex items-center gap-0.5 text-[11px] font-medium",
+                positive ? "text-[#168344]" : "text-[#c53a32]",
+              )}
+            >
               <DeltaIcon className="size-3" aria-hidden />
-            )}
-            {formatDelta(delta, windowDays)}
-          </span>
+              {formatDelta(delta)}
+            </span>
+          )}
         </div>
         <MetricSparkline data={data} dataKey={dataKey} color={color} />
       </div>
@@ -724,7 +714,6 @@ function deviceIcon(label: string) {
 }
 
 export function AnalyticsPublicDashboard({
-  windowDays,
   rangeLabel,
   updatedAt,
   requests,
@@ -823,7 +812,6 @@ export function AnalyticsPublicDashboard({
             label="Total Requests"
             value={formatCompact(requests)}
             delta={requestsDelta}
-            windowDays={windowDays}
             data={sparklineData}
             dataKey="requests"
             color="#3788f6"
@@ -832,7 +820,6 @@ export function AnalyticsPublicDashboard({
             label="Total Visits"
             value={formatCompact(visits)}
             delta={visitsDelta}
-            windowDays={windowDays}
             data={sparklineData}
             dataKey="visits"
             color="#1aa251"
@@ -841,7 +828,6 @@ export function AnalyticsPublicDashboard({
             label="Requests per Visit"
             value={ratio.toFixed(2)}
             delta={ratioDelta}
-            windowDays={windowDays}
             data={sparklineData}
             dataKey="ratio"
             color="#7c5ce7"

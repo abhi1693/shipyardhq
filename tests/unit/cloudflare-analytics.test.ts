@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   isTransientCloudflareError,
   queryCloudflareHttpGroups,
+  queryCloudflareHttpGroupsWithMetadata,
 } from "@/lib/server/analytics/cloudflareAnalytics"
 
 describe("Cloudflare analytics API", () => {
@@ -240,6 +241,120 @@ describe("Cloudflare analytics API", () => {
             datetime_lt: "2026-07-14T00:00:00.000Z",
           },
         ],
+      },
+    ])
+  })
+
+  it("retains each window's groups for high-cardinality ingestion", async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2026-07-14T12:00:00.000Z"))
+    vi.stubEnv("CLOUDFLARE_ZONE_ID", "zone-tag")
+    vi.stubEnv("CLOUDFLARE_API_TOKEN", "api-token")
+
+    const response = (date: string) =>
+      new Response(
+        JSON.stringify({
+          data: {
+            viewer: {
+              zones: [
+                {
+                  groups: [
+                    {
+                      count: 1,
+                      sum: { visits: 0 },
+                      dimensions: { date },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      )
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(response("2026-07-11"))
+        .mockResolvedValueOnce(response("2026-07-12"))
+        .mockResolvedValueOnce(response("2026-07-13")),
+    )
+
+    await expect(
+      queryCloudflareHttpGroupsWithMetadata({
+        dateRange: { startDate: "2026-07-11", endDate: "2026-07-13" },
+        dimensions: ["date"],
+        limit: 2,
+        limitScope: "per-window",
+      }),
+    ).resolves.toMatchObject({
+      groups: [
+        expect.objectContaining({ dimensions: { date: "2026-07-11" } }),
+        expect.objectContaining({ dimensions: { date: "2026-07-12" } }),
+        expect.objectContaining({ dimensions: { date: "2026-07-13" } }),
+      ],
+      truncated: false,
+      windowsQueried: 3,
+    })
+  })
+
+  it("splits capped high-cardinality windows until all groups fit", async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2026-07-14T12:00:00.000Z"))
+    vi.stubEnv("CLOUDFLARE_ZONE_ID", "zone-tag")
+    vi.stubEnv("CLOUDFLARE_API_TOKEN", "api-token")
+
+    const response = (groups: unknown[]) =>
+      new Response(
+        JSON.stringify({ data: { viewer: { zones: [{ groups }] } } }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      )
+    const group = (path: string) => ({
+      count: 1,
+      sum: { visits: 0 },
+      dimensions: { clientRequestPath: path },
+    })
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(response([group("/capped-a"), group("/capped-b")]))
+      .mockResolvedValueOnce(response([group("/first-half")]))
+      .mockResolvedValueOnce(response([group("/second-half")]))
+    vi.stubGlobal("fetch", fetchMock)
+
+    await expect(
+      queryCloudflareHttpGroupsWithMetadata({
+        dateRange: { startDate: "2026-07-13", endDate: "2026-07-13" },
+        dimensions: ["clientRequestPath"],
+        limit: 2,
+        limitScope: "per-window",
+        splitOnLimit: true,
+      }),
+    ).resolves.toEqual({
+      groups: [group("/first-half"), group("/second-half")],
+      truncated: false,
+      windowsQueried: 3,
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    const filters = fetchMock.mock.calls.map(([, request]) => {
+      const payload = JSON.parse(String((request as RequestInit).body)) as {
+        variables: { filter: { AND: Array<Record<string, string>> } }
+      }
+      return payload.variables.filter.AND[0]
+    })
+    expect(filters).toEqual([
+      {
+        datetime_geq: "2026-07-13T00:00:00.000Z",
+        datetime_lt: "2026-07-14T00:00:00.000Z",
+      },
+      {
+        datetime_geq: "2026-07-13T00:00:00.000Z",
+        datetime_lt: "2026-07-13T12:00:00.000Z",
+      },
+      {
+        datetime_geq: "2026-07-13T12:00:00.000Z",
+        datetime_lt: "2026-07-14T00:00:00.000Z",
       },
     ])
   })

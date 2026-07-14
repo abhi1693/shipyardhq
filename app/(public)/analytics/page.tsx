@@ -177,7 +177,6 @@ async function AnalyticsPageContent() {
         }}
       />
       <AnalyticsPublicDashboard
-        windowDays={reportingWindow.days}
         rangeLabel={`${format(reportingWindow.start, "MMM d")} - ${format(
           reportingWindow.end,
           "MMM d, yyyy",

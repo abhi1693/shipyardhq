@@ -188,9 +188,6 @@ export async function syncProductTrafficBreakdowns(args: {
     prisma.productTrafficCountryDaily.deleteMany({
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
     }),
-    prisma.productTrafficCityDaily.deleteMany({
-      where: { source, date: { gte: args.window.start, lte: args.window.end } },
-    }),
   ])
 
   await insertBatches(Array.from(browsers.values()), (data) =>
@@ -219,7 +216,6 @@ export async function syncProductTrafficBreakdowns(args: {
       result("operatingSystems", osGroups.length, operatingSystems.size),
       result("devices", deviceGroups.length, devices.size),
       result("countries", countryGroups.length, countries.size),
-      result("cities", 0, 0),
     ],
   }
 }

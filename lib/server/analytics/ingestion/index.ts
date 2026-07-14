@@ -37,13 +37,26 @@ type IngestionJobResult = {
   error?: string
 }
 
+export type AnalyticsIngestionProgressEvent = {
+  elapsedMs: number
+  error?: string
+  job: IngestionJobKey
+  jobCount: number
+  jobIndex: number
+  phase: "started" | "completed" | "failed"
+  runId: string
+  stats?: unknown
+}
+
 type IngestionOptions = {
   startDate?: string | null
   endDate?: string | null
   days?: number | null
   jobs?: IngestionJobKey[]
   includeBreakdowns?: boolean
+  invalidateNextCache?: boolean
   maxRows?: number
+  onProgress?: (event: AnalyticsIngestionProgressEvent) => void
 }
 
 async function startIngestionRun(
@@ -121,8 +134,18 @@ export async function runAnalyticsIngestion(
 
   const results: IngestionJobResult[] = []
 
-  for (const job of requestedJobs) {
+  for (const [index, job] of requestedJobs.entries()) {
+    const jobStartedAt = Date.now()
     const run = await startIngestionRun(job, window)
+    options.onProgress?.({
+      elapsedMs: 0,
+      job,
+      jobCount: requestedJobs.length,
+      jobIndex: index + 1,
+      phase: "started",
+      runId: run.id,
+    })
+
     try {
       let stats:
         | ProductTrafficDailySyncResult
@@ -166,6 +189,15 @@ export async function runAnalyticsIngestion(
       })
 
       results.push({ job, runId: run.id, status: "completed", stats })
+      options.onProgress?.({
+        elapsedMs: Date.now() - jobStartedAt,
+        job,
+        jobCount: requestedJobs.length,
+        jobIndex: index + 1,
+        phase: "completed",
+        runId: run.id,
+        stats,
+      })
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unknown ingestion error"
@@ -180,13 +212,24 @@ export async function runAnalyticsIngestion(
         error: message,
       })
       results.push({ job, runId: run.id, status: "failed", error: message })
+      options.onProgress?.({
+        elapsedMs: Date.now() - jobStartedAt,
+        error: message,
+        job,
+        jobCount: requestedJobs.length,
+        jobIndex: index + 1,
+        phase: "failed",
+        runId: run.id,
+      })
     }
   }
 
   if (results.some((result) => result.status === "completed")) {
     await invalidateAnalyticsCache("analytics-ingestion")
-    revalidateHomepage("revalidate")
-    revalidateLeaderboard("revalidate")
+    if (options.invalidateNextCache !== false) {
+      revalidateHomepage("revalidate")
+      revalidateLeaderboard("revalidate")
+    }
   }
 
   return { window, results }

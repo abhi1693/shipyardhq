@@ -36,19 +36,6 @@ type CountryRow = {
   countryCode: string
   _sum: { visitors: number | null }
 }
-type RegionRow = {
-  region: string
-  country: string
-  countryCode: string
-  _sum: { visitors: number | null }
-}
-type CityRow = {
-  city: string
-  region: string
-  country: string
-  countryCode: string
-  _sum: { visitors: number | null }
-}
 type TrafficCompositionRow = {
   segment: string
   category: string
@@ -68,13 +55,6 @@ type ProductDeviceRow = {
   _sum: { visitors: number | null }
 }
 type ProductCountryRow = {
-  country: string
-  countryCode: string
-  _sum: { visitors: number | null }
-}
-type ProductCityRow = {
-  city: string
-  region: string
   country: string
   countryCode: string
   _sum: { visitors: number | null }
@@ -288,8 +268,6 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     osRows,
     deviceRows,
     countryRows,
-    regionRows,
-    cityRows,
     hourlyRows,
     compositionRows,
     aiCrawlerStatusRows,
@@ -327,26 +305,6 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }),
     prisma.siteTrafficCountryDaily.groupBy({
       by: ["country", "countryCode"],
-      where: {
-        source: "cloudflare",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 10,
-    }),
-    prisma.siteTrafficRegionDaily.groupBy({
-      by: ["region", "country", "countryCode"],
-      where: {
-        source: "cloudflare",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 10,
-    }),
-    prisma.siteTrafficCityDaily.groupBy({
-      by: ["city", "region", "country", "countryCode"],
       where: {
         source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
@@ -458,28 +416,6 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     }
   })
 
-  const regions = regionRows.map((row: RegionRow) => {
-    const visitors = Number(row._sum.visitors ?? 0)
-    return {
-      region: row.region,
-      country: row.country || null,
-      code: row.countryCode || null,
-      visitors,
-      share: uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0,
-    }
-  })
-
-  const cities = cityRows.map((row: CityRow) => {
-    const visitors = Number(row._sum.visitors ?? 0)
-    return {
-      city: row.city,
-      region: row.region || null,
-      country: row.country || null,
-      code: row.countryCode || null,
-      visitors,
-      share: uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0,
-    }
-  })
   const hourlyActivity = buildHourlyActivity(hourlyRows)
 
   let browserRequests = 0
@@ -677,8 +613,8 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     operatingSystems,
     devices,
     countries,
-    regions,
-    cities,
+    regions: [],
+    cities: [],
     hourlyActivity,
     aiCrawlerAttention,
     trafficComposition,
@@ -783,64 +719,52 @@ async function getProductTrafficFromDb(args: {
     }
   }
 
-  const [browserRows, osRows, deviceRows, countryRows, cityRows] =
-    await Promise.all([
-      prisma.productTrafficBrowserDaily.groupBy({
-        by: ["browser"],
-        where: {
-          productId: { in: productIds },
-          source: "cloudflare",
-          date: { gte: bounds.start, lte: bounds.end },
-        },
-        _sum: { visitors: true },
-        orderBy: { _sum: { visitors: "desc" } },
-        take: 8,
-      }),
-      prisma.productTrafficOperatingSystemDaily.groupBy({
-        by: ["operatingSystem"],
-        where: {
-          productId: { in: productIds },
-          source: "cloudflare",
-          date: { gte: bounds.start, lte: bounds.end },
-        },
-        _sum: { visitors: true },
-        orderBy: { _sum: { visitors: "desc" } },
-        take: 8,
-      }),
-      prisma.productTrafficDeviceDaily.groupBy({
-        by: ["deviceCategory"],
-        where: {
-          productId: { in: productIds },
-          source: "cloudflare",
-          date: { gte: bounds.start, lte: bounds.end },
-        },
-        _sum: { visitors: true },
-        orderBy: { _sum: { visitors: "desc" } },
-        take: 8,
-      }),
-      prisma.productTrafficCountryDaily.groupBy({
-        by: ["country", "countryCode"],
-        where: {
-          productId: { in: productIds },
-          source: "cloudflare",
-          date: { gte: bounds.start, lte: bounds.end },
-        },
-        _sum: { visitors: true },
-        orderBy: { _sum: { visitors: "desc" } },
-        take: 8,
-      }),
-      prisma.productTrafficCityDaily.groupBy({
-        by: ["city", "region", "country", "countryCode"],
-        where: {
-          productId: { in: productIds },
-          source: "cloudflare",
-          date: { gte: bounds.start, lte: bounds.end },
-        },
-        _sum: { visitors: true },
-        orderBy: { _sum: { visitors: "desc" } },
-        take: 8,
-      }),
-    ])
+  const [browserRows, osRows, deviceRows, countryRows] = await Promise.all([
+    prisma.productTrafficBrowserDaily.groupBy({
+      by: ["browser"],
+      where: {
+        productId: { in: productIds },
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { visitors: true },
+      orderBy: { _sum: { visitors: "desc" } },
+      take: 8,
+    }),
+    prisma.productTrafficOperatingSystemDaily.groupBy({
+      by: ["operatingSystem"],
+      where: {
+        productId: { in: productIds },
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { visitors: true },
+      orderBy: { _sum: { visitors: "desc" } },
+      take: 8,
+    }),
+    prisma.productTrafficDeviceDaily.groupBy({
+      by: ["deviceCategory"],
+      where: {
+        productId: { in: productIds },
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { visitors: true },
+      orderBy: { _sum: { visitors: "desc" } },
+      take: 8,
+    }),
+    prisma.productTrafficCountryDaily.groupBy({
+      by: ["country", "countryCode"],
+      where: {
+        productId: { in: productIds },
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { visitors: true },
+      orderBy: { _sum: { visitors: "desc" } },
+      take: 8,
+    }),
+  ])
 
   const browsers = browserRows.map((row: ProductBrowserRow) => ({
     browser: row.browser,
@@ -867,14 +791,6 @@ async function getProductTrafficFromDb(args: {
     }
   })
 
-  const cities = cityRows.map((row: ProductCityRow) => ({
-    city: row.city,
-    region: row.region || null,
-    country: row.country || null,
-    code: row.countryCode || null,
-    visitors: Number(row._sum.visitors ?? 0),
-  }))
-
   return {
     pageViews,
     uniqueVisitors,
@@ -886,7 +802,7 @@ async function getProductTrafficFromDb(args: {
     browsers,
     operatingSystems,
     countries,
-    cities,
+    cities: [],
     devices,
     timeseries,
   }

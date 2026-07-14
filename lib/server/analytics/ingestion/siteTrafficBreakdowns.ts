@@ -4,7 +4,10 @@ import {
   AI_VERIFIED_BOT_CATEGORIES,
   normalizeManagedLabels,
 } from "@/lib/server/analytics/aiCrawlerAttention"
-import { queryCloudflareHttpGroups } from "@/lib/server/analytics/cloudflareAnalytics"
+import {
+  queryCloudflareHttpGroups,
+  queryCloudflareHttpGroupsWithMetadata,
+} from "@/lib/server/analytics/cloudflareAnalytics"
 import { parseUtcHour } from "@/lib/server/analytics/hourlyActivity"
 import { classifyTrafficComposition } from "@/lib/server/analytics/trafficComposition"
 import {
@@ -20,6 +23,7 @@ type BreakdownResult = {
   rows: number
   stored: number
   pages: number
+  queryWindows?: number
   truncated: boolean
 }
 
@@ -61,7 +65,7 @@ export async function syncSiteTrafficBreakdowns(args: {
     hourlyGroups,
     compositionGroups,
     aiCrawlerStatusGroups,
-    aiCrawlerEndpointGroups,
+    aiCrawlerEndpointResult,
   ] = await Promise.all([
     queryCloudflareHttpGroups({
       ...baseQuery,
@@ -102,7 +106,7 @@ export async function syncSiteTrafficBreakdowns(args: {
       ],
       verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
     }),
-    queryCloudflareHttpGroups({
+    queryCloudflareHttpGroupsWithMetadata({
       ...baseQuery,
       dimensions: [
         "date",
@@ -111,9 +115,12 @@ export async function syncSiteTrafficBreakdowns(args: {
         "apiGatewayMatchedEndpoint",
         "webAssetsLabelsManaged",
       ],
+      limitScope: "per-window",
+      splitOnLimit: true,
       verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
     }),
   ])
+  const aiCrawlerEndpointGroups = aiCrawlerEndpointResult.groups
 
   const source = "cloudflare" as const
   const ingestionRunId = args.ingestionRunId ?? null
@@ -333,12 +340,6 @@ export async function syncSiteTrafficBreakdowns(args: {
     prisma.siteTrafficCountryDaily.deleteMany({
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
     }),
-    prisma.siteTrafficRegionDaily.deleteMany({
-      where: { source, date: { gte: args.window.start, lte: args.window.end } },
-    }),
-    prisma.siteTrafficCityDaily.deleteMany({
-      where: { source, date: { gte: args.window.start, lte: args.window.end } },
-    }),
   ])
 
   await insertBatches(browsers, (data) =>
@@ -366,12 +367,19 @@ export async function syncSiteTrafficBreakdowns(args: {
     prisma.siteAiCrawlerEndpointDaily.createMany({ data }),
   )
 
-  const result = (name: string, rows: number, stored: number) => ({
+  const result = (
+    name: string,
+    rows: number,
+    stored: number,
+    truncated = rows >= limit,
+    queryWindows?: number,
+  ) => ({
     name,
     rows,
     stored,
     pages: 1,
-    truncated: rows >= limit,
+    ...(queryWindows === undefined ? {} : { queryWindows }),
+    truncated,
   })
   return {
     breakdowns: [
@@ -394,9 +402,9 @@ export async function syncSiteTrafficBreakdowns(args: {
         "aiCrawlerEndpoints",
         aiCrawlerEndpointGroups.length,
         aiCrawlerEndpoints.length,
+        aiCrawlerEndpointResult.truncated,
+        aiCrawlerEndpointResult.windowsQueried,
       ),
-      result("regions", 0, 0),
-      result("cities", 0, 0),
     ],
   }
 }
