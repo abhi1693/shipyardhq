@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, type CSSProperties } from "react"
+import { useEffect, useMemo, useRef, type CSSProperties } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -42,6 +42,7 @@ export function GoogleAdsenseUnit({
   fullWidthResponsive,
   style,
 }: GoogleAdsenseUnitProps) {
+  const adRef = useRef<HTMLModElement | null>(null)
   const isDisplay = variant === "display"
   const normalizedSlot = (
     slot ?? (isDisplay ? ADSENSE_DISPLAY_SLOT : ADSENSE_IN_FEED_SLOT)
@@ -52,9 +53,34 @@ export function GoogleAdsenseUnit({
   ).trim()
   const resolvedFullWidthResponsive =
     fullWidthResponsive ?? (isDisplay ? true : undefined)
+  const adIdentity = useMemo(
+    () =>
+      [
+        variant,
+        normalizedSlot,
+        resolvedFormat,
+        normalizedLayoutKey,
+        resolvedFullWidthResponsive,
+      ].join(":"),
+    [
+      normalizedLayoutKey,
+      normalizedSlot,
+      resolvedFormat,
+      resolvedFullWidthResponsive,
+      variant,
+    ],
+  )
 
   useEffect(() => {
     if (!ADSENSE_CLIENT || !normalizedSlot) return
+    const adElement = adRef.current
+    if (!adElement) return
+    if (
+      adElement.dataset.adsbygooglePushed === "true" ||
+      adElement.dataset.adStatus
+    ) {
+      return
+    }
 
     try {
       const scriptSrc = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(
@@ -73,11 +99,12 @@ export function GoogleAdsenseUnit({
       }
 
       window.adsbygoogle = window.adsbygoogle || []
+      adElement.dataset.adsbygooglePushed = "true"
       window.adsbygoogle.push({})
     } catch {
       // Ad blockers and local previews can throw here; the page should continue.
     }
-  }, [normalizedSlot])
+  }, [adIdentity, normalizedSlot])
 
   if (!ADSENSE_CLIENT || !normalizedSlot) {
     return null
@@ -89,6 +116,8 @@ export function GoogleAdsenseUnit({
       aria-label="Advertisement"
     >
       <ins
+        key={adIdentity}
+        ref={adRef}
         className="adsbygoogle"
         style={{ display: "block", ...style }}
         data-ad-client={ADSENSE_CLIENT}
