@@ -32,7 +32,7 @@ type PlanFeatureAssignmentSeed = {
   config?: Prisma.JsonValue
 }
 
-// Prod-safe catalog mirrored from production; known assignments are reconciled.
+// Catalog external IDs mirror the active Dodo test-mode products.
 const PLANS: PlanSeed[] = [
   {
     name: "Free",
@@ -53,7 +53,7 @@ const PLANS: PlanSeed[] = [
     type: PlanType.one_time_price,
     price: 499,
     discount: null,
-    externalId: "pdt_0NULM85YTaN4DsrTMUNBk",
+    externalId: null,
     isDefault: false,
     boostForDays: 7,
     features: [
@@ -71,7 +71,7 @@ const PLANS: PlanSeed[] = [
     type: PlanType.one_time_price,
     price: 999,
     discount: 0,
-    externalId: "pdt_6y67LxOz1COCrcvI21KUy",
+    externalId: "pdt_0Nh18siTMjG0nm64hnhF3",
     isDefault: false,
     boostForDays: 14,
     features: [
@@ -91,7 +91,7 @@ const PLANS: PlanSeed[] = [
     type: PlanType.recurring_price,
     price: 899,
     discount: 0,
-    externalId: "pdt_0NVULVEm6a1xvyPf0tWPC",
+    externalId: "pdt_0Nh1A7b0Tw1qKTqVfjQBg",
     isDefault: false,
     boostForDays: 14,
     paymentFrequencyCount: 14,
@@ -115,7 +115,7 @@ const PLANS: PlanSeed[] = [
     type: PlanType.one_time_price,
     price: 2499,
     discount: 0,
-    externalId: "pdt_mIH43Ic1aYKkgnYE9ZzpQ",
+    externalId: "pdt_0Nh1ABFqHjSwvJsQVyWH0",
     isDefault: false,
     boostForDays: 30,
     features: [
@@ -137,7 +137,7 @@ const PLANS: PlanSeed[] = [
     type: PlanType.recurring_price,
     price: 2499,
     discount: 0,
-    externalId: "pdt_0NVULf0GCJuuTKJpNkW6Y",
+    externalId: "pdt_0Nh1ABzqD2ZM6Gqveuzj9",
     isDefault: false,
     boostForDays: 30,
     paymentFrequencyCount: 1,
