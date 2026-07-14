@@ -35,11 +35,9 @@ const OMITTED_FEATURE_KEYS = new Set(["featured"])
 
 const FEATURE_COPY: Record<string, string[]> = {
   "analytics.basic": [
-    "Views, visits, visitors, engagement & upvotes in your dashboard",
+    "Views, visits, traffic trends & upvotes in your dashboard",
   ],
-  "analytics.advanced": [
-    "Referrers, channels, devices, browsers & location insights",
-  ],
+  "analytics.advanced": ["AI crawler, device, browser & location insights"],
   backlink: ["Direct do-follow link from your Shipyard product page"],
   "product.sitemap": ["Included in Shipyard’s product sitemap"],
   "product.aiSearchReady": [

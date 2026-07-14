@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
 export async function GET() {
   try {
@@ -17,10 +18,11 @@ export async function GET() {
     console.error("[analytics] failed to fetch sidebar stats", error)
     return NextResponse.json(
       {
-        pageViews30: 0,
-        visitors30: 0,
+        analyticsWindowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+        pageViews: 0,
+        visitors: 0,
         trafficSeries: [],
-        realtimeVisitors: 1,
+        realtimeVisitors: 0,
       },
       { status: 200 },
     )

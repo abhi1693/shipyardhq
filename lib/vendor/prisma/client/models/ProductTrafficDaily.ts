@@ -29,6 +29,8 @@ export type AggregateProductTrafficDaily = {
 export type ProductTrafficDailyAvgAggregateOutputType = {
   pageViews: number | null
   uniqueVisitors: number | null
+  browserRequests: number | null
+  browserVisits: number | null
   sessions: number | null
   bounceRate: number | null
   averageSessionDuration: number | null
@@ -41,6 +43,8 @@ export type ProductTrafficDailyAvgAggregateOutputType = {
 export type ProductTrafficDailySumAggregateOutputType = {
   pageViews: number | null
   uniqueVisitors: number | null
+  browserRequests: number | null
+  browserVisits: number | null
   sessions: number | null
   bounceRate: number | null
   averageSessionDuration: number | null
@@ -57,6 +61,8 @@ export type ProductTrafficDailyMinAggregateOutputType = {
   source: $Enums.AnalyticsDataSource | null
   pageViews: number | null
   uniqueVisitors: number | null
+  browserRequests: number | null
+  browserVisits: number | null
   sessions: number | null
   bounceRate: number | null
   averageSessionDuration: number | null
@@ -76,6 +82,8 @@ export type ProductTrafficDailyMaxAggregateOutputType = {
   source: $Enums.AnalyticsDataSource | null
   pageViews: number | null
   uniqueVisitors: number | null
+  browserRequests: number | null
+  browserVisits: number | null
   sessions: number | null
   bounceRate: number | null
   averageSessionDuration: number | null
@@ -95,6 +103,8 @@ export type ProductTrafficDailyCountAggregateOutputType = {
   source: number
   pageViews: number
   uniqueVisitors: number
+  browserRequests: number
+  browserVisits: number
   sessions: number
   bounceRate: number
   averageSessionDuration: number
@@ -112,6 +122,8 @@ export type ProductTrafficDailyCountAggregateOutputType = {
 export type ProductTrafficDailyAvgAggregateInputType = {
   pageViews?: true
   uniqueVisitors?: true
+  browserRequests?: true
+  browserVisits?: true
   sessions?: true
   bounceRate?: true
   averageSessionDuration?: true
@@ -124,6 +136,8 @@ export type ProductTrafficDailyAvgAggregateInputType = {
 export type ProductTrafficDailySumAggregateInputType = {
   pageViews?: true
   uniqueVisitors?: true
+  browserRequests?: true
+  browserVisits?: true
   sessions?: true
   bounceRate?: true
   averageSessionDuration?: true
@@ -140,6 +154,8 @@ export type ProductTrafficDailyMinAggregateInputType = {
   source?: true
   pageViews?: true
   uniqueVisitors?: true
+  browserRequests?: true
+  browserVisits?: true
   sessions?: true
   bounceRate?: true
   averageSessionDuration?: true
@@ -159,6 +175,8 @@ export type ProductTrafficDailyMaxAggregateInputType = {
   source?: true
   pageViews?: true
   uniqueVisitors?: true
+  browserRequests?: true
+  browserVisits?: true
   sessions?: true
   bounceRate?: true
   averageSessionDuration?: true
@@ -178,6 +196,8 @@ export type ProductTrafficDailyCountAggregateInputType = {
   source?: true
   pageViews?: true
   uniqueVisitors?: true
+  browserRequests?: true
+  browserVisits?: true
   sessions?: true
   bounceRate?: true
   averageSessionDuration?: true
@@ -284,6 +304,8 @@ export type ProductTrafficDailyGroupByOutputType = {
   source: $Enums.AnalyticsDataSource
   pageViews: number
   uniqueVisitors: number
+  browserRequests: number
+  browserVisits: number
   sessions: number
   bounceRate: number
   averageSessionDuration: number
@@ -326,6 +348,8 @@ export type ProductTrafficDailyWhereInput = {
   source?: Prisma.EnumAnalyticsDataSourceFilter<"ProductTrafficDaily"> | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserRequests?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserVisits?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   sessions?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   bounceRate?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
   averageSessionDuration?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
@@ -347,6 +371,8 @@ export type ProductTrafficDailyOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -372,6 +398,8 @@ export type ProductTrafficDailyWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.EnumAnalyticsDataSourceFilter<"ProductTrafficDaily"> | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserRequests?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserVisits?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   sessions?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   bounceRate?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
   averageSessionDuration?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
@@ -393,6 +421,8 @@ export type ProductTrafficDailyOrderByWithAggregationInput = {
   source?: Prisma.SortOrder
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -420,6 +450,8 @@ export type ProductTrafficDailyScalarWhereWithAggregatesInput = {
   source?: Prisma.EnumAnalyticsDataSourceWithAggregatesFilter<"ProductTrafficDaily"> | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntWithAggregatesFilter<"ProductTrafficDaily"> | number
   uniqueVisitors?: Prisma.IntWithAggregatesFilter<"ProductTrafficDaily"> | number
+  browserRequests?: Prisma.IntWithAggregatesFilter<"ProductTrafficDaily"> | number
+  browserVisits?: Prisma.IntWithAggregatesFilter<"ProductTrafficDaily"> | number
   sessions?: Prisma.IntWithAggregatesFilter<"ProductTrafficDaily"> | number
   bounceRate?: Prisma.FloatWithAggregatesFilter<"ProductTrafficDaily"> | number
   averageSessionDuration?: Prisma.FloatWithAggregatesFilter<"ProductTrafficDaily"> | number
@@ -438,6 +470,8 @@ export type ProductTrafficDailyCreateInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -458,6 +492,8 @@ export type ProductTrafficDailyUncheckedCreateInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -476,6 +512,8 @@ export type ProductTrafficDailyUpdateInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -496,6 +534,8 @@ export type ProductTrafficDailyUncheckedUpdateInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -515,6 +555,8 @@ export type ProductTrafficDailyCreateManyInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -533,6 +575,8 @@ export type ProductTrafficDailyUpdateManyMutationInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -551,6 +595,8 @@ export type ProductTrafficDailyUncheckedUpdateManyInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -586,6 +632,8 @@ export type ProductTrafficDailyCountOrderByAggregateInput = {
   source?: Prisma.SortOrder
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -601,6 +649,8 @@ export type ProductTrafficDailyCountOrderByAggregateInput = {
 export type ProductTrafficDailyAvgOrderByAggregateInput = {
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -617,6 +667,8 @@ export type ProductTrafficDailyMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -636,6 +688,8 @@ export type ProductTrafficDailyMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -651,6 +705,8 @@ export type ProductTrafficDailyMinOrderByAggregateInput = {
 export type ProductTrafficDailySumOrderByAggregateInput = {
   pageViews?: Prisma.SortOrder
   uniqueVisitors?: Prisma.SortOrder
+  browserRequests?: Prisma.SortOrder
+  browserVisits?: Prisma.SortOrder
   sessions?: Prisma.SortOrder
   bounceRate?: Prisma.SortOrder
   averageSessionDuration?: Prisma.SortOrder
@@ -758,6 +814,8 @@ export type ProductTrafficDailyCreateWithoutProductInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -776,6 +834,8 @@ export type ProductTrafficDailyUncheckedCreateWithoutProductInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -824,6 +884,8 @@ export type ProductTrafficDailyScalarWhereInput = {
   source?: Prisma.EnumAnalyticsDataSourceFilter<"ProductTrafficDaily"> | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   uniqueVisitors?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserRequests?: Prisma.IntFilter<"ProductTrafficDaily"> | number
+  browserVisits?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   sessions?: Prisma.IntFilter<"ProductTrafficDaily"> | number
   bounceRate?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
   averageSessionDuration?: Prisma.FloatFilter<"ProductTrafficDaily"> | number
@@ -842,6 +904,8 @@ export type ProductTrafficDailyCreateWithoutIngestionRunInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -861,6 +925,8 @@ export type ProductTrafficDailyUncheckedCreateWithoutIngestionRunInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -904,6 +970,8 @@ export type ProductTrafficDailyCreateManyProductInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -922,6 +990,8 @@ export type ProductTrafficDailyUpdateWithoutProductInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -940,6 +1010,8 @@ export type ProductTrafficDailyUncheckedUpdateWithoutProductInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -958,6 +1030,8 @@ export type ProductTrafficDailyUncheckedUpdateManyWithoutProductInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -977,6 +1051,8 @@ export type ProductTrafficDailyCreateManyIngestionRunInput = {
   source?: $Enums.AnalyticsDataSource
   pageViews?: number
   uniqueVisitors?: number
+  browserRequests?: number
+  browserVisits?: number
   sessions?: number
   bounceRate?: number
   averageSessionDuration?: number
@@ -994,6 +1070,8 @@ export type ProductTrafficDailyUpdateWithoutIngestionRunInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1013,6 +1091,8 @@ export type ProductTrafficDailyUncheckedUpdateWithoutIngestionRunInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1031,6 +1111,8 @@ export type ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunInput = {
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   pageViews?: Prisma.IntFieldUpdateOperationsInput | number
   uniqueVisitors?: Prisma.IntFieldUpdateOperationsInput | number
+  browserRequests?: Prisma.IntFieldUpdateOperationsInput | number
+  browserVisits?: Prisma.IntFieldUpdateOperationsInput | number
   sessions?: Prisma.IntFieldUpdateOperationsInput | number
   bounceRate?: Prisma.FloatFieldUpdateOperationsInput | number
   averageSessionDuration?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1051,6 +1133,8 @@ export type ProductTrafficDailySelect<ExtArgs extends runtime.Types.Extensions.I
   source?: boolean
   pageViews?: boolean
   uniqueVisitors?: boolean
+  browserRequests?: boolean
+  browserVisits?: boolean
   sessions?: boolean
   bounceRate?: boolean
   averageSessionDuration?: boolean
@@ -1072,6 +1156,8 @@ export type ProductTrafficDailySelectCreateManyAndReturn<ExtArgs extends runtime
   source?: boolean
   pageViews?: boolean
   uniqueVisitors?: boolean
+  browserRequests?: boolean
+  browserVisits?: boolean
   sessions?: boolean
   bounceRate?: boolean
   averageSessionDuration?: boolean
@@ -1093,6 +1179,8 @@ export type ProductTrafficDailySelectUpdateManyAndReturn<ExtArgs extends runtime
   source?: boolean
   pageViews?: boolean
   uniqueVisitors?: boolean
+  browserRequests?: boolean
+  browserVisits?: boolean
   sessions?: boolean
   bounceRate?: boolean
   averageSessionDuration?: boolean
@@ -1114,6 +1202,8 @@ export type ProductTrafficDailySelectScalar = {
   source?: boolean
   pageViews?: boolean
   uniqueVisitors?: boolean
+  browserRequests?: boolean
+  browserVisits?: boolean
   sessions?: boolean
   bounceRate?: boolean
   averageSessionDuration?: boolean
@@ -1126,7 +1216,7 @@ export type ProductTrafficDailySelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductTrafficDailyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "date" | "source" | "pageViews" | "uniqueVisitors" | "sessions" | "bounceRate" | "averageSessionDuration" | "newUsers" | "returningVisitors" | "engagementRate" | "pagesPerSession" | "ingestionRunId" | "createdAt" | "updatedAt", ExtArgs["result"]["productTrafficDaily"]>
+export type ProductTrafficDailyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "date" | "source" | "pageViews" | "uniqueVisitors" | "browserRequests" | "browserVisits" | "sessions" | "bounceRate" | "averageSessionDuration" | "newUsers" | "returningVisitors" | "engagementRate" | "pagesPerSession" | "ingestionRunId" | "createdAt" | "updatedAt", ExtArgs["result"]["productTrafficDaily"]>
 export type ProductTrafficDailyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   ingestionRun?: boolean | Prisma.ProductTrafficDaily$ingestionRunArgs<ExtArgs>
@@ -1153,6 +1243,8 @@ export type $ProductTrafficDailyPayload<ExtArgs extends runtime.Types.Extensions
     source: $Enums.AnalyticsDataSource
     pageViews: number
     uniqueVisitors: number
+    browserRequests: number
+    browserVisits: number
     sessions: number
     bounceRate: number
     averageSessionDuration: number
@@ -1594,6 +1686,8 @@ export interface ProductTrafficDailyFieldRefs {
   readonly source: Prisma.FieldRef<"ProductTrafficDaily", 'AnalyticsDataSource'>
   readonly pageViews: Prisma.FieldRef<"ProductTrafficDaily", 'Int'>
   readonly uniqueVisitors: Prisma.FieldRef<"ProductTrafficDaily", 'Int'>
+  readonly browserRequests: Prisma.FieldRef<"ProductTrafficDaily", 'Int'>
+  readonly browserVisits: Prisma.FieldRef<"ProductTrafficDaily", 'Int'>
   readonly sessions: Prisma.FieldRef<"ProductTrafficDaily", 'Int'>
   readonly bounceRate: Prisma.FieldRef<"ProductTrafficDaily", 'Float'>
   readonly averageSessionDuration: Prisma.FieldRef<"ProductTrafficDaily", 'Float'>

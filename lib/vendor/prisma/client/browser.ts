@@ -78,16 +78,6 @@ export type AnalyticsIngestionRun = Prisma.AnalyticsIngestionRunModel
  */
 export type ProductTrafficDaily = Prisma.ProductTrafficDailyModel
 /**
- * Model ProductTrafficReferrerDaily
- * 
- */
-export type ProductTrafficReferrerDaily = Prisma.ProductTrafficReferrerDailyModel
-/**
- * Model ProductTrafficChannelDaily
- * 
- */
-export type ProductTrafficChannelDaily = Prisma.ProductTrafficChannelDailyModel
-/**
  * Model ProductTrafficBrowserDaily
  * 
  */
@@ -118,10 +108,25 @@ export type ProductTrafficCityDaily = Prisma.ProductTrafficCityDailyModel
  */
 export type SiteTrafficDaily = Prisma.SiteTrafficDailyModel
 /**
- * Model SiteTrafficReferrerDaily
+ * Model SiteTrafficHourly
  * 
  */
-export type SiteTrafficReferrerDaily = Prisma.SiteTrafficReferrerDailyModel
+export type SiteTrafficHourly = Prisma.SiteTrafficHourlyModel
+/**
+ * Model SiteTrafficCompositionDaily
+ * 
+ */
+export type SiteTrafficCompositionDaily = Prisma.SiteTrafficCompositionDailyModel
+/**
+ * Model SiteAiCrawlerStatusDaily
+ * 
+ */
+export type SiteAiCrawlerStatusDaily = Prisma.SiteAiCrawlerStatusDailyModel
+/**
+ * Model SiteAiCrawlerEndpointDaily
+ * 
+ */
+export type SiteAiCrawlerEndpointDaily = Prisma.SiteAiCrawlerEndpointDailyModel
 /**
  * Model SiteTrafficBrowserDaily
  * 
@@ -194,7 +199,7 @@ export type PlanFeatureAssignment = Prisma.PlanFeatureAssignmentModel
 export type UserPlanPurchase = Prisma.UserPlanPurchaseModel
 /**
  * Model ProductPlanGrant
- *
+ * 
  */
 export type ProductPlanGrant = Prisma.ProductPlanGrantModel
 /**

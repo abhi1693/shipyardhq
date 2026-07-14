@@ -31,6 +31,14 @@ registerEventHandler({
       periodEnd,
       asOf,
     })
+    if (result.deferred) {
+      console.info("[leaderboard] refresh deferred", {
+        periodStart: periodStart.toISOString(),
+        windowEnd: result.windowEnd.toISOString(),
+        reason: "analytics-pending",
+      })
+      return
+    }
 
     const monthKey = toMonthKey(periodStart)
     revalidateLeaderboard("revalidate")

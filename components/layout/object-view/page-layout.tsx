@@ -14,6 +14,7 @@ interface ObjectPageLayoutProps {
     updatedAt: string | Date
     slug?: string | null
     subtitle?: string
+    showIdentifier?: boolean
   }
   overview: { label: string; value: React.ReactNode }[]
   basePath: string

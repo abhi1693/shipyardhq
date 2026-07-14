@@ -1,5 +1,9 @@
 import { createHash } from "crypto"
-import { format, subDays } from "date-fns"
+
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  getAnalyticsReportingWindow,
+} from "@/lib/analytics/reportingWindow"
 
 import {
   buildCacheKey,
@@ -10,21 +14,20 @@ import {
 import type {
   AnalyticsProvider,
   AnalyticsDateRange,
+  HomepageTraffic,
   ProductTrafficMapEntry,
   ProductTrafficSummary,
+  SiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/providerTypes"
 import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
-import { gaAnalyticsProvider } from "@/lib/server/analytics/providers/ga"
 import {
-  fetchRealtimeVisitorsFromGa,
-  hasGaAnalyticsConfig,
-  isTransientGaError,
-  type HomepageTraffic,
-  type SiteAnalyticsSnapshot,
-} from "@/lib/server/analytics/googleAnalytics"
+  fetchRecentVisitorsFromCloudflare,
+  hasCloudflareAnalyticsConfig,
+  isTransientCloudflareError,
+} from "@/lib/server/analytics/cloudflareAnalytics"
 
 const REALTIME_VISITORS_CACHE_KEY = buildCacheKey(
-  "analytics:realtime:visitors:v1",
+  "analytics:realtime:visitors:v3",
 )
 const DAILY_TRAFFIC_TTL_SECONDS = 60 * 60 * 24
 const REALTIME_VISITORS_TTL_SECONDS = 120
@@ -34,7 +37,7 @@ const SITE_SNAPSHOT_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const HOMEPAGE_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 
 function normalizeRealtimeVisitors(value: number) {
-  return value === 0 ? 1 : value
+  return Math.max(0, value)
 }
 
 function normalizeKeyParts(parts: string[]): string[] {
@@ -56,7 +59,7 @@ function cacheKeyForProductTraffic(args: {
   const paths = normalizeKeyParts(args.pagePaths)
   const advancedKey = args.includeAdvanced === false ? "basic" : "advanced"
   return buildCacheKey(
-    "analytics:cache:product-traffic:v2",
+    "analytics:cache:product-traffic:v6",
     args.dateRange.startDate,
     args.dateRange.endDate,
     advancedKey,
@@ -71,7 +74,7 @@ function cacheKeyForProductTrafficMap(args: {
   const ids = normalizeKeyParts(args.products.map((product) => product.id))
   const signature = ids.length > 0 ? hashValues(ids) : "empty"
   return buildCacheKey(
-    "analytics:cache:product-traffic-map:v2",
+    "analytics:cache:product-traffic-map:v5",
     args.dateRange.startDate,
     args.dateRange.endDate,
     `n${ids.length}`,
@@ -80,11 +83,10 @@ function cacheKeyForProductTrafficMap(args: {
 }
 
 function defaultSiteDateRange(): AnalyticsDateRange {
-  const end = subDays(new Date(), 1)
-  const start = subDays(end, 29)
+  const { startDate, endDate } = getAnalyticsReportingWindow()
   return {
-    startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(end, "yyyy-MM-dd"),
+    startDate,
+    endDate,
   }
 }
 
@@ -95,7 +97,8 @@ function cacheKeyForSiteSnapshot(args?: {
   const range = args?.dateRange ?? defaultSiteDateRange()
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
   return buildCacheKey(
-    "analytics:cache:site-snapshot:v2",
+    "analytics:cache:site-snapshot:v10",
+    `${ANALYTICS_REPORTING_WINDOW_DAYS}d`,
     range.startDate,
     range.endDate,
     `top${topProductLimit}`,
@@ -103,7 +106,8 @@ function cacheKeyForSiteSnapshot(args?: {
 }
 
 const HOMEPAGE_TRAFFIC_CACHE_KEY = buildCacheKey(
-  "analytics:cache:homepage-traffic:v2",
+  "analytics:cache:homepage-traffic:v7",
+  `${ANALYTICS_REPORTING_WINDOW_DAYS}d`,
 )
 const ANALYTICS_CACHE_PREFIX = buildCacheKey("analytics:cache")
 const ANALYTICS_PAGE_CACHE_PREFIX = buildCacheKey("analytics:page")
@@ -117,14 +121,51 @@ function emptyProductTrafficSummary(): ProductTrafficSummary {
     sessions: 0,
     bounceRate: 0,
     averageSessionDuration: 0,
-    referrers: [],
-    referrerCategories: [],
     browsers: [],
     operatingSystems: [],
     cities: [],
     countries: [],
     devices: [],
     timeseries: [],
+  }
+}
+
+function emptySiteAnalyticsSnapshot(): SiteAnalyticsSnapshot {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    sessions: 0,
+    bounceRate: 0,
+    averageSessionDuration: 0,
+    newUsers: 0,
+    engagementRate: 0,
+    pagesPerSession: 0,
+    timeseries: [],
+    browsers: [],
+    operatingSystems: [],
+    devices: [],
+    countries: [],
+    regions: [],
+    cities: [],
+    hourlyActivity: [],
+    aiCrawlerAttention: {
+      totalRequests: 0,
+      shareOfTraffic: 0,
+      successfulRequests: 0,
+      successRate: 0,
+      categories: [],
+      crawlStatuses: [],
+      responseStatuses: [],
+      endpoints: [],
+    },
+    trafficComposition: {
+      totalRequests: 0,
+      browserRequests: 0,
+      verifiedAutomatedRequests: 0,
+      otherRequests: 0,
+      verifiedCategories: [],
+    },
+    topProductPages: [],
   }
 }
 
@@ -193,18 +234,18 @@ async function fetchRealtimeVisitorsWithCache(): Promise<number> {
     return normalizeRealtimeVisitors(cached)
   }
 
-  if (!hasGaAnalyticsConfig()) {
+  if (!hasCloudflareAnalyticsConfig()) {
     await storeRealtimeVisitors(0)
     return normalizeRealtimeVisitors(0)
   }
 
   try {
-    const fresh = await fetchRealtimeVisitorsFromGa()
+    const fresh = await fetchRecentVisitorsFromCloudflare()
     await storeRealtimeVisitors(fresh)
     return normalizeRealtimeVisitors(fresh)
   } catch (error) {
-    if (!isTransientGaError(error)) {
-      console.error("[analytics] failed to fetch realtime visitors from GA", {
+    if (!isTransientCloudflareError(error)) {
+      console.error("[analytics] failed to fetch recent Cloudflare traffic", {
         error,
       })
     }
@@ -236,12 +277,8 @@ async function fetchProductTrafficWithCache(args: {
   try {
     fresh = await dbAnalyticsProvider.getProductTraffic(args)
   } catch (error) {
-    if (!hasGaAnalyticsConfig()) {
-      fresh = emptyProductTrafficSummary()
-    } else {
-      console.error("[analytics] failed to fetch product traffic", { error })
-      fresh = await gaAnalyticsProvider.getProductTraffic(args)
-    }
+    console.error("[analytics] failed to fetch product traffic", { error })
+    return emptyProductTrafficSummary()
   }
 
   await cacheMiss({
@@ -302,7 +339,12 @@ async function fetchProductTrafficMapWithCache(args: {
     fresh = await dbAnalyticsProvider.getProductTrafficMap(args)
   } catch (error) {
     console.error("[analytics] failed to fetch product map", { error })
-    fresh = await gaAnalyticsProvider.getProductTrafficMap(args)
+    return new Map(
+      args.products.map((product) => [
+        product.id,
+        { pageViews: 0, uniqueVisitors: 0, sessions: 0 },
+      ]),
+    )
   }
 
   await cacheMiss({
@@ -339,7 +381,7 @@ async function fetchSiteSnapshotWithCache(args?: {
     fresh = await dbAnalyticsProvider.getSiteAnalyticsSnapshot(args)
   } catch (error) {
     console.error("[analytics] failed to fetch site snapshot", { error })
-    fresh = await gaAnalyticsProvider.getSiteAnalyticsSnapshot(args)
+    return emptySiteAnalyticsSnapshot()
   }
 
   await cacheMiss({
@@ -374,11 +416,12 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
   try {
     fresh = await dbAnalyticsProvider.getHomepageTraffic()
   } catch (error) {
-    if (!hasGaAnalyticsConfig()) {
-      fresh = { pageViews30: 0, visitors30: 0, trafficSeries: [] }
-    } else {
-      console.error("[analytics] failed to fetch homepage traffic", { error })
-      fresh = await gaAnalyticsProvider.getHomepageTraffic()
+    console.error("[analytics] failed to fetch homepage traffic", { error })
+    return {
+      windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+      pageViews: 0,
+      visitors: 0,
+      trafficSeries: [],
     }
   }
 

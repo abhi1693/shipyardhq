@@ -16,6 +16,7 @@ type TrafficPoint = {
 
 interface MemberAnalyticsChartsProps {
   trafficData: TrafficPoint[]
+  rangeDays: number
   hasTrafficActivity?: boolean
 }
 
@@ -35,6 +36,7 @@ const numberFormatter = new Intl.NumberFormat("en-US", {
 
 export function MemberAnalyticsCharts({
   trafficData,
+  rangeDays,
   hasTrafficActivity,
 }: MemberAnalyticsChartsProps) {
   const hasTrafficPoints =
@@ -53,12 +55,8 @@ export function MemberAnalyticsCharts({
             Correlation between product page views and member upvotes.
           </p>
         </div>
-        <div className="inline-flex w-fit rounded-lg bg-slate-100 p-1 text-xs font-semibold text-slate-500">
-          <span className="rounded-md bg-white px-3 py-1 text-blue-700 shadow-sm">
-            7D
-          </span>
-          <span className="px-3 py-1">30D</span>
-          <span className="px-3 py-1">90D</span>
+        <div className="inline-flex h-8 items-center rounded-md border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-600">
+          Last {rangeDays}d
         </div>
       </div>
       {hasTrafficPoints ? (
@@ -73,7 +71,9 @@ export function MemberAnalyticsCharts({
           margin={{ left: 0, right: 8, top: 12, bottom: 0 }}
         />
       ) : (
-        <ChartPlaceholder message="No traffic events recorded in the past 7 days." />
+        <ChartPlaceholder
+          message={`No traffic events recorded in the past ${rangeDays} days.`}
+        />
       )}
     </section>
   )

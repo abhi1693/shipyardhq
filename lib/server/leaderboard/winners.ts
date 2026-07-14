@@ -16,6 +16,7 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { projectEffectiveProductPlanGrant } from "@/lib/server/productPlanGrants"
 import { enqueueProductPlanGrantBoundaryJobs } from "@/lib/server/productPlanGrantBoundarySchedule"
+import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
@@ -194,6 +195,22 @@ function getPeriodWindow(
   }
 
   return getCurrentLeaderboardWindow(now)
+}
+
+function getPreviousCompletedPeriodWindow(
+  period: Exclude<PeriodCadence, "month">,
+  now: Date,
+): { periodStart: Date; periodEnd: Date } {
+  const currentPeriod = getPeriodWindow(period, now)
+  const previousPeriodReference = new Date(
+    currentPeriod.periodStart.getTime() - 1,
+  )
+  const previousPeriod = getPeriodWindow(period, previousPeriodReference)
+
+  return {
+    periodStart: previousPeriod.periodStart,
+    periodEnd: currentPeriod.periodStart,
+  }
 }
 
 function formatPeriodLabel(
@@ -552,14 +569,32 @@ export async function processLeaderboardPeriodWinners(options: {
   }
 
   const now = options.now ?? new Date()
-  const { periodStart, periodEnd } = getPeriodWindow(period, now)
+  const { periodStart, periodEnd } = getPreviousCompletedPeriodWindow(
+    period,
+    now,
+  )
   const periodLabel = formatPeriodLabel(period, periodStart, periodEnd)
   const periodKey = buildPeriodKey(period, periodStart)
+
+  const coverageEnd = new Date(periodEnd.getTime() - DAY_MS)
+  const hasTrafficRollup = await hasAnalyticsIngestionCoverage(
+    "product_traffic_daily",
+    { start: periodStart, end: coverageEnd },
+  )
+  if (!hasTrafficRollup) {
+    return {
+      processed: 0,
+      winners: [],
+      alreadyProcessed: false,
+      skipped: true,
+      reason: "analytics-pending",
+    }
+  }
 
   const winners = await computeLeaderboardWindow({
     periodStart,
     periodEnd,
-    asOf: now,
+    asOf: periodEnd,
     limit,
   })
   if (!winners.length) {

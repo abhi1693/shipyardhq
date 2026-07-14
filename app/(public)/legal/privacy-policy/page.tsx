@@ -187,8 +187,9 @@ export default function PrivacyPolicyPage() {
                 <strong>Service providers:</strong> We partner with vendors who
                 support hosting, authentication, email delivery, analytics, AI
                 processing, file storage, and payments. Key providers include
-                Cloudflare R2 (file storage), Clerk (identity management),
-                OpenAI (AI features), and Dodo Payments (billing).
+                our infrastructure providers (hosting and file storage), Clerk
+                (identity management), OpenAI (AI features), and Dodo Payments
+                (billing).
               </li>
               <li>
                 <strong>Teams and community:</strong> Content you publish—such

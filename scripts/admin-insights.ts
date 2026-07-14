@@ -964,7 +964,7 @@ async function getTrafficInsights(
   previousStart: Date,
   limit: number,
 ) {
-  const [siteCurrent, sitePrevious, productCurrent, topProducts, topReferrers] =
+  const [siteCurrent, sitePrevious, productCurrent, topProducts] =
     await Promise.all([
       prisma.siteTrafficDaily.aggregate({
         _avg: {
@@ -987,13 +987,6 @@ async function getTrafficInsights(
       prisma.productTrafficDaily.groupBy({
         _sum: { pageViews: true, uniqueVisitors: true },
         by: ["productId"],
-        orderBy: { _sum: { pageViews: "desc" } },
-        take: limit,
-        where: { date: { gte: currentStart } },
-      }),
-      prisma.siteTrafficReferrerDaily.groupBy({
-        _sum: { pageViews: true },
-        by: ["referrer"],
         orderBy: { _sum: { pageViews: "desc" } },
         take: limit,
         where: { date: { gte: currentStart } },
@@ -1043,10 +1036,6 @@ async function getTrafficInsights(
         visitors: row._sum.uniqueVisitors ?? 0,
       }
     }),
-    topReferrers: topReferrers.map((row) => ({
-      pageViews: row._sum.pageViews ?? 0,
-      referrer: row.referrer || "(direct)",
-    })),
   }
 }
 
@@ -1424,7 +1413,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
   if (report.traffic) {
     const traffic = report.traffic
     const topProducts = traffic.topProducts as Array<Record<string, unknown>>
-    const topReferrers = traffic.topReferrers as Array<Record<string, unknown>>
 
     renderMetricCards("Traffic Quality", [
       {
@@ -1472,19 +1460,6 @@ function renderReport(report: Record<string, any>, options: CliOptions) {
       { align: "right", key: "visitors", label: "Visitors" },
       {
         format: (value) => bar(value, productTrafficMax),
-        key: "pageViews",
-        label: "Share",
-        width: 16,
-      },
-    ])
-
-    const referrerMax = maxByKey(topReferrers, "pageViews")
-    renderTable("Top Referrers", rankRows(topReferrers), [
-      { align: "right", key: "rank", label: "#", width: 3 },
-      { key: "referrer", label: "Referrer", maxWidth: 48 },
-      { align: "right", key: "pageViews", label: "Views" },
-      {
-        format: (value) => bar(value, referrerMax),
         key: "pageViews",
         label: "Share",
         width: 16,

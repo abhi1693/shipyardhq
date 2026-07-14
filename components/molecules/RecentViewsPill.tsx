@@ -6,12 +6,8 @@ import { useVisibilityGate } from "@/hooks/use-visibility-gate"
 
 const formatter = new Intl.NumberFormat("en-US")
 
-export function LiveVisitorsPill({
-  initialVisitors,
-}: {
-  initialVisitors: number
-}) {
-  const [count, setCount] = useState(Math.max(1, initialVisitors))
+export function RecentViewsPill({ initialViews }: { initialViews: number }) {
+  const [count, setCount] = useState(Math.max(0, initialViews))
   const { ref: containerRef, isActive } = useVisibilityGate<HTMLDivElement>()
 
   useEffect(() => {
@@ -23,34 +19,28 @@ export function LiveVisitorsPill({
 
     const fetchCount = async () => {
       try {
-        if (controller) controller.abort()
+        controller?.abort()
         controller = new AbortController()
         const res = await fetch("/api/analytics/realtime", {
           cache: "no-store",
           signal: controller.signal,
         })
         if (!res.ok) return
-        const data = (await res.json()) as { visitors?: number }
-        if (aborted) return
-        if (
-          typeof data.visitors === "number" &&
-          Number.isFinite(data.visitors)
-        ) {
-          setCount(Math.max(1, data.visitors))
+        const data = (await res.json()) as { views?: number }
+        if (!aborted && Number.isFinite(data.views)) {
+          setCount(Math.max(0, data.views ?? 0))
         }
       } catch {
-        // ignore errors; retry on next interval
+        // Keep the last value and retry on the next interval.
       } finally {
-        if (!aborted) {
-          timeout = setTimeout(fetchCount, 15000)
-        }
+        if (!aborted) timeout = setTimeout(fetchCount, 15_000)
       }
     }
 
     fetchCount()
     return () => {
       aborted = true
-      if (controller) controller.abort()
+      controller?.abort()
       if (timeout) clearTimeout(timeout)
     }
   }, [isActive])
@@ -66,7 +56,9 @@ export function LiveVisitorsPill({
       </span>
       <div className="flex items-baseline gap-1 text-sm font-semibold text-emerald-900">
         <span>{formatter.format(count)}</span>
-        <span className="text-[11px] font-medium text-emerald-700">live</span>
+        <span className="text-[11px] font-medium text-emerald-700">
+          views / 5m
+        </span>
       </div>
     </div>
   )

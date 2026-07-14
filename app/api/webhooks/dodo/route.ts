@@ -100,6 +100,7 @@ export async function POST(req: Request) {
             payment,
           })
         }
+
         break
       }
       case "refund.succeeded": {
@@ -126,6 +127,7 @@ export async function POST(req: Request) {
           amountCents: typeof refund.amount === "number" ? refund.amount : null,
           currency: refund.currency,
         })
+
         break
       }
       case "dispute.accepted":
@@ -182,7 +184,7 @@ export async function POST(req: Request) {
         })
         await refreshChangedProjection(
           grantResult,
-          `dodo.${event.type.replaceAll(".", "-")}`,
+          `dodo.${event.type.replace(/\./g, "-")}`,
         )
         if (grantResult.reason === UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON) {
           throw new Error(UNVERIFIED_SUBSCRIPTION_PLAN_CHANGE_REASON)

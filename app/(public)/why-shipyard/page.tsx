@@ -107,7 +107,7 @@ const MAKER_SWITCH_REASONS: MakerSwitchReason[] = [
     icon: IconLinkOff,
     title: "Analytics without extra tooling",
     description:
-      "We built {link} so your launch intelligence lives beside your listing: traffic, referrers, and campaign health without bolting on another dashboard.",
+      "We built {link} so your launch intelligence lives beside your listing: traffic, AI crawler attention, and discovery trends without another dashboard.",
     highlight: {
       label: "Shipyard Analytics",
       href: ANALYTICS_PATH,

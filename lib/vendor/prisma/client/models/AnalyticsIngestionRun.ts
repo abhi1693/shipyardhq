@@ -235,15 +235,16 @@ export type AnalyticsIngestionRunWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"AnalyticsIngestionRun"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AnalyticsIngestionRun"> | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyListRelationFilter
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyListRelationFilter
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyListRelationFilter
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyListRelationFilter
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyListRelationFilter
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyListRelationFilter
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyListRelationFilter
   productTrafficCities?: Prisma.ProductTrafficCityDailyListRelationFilter
   siteTrafficDaily?: Prisma.SiteTrafficDailyListRelationFilter
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyListRelationFilter
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyListRelationFilter
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyListRelationFilter
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyListRelationFilter
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyListRelationFilter
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyListRelationFilter
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyListRelationFilter
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyListRelationFilter
@@ -266,15 +267,16 @@ export type AnalyticsIngestionRunOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   productTrafficDaily?: Prisma.ProductTrafficDailyOrderByRelationAggregateInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyOrderByRelationAggregateInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyOrderByRelationAggregateInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyOrderByRelationAggregateInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyOrderByRelationAggregateInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyOrderByRelationAggregateInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyOrderByRelationAggregateInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyOrderByRelationAggregateInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyOrderByRelationAggregateInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyOrderByRelationAggregateInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyOrderByRelationAggregateInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyOrderByRelationAggregateInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyOrderByRelationAggregateInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyOrderByRelationAggregateInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyOrderByRelationAggregateInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyOrderByRelationAggregateInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyOrderByRelationAggregateInput
@@ -301,15 +303,16 @@ export type AnalyticsIngestionRunWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"AnalyticsIngestionRun"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AnalyticsIngestionRun"> | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyListRelationFilter
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyListRelationFilter
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyListRelationFilter
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyListRelationFilter
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyListRelationFilter
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyListRelationFilter
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyListRelationFilter
   productTrafficCities?: Prisma.ProductTrafficCityDailyListRelationFilter
   siteTrafficDaily?: Prisma.SiteTrafficDailyListRelationFilter
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyListRelationFilter
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyListRelationFilter
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyListRelationFilter
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyListRelationFilter
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyListRelationFilter
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyListRelationFilter
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyListRelationFilter
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyListRelationFilter
@@ -368,15 +371,16 @@ export type AnalyticsIngestionRunCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -399,15 +403,16 @@ export type AnalyticsIngestionRunUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -430,15 +435,16 @@ export type AnalyticsIngestionRunUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -461,15 +467,16 @@ export type AnalyticsIngestionRunUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -606,38 +613,6 @@ export type AnalyticsIngestionRunUpdateOneWithoutProductTrafficDailyNestedInput 
   update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutProductTrafficDailyInput, Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficDailyInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficDailyInput>
 }
 
-export type AnalyticsIngestionRunCreateNestedOneWithoutProductTrafficReferrersInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficReferrersInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficReferrersInput
-  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
-}
-
-export type AnalyticsIngestionRunUpdateOneWithoutProductTrafficReferrersNestedInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficReferrersInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficReferrersInput
-  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutProductTrafficReferrersInput
-  disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
-  delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
-  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficReferrersInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficReferrersInput>
-}
-
-export type AnalyticsIngestionRunCreateNestedOneWithoutProductTrafficChannelsInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficChannelsInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficChannelsInput
-  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
-}
-
-export type AnalyticsIngestionRunUpdateOneWithoutProductTrafficChannelsNestedInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficChannelsInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficChannelsInput
-  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutProductTrafficChannelsInput
-  disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
-  delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
-  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficChannelsInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficChannelsInput>
-}
-
 export type AnalyticsIngestionRunCreateNestedOneWithoutProductTrafficBrowsersInput = {
   create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficBrowsersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficBrowsersInput>
   connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficBrowsersInput
@@ -734,20 +709,68 @@ export type AnalyticsIngestionRunUpdateOneWithoutSiteTrafficDailyNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficDailyInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficDailyInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficDailyInput>
 }
 
-export type AnalyticsIngestionRunCreateNestedOneWithoutSiteTrafficReferrersInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficReferrersInput
+export type AnalyticsIngestionRunCreateNestedOneWithoutSiteTrafficHourlyInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficHourlyInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficHourlyInput
   connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
 }
 
-export type AnalyticsIngestionRunUpdateOneWithoutSiteTrafficReferrersNestedInput = {
-  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput>
-  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficReferrersInput
-  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutSiteTrafficReferrersInput
+export type AnalyticsIngestionRunUpdateOneWithoutSiteTrafficHourlyNestedInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficHourlyInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficHourlyInput
+  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutSiteTrafficHourlyInput
   disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
   delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
   connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficReferrersInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficHourlyInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficHourlyInput>
+}
+
+export type AnalyticsIngestionRunCreateNestedOneWithoutSiteTrafficCompositionInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCompositionInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficCompositionInput
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+}
+
+export type AnalyticsIngestionRunUpdateOneWithoutSiteTrafficCompositionNestedInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCompositionInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficCompositionInput
+  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutSiteTrafficCompositionInput
+  disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficCompositionInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCompositionInput>
+}
+
+export type AnalyticsIngestionRunCreateNestedOneWithoutSiteAiCrawlerStatusesInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerStatusesInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerStatusesInput
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+}
+
+export type AnalyticsIngestionRunUpdateOneWithoutSiteAiCrawlerStatusesNestedInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerStatusesInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerStatusesInput
+  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutSiteAiCrawlerStatusesInput
+  disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerStatusesInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerStatusesInput>
+}
+
+export type AnalyticsIngestionRunCreateNestedOneWithoutSiteAiCrawlerEndpointsInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerEndpointsInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerEndpointsInput
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+}
+
+export type AnalyticsIngestionRunUpdateOneWithoutSiteAiCrawlerEndpointsNestedInput = {
+  create?: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerEndpointsInput>
+  connectOrCreate?: Prisma.AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerEndpointsInput
+  upsert?: Prisma.AnalyticsIngestionRunUpsertWithoutSiteAiCrawlerEndpointsInput
+  disconnect?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  delete?: Prisma.AnalyticsIngestionRunWhereInput | boolean
+  connect?: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerEndpointsInput>, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerEndpointsInput>
 }
 
 export type AnalyticsIngestionRunCreateNestedOneWithoutSiteTrafficBrowsersInput = {
@@ -859,15 +882,16 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficDailyInput = {
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -889,15 +913,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficDailyInput 
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -935,15 +960,16 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficDailyInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -965,287 +991,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficDailyInput 
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-}
-
-export type AnalyticsIngestionRunCreateWithoutProductTrafficReferrersInput = {
-  id?: string
-  source?: $Enums.AnalyticsDataSource
-  job: $Enums.AnalyticsIngestionJob
-  status?: $Enums.AnalyticsIngestionStatus
-  windowStart: Date | string
-  windowEnd: Date | string
-  startedAt?: Date | string | null
-  finishedAt?: Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
-}
-
-export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficReferrersInput = {
-  id?: string
-  source?: $Enums.AnalyticsDataSource
-  job: $Enums.AnalyticsIngestionJob
-  status?: $Enums.AnalyticsIngestionStatus
-  windowStart: Date | string
-  windowEnd: Date | string
-  startedAt?: Date | string | null
-  finishedAt?: Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-}
-
-export type AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficReferrersInput = {
-  where: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficReferrersInput>
-}
-
-export type AnalyticsIngestionRunUpsertWithoutProductTrafficReferrersInput = {
-  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficReferrersInput>
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficReferrersInput>
-  where?: Prisma.AnalyticsIngestionRunWhereInput
-}
-
-export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutProductTrafficReferrersInput = {
-  where?: Prisma.AnalyticsIngestionRunWhereInput
-  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficReferrersInput>
-}
-
-export type AnalyticsIngestionRunUpdateWithoutProductTrafficReferrersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
-  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
-  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
-  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
-}
-
-export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficReferrersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
-  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
-  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
-  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-}
-
-export type AnalyticsIngestionRunCreateWithoutProductTrafficChannelsInput = {
-  id?: string
-  source?: $Enums.AnalyticsDataSource
-  job: $Enums.AnalyticsIngestionJob
-  status?: $Enums.AnalyticsIngestionStatus
-  windowStart: Date | string
-  windowEnd: Date | string
-  startedAt?: Date | string | null
-  finishedAt?: Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
-}
-
-export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficChannelsInput = {
-  id?: string
-  source?: $Enums.AnalyticsDataSource
-  job: $Enums.AnalyticsIngestionJob
-  status?: $Enums.AnalyticsIngestionStatus
-  windowStart: Date | string
-  windowEnd: Date | string
-  startedAt?: Date | string | null
-  finishedAt?: Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-}
-
-export type AnalyticsIngestionRunCreateOrConnectWithoutProductTrafficChannelsInput = {
-  where: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficChannelsInput>
-}
-
-export type AnalyticsIngestionRunUpsertWithoutProductTrafficChannelsInput = {
-  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficChannelsInput>
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficChannelsInput>
-  where?: Prisma.AnalyticsIngestionRunWhereInput
-}
-
-export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutProductTrafficChannelsInput = {
-  where?: Prisma.AnalyticsIngestionRunWhereInput
-  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutProductTrafficChannelsInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficChannelsInput>
-}
-
-export type AnalyticsIngestionRunUpdateWithoutProductTrafficChannelsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
-  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
-  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
-  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
-}
-
-export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficChannelsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
-  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
-  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
-  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1268,14 +1023,15 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficBrowsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1298,14 +1054,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficBrowsersInp
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -1344,14 +1101,15 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficBrowsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -1374,14 +1132,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficBrowsersInp
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1404,14 +1163,15 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficOperatingSystemsInpu
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1434,14 +1194,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficOperatingSy
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -1480,14 +1241,15 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficOperatingSystemsInpu
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -1510,14 +1272,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficOperatingSy
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1540,14 +1303,15 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficDevicesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1570,14 +1334,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficDevicesInpu
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -1616,14 +1381,15 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficDevicesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -1646,14 +1412,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficDevicesInpu
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1676,14 +1443,15 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficCountriesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1706,14 +1474,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficCountriesIn
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -1752,14 +1521,15 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficCountriesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -1782,14 +1552,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficCountriesIn
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1812,14 +1583,15 @@ export type AnalyticsIngestionRunCreateWithoutProductTrafficCitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1842,14 +1614,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutProductTrafficCitiesInput
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -1888,14 +1661,15 @@ export type AnalyticsIngestionRunUpdateWithoutProductTrafficCitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -1918,14 +1692,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutProductTrafficCitiesInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -1948,14 +1723,15 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficDailyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -1978,14 +1754,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficDailyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2024,14 +1801,15 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficDailyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2054,14 +1832,15 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficDailyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2070,7 +1849,7 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficDailyInput = {
   siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
 }
 
-export type AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunCreateWithoutSiteTrafficHourlyInput = {
   id?: string
   source?: $Enums.AnalyticsDataSource
   job: $Enums.AnalyticsIngestionJob
@@ -2084,14 +1863,15 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -2100,7 +1880,7 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput = {
   siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
 }
 
-export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficHourlyInput = {
   id?: string
   source?: $Enums.AnalyticsDataSource
   job: $Enums.AnalyticsIngestionJob
@@ -2114,14 +1894,15 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2130,23 +1911,23 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput
   siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
 }
 
-export type AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficHourlyInput = {
   where: Prisma.AnalyticsIngestionRunWhereUniqueInput
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput>
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficHourlyInput>
 }
 
-export type AnalyticsIngestionRunUpsertWithoutSiteTrafficReferrersInput = {
-  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficReferrersInput>
-  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficReferrersInput>
+export type AnalyticsIngestionRunUpsertWithoutSiteTrafficHourlyInput = {
+  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficHourlyInput>
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficHourlyInput>
   where?: Prisma.AnalyticsIngestionRunWhereInput
 }
 
-export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficHourlyInput = {
   where?: Prisma.AnalyticsIngestionRunWhereInput
-  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficReferrersInput>
+  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficHourlyInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficHourlyInput>
 }
 
-export type AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunUpdateWithoutSiteTrafficHourlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
@@ -2160,14 +1941,15 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2176,7 +1958,7 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficReferrersInput = {
   siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
 }
 
-export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficReferrersInput = {
+export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficHourlyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
   job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
@@ -2190,14 +1972,435 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficReferrersInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunCreateWithoutSiteTrafficCompositionInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCompositionInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunCreateOrConnectWithoutSiteTrafficCompositionInput = {
+  where: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCompositionInput>
+}
+
+export type AnalyticsIngestionRunUpsertWithoutSiteTrafficCompositionInput = {
+  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCompositionInput>
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCompositionInput>
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+}
+
+export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteTrafficCompositionInput = {
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteTrafficCompositionInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCompositionInput>
+}
+
+export type AnalyticsIngestionRunUpdateWithoutSiteTrafficCompositionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCompositionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunCreateWithoutSiteAiCrawlerStatusesInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerStatusesInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerStatusesInput = {
+  where: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerStatusesInput>
+}
+
+export type AnalyticsIngestionRunUpsertWithoutSiteAiCrawlerStatusesInput = {
+  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerStatusesInput>
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerStatusesInput>
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+}
+
+export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteAiCrawlerStatusesInput = {
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerStatusesInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerStatusesInput>
+}
+
+export type AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerStatusesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerStatusesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunCreateWithoutSiteAiCrawlerEndpointsInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerEndpointsInput = {
+  id?: string
+  source?: $Enums.AnalyticsDataSource
+  job: $Enums.AnalyticsIngestionJob
+  status?: $Enums.AnalyticsIngestionStatus
+  windowStart: Date | string
+  windowEnd: Date | string
+  startedAt?: Date | string | null
+  finishedAt?: Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+}
+
+export type AnalyticsIngestionRunCreateOrConnectWithoutSiteAiCrawlerEndpointsInput = {
+  where: Prisma.AnalyticsIngestionRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerEndpointsInput>
+}
+
+export type AnalyticsIngestionRunUpsertWithoutSiteAiCrawlerEndpointsInput = {
+  update: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerEndpointsInput>
+  create: Prisma.XOR<Prisma.AnalyticsIngestionRunCreateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedCreateWithoutSiteAiCrawlerEndpointsInput>
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+}
+
+export type AnalyticsIngestionRunUpdateToOneWithWhereWithoutSiteAiCrawlerEndpointsInput = {
+  where?: Prisma.AnalyticsIngestionRunWhereInput
+  data: Prisma.XOR<Prisma.AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerEndpointsInput, Prisma.AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerEndpointsInput>
+}
+
+export type AnalyticsIngestionRunUpdateWithoutSiteAiCrawlerEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficRegions?: Prisma.SiteTrafficRegionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficCities?: Prisma.SiteTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
+}
+
+export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteAiCrawlerEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumAnalyticsDataSourceFieldUpdateOperationsInput | $Enums.AnalyticsDataSource
+  job?: Prisma.EnumAnalyticsIngestionJobFieldUpdateOperationsInput | $Enums.AnalyticsIngestionJob
+  status?: Prisma.EnumAnalyticsIngestionStatusFieldUpdateOperationsInput | $Enums.AnalyticsIngestionStatus
+  windowStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  windowEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stats?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2220,15 +2423,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficBrowsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
@@ -2250,15 +2454,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficBrowsersInput 
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2296,15 +2501,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficBrowsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2326,15 +2532,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficBrowsersInput 
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2356,15 +2563,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficOperatingSystemsInput =
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
@@ -2386,15 +2594,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficOperatingSyste
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2432,15 +2641,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficOperatingSystemsInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2462,15 +2672,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficOperatingSyste
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2492,15 +2703,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficDevicesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
@@ -2522,15 +2734,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficDevicesInput =
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2568,15 +2781,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficDevicesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2598,15 +2812,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficDevicesInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficCountries?: Prisma.SiteTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2628,15 +2843,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficCountriesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -2658,15 +2874,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCountriesInput
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2704,15 +2921,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficCountriesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2734,15 +2952,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCountriesInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2764,15 +2983,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficRegionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -2794,15 +3014,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficRegionsInput =
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2840,15 +3061,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficRegionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -2870,15 +3092,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficRegionsInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -2900,15 +3123,16 @@ export type AnalyticsIngestionRunCreateWithoutSiteTrafficCitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyCreateNestedManyWithoutIngestionRunInput
@@ -2930,15 +3154,16 @@ export type AnalyticsIngestionRunUncheckedCreateWithoutSiteTrafficCitiesInput = 
   createdAt?: Date | string
   updatedAt?: Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedCreateNestedManyWithoutIngestionRunInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedCreateNestedManyWithoutIngestionRunInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutIngestionRunInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedCreateNestedManyWithoutIngestionRunInput
@@ -2976,15 +3201,16 @@ export type AnalyticsIngestionRunUpdateWithoutSiteTrafficCitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUpdateManyWithoutIngestionRunNestedInput
@@ -3006,15 +3232,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCitiesInput = 
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productTrafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  productTrafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   productTrafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDaily?: Prisma.SiteTrafficDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
-  siteTrafficReferrers?: Prisma.SiteTrafficReferrerDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteTrafficComposition?: Prisma.SiteTrafficCompositionDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerStatuses?: Prisma.SiteAiCrawlerStatusDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
+  siteAiCrawlerEndpoints?: Prisma.SiteAiCrawlerEndpointDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficBrowsers?: Prisma.SiteTrafficBrowserDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficOperatingSystems?: Prisma.SiteTrafficOperatingSystemDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
   siteTrafficDevices?: Prisma.SiteTrafficDeviceDailyUncheckedUpdateManyWithoutIngestionRunNestedInput
@@ -3029,15 +3256,16 @@ export type AnalyticsIngestionRunUncheckedUpdateWithoutSiteTrafficCitiesInput = 
 
 export type AnalyticsIngestionRunCountOutputType = {
   productTrafficDaily: number
-  productTrafficReferrers: number
-  productTrafficChannels: number
   productTrafficBrowsers: number
   productTrafficOperatingSystems: number
   productTrafficDevices: number
   productTrafficCountries: number
   productTrafficCities: number
   siteTrafficDaily: number
-  siteTrafficReferrers: number
+  siteTrafficHourly: number
+  siteTrafficComposition: number
+  siteAiCrawlerStatuses: number
+  siteAiCrawlerEndpoints: number
   siteTrafficBrowsers: number
   siteTrafficOperatingSystems: number
   siteTrafficDevices: number
@@ -3048,15 +3276,16 @@ export type AnalyticsIngestionRunCountOutputType = {
 
 export type AnalyticsIngestionRunCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productTrafficDaily?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficDailyArgs
-  productTrafficReferrers?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficReferrersArgs
-  productTrafficChannels?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficChannelsArgs
   productTrafficBrowsers?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficBrowsersArgs
   productTrafficOperatingSystems?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficOperatingSystemsArgs
   productTrafficDevices?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficDevicesArgs
   productTrafficCountries?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficCountriesArgs
   productTrafficCities?: boolean | AnalyticsIngestionRunCountOutputTypeCountProductTrafficCitiesArgs
   siteTrafficDaily?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficDailyArgs
-  siteTrafficReferrers?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficReferrersArgs
+  siteTrafficHourly?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficHourlyArgs
+  siteTrafficComposition?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficCompositionArgs
+  siteAiCrawlerStatuses?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteAiCrawlerStatusesArgs
+  siteAiCrawlerEndpoints?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteAiCrawlerEndpointsArgs
   siteTrafficBrowsers?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficBrowsersArgs
   siteTrafficOperatingSystems?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficOperatingSystemsArgs
   siteTrafficDevices?: boolean | AnalyticsIngestionRunCountOutputTypeCountSiteTrafficDevicesArgs
@@ -3080,20 +3309,6 @@ export type AnalyticsIngestionRunCountOutputTypeDefaultArgs<ExtArgs extends runt
  */
 export type AnalyticsIngestionRunCountOutputTypeCountProductTrafficDailyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductTrafficDailyWhereInput
-}
-
-/**
- * AnalyticsIngestionRunCountOutputType without action
- */
-export type AnalyticsIngestionRunCountOutputTypeCountProductTrafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductTrafficReferrerDailyWhereInput
-}
-
-/**
- * AnalyticsIngestionRunCountOutputType without action
- */
-export type AnalyticsIngestionRunCountOutputTypeCountProductTrafficChannelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductTrafficChannelDailyWhereInput
 }
 
 /**
@@ -3141,8 +3356,29 @@ export type AnalyticsIngestionRunCountOutputTypeCountSiteTrafficDailyArgs<ExtArg
 /**
  * AnalyticsIngestionRunCountOutputType without action
  */
-export type AnalyticsIngestionRunCountOutputTypeCountSiteTrafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SiteTrafficReferrerDailyWhereInput
+export type AnalyticsIngestionRunCountOutputTypeCountSiteTrafficHourlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SiteTrafficHourlyWhereInput
+}
+
+/**
+ * AnalyticsIngestionRunCountOutputType without action
+ */
+export type AnalyticsIngestionRunCountOutputTypeCountSiteTrafficCompositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SiteTrafficCompositionDailyWhereInput
+}
+
+/**
+ * AnalyticsIngestionRunCountOutputType without action
+ */
+export type AnalyticsIngestionRunCountOutputTypeCountSiteAiCrawlerStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SiteAiCrawlerStatusDailyWhereInput
+}
+
+/**
+ * AnalyticsIngestionRunCountOutputType without action
+ */
+export type AnalyticsIngestionRunCountOutputTypeCountSiteAiCrawlerEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SiteAiCrawlerEndpointDailyWhereInput
 }
 
 /**
@@ -3202,15 +3438,16 @@ export type AnalyticsIngestionRunSelect<ExtArgs extends runtime.Types.Extensions
   createdAt?: boolean
   updatedAt?: boolean
   productTrafficDaily?: boolean | Prisma.AnalyticsIngestionRun$productTrafficDailyArgs<ExtArgs>
-  productTrafficReferrers?: boolean | Prisma.AnalyticsIngestionRun$productTrafficReferrersArgs<ExtArgs>
-  productTrafficChannels?: boolean | Prisma.AnalyticsIngestionRun$productTrafficChannelsArgs<ExtArgs>
   productTrafficBrowsers?: boolean | Prisma.AnalyticsIngestionRun$productTrafficBrowsersArgs<ExtArgs>
   productTrafficOperatingSystems?: boolean | Prisma.AnalyticsIngestionRun$productTrafficOperatingSystemsArgs<ExtArgs>
   productTrafficDevices?: boolean | Prisma.AnalyticsIngestionRun$productTrafficDevicesArgs<ExtArgs>
   productTrafficCountries?: boolean | Prisma.AnalyticsIngestionRun$productTrafficCountriesArgs<ExtArgs>
   productTrafficCities?: boolean | Prisma.AnalyticsIngestionRun$productTrafficCitiesArgs<ExtArgs>
   siteTrafficDaily?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficDailyArgs<ExtArgs>
-  siteTrafficReferrers?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficReferrersArgs<ExtArgs>
+  siteTrafficHourly?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficHourlyArgs<ExtArgs>
+  siteTrafficComposition?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficCompositionArgs<ExtArgs>
+  siteAiCrawlerStatuses?: boolean | Prisma.AnalyticsIngestionRun$siteAiCrawlerStatusesArgs<ExtArgs>
+  siteAiCrawlerEndpoints?: boolean | Prisma.AnalyticsIngestionRun$siteAiCrawlerEndpointsArgs<ExtArgs>
   siteTrafficBrowsers?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficBrowsersArgs<ExtArgs>
   siteTrafficOperatingSystems?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficOperatingSystemsArgs<ExtArgs>
   siteTrafficDevices?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficDevicesArgs<ExtArgs>
@@ -3268,15 +3505,16 @@ export type AnalyticsIngestionRunSelectScalar = {
 export type AnalyticsIngestionRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "source" | "job" | "status" | "windowStart" | "windowEnd" | "startedAt" | "finishedAt" | "stats" | "error" | "createdAt" | "updatedAt", ExtArgs["result"]["analyticsIngestionRun"]>
 export type AnalyticsIngestionRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productTrafficDaily?: boolean | Prisma.AnalyticsIngestionRun$productTrafficDailyArgs<ExtArgs>
-  productTrafficReferrers?: boolean | Prisma.AnalyticsIngestionRun$productTrafficReferrersArgs<ExtArgs>
-  productTrafficChannels?: boolean | Prisma.AnalyticsIngestionRun$productTrafficChannelsArgs<ExtArgs>
   productTrafficBrowsers?: boolean | Prisma.AnalyticsIngestionRun$productTrafficBrowsersArgs<ExtArgs>
   productTrafficOperatingSystems?: boolean | Prisma.AnalyticsIngestionRun$productTrafficOperatingSystemsArgs<ExtArgs>
   productTrafficDevices?: boolean | Prisma.AnalyticsIngestionRun$productTrafficDevicesArgs<ExtArgs>
   productTrafficCountries?: boolean | Prisma.AnalyticsIngestionRun$productTrafficCountriesArgs<ExtArgs>
   productTrafficCities?: boolean | Prisma.AnalyticsIngestionRun$productTrafficCitiesArgs<ExtArgs>
   siteTrafficDaily?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficDailyArgs<ExtArgs>
-  siteTrafficReferrers?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficReferrersArgs<ExtArgs>
+  siteTrafficHourly?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficHourlyArgs<ExtArgs>
+  siteTrafficComposition?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficCompositionArgs<ExtArgs>
+  siteAiCrawlerStatuses?: boolean | Prisma.AnalyticsIngestionRun$siteAiCrawlerStatusesArgs<ExtArgs>
+  siteAiCrawlerEndpoints?: boolean | Prisma.AnalyticsIngestionRun$siteAiCrawlerEndpointsArgs<ExtArgs>
   siteTrafficBrowsers?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficBrowsersArgs<ExtArgs>
   siteTrafficOperatingSystems?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficOperatingSystemsArgs<ExtArgs>
   siteTrafficDevices?: boolean | Prisma.AnalyticsIngestionRun$siteTrafficDevicesArgs<ExtArgs>
@@ -3292,15 +3530,16 @@ export type $AnalyticsIngestionRunPayload<ExtArgs extends runtime.Types.Extensio
   name: "AnalyticsIngestionRun"
   objects: {
     productTrafficDaily: Prisma.$ProductTrafficDailyPayload<ExtArgs>[]
-    productTrafficReferrers: Prisma.$ProductTrafficReferrerDailyPayload<ExtArgs>[]
-    productTrafficChannels: Prisma.$ProductTrafficChannelDailyPayload<ExtArgs>[]
     productTrafficBrowsers: Prisma.$ProductTrafficBrowserDailyPayload<ExtArgs>[]
     productTrafficOperatingSystems: Prisma.$ProductTrafficOperatingSystemDailyPayload<ExtArgs>[]
     productTrafficDevices: Prisma.$ProductTrafficDeviceDailyPayload<ExtArgs>[]
     productTrafficCountries: Prisma.$ProductTrafficCountryDailyPayload<ExtArgs>[]
     productTrafficCities: Prisma.$ProductTrafficCityDailyPayload<ExtArgs>[]
     siteTrafficDaily: Prisma.$SiteTrafficDailyPayload<ExtArgs>[]
-    siteTrafficReferrers: Prisma.$SiteTrafficReferrerDailyPayload<ExtArgs>[]
+    siteTrafficHourly: Prisma.$SiteTrafficHourlyPayload<ExtArgs>[]
+    siteTrafficComposition: Prisma.$SiteTrafficCompositionDailyPayload<ExtArgs>[]
+    siteAiCrawlerStatuses: Prisma.$SiteAiCrawlerStatusDailyPayload<ExtArgs>[]
+    siteAiCrawlerEndpoints: Prisma.$SiteAiCrawlerEndpointDailyPayload<ExtArgs>[]
     siteTrafficBrowsers: Prisma.$SiteTrafficBrowserDailyPayload<ExtArgs>[]
     siteTrafficOperatingSystems: Prisma.$SiteTrafficOperatingSystemDailyPayload<ExtArgs>[]
     siteTrafficDevices: Prisma.$SiteTrafficDeviceDailyPayload<ExtArgs>[]
@@ -3716,15 +3955,16 @@ readonly fields: AnalyticsIngestionRunFieldRefs;
 export interface Prisma__AnalyticsIngestionRunClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   productTrafficDaily<T extends Prisma.AnalyticsIngestionRun$productTrafficDailyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficDailyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  productTrafficReferrers<T extends Prisma.AnalyticsIngestionRun$productTrafficReferrersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficReferrersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficReferrerDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  productTrafficChannels<T extends Prisma.AnalyticsIngestionRun$productTrafficChannelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficChannelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficChannelDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productTrafficBrowsers<T extends Prisma.AnalyticsIngestionRun$productTrafficBrowsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficBrowsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficBrowserDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productTrafficOperatingSystems<T extends Prisma.AnalyticsIngestionRun$productTrafficOperatingSystemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficOperatingSystemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficOperatingSystemDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productTrafficDevices<T extends Prisma.AnalyticsIngestionRun$productTrafficDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficDeviceDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productTrafficCountries<T extends Prisma.AnalyticsIngestionRun$productTrafficCountriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficCountriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficCountryDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productTrafficCities<T extends Prisma.AnalyticsIngestionRun$productTrafficCitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$productTrafficCitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficCityDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   siteTrafficDaily<T extends Prisma.AnalyticsIngestionRun$siteTrafficDailyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficDailyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  siteTrafficReferrers<T extends Prisma.AnalyticsIngestionRun$siteTrafficReferrersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficReferrersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficReferrerDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  siteTrafficHourly<T extends Prisma.AnalyticsIngestionRun$siteTrafficHourlyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficHourlyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficHourlyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  siteTrafficComposition<T extends Prisma.AnalyticsIngestionRun$siteTrafficCompositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficCompositionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficCompositionDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  siteAiCrawlerStatuses<T extends Prisma.AnalyticsIngestionRun$siteAiCrawlerStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteAiCrawlerStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteAiCrawlerStatusDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  siteAiCrawlerEndpoints<T extends Prisma.AnalyticsIngestionRun$siteAiCrawlerEndpointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteAiCrawlerEndpointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteAiCrawlerEndpointDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   siteTrafficBrowsers<T extends Prisma.AnalyticsIngestionRun$siteTrafficBrowsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficBrowsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficBrowserDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   siteTrafficOperatingSystems<T extends Prisma.AnalyticsIngestionRun$siteTrafficOperatingSystemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficOperatingSystemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficOperatingSystemDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   siteTrafficDevices<T extends Prisma.AnalyticsIngestionRun$siteTrafficDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AnalyticsIngestionRun$siteTrafficDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SiteTrafficDeviceDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4189,54 +4429,6 @@ export type AnalyticsIngestionRun$productTrafficDailyArgs<ExtArgs extends runtim
 }
 
 /**
- * AnalyticsIngestionRun.productTrafficReferrers
- */
-export type AnalyticsIngestionRun$productTrafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductTrafficReferrerDaily
-   */
-  select?: Prisma.ProductTrafficReferrerDailySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductTrafficReferrerDaily
-   */
-  omit?: Prisma.ProductTrafficReferrerDailyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductTrafficReferrerDailyInclude<ExtArgs> | null
-  where?: Prisma.ProductTrafficReferrerDailyWhereInput
-  orderBy?: Prisma.ProductTrafficReferrerDailyOrderByWithRelationInput | Prisma.ProductTrafficReferrerDailyOrderByWithRelationInput[]
-  cursor?: Prisma.ProductTrafficReferrerDailyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductTrafficReferrerDailyScalarFieldEnum | Prisma.ProductTrafficReferrerDailyScalarFieldEnum[]
-}
-
-/**
- * AnalyticsIngestionRun.productTrafficChannels
- */
-export type AnalyticsIngestionRun$productTrafficChannelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductTrafficChannelDaily
-   */
-  select?: Prisma.ProductTrafficChannelDailySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductTrafficChannelDaily
-   */
-  omit?: Prisma.ProductTrafficChannelDailyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductTrafficChannelDailyInclude<ExtArgs> | null
-  where?: Prisma.ProductTrafficChannelDailyWhereInput
-  orderBy?: Prisma.ProductTrafficChannelDailyOrderByWithRelationInput | Prisma.ProductTrafficChannelDailyOrderByWithRelationInput[]
-  cursor?: Prisma.ProductTrafficChannelDailyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductTrafficChannelDailyScalarFieldEnum | Prisma.ProductTrafficChannelDailyScalarFieldEnum[]
-}
-
-/**
  * AnalyticsIngestionRun.productTrafficBrowsers
  */
 export type AnalyticsIngestionRun$productTrafficBrowsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4381,27 +4573,99 @@ export type AnalyticsIngestionRun$siteTrafficDailyArgs<ExtArgs extends runtime.T
 }
 
 /**
- * AnalyticsIngestionRun.siteTrafficReferrers
+ * AnalyticsIngestionRun.siteTrafficHourly
  */
-export type AnalyticsIngestionRun$siteTrafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type AnalyticsIngestionRun$siteTrafficHourlyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SiteTrafficReferrerDaily
+   * Select specific fields to fetch from the SiteTrafficHourly
    */
-  select?: Prisma.SiteTrafficReferrerDailySelect<ExtArgs> | null
+  select?: Prisma.SiteTrafficHourlySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SiteTrafficReferrerDaily
+   * Omit specific fields from the SiteTrafficHourly
    */
-  omit?: Prisma.SiteTrafficReferrerDailyOmit<ExtArgs> | null
+  omit?: Prisma.SiteTrafficHourlyOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SiteTrafficReferrerDailyInclude<ExtArgs> | null
-  where?: Prisma.SiteTrafficReferrerDailyWhereInput
-  orderBy?: Prisma.SiteTrafficReferrerDailyOrderByWithRelationInput | Prisma.SiteTrafficReferrerDailyOrderByWithRelationInput[]
-  cursor?: Prisma.SiteTrafficReferrerDailyWhereUniqueInput
+  include?: Prisma.SiteTrafficHourlyInclude<ExtArgs> | null
+  where?: Prisma.SiteTrafficHourlyWhereInput
+  orderBy?: Prisma.SiteTrafficHourlyOrderByWithRelationInput | Prisma.SiteTrafficHourlyOrderByWithRelationInput[]
+  cursor?: Prisma.SiteTrafficHourlyWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SiteTrafficReferrerDailyScalarFieldEnum | Prisma.SiteTrafficReferrerDailyScalarFieldEnum[]
+  distinct?: Prisma.SiteTrafficHourlyScalarFieldEnum | Prisma.SiteTrafficHourlyScalarFieldEnum[]
+}
+
+/**
+ * AnalyticsIngestionRun.siteTrafficComposition
+ */
+export type AnalyticsIngestionRun$siteTrafficCompositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SiteTrafficCompositionDaily
+   */
+  select?: Prisma.SiteTrafficCompositionDailySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SiteTrafficCompositionDaily
+   */
+  omit?: Prisma.SiteTrafficCompositionDailyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SiteTrafficCompositionDailyInclude<ExtArgs> | null
+  where?: Prisma.SiteTrafficCompositionDailyWhereInput
+  orderBy?: Prisma.SiteTrafficCompositionDailyOrderByWithRelationInput | Prisma.SiteTrafficCompositionDailyOrderByWithRelationInput[]
+  cursor?: Prisma.SiteTrafficCompositionDailyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SiteTrafficCompositionDailyScalarFieldEnum | Prisma.SiteTrafficCompositionDailyScalarFieldEnum[]
+}
+
+/**
+ * AnalyticsIngestionRun.siteAiCrawlerStatuses
+ */
+export type AnalyticsIngestionRun$siteAiCrawlerStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SiteAiCrawlerStatusDaily
+   */
+  select?: Prisma.SiteAiCrawlerStatusDailySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SiteAiCrawlerStatusDaily
+   */
+  omit?: Prisma.SiteAiCrawlerStatusDailyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SiteAiCrawlerStatusDailyInclude<ExtArgs> | null
+  where?: Prisma.SiteAiCrawlerStatusDailyWhereInput
+  orderBy?: Prisma.SiteAiCrawlerStatusDailyOrderByWithRelationInput | Prisma.SiteAiCrawlerStatusDailyOrderByWithRelationInput[]
+  cursor?: Prisma.SiteAiCrawlerStatusDailyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SiteAiCrawlerStatusDailyScalarFieldEnum | Prisma.SiteAiCrawlerStatusDailyScalarFieldEnum[]
+}
+
+/**
+ * AnalyticsIngestionRun.siteAiCrawlerEndpoints
+ */
+export type AnalyticsIngestionRun$siteAiCrawlerEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SiteAiCrawlerEndpointDaily
+   */
+  select?: Prisma.SiteAiCrawlerEndpointDailySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SiteAiCrawlerEndpointDaily
+   */
+  omit?: Prisma.SiteAiCrawlerEndpointDailyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SiteAiCrawlerEndpointDailyInclude<ExtArgs> | null
+  where?: Prisma.SiteAiCrawlerEndpointDailyWhereInput
+  orderBy?: Prisma.SiteAiCrawlerEndpointDailyOrderByWithRelationInput | Prisma.SiteAiCrawlerEndpointDailyOrderByWithRelationInput[]
+  cursor?: Prisma.SiteAiCrawlerEndpointDailyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SiteAiCrawlerEndpointDailyScalarFieldEnum | Prisma.SiteAiCrawlerEndpointDailyScalarFieldEnum[]
 }
 
 /**

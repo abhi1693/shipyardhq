@@ -63,15 +63,16 @@ export const ModelName = {
   ProductAnalytics: 'ProductAnalytics',
   AnalyticsIngestionRun: 'AnalyticsIngestionRun',
   ProductTrafficDaily: 'ProductTrafficDaily',
-  ProductTrafficReferrerDaily: 'ProductTrafficReferrerDaily',
-  ProductTrafficChannelDaily: 'ProductTrafficChannelDaily',
   ProductTrafficBrowserDaily: 'ProductTrafficBrowserDaily',
   ProductTrafficOperatingSystemDaily: 'ProductTrafficOperatingSystemDaily',
   ProductTrafficDeviceDaily: 'ProductTrafficDeviceDaily',
   ProductTrafficCountryDaily: 'ProductTrafficCountryDaily',
   ProductTrafficCityDaily: 'ProductTrafficCityDaily',
   SiteTrafficDaily: 'SiteTrafficDaily',
-  SiteTrafficReferrerDaily: 'SiteTrafficReferrerDaily',
+  SiteTrafficHourly: 'SiteTrafficHourly',
+  SiteTrafficCompositionDaily: 'SiteTrafficCompositionDaily',
+  SiteAiCrawlerStatusDaily: 'SiteAiCrawlerStatusDaily',
+  SiteAiCrawlerEndpointDaily: 'SiteAiCrawlerEndpointDaily',
   SiteTrafficBrowserDaily: 'SiteTrafficBrowserDaily',
   SiteTrafficOperatingSystemDaily: 'SiteTrafficOperatingSystemDaily',
   SiteTrafficDeviceDaily: 'SiteTrafficDeviceDaily',
@@ -299,6 +300,8 @@ export const ProductTrafficDailyScalarFieldEnum = {
   source: 'source',
   pageViews: 'pageViews',
   uniqueVisitors: 'uniqueVisitors',
+  browserRequests: 'browserRequests',
+  browserVisits: 'browserVisits',
   sessions: 'sessions',
   bounceRate: 'bounceRate',
   averageSessionDuration: 'averageSessionDuration',
@@ -312,36 +315,6 @@ export const ProductTrafficDailyScalarFieldEnum = {
 } as const
 
 export type ProductTrafficDailyScalarFieldEnum = (typeof ProductTrafficDailyScalarFieldEnum)[keyof typeof ProductTrafficDailyScalarFieldEnum]
-
-
-export const ProductTrafficReferrerDailyScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  date: 'date',
-  source: 'source',
-  referrer: 'referrer',
-  pageViews: 'pageViews',
-  ingestionRunId: 'ingestionRunId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductTrafficReferrerDailyScalarFieldEnum = (typeof ProductTrafficReferrerDailyScalarFieldEnum)[keyof typeof ProductTrafficReferrerDailyScalarFieldEnum]
-
-
-export const ProductTrafficChannelDailyScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  date: 'date',
-  source: 'source',
-  channel: 'channel',
-  pageViews: 'pageViews',
-  ingestionRunId: 'ingestionRunId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductTrafficChannelDailyScalarFieldEnum = (typeof ProductTrafficChannelDailyScalarFieldEnum)[keyof typeof ProductTrafficChannelDailyScalarFieldEnum]
 
 
 export const ProductTrafficBrowserDailyScalarFieldEnum = {
@@ -444,18 +417,66 @@ export const SiteTrafficDailyScalarFieldEnum = {
 export type SiteTrafficDailyScalarFieldEnum = (typeof SiteTrafficDailyScalarFieldEnum)[keyof typeof SiteTrafficDailyScalarFieldEnum]
 
 
-export const SiteTrafficReferrerDailyScalarFieldEnum = {
+export const SiteTrafficHourlyScalarFieldEnum = {
   id: 'id',
-  date: 'date',
+  timestamp: 'timestamp',
   source: 'source',
-  referrer: 'referrer',
-  pageViews: 'pageViews',
+  requests: 'requests',
+  visits: 'visits',
   ingestionRunId: 'ingestionRunId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type SiteTrafficReferrerDailyScalarFieldEnum = (typeof SiteTrafficReferrerDailyScalarFieldEnum)[keyof typeof SiteTrafficReferrerDailyScalarFieldEnum]
+export type SiteTrafficHourlyScalarFieldEnum = (typeof SiteTrafficHourlyScalarFieldEnum)[keyof typeof SiteTrafficHourlyScalarFieldEnum]
+
+
+export const SiteTrafficCompositionDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  segment: 'segment',
+  category: 'category',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficCompositionDailyScalarFieldEnum = (typeof SiteTrafficCompositionDailyScalarFieldEnum)[keyof typeof SiteTrafficCompositionDailyScalarFieldEnum]
+
+
+export const SiteAiCrawlerStatusDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  category: 'category',
+  crawlStatus: 'crawlStatus',
+  responseStatus: 'responseStatus',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteAiCrawlerStatusDailyScalarFieldEnum = (typeof SiteAiCrawlerStatusDailyScalarFieldEnum)[keyof typeof SiteAiCrawlerStatusDailyScalarFieldEnum]
+
+
+export const SiteAiCrawlerEndpointDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  category: 'category',
+  endpoint: 'endpoint',
+  matchedEndpoint: 'matchedEndpoint',
+  managedLabels: 'managedLabels',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteAiCrawlerEndpointDailyScalarFieldEnum = (typeof SiteAiCrawlerEndpointDailyScalarFieldEnum)[keyof typeof SiteAiCrawlerEndpointDailyScalarFieldEnum]
 
 
 export const SiteTrafficBrowserDailyScalarFieldEnum = {

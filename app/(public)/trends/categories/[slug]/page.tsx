@@ -3,6 +3,10 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import prisma from "@/lib/prisma"
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  ANALYTICS_REPORTING_WINDOW_LABEL,
+} from "@/lib/analytics/reportingWindow"
 import { getCategoryStaticParams } from "@/lib/categories/page-cache"
 import {
   getProductInterestSignalsMap,
@@ -49,13 +53,11 @@ export async function generateStaticParams() {
   return getCategoryStaticParams()
 }
 
-const TREND_WINDOW_DAYS = 7
-
 const buildTrendingCategoryDescription = (
   categoryName: string,
   categoryDescription?: string | null,
 ) => {
-  const fallback = `Track trending ${categoryName.toLowerCase()} tools on Shipyard over the last ${TREND_WINDOW_DAYS} days. Browse launched apps, SaaS products, APIs, and startup projects gaining momentum.`
+  const fallback = `Track trending ${categoryName.toLowerCase()} tools on Shipyard over the last ${ANALYTICS_REPORTING_WINDOW_DAYS} days. Browse launched apps, SaaS products, APIs, and startup projects gaining momentum.`
   const baseDescription = categoryDescription?.trim()
 
   return (
@@ -122,7 +124,7 @@ async function TrendingToolsInCategoryPageContent({
 
   const trendsSnapshot = await getTrendingCategoryProductSnapshot({
     categorySlug: category.slug,
-    days: TREND_WINDOW_DAYS,
+    days: ANALYTICS_REPORTING_WINDOW_DAYS,
     limit: 60,
   })
   const ids = trendsSnapshot.productIds
@@ -252,7 +254,7 @@ async function TrendingToolsInCategoryPageContent({
       }}
       stats={[
         { label: "Trending Tools", value: items.length },
-        { label: "Window", value: `${TREND_WINDOW_DAYS}D` },
+        { label: "Window", value: `${ANALYTICS_REPORTING_WINDOW_DAYS}D` },
       ]}
       feed={<TrendingCategoryFeed products={feedItems} />}
       feedTestId="trending-category-feed-section"
@@ -276,7 +278,7 @@ function TrendingCategoryFeed({ products }: { products: HomepageFeedItem[] }) {
     <section className="space-y-3">
       <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-4">
         <h2 className="text-2xl font-semibold tracking-tight text-black">
-          Most clicked this week
+          Most viewed, {ANALYTICS_REPORTING_WINDOW_LABEL.toLowerCase()}
         </h2>
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#43474c]">
           {products.length} {pluralize(products.length, "tool")}

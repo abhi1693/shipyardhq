@@ -396,15 +396,16 @@ export const ModelName = {
   ProductAnalytics: 'ProductAnalytics',
   AnalyticsIngestionRun: 'AnalyticsIngestionRun',
   ProductTrafficDaily: 'ProductTrafficDaily',
-  ProductTrafficReferrerDaily: 'ProductTrafficReferrerDaily',
-  ProductTrafficChannelDaily: 'ProductTrafficChannelDaily',
   ProductTrafficBrowserDaily: 'ProductTrafficBrowserDaily',
   ProductTrafficOperatingSystemDaily: 'ProductTrafficOperatingSystemDaily',
   ProductTrafficDeviceDaily: 'ProductTrafficDeviceDaily',
   ProductTrafficCountryDaily: 'ProductTrafficCountryDaily',
   ProductTrafficCityDaily: 'ProductTrafficCityDaily',
   SiteTrafficDaily: 'SiteTrafficDaily',
-  SiteTrafficReferrerDaily: 'SiteTrafficReferrerDaily',
+  SiteTrafficHourly: 'SiteTrafficHourly',
+  SiteTrafficCompositionDaily: 'SiteTrafficCompositionDaily',
+  SiteAiCrawlerStatusDaily: 'SiteAiCrawlerStatusDaily',
+  SiteAiCrawlerEndpointDaily: 'SiteAiCrawlerEndpointDaily',
   SiteTrafficBrowserDaily: 'SiteTrafficBrowserDaily',
   SiteTrafficOperatingSystemDaily: 'SiteTrafficOperatingSystemDaily',
   SiteTrafficDeviceDaily: 'SiteTrafficDeviceDaily',
@@ -447,7 +448,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficReferrerDaily" | "productTrafficChannelDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficReferrerDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productPlanGrant" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
+    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficHourly" | "siteTrafficCompositionDaily" | "siteAiCrawlerStatusDaily" | "siteAiCrawlerEndpointDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productPlanGrant" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1339,154 +1340,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductTrafficReferrerDaily: {
-      payload: Prisma.$ProductTrafficReferrerDailyPayload<ExtArgs>
-      fields: Prisma.ProductTrafficReferrerDailyFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductTrafficReferrerDailyFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductTrafficReferrerDailyFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductTrafficReferrerDailyFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductTrafficReferrerDailyFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        findMany: {
-          args: Prisma.ProductTrafficReferrerDailyFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>[]
-        }
-        create: {
-          args: Prisma.ProductTrafficReferrerDailyCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        createMany: {
-          args: Prisma.ProductTrafficReferrerDailyCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductTrafficReferrerDailyCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductTrafficReferrerDailyDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        update: {
-          args: Prisma.ProductTrafficReferrerDailyUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductTrafficReferrerDailyDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductTrafficReferrerDailyUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductTrafficReferrerDailyUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductTrafficReferrerDailyUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficReferrerDailyPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductTrafficReferrerDailyAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductTrafficReferrerDaily>
-        }
-        groupBy: {
-          args: Prisma.ProductTrafficReferrerDailyGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficReferrerDailyGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductTrafficReferrerDailyCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficReferrerDailyCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProductTrafficChannelDaily: {
-      payload: Prisma.$ProductTrafficChannelDailyPayload<ExtArgs>
-      fields: Prisma.ProductTrafficChannelDailyFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProductTrafficChannelDailyFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProductTrafficChannelDailyFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        findFirst: {
-          args: Prisma.ProductTrafficChannelDailyFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProductTrafficChannelDailyFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        findMany: {
-          args: Prisma.ProductTrafficChannelDailyFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>[]
-        }
-        create: {
-          args: Prisma.ProductTrafficChannelDailyCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        createMany: {
-          args: Prisma.ProductTrafficChannelDailyCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProductTrafficChannelDailyCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>[]
-        }
-        delete: {
-          args: Prisma.ProductTrafficChannelDailyDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        update: {
-          args: Prisma.ProductTrafficChannelDailyUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProductTrafficChannelDailyDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProductTrafficChannelDailyUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProductTrafficChannelDailyUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProductTrafficChannelDailyUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductTrafficChannelDailyPayload>
-        }
-        aggregate: {
-          args: Prisma.ProductTrafficChannelDailyAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductTrafficChannelDaily>
-        }
-        groupBy: {
-          args: Prisma.ProductTrafficChannelDailyGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficChannelDailyGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProductTrafficChannelDailyCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductTrafficChannelDailyCountAggregateOutputType> | number
-        }
-      }
-    }
     ProductTrafficBrowserDaily: {
       payload: Prisma.$ProductTrafficBrowserDailyPayload<ExtArgs>
       fields: Prisma.ProductTrafficBrowserDailyFieldRefs
@@ -1931,77 +1784,299 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    SiteTrafficReferrerDaily: {
-      payload: Prisma.$SiteTrafficReferrerDailyPayload<ExtArgs>
-      fields: Prisma.SiteTrafficReferrerDailyFieldRefs
+    SiteTrafficHourly: {
+      payload: Prisma.$SiteTrafficHourlyPayload<ExtArgs>
+      fields: Prisma.SiteTrafficHourlyFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.SiteTrafficReferrerDailyFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload> | null
+          args: Prisma.SiteTrafficHourlyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.SiteTrafficReferrerDailyFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         findFirst: {
-          args: Prisma.SiteTrafficReferrerDailyFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload> | null
+          args: Prisma.SiteTrafficHourlyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.SiteTrafficReferrerDailyFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         findMany: {
-          args: Prisma.SiteTrafficReferrerDailyFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>[]
+          args: Prisma.SiteTrafficHourlyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>[]
         }
         create: {
-          args: Prisma.SiteTrafficReferrerDailyCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         createMany: {
-          args: Prisma.SiteTrafficReferrerDailyCreateManyArgs<ExtArgs>
+          args: Prisma.SiteTrafficHourlyCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.SiteTrafficReferrerDailyCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>[]
+          args: Prisma.SiteTrafficHourlyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>[]
         }
         delete: {
-          args: Prisma.SiteTrafficReferrerDailyDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         update: {
-          args: Prisma.SiteTrafficReferrerDailyUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         deleteMany: {
-          args: Prisma.SiteTrafficReferrerDailyDeleteManyArgs<ExtArgs>
+          args: Prisma.SiteTrafficHourlyDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.SiteTrafficReferrerDailyUpdateManyArgs<ExtArgs>
+          args: Prisma.SiteTrafficHourlyUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.SiteTrafficReferrerDailyUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>[]
+          args: Prisma.SiteTrafficHourlyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>[]
         }
         upsert: {
-          args: Prisma.SiteTrafficReferrerDailyUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficReferrerDailyPayload>
+          args: Prisma.SiteTrafficHourlyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficHourlyPayload>
         }
         aggregate: {
-          args: Prisma.SiteTrafficReferrerDailyAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteTrafficReferrerDaily>
+          args: Prisma.SiteTrafficHourlyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteTrafficHourly>
         }
         groupBy: {
-          args: Prisma.SiteTrafficReferrerDailyGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficReferrerDailyGroupByOutputType>[]
+          args: Prisma.SiteTrafficHourlyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficHourlyGroupByOutputType>[]
         }
         count: {
-          args: Prisma.SiteTrafficReferrerDailyCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficReferrerDailyCountAggregateOutputType> | number
+          args: Prisma.SiteTrafficHourlyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficHourlyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SiteTrafficCompositionDaily: {
+      payload: Prisma.$SiteTrafficCompositionDailyPayload<ExtArgs>
+      fields: Prisma.SiteTrafficCompositionDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteTrafficCompositionDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteTrafficCompositionDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteTrafficCompositionDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteTrafficCompositionDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        findMany: {
+          args: Prisma.SiteTrafficCompositionDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>[]
+        }
+        create: {
+          args: Prisma.SiteTrafficCompositionDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        createMany: {
+          args: Prisma.SiteTrafficCompositionDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SiteTrafficCompositionDailyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>[]
+        }
+        delete: {
+          args: Prisma.SiteTrafficCompositionDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        update: {
+          args: Prisma.SiteTrafficCompositionDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteTrafficCompositionDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteTrafficCompositionDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SiteTrafficCompositionDailyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>[]
+        }
+        upsert: {
+          args: Prisma.SiteTrafficCompositionDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteTrafficCompositionDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteTrafficCompositionDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteTrafficCompositionDaily>
+        }
+        groupBy: {
+          args: Prisma.SiteTrafficCompositionDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficCompositionDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteTrafficCompositionDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteTrafficCompositionDailyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SiteAiCrawlerStatusDaily: {
+      payload: Prisma.$SiteAiCrawlerStatusDailyPayload<ExtArgs>
+      fields: Prisma.SiteAiCrawlerStatusDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteAiCrawlerStatusDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteAiCrawlerStatusDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteAiCrawlerStatusDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteAiCrawlerStatusDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        findMany: {
+          args: Prisma.SiteAiCrawlerStatusDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>[]
+        }
+        create: {
+          args: Prisma.SiteAiCrawlerStatusDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        createMany: {
+          args: Prisma.SiteAiCrawlerStatusDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SiteAiCrawlerStatusDailyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>[]
+        }
+        delete: {
+          args: Prisma.SiteAiCrawlerStatusDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        update: {
+          args: Prisma.SiteAiCrawlerStatusDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteAiCrawlerStatusDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteAiCrawlerStatusDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SiteAiCrawlerStatusDailyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>[]
+        }
+        upsert: {
+          args: Prisma.SiteAiCrawlerStatusDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerStatusDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteAiCrawlerStatusDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteAiCrawlerStatusDaily>
+        }
+        groupBy: {
+          args: Prisma.SiteAiCrawlerStatusDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteAiCrawlerStatusDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteAiCrawlerStatusDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteAiCrawlerStatusDailyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SiteAiCrawlerEndpointDaily: {
+      payload: Prisma.$SiteAiCrawlerEndpointDailyPayload<ExtArgs>
+      fields: Prisma.SiteAiCrawlerEndpointDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteAiCrawlerEndpointDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteAiCrawlerEndpointDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteAiCrawlerEndpointDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteAiCrawlerEndpointDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        findMany: {
+          args: Prisma.SiteAiCrawlerEndpointDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>[]
+        }
+        create: {
+          args: Prisma.SiteAiCrawlerEndpointDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        createMany: {
+          args: Prisma.SiteAiCrawlerEndpointDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SiteAiCrawlerEndpointDailyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>[]
+        }
+        delete: {
+          args: Prisma.SiteAiCrawlerEndpointDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        update: {
+          args: Prisma.SiteAiCrawlerEndpointDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteAiCrawlerEndpointDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteAiCrawlerEndpointDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SiteAiCrawlerEndpointDailyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>[]
+        }
+        upsert: {
+          args: Prisma.SiteAiCrawlerEndpointDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteAiCrawlerEndpointDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteAiCrawlerEndpointDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteAiCrawlerEndpointDaily>
+        }
+        groupBy: {
+          args: Prisma.SiteAiCrawlerEndpointDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteAiCrawlerEndpointDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteAiCrawlerEndpointDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteAiCrawlerEndpointDailyCountAggregateOutputType> | number
         }
       }
     }
@@ -4224,6 +4299,8 @@ export const ProductTrafficDailyScalarFieldEnum = {
   source: 'source',
   pageViews: 'pageViews',
   uniqueVisitors: 'uniqueVisitors',
+  browserRequests: 'browserRequests',
+  browserVisits: 'browserVisits',
   sessions: 'sessions',
   bounceRate: 'bounceRate',
   averageSessionDuration: 'averageSessionDuration',
@@ -4237,36 +4314,6 @@ export const ProductTrafficDailyScalarFieldEnum = {
 } as const
 
 export type ProductTrafficDailyScalarFieldEnum = (typeof ProductTrafficDailyScalarFieldEnum)[keyof typeof ProductTrafficDailyScalarFieldEnum]
-
-
-export const ProductTrafficReferrerDailyScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  date: 'date',
-  source: 'source',
-  referrer: 'referrer',
-  pageViews: 'pageViews',
-  ingestionRunId: 'ingestionRunId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductTrafficReferrerDailyScalarFieldEnum = (typeof ProductTrafficReferrerDailyScalarFieldEnum)[keyof typeof ProductTrafficReferrerDailyScalarFieldEnum]
-
-
-export const ProductTrafficChannelDailyScalarFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  date: 'date',
-  source: 'source',
-  channel: 'channel',
-  pageViews: 'pageViews',
-  ingestionRunId: 'ingestionRunId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductTrafficChannelDailyScalarFieldEnum = (typeof ProductTrafficChannelDailyScalarFieldEnum)[keyof typeof ProductTrafficChannelDailyScalarFieldEnum]
 
 
 export const ProductTrafficBrowserDailyScalarFieldEnum = {
@@ -4369,18 +4416,66 @@ export const SiteTrafficDailyScalarFieldEnum = {
 export type SiteTrafficDailyScalarFieldEnum = (typeof SiteTrafficDailyScalarFieldEnum)[keyof typeof SiteTrafficDailyScalarFieldEnum]
 
 
-export const SiteTrafficReferrerDailyScalarFieldEnum = {
+export const SiteTrafficHourlyScalarFieldEnum = {
   id: 'id',
-  date: 'date',
+  timestamp: 'timestamp',
   source: 'source',
-  referrer: 'referrer',
-  pageViews: 'pageViews',
+  requests: 'requests',
+  visits: 'visits',
   ingestionRunId: 'ingestionRunId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type SiteTrafficReferrerDailyScalarFieldEnum = (typeof SiteTrafficReferrerDailyScalarFieldEnum)[keyof typeof SiteTrafficReferrerDailyScalarFieldEnum]
+export type SiteTrafficHourlyScalarFieldEnum = (typeof SiteTrafficHourlyScalarFieldEnum)[keyof typeof SiteTrafficHourlyScalarFieldEnum]
+
+
+export const SiteTrafficCompositionDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  segment: 'segment',
+  category: 'category',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteTrafficCompositionDailyScalarFieldEnum = (typeof SiteTrafficCompositionDailyScalarFieldEnum)[keyof typeof SiteTrafficCompositionDailyScalarFieldEnum]
+
+
+export const SiteAiCrawlerStatusDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  category: 'category',
+  crawlStatus: 'crawlStatus',
+  responseStatus: 'responseStatus',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteAiCrawlerStatusDailyScalarFieldEnum = (typeof SiteAiCrawlerStatusDailyScalarFieldEnum)[keyof typeof SiteAiCrawlerStatusDailyScalarFieldEnum]
+
+
+export const SiteAiCrawlerEndpointDailyScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  source: 'source',
+  category: 'category',
+  endpoint: 'endpoint',
+  matchedEndpoint: 'matchedEndpoint',
+  managedLabels: 'managedLabels',
+  requests: 'requests',
+  ingestionRunId: 'ingestionRunId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteAiCrawlerEndpointDailyScalarFieldEnum = (typeof SiteAiCrawlerEndpointDailyScalarFieldEnum)[keyof typeof SiteAiCrawlerEndpointDailyScalarFieldEnum]
 
 
 export const SiteTrafficBrowserDailyScalarFieldEnum = {
@@ -5121,28 +5216,28 @@ export type ListEnumTimeIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'ProductPlanGrantSource'
  */
 export type EnumProductPlanGrantSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantSource'>
-
+    
 
 
 /**
  * Reference to a field of type 'ProductPlanGrantSource[]'
  */
 export type ListEnumProductPlanGrantSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantSource[]'>
-
+    
 
 
 /**
  * Reference to a field of type 'ProductPlanGrantStatus'
  */
 export type EnumProductPlanGrantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantStatus'>
-
+    
 
 
 /**
  * Reference to a field of type 'ProductPlanGrantStatus[]'
  */
 export type ListEnumProductPlanGrantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductPlanGrantStatus[]'>
-
+    
 
 
 /**
@@ -5392,15 +5487,16 @@ export type GlobalOmitConfig = {
   productAnalytics?: Prisma.ProductAnalyticsOmit
   analyticsIngestionRun?: Prisma.AnalyticsIngestionRunOmit
   productTrafficDaily?: Prisma.ProductTrafficDailyOmit
-  productTrafficReferrerDaily?: Prisma.ProductTrafficReferrerDailyOmit
-  productTrafficChannelDaily?: Prisma.ProductTrafficChannelDailyOmit
   productTrafficBrowserDaily?: Prisma.ProductTrafficBrowserDailyOmit
   productTrafficOperatingSystemDaily?: Prisma.ProductTrafficOperatingSystemDailyOmit
   productTrafficDeviceDaily?: Prisma.ProductTrafficDeviceDailyOmit
   productTrafficCountryDaily?: Prisma.ProductTrafficCountryDailyOmit
   productTrafficCityDaily?: Prisma.ProductTrafficCityDailyOmit
   siteTrafficDaily?: Prisma.SiteTrafficDailyOmit
-  siteTrafficReferrerDaily?: Prisma.SiteTrafficReferrerDailyOmit
+  siteTrafficHourly?: Prisma.SiteTrafficHourlyOmit
+  siteTrafficCompositionDaily?: Prisma.SiteTrafficCompositionDailyOmit
+  siteAiCrawlerStatusDaily?: Prisma.SiteAiCrawlerStatusDailyOmit
+  siteAiCrawlerEndpointDaily?: Prisma.SiteAiCrawlerEndpointDailyOmit
   siteTrafficBrowserDaily?: Prisma.SiteTrafficBrowserDailyOmit
   siteTrafficOperatingSystemDaily?: Prisma.SiteTrafficOperatingSystemDailyOmit
   siteTrafficDeviceDaily?: Prisma.SiteTrafficDeviceDailyOmit
@@ -5490,3 +5586,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
+

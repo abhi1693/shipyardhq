@@ -143,7 +143,6 @@ const nextConfig: NextConfig = {
     },
   },
   serverExternalPackages: [
-    "@google-analytics/data",
     "bullmq",
     "dodopayments",
     "ioredis",

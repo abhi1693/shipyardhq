@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma"
+import { CLOUDFLARE_ANALYTICS_DATASET } from "@/lib/server/analytics/cloudflareAnalytics"
 import {
   resolveIngestionWindow,
   type AnalyticsIngestionWindow,
+  type IngestionJobKey,
 } from "@/lib/server/analytics/ingestion/shared"
 import {
   syncProductTrafficDaily,
@@ -25,11 +27,7 @@ import {
   revalidateLeaderboard,
 } from "@/lib/cache/revalidate"
 
-export type IngestionJobKey =
-  | "product_traffic_daily"
-  | "product_traffic_breakdowns"
-  | "site_traffic_daily"
-  | "site_traffic_breakdowns"
+export type { IngestionJobKey } from "@/lib/server/analytics/ingestion/shared"
 
 type IngestionJobResult = {
   job: IngestionJobKey
@@ -56,14 +54,14 @@ async function startIngestionRun(
   return prisma.analyticsIngestionRun.upsert({
     where: {
       source_job_windowStart_windowEnd: {
-        source: "ga4",
+        source: "cloudflare",
         job,
         windowStart: window.start,
         windowEnd: window.end,
       },
     },
     create: {
-      source: "ga4",
+      source: "cloudflare",
       job,
       status: "processing",
       windowStart: window.start,
@@ -161,7 +159,10 @@ export async function runAnalyticsIngestion(
       await finishIngestionRun({
         id: run.id,
         status: "completed",
-        stats,
+        stats: {
+          dataset: CLOUDFLARE_ANALYTICS_DATASET,
+          result: stats,
+        },
       })
 
       results.push({ job, runId: run.id, status: "completed", stats })

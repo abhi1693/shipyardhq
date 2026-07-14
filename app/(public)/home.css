@@ -9,7 +9,7 @@
 @source "../../components/molecules/FeaturedProductGrid.tsx";
 @source "../../components/molecules/InfiniteProductGrid.tsx";
 @source "../../components/molecules/LeaderboardTopPlacement.tsx";
-@source "../../components/molecules/LiveVisitorsPill.tsx";
+@source "../../components/molecules/RecentViewsPill.tsx";
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductGrid*.tsx";
 @source "../../components/molecules/ProductList.skeleton.tsx";

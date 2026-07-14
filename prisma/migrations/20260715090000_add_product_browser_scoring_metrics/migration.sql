@@ -1,0 +1,3 @@
+ALTER TABLE "ProductTrafficDaily"
+ADD COLUMN "browserRequests" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "browserVisits" INTEGER NOT NULL DEFAULT 0;

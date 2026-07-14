@@ -38,14 +38,14 @@ async function sendGaAuthEvent(eventName: string, method?: string | null) {
     client_id: randomUUID(),
     events: [
       {
-        name: "login",
+        name: eventName,
         params: { method: trimmedMethod },
       },
     ],
   }
 
   console.info(
-    "[analytics] GA login request body",
+    `[analytics] GA ${eventName} request body`,
     JSON.stringify(body, null, 2),
   )
 
@@ -61,12 +61,12 @@ async function sendGaAuthEvent(eventName: string, method?: string | null) {
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "")
-      console.error("[analytics] failed to record GA login", {
+      console.error(`[analytics] failed to record GA ${eventName}`, {
         status: response.status,
         body: errorText?.slice?.(0, 256),
       })
     }
   } catch (error) {
-    console.error("[analytics] GA login request threw", error)
+    console.error(`[analytics] GA ${eventName} request threw`, error)
   }
 }

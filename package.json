@@ -73,7 +73,6 @@
     "@dualmark/converters": "^0.10.0",
     "@dualmark/core": "^0.10.0",
     "@dualmark/nextjs": "^0.10.0",
-    "@google-analytics/data": "^6.1.0",
     "@grafana/faro-web-sdk": "^2.8.2",
     "@grafana/faro-web-tracing": "^2.8.2",
     "@hookform/resolvers": "^5.4.0",

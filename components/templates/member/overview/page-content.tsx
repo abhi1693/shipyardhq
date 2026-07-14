@@ -26,8 +26,7 @@ import { cn } from "@/lib/utils"
 import { MEMBER_PRODUCTS_PATH, memberProductPath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
-
-const AGGREGATION_WINDOW_DAYS = 7
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
 type StatDefinition = {
   id: string
@@ -100,7 +99,7 @@ export async function MemberOverviewPageContent() {
 
 async function MemberOverviewDashboard() {
   const [summary, snapshot] = await Promise.all([
-    getMemberTrafficOverview(AGGREGATION_WINDOW_DAYS),
+    getMemberTrafficOverview(ANALYTICS_REPORTING_WINDOW_DAYS),
     getMemberDashboardSnapshot(),
   ])
 
@@ -115,15 +114,15 @@ async function MemberOverviewDashboard() {
       value: summary.totalViews,
       icon: Eye,
       tint: "blue",
-      meta: `${AGGREGATION_WINDOW_DAYS}D window`,
+      meta: `${ANALYTICS_REPORTING_WINDOW_DAYS}D window`,
     },
     {
-      id: "visitors",
-      label: "Unique visitors",
+      id: "visits",
+      label: "Visitors",
       value: summary.uniqueVisitors,
       icon: Users,
       tint: "green",
-      meta: "Audience reach",
+      meta: "Product visits",
     },
     {
       id: "upvotes",
@@ -159,6 +158,7 @@ async function MemberOverviewDashboard() {
         <div className="col-span-12 space-y-6 lg:col-span-8">
           <MemberAnalyticsCharts
             trafficData={trafficData}
+            rangeDays={summary.rangeDays}
             hasTrafficActivity={hasChartActivity}
           />
           <ProductStatusPanel products={snapshot.products} />
@@ -203,7 +203,7 @@ function FirstLaunchActivationPanel() {
   const nextSteps = [
     "Add your product details and launch assets.",
     "Choose a free launch or optional paid reach.",
-    "Publish and track views, visitors, and upvotes here.",
+    "Publish and track views, visits, and upvotes here.",
   ] as const
 
   return (
@@ -228,9 +228,9 @@ function FirstLaunchActivationPanel() {
             Launch your first product
           </h2>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-            Your dashboard starts measuring views, visitors, and upvotes after
-            you publish. Create your product page to generate the first
-            meaningful signals.
+            Your dashboard starts measuring views, visits, and upvotes after you
+            publish. Create your product page to generate the first meaningful
+            signals.
           </p>
           <ProductDraftStartButton
             mode="member"

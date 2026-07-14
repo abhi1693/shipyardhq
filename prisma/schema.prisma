@@ -40,8 +40,6 @@ model Product {
   metadata                ProductMetadata?
   analytics               ProductAnalytics?
   trafficDaily            ProductTrafficDaily[]
-  trafficReferrers        ProductTrafficReferrerDaily[]
-  trafficChannels         ProductTrafficChannelDaily[]
   trafficBrowsers         ProductTrafficBrowserDaily[]
   trafficOperatingSystems ProductTrafficOperatingSystemDaily[]
   trafficDevices          ProductTrafficDeviceDaily[]
@@ -269,7 +267,7 @@ model ProductAnalytics {
 }
 
 enum AnalyticsDataSource {
-  ga4
+  cloudflare
 }
 
 enum AnalyticsIngestionStatus {
@@ -288,7 +286,7 @@ enum AnalyticsIngestionJob {
 
 model AnalyticsIngestionRun {
   id          String                   @id @default(cuid())
-  source      AnalyticsDataSource      @default(ga4)
+  source      AnalyticsDataSource      @default(cloudflare)
   job         AnalyticsIngestionJob
   status      AnalyticsIngestionStatus @default(pending)
   windowStart DateTime
@@ -301,15 +299,16 @@ model AnalyticsIngestionRun {
   updatedAt   DateTime                 @updatedAt
 
   productTrafficDaily            ProductTrafficDaily[]
-  productTrafficReferrers        ProductTrafficReferrerDaily[]
-  productTrafficChannels         ProductTrafficChannelDaily[]
   productTrafficBrowsers         ProductTrafficBrowserDaily[]
   productTrafficOperatingSystems ProductTrafficOperatingSystemDaily[]
   productTrafficDevices          ProductTrafficDeviceDaily[]
   productTrafficCountries        ProductTrafficCountryDaily[]
   productTrafficCities           ProductTrafficCityDaily[]
   siteTrafficDaily               SiteTrafficDaily[]
-  siteTrafficReferrers           SiteTrafficReferrerDaily[]
+  siteTrafficHourly              SiteTrafficHourly[]
+  siteTrafficComposition         SiteTrafficCompositionDaily[]
+  siteAiCrawlerStatuses          SiteAiCrawlerStatusDaily[]
+  siteAiCrawlerEndpoints         SiteAiCrawlerEndpointDaily[]
   siteTrafficBrowsers            SiteTrafficBrowserDaily[]
   siteTrafficOperatingSystems    SiteTrafficOperatingSystemDaily[]
   siteTrafficDevices             SiteTrafficDeviceDaily[]
@@ -327,9 +326,11 @@ model ProductTrafficDaily {
   id                     String              @id @default(cuid())
   productId              String
   date                   DateTime
-  source                 AnalyticsDataSource @default(ga4)
+  source                 AnalyticsDataSource @default(cloudflare)
   pageViews              Int                 @default(0)
   uniqueVisitors         Int                 @default(0)
+  browserRequests        Int                 @default(0)
+  browserVisits          Int                 @default(0)
   sessions               Int                 @default(0)
   bounceRate             Float               @default(0)
   averageSessionDuration Float               @default(0)
@@ -350,49 +351,11 @@ model ProductTrafficDaily {
   @@index([source, date])
 }
 
-model ProductTrafficReferrerDaily {
-  id             String              @id @default(cuid())
-  productId      String
-  date           DateTime
-  source         AnalyticsDataSource @default(ga4)
-  referrer       String
-  pageViews      Int                 @default(0)
-  ingestionRunId String?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-
-  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
-
-  @@unique([productId, date, source, referrer])
-  @@index([productId, date])
-  @@index([referrer])
-}
-
-model ProductTrafficChannelDaily {
-  id             String              @id @default(cuid())
-  productId      String
-  date           DateTime
-  source         AnalyticsDataSource @default(ga4)
-  channel        String
-  pageViews      Int                 @default(0)
-  ingestionRunId String?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-
-  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
-
-  @@unique([productId, date, source, channel])
-  @@index([productId, date])
-  @@index([channel])
-}
-
 model ProductTrafficBrowserDaily {
   id             String              @id @default(cuid())
   productId      String
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   browser        String
   visitors       Int                 @default(0)
   ingestionRunId String?
@@ -411,7 +374,7 @@ model ProductTrafficOperatingSystemDaily {
   id              String              @id @default(cuid())
   productId       String
   date            DateTime
-  source          AnalyticsDataSource @default(ga4)
+  source          AnalyticsDataSource @default(cloudflare)
   operatingSystem String
   visitors        Int                 @default(0)
   ingestionRunId  String?
@@ -430,7 +393,7 @@ model ProductTrafficDeviceDaily {
   id             String              @id @default(cuid())
   productId      String
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   deviceCategory String
   visitors       Int                 @default(0)
   ingestionRunId String?
@@ -449,7 +412,7 @@ model ProductTrafficCountryDaily {
   id             String              @id @default(cuid())
   productId      String
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   country        String              @default("Unknown")
   countryCode    String              @default("")
   visitors       Int                 @default(0)
@@ -469,7 +432,7 @@ model ProductTrafficCityDaily {
   id             String              @id @default(cuid())
   productId      String
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   city           String              @default("Unknown")
   region         String              @default("Unknown")
   country        String              @default("Unknown")
@@ -490,7 +453,7 @@ model ProductTrafficCityDaily {
 model SiteTrafficDaily {
   id                     String              @id @default(cuid())
   date                   DateTime
-  source                 AnalyticsDataSource @default(ga4)
+  source                 AnalyticsDataSource @default(cloudflare)
   pageViews              Int                 @default(0)
   uniqueVisitors         Int                 @default(0)
   sessions               Int                 @default(0)
@@ -511,27 +474,89 @@ model SiteTrafficDaily {
   @@index([source, date])
 }
 
-model SiteTrafficReferrerDaily {
+model SiteTrafficHourly {
   id             String              @id @default(cuid())
-  date           DateTime
-  source         AnalyticsDataSource @default(ga4)
-  referrer       String
-  pageViews      Int                 @default(0)
+  timestamp      DateTime
+  source         AnalyticsDataSource @default(cloudflare)
+  requests       Int                 @default(0)
+  visits         Int                 @default(0)
   ingestionRunId String?
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
 
   ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
 
-  @@unique([date, source, referrer])
+  @@unique([timestamp, source])
+  @@index([timestamp])
+  @@index([source, timestamp])
+}
+
+model SiteTrafficCompositionDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(cloudflare)
+  segment        String
+  category       String
+  requests       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, segment, category])
   @@index([date])
-  @@index([referrer])
+  @@index([source, date])
+  @@index([segment])
+}
+
+model SiteAiCrawlerStatusDaily {
+  id             String              @id @default(cuid())
+  date           DateTime
+  source         AnalyticsDataSource @default(cloudflare)
+  category       String
+  crawlStatus    String
+  responseStatus Int
+  requests       Int                 @default(0)
+  ingestionRunId String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, category, crawlStatus, responseStatus])
+  @@index([date])
+  @@index([source, date])
+  @@index([category])
+  @@index([responseStatus])
+}
+
+model SiteAiCrawlerEndpointDaily {
+  id              String              @id @default(cuid())
+  date            DateTime
+  source          AnalyticsDataSource @default(cloudflare)
+  category        String
+  endpoint        String
+  matchedEndpoint String              @default("")
+  managedLabels   String[]            @default([])
+  requests        Int                 @default(0)
+  ingestionRunId  String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  ingestionRun AnalyticsIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  @@unique([date, source, category, endpoint, matchedEndpoint])
+  @@index([date])
+  @@index([source, date])
+  @@index([category])
+  @@index([endpoint])
 }
 
 model SiteTrafficBrowserDaily {
   id             String              @id @default(cuid())
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   browser        String
   visitors       Int                 @default(0)
   ingestionRunId String?
@@ -548,7 +573,7 @@ model SiteTrafficBrowserDaily {
 model SiteTrafficOperatingSystemDaily {
   id              String              @id @default(cuid())
   date            DateTime
-  source          AnalyticsDataSource @default(ga4)
+  source          AnalyticsDataSource @default(cloudflare)
   operatingSystem String
   visitors        Int                 @default(0)
   ingestionRunId  String?
@@ -565,7 +590,7 @@ model SiteTrafficOperatingSystemDaily {
 model SiteTrafficDeviceDaily {
   id             String              @id @default(cuid())
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   deviceCategory String
   visitors       Int                 @default(0)
   ingestionRunId String?
@@ -582,7 +607,7 @@ model SiteTrafficDeviceDaily {
 model SiteTrafficCountryDaily {
   id             String              @id @default(cuid())
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   country        String
   countryCode    String
   visitors       Int                 @default(0)
@@ -600,7 +625,7 @@ model SiteTrafficCountryDaily {
 model SiteTrafficRegionDaily {
   id             String              @id @default(cuid())
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   region         String
   country        String
   countryCode    String
@@ -619,7 +644,7 @@ model SiteTrafficRegionDaily {
 model SiteTrafficCityDaily {
   id             String              @id @default(cuid())
   date           DateTime
-  source         AnalyticsDataSource @default(ga4)
+  source         AnalyticsDataSource @default(cloudflare)
   city           String
   region         String
   country        String

@@ -28,13 +28,13 @@ export const SCHEDULED_JOB_DEFINITIONS = [
   },
   {
     id: "leaderboard-highlights-day",
-    pattern: "0 55 23 * * *",
-    description: "Announce daily leaderboard highlights.",
+    pattern: "0 15 3 * * *",
+    description: "Announce completed daily leaderboard highlights.",
   },
   {
     id: "leaderboard-highlights-week",
-    pattern: "0 55 23 * * 0",
-    description: "Announce weekly leaderboard highlights.",
+    pattern: "0 30 3 * * 1",
+    description: "Announce completed weekly leaderboard highlights.",
   },
   {
     id: "homepage-feed-refresh",
@@ -53,8 +53,8 @@ export const SCHEDULED_JOB_DEFINITIONS = [
   },
   {
     id: "badges-trending",
-    pattern: "0 0 */12 * * *",
-    description: "Assign trending badges.",
+    pattern: "0 45 3 * * *",
+    description: "Assign trending badges from completed daily traffic.",
   },
   {
     id: "analytics-product-interest",
@@ -64,7 +64,7 @@ export const SCHEDULED_JOB_DEFINITIONS = [
   {
     id: "analytics-sync",
     pattern: "0 0 2 * * *",
-    description: "Sync analytics rollups.",
+    description: "Sync rolling seven-day analytics rollups.",
   },
   {
     id: "dodo-discounts-cleanup",

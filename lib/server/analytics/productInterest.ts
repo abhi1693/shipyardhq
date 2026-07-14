@@ -1,12 +1,17 @@
 import { format, subDays } from "date-fns"
 
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  getCompletedAnalyticsWindow,
+} from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
-import type { GaDateRange } from "./googleAnalytics"
+import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
+import type { AnalyticsDateRange } from "./providerTypes"
 
 export type ProductRef = { id: string; slug: string }
 
@@ -20,24 +25,24 @@ type ProductCategoryRef = {
 type ProductInterestCacheValue = {
   signals: ProductInterestSignals
   computedAt: string
-  range: GaDateRange
-  previousRange: GaDateRange
+  range: AnalyticsDateRange
+  previousRange: AnalyticsDateRange
 }
 
 const CACHE_TTL_SECONDS = 60 * 60 * 24
 const UNCATEGORIZED_KEY = "uncategorized"
 
-const INTEREST_KEY_PREFIX = ["analytics", "product-interest", "v2"] as const
+const INTEREST_KEY_PREFIX = ["analytics", "product-interest", "v3"] as const
 
 function interestKey(productId: string) {
   return buildCacheKey(...INTEREST_KEY_PREFIX, "product", productId)
 }
 
-function mostClickedIndexKey(days: number) {
+function mostViewedIndexKey(days: number) {
   return buildCacheKey(
     ...INTEREST_KEY_PREFIX,
     "index",
-    "most-clicked",
+    "most-viewed",
     `${days}d`,
   )
 }
@@ -53,27 +58,28 @@ function categoryTrendingIndexKey(categorySlug: string, days: number) {
   )
 }
 
-function alsoClickedIndexKey(productId: string, days: number) {
+function alsoViewedIndexKey(productId: string, days: number) {
   return buildCacheKey(
     ...INTEREST_KEY_PREFIX,
     "index",
-    "also-clicked",
+    "also-viewed",
     productId,
     `${days}d`,
   )
 }
 
-function resolveRangeForLastNDays(days: number): GaDateRange {
-  const safeDays = Math.max(1, Math.floor(days))
-  const end = subDays(new Date(), 1)
-  const start = subDays(end, safeDays - 1)
+function resolveRangeForLastNDays(days: number): AnalyticsDateRange {
+  const window = getCompletedAnalyticsWindow(days)
   return {
-    startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(end, "yyyy-MM-dd"),
+    startDate: window.startDate,
+    endDate: window.endDate,
   }
 }
 
-function resolvePreviousRange(current: GaDateRange, days: number): GaDateRange {
+function resolvePreviousRange(
+  current: AnalyticsDateRange,
+  days: number,
+): AnalyticsDateRange {
   const safeDays = Math.max(1, Math.floor(days))
   const currentStart = new Date(current.startDate)
   const prevEnd = subDays(currentStart, 1)
@@ -89,7 +95,7 @@ function parseUtcDate(value: string): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
-function resolveRangeBounds(range: GaDateRange) {
+function resolveRangeBounds(range: AnalyticsDateRange) {
   const start = parseUtcDate(range.startDate)
   const end = parseUtcDate(range.endDate)
   if (!start || !end) return null
@@ -107,22 +113,26 @@ function computeSignals({
   current: { pageViews: number; uniqueVisitors: number; sessions: number }
   previous: { pageViews: number; uniqueVisitors: number; sessions: number }
 }): ProductInterestSignals {
-  const clicks7d = Math.max(0, Math.round(current.pageViews))
-  const uniqueVisitors7d = Math.max(0, Math.round(current.uniqueVisitors))
-  const repeatVisits7d = Math.max(
+  const pageViews = Math.max(0, Math.round(current.pageViews))
+  const visitors = Math.max(0, Math.round(current.uniqueVisitors))
+  const repeatVisits = Math.max(
     0,
     Math.round(current.sessions) - Math.round(current.uniqueVisitors),
   )
 
-  const prevClicks = Math.max(0, Math.round(previous.pageViews))
-  const clickVelocityWoW =
-    prevClicks > 0 ? (clicks7d - prevClicks) / prevClicks : clicks7d > 0 ? 1 : 0
+  const previousPageViews = Math.max(0, Math.round(previous.pageViews))
+  const pageViewChangeRatio =
+    previousPageViews > 0
+      ? (pageViews - previousPageViews) / previousPageViews
+      : pageViews > 0
+        ? 1
+        : 0
 
   return {
-    clicks7d,
-    clickVelocityWoW,
-    uniqueVisitors7d,
-    repeatVisits7d,
+    pageViews,
+    pageViewChangeRatio,
+    visitors,
+    repeatVisits,
   }
 }
 
@@ -186,18 +196,19 @@ export async function getProductInterestSignalsMap(args: {
   return results
 }
 
-export async function getMostClickedProductIds(args?: {
+export async function getMostViewedProductIds(args?: {
   days?: number
   limit?: number
 }): Promise<string[]> {
-  const days = typeof args?.days === "number" ? args.days : 7
+  const days =
+    typeof args?.days === "number" ? args.days : ANALYTICS_REPORTING_WINDOW_DAYS
   const limit = typeof args?.limit === "number" ? args.limit : 60
 
   const redis = await getRedisClient().catch(() => null)
   if (!redis) return []
 
   const payload = parseJson<{ productIds: string[] }>(
-    await readRedisValue(redis, mostClickedIndexKey(days)),
+    await readRedisValue(redis, mostViewedIndexKey(days)),
   )
   const ids = payload?.productIds ?? []
   return ids.slice(0, Math.max(0, Math.floor(limit)))
@@ -228,7 +239,8 @@ export async function getTrendingCategoryProductSnapshot(args: {
   const generatedAt = new Date().toISOString()
   if (!categorySlug) return { productIds: [], generatedAt }
 
-  const days = typeof args.days === "number" ? args.days : 7
+  const days =
+    typeof args.days === "number" ? args.days : ANALYTICS_REPORTING_WINDOW_DAYS
   const limit = typeof args.limit === "number" ? args.limit : 60
 
   const redis = await getRedisClient().catch(() => null)
@@ -244,7 +256,7 @@ export async function getTrendingCategoryProductSnapshot(args: {
   }
 }
 
-export async function getAlsoClickedProductIds(args: {
+export async function getAlsoViewedProductIds(args: {
   productId: string
   days?: number
   limit?: number
@@ -252,20 +264,21 @@ export async function getAlsoClickedProductIds(args: {
   const productId = args.productId?.trim()
   if (!productId) return []
 
-  const days = typeof args.days === "number" ? args.days : 7
+  const days =
+    typeof args.days === "number" ? args.days : ANALYTICS_REPORTING_WINDOW_DAYS
   const limit = typeof args.limit === "number" ? args.limit : 12
 
   const redis = await getRedisClient().catch(() => null)
   if (!redis) return []
 
   const payload = parseJson<{ productIds: string[] }>(
-    await readRedisValue(redis, alsoClickedIndexKey(productId, days)),
+    await readRedisValue(redis, alsoViewedIndexKey(productId, days)),
   )
   const ids = payload?.productIds ?? []
   return ids.slice(0, Math.max(0, Math.floor(limit)))
 }
 
-async function refreshAlsoClickedIndex({
+async function refreshAlsoViewedIndex({
   products,
   days,
   ttlSeconds,
@@ -284,17 +297,10 @@ async function refreshAlsoClickedIndex({
   const bounds = resolveRangeBounds(range)
   if (!bounds) return null
 
-  const coverage = await prisma.analyticsIngestionRun.findFirst({
-    where: {
-      source: "ga4",
-      job: "product_traffic_daily",
-      status: "completed",
-      windowStart: { lte: bounds.start },
-      windowEnd: { gte: bounds.end },
-    },
-    select: { id: true },
-    orderBy: { finishedAt: "desc" },
-  })
+  const coverage = await hasAnalyticsIngestionCoverage(
+    "product_traffic_daily",
+    bounds,
+  )
 
   if (!coverage) return null
 
@@ -302,7 +308,7 @@ async function refreshAlsoClickedIndex({
   const trafficRows = await prisma.productTrafficDaily.groupBy({
     by: ["productId"],
     where: {
-      source: "ga4",
+      source: "cloudflare",
       productId: { in: productIds },
       date: { gte: bounds.start, lte: bounds.end },
     },
@@ -378,7 +384,7 @@ async function refreshAlsoClickedIndex({
 
     if (!uniqueIds.length) continue
     multi.set(
-      alsoClickedIndexKey(product.id, days),
+      alsoViewedIndexKey(product.id, days),
       JSON.stringify({ productIds: uniqueIds }),
       { EX: ttlSeconds },
     )
@@ -393,33 +399,34 @@ export async function refreshProductInterestCache(args?: {
   days?: number
   topLimit?: number
   perCategoryLimit?: number
-  alsoClickedLimit?: number
-  skipAlsoClicked?: boolean
+  alsoViewedLimit?: number
+  skipAlsoViewed?: boolean
 }): Promise<{
   success: boolean
   productCount: number
   storedSignals: number
-  storedMostClicked: number
+  storedMostViewed: number
   storedCategories: number
-  alsoClicked: { storedCount: number; rowsProcessed: number } | null
+  alsoViewed: { storedCount: number; rowsProcessed: number } | null
 }> {
-  const days = typeof args?.days === "number" ? args.days : 7
+  const days =
+    typeof args?.days === "number" ? args.days : ANALYTICS_REPORTING_WINDOW_DAYS
   const topLimit = typeof args?.topLimit === "number" ? args.topLimit : 60
   const perCategoryLimit =
     typeof args?.perCategoryLimit === "number" ? args.perCategoryLimit : 60
-  const alsoClickedLimit =
-    typeof args?.alsoClickedLimit === "number" ? args.alsoClickedLimit : 12
-  const skipAlsoClicked =
-    typeof args?.skipAlsoClicked === "boolean" ? args.skipAlsoClicked : true
+  const alsoViewedLimit =
+    typeof args?.alsoViewedLimit === "number" ? args.alsoViewedLimit : 12
+  const skipAlsoViewed =
+    typeof args?.skipAlsoViewed === "boolean" ? args.skipAlsoViewed : true
   const redis = await getRedisClient().catch(() => null)
   if (!redis) {
     return {
       success: false,
       productCount: 0,
       storedSignals: 0,
-      storedMostClicked: 0,
+      storedMostViewed: 0,
       storedCategories: 0,
-      alsoClicked: null,
+      alsoViewed: null,
     }
   }
 
@@ -505,33 +512,33 @@ export async function refreshProductInterestCache(args?: {
     })
   }
 
-  const mostClickedScored = Array.from(signalsByProductId.entries())
+  const mostViewedScored = Array.from(signalsByProductId.entries())
     .map(([productId, signals]) => {
-      const clicks = signals?.clicks7d ?? 0
+      const pageViews = signals?.pageViews ?? 0
       return {
         productId,
-        clicks,
-        clickVelocityWoW: signals?.clickVelocityWoW ?? 0,
-        score: clicks,
+        pageViews,
+        pageViewChangeRatio: signals?.pageViewChangeRatio ?? 0,
+        score: pageViews,
       }
     })
-    .filter((entry) => entry.clicks > 0)
+    .filter((entry) => entry.pageViews > 0)
 
-  const mostClickedIds = mostClickedScored
+  const mostViewedIds = mostViewedScored
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score
-      if (b.clicks !== a.clicks) return b.clicks - a.clicks
-      if (b.clickVelocityWoW !== a.clickVelocityWoW)
-        return b.clickVelocityWoW - a.clickVelocityWoW
+      if (b.pageViews !== a.pageViews) return b.pageViews - a.pageViews
+      if (b.pageViewChangeRatio !== a.pageViewChangeRatio)
+        return b.pageViewChangeRatio - a.pageViewChangeRatio
       return a.productId.localeCompare(b.productId)
     })
     .slice(0, Math.max(0, Math.floor(topLimit)))
     .map((entry) => entry.productId)
 
-  if (mostClickedIds.length) {
+  if (mostViewedIds.length) {
     multi.set(
-      mostClickedIndexKey(days),
-      JSON.stringify({ productIds: mostClickedIds }),
+      mostViewedIndexKey(days),
+      JSON.stringify({ productIds: mostViewedIds }),
       { EX: CACHE_TTL_SECONDS },
     )
   }
@@ -543,7 +550,7 @@ export async function refreshProductInterestCache(args?: {
   for (const product of productRefs) {
     const signals = signalsByProductId.get(product.id)
     if (!signals) continue
-    if ((signals.clicks7d ?? 0) <= 0) continue
+    if ((signals.pageViews ?? 0) <= 0) continue
 
     for (const categorySlug of product.categorySlugs) {
       const list = byCategory.get(categorySlug) ?? []
@@ -556,16 +563,16 @@ export async function refreshProductInterestCache(args?: {
   for (const [categorySlug, entries] of byCategory.entries()) {
     const ids = entries
       .sort((a, b) => {
-        const aClicks = a.signals.clicks7d ?? 0
-        const bClicks = b.signals.clicks7d ?? 0
+        const aPageViews = a.signals.pageViews ?? 0
+        const bPageViews = b.signals.pageViews ?? 0
 
-        const aScore = aClicks
-        const bScore = bClicks
+        const aScore = aPageViews
+        const bScore = bPageViews
 
         if (bScore !== aScore) return bScore - aScore
-        if (bClicks !== aClicks) return bClicks - aClicks
-        if (b.signals.clickVelocityWoW !== a.signals.clickVelocityWoW) {
-          return b.signals.clickVelocityWoW - a.signals.clickVelocityWoW
+        if (bPageViews !== aPageViews) return bPageViews - aPageViews
+        if (b.signals.pageViewChangeRatio !== a.signals.pageViewChangeRatio) {
+          return b.signals.pageViewChangeRatio - a.signals.pageViewChangeRatio
         }
 
         return a.id.localeCompare(b.id)
@@ -583,21 +590,21 @@ export async function refreshProductInterestCache(args?: {
 
   await multi.exec()
 
-  const alsoClicked = skipAlsoClicked
+  const alsoViewed = skipAlsoViewed
     ? null
-    : await refreshAlsoClickedIndex({
+    : await refreshAlsoViewedIndex({
         products: productRefs,
         days,
         ttlSeconds: CACHE_TTL_SECONDS,
-        limitPerProduct: alsoClickedLimit,
+        limitPerProduct: alsoViewedLimit,
       })
 
   return {
     success: true,
     productCount: productRefs.length,
     storedSignals: productRefs.length,
-    storedMostClicked: mostClickedIds.length ? 1 : 0,
+    storedMostViewed: mostViewedIds.length ? 1 : 0,
     storedCategories,
-    alsoClicked,
+    alsoViewed,
   }
 }

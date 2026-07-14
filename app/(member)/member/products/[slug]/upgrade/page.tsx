@@ -14,12 +14,10 @@ import {
 } from "@/components/templates/member/products/ProductUpgradeProvisioning"
 import prisma from "@/lib/prisma"
 import { resolveEffectivePlanGrant } from "@/lib/products/effective-plan-grants"
+import { getAnalyticsReportingWindow } from "@/lib/analytics/reportingWindow"
 
 function getTrafficWindowStart() {
-  const start = new Date()
-  start.setUTCHours(0, 0, 0, 0)
-  start.setUTCDate(start.getUTCDate() - 30)
-  return start
+  return getAnalyticsReportingWindow().start
 }
 
 async function getPerformanceSnapshot(
@@ -54,10 +52,10 @@ async function getPerformanceSnapshot(
   ])
 
   return {
-    siteUniqueVisitors30d: siteTraffic._sum.uniqueVisitors ?? 0,
-    sitePageViews30d: siteTraffic._sum.pageViews ?? 0,
-    productUniqueVisitors30d: productTraffic._sum.uniqueVisitors ?? 0,
-    productPageViews30d: productTraffic._sum.pageViews ?? 0,
+    siteVisitors: siteTraffic._sum.uniqueVisitors ?? 0,
+    sitePageViews: siteTraffic._sum.pageViews ?? 0,
+    productVisitors: productTraffic._sum.uniqueVisitors ?? 0,
+    productPageViews: productTraffic._sum.pageViews ?? 0,
     productUpvotes: productAnalytics?.upvotes ?? 0,
   }
 }

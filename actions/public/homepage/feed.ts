@@ -1,6 +1,10 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import {
+  getAnalyticsReportingWindow,
+  getPreviousAnalyticsReportingWindow,
+} from "@/lib/analytics/reportingWindow"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { applyCache } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
@@ -186,7 +190,7 @@ export type HomepageLaunchOfDay = HomepageFeedItem & {
   rank: number | null
   score: number | null
   upvoteGrowthPercent: number | null
-  buildersClickedCount: number
+  visitorsInWindow: number
   recommenderCount: number
   recommenderAvatarUrls: string[]
 }
@@ -221,12 +225,6 @@ function normalizePageSize(value: unknown, fallback: number) {
 
 function buildBaseWhere(): Prisma.ProductWhereInput {
   return buildPublicDiscoveryProductWhere()
-}
-
-function daysAgo(days: number) {
-  const date = new Date()
-  date.setUTCDate(date.getUTCDate() - days)
-  return date
 }
 
 function startOfUtcDayDate(date: Date) {
@@ -1313,43 +1311,43 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
   )[0]
   if (!item) return null
 
-  const currentStart = daysAgo(7)
-  const previousStart = daysAgo(14)
-  const cachedBuildersClicked = item.interest?.uniqueVisitors7d
+  const reportingWindow = getAnalyticsReportingWindow(now)
+  const previousReportingWindow =
+    getPreviousAnalyticsReportingWindow(reportingWindow)
+  const currentStart = reportingWindow.start
+  const currentEndExclusive = addUtcDaysDate(reportingWindow.end, 1)
+  const previousStart = previousReportingWindow.start
+  const cachedVisitors = item.interest?.visitors
 
-  const [
-    recommenderCount,
-    currentUpvotes,
-    previousUpvotes,
-    trafficBuildersClicked,
-  ] = await Promise.all([
-    prisma.productUpvote.count({
-      where: { productId: product.id },
-    }),
-    prisma.productUpvote.count({
-      where: {
-        productId: product.id,
-        createdAt: { gte: currentStart },
-      },
-    }),
-    prisma.productUpvote.count({
-      where: {
-        productId: product.id,
-        createdAt: { gte: previousStart, lt: currentStart },
-      },
-    }),
-    cachedBuildersClicked == null
-      ? prisma.productTrafficDaily.aggregate({
-          where: {
-            productId: product.id,
-            date: { gte: currentStart },
-          },
-          _sum: {
-            uniqueVisitors: true,
-          },
-        })
-      : Promise.resolve(null),
-  ])
+  const [recommenderCount, currentUpvotes, previousUpvotes, storedVisitors] =
+    await Promise.all([
+      prisma.productUpvote.count({
+        where: { productId: product.id },
+      }),
+      prisma.productUpvote.count({
+        where: {
+          productId: product.id,
+          createdAt: { gte: currentStart, lt: currentEndExclusive },
+        },
+      }),
+      prisma.productUpvote.count({
+        where: {
+          productId: product.id,
+          createdAt: { gte: previousStart, lt: currentStart },
+        },
+      }),
+      cachedVisitors == null
+        ? prisma.productTrafficDaily.aggregate({
+            where: {
+              productId: product.id,
+              date: { gte: currentStart, lte: reportingWindow.end },
+            },
+            _sum: {
+              uniqueVisitors: true,
+            },
+          })
+        : Promise.resolve(null),
+    ])
 
   return {
     ...item,
@@ -1359,8 +1357,8 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
       currentUpvotes,
       previousUpvotes,
     ),
-    buildersClickedCount:
-      cachedBuildersClicked ?? trafficBuildersClicked?._sum.uniqueVisitors ?? 0,
+    visitorsInWindow:
+      cachedVisitors ?? storedVisitors?._sum.uniqueVisitors ?? 0,
     recommenderCount,
     recommenderAvatarUrls: [],
   }

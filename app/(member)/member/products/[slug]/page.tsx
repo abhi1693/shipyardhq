@@ -20,11 +20,8 @@ import {
   ArrowUp,
   CheckCircle2,
   ExternalLink,
-  LockKeyhole,
-  MapPin,
   Megaphone,
   Rocket,
-  Share2,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -39,9 +36,11 @@ import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficS
 import { Image } from "@/components/atoms/image"
 import { cn } from "@/lib/utils"
 import { PrivateHeaderSlot } from "@/components/layout/headers/private-header-slot"
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  ANALYTICS_REPORTING_WINDOW_LABEL,
+} from "@/lib/analytics/reportingWindow"
 
-const dashedCalloutClass =
-  "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
 const panelClass =
   "rounded-lg border border-[#E2E8F0] bg-white p-5 shadow-[0_4px_12px_rgba(15,23,42,0.04)]"
 const panelTitleClass = "text-base font-semibold text-[#0b1c30]"
@@ -73,11 +72,6 @@ function formatSignedPercent(value?: number | null) {
   const rounded = Math.round((value ?? 0) * 10) / 10
   const prefix = rounded > 0 ? "+" : ""
   return `${prefix}${rounded}%`
-}
-
-function sharePercent(value: number, total: number) {
-  if (total <= 0) return 0
-  return Math.min(100, Math.max(0, (value / total) * 100))
 }
 
 export default async function ViewUserProductPage({
@@ -119,7 +113,7 @@ export default async function ViewUserProductPage({
   const [allPlans, trafficSummary] = await Promise.all([
     getPublicPlans().catch(() => []),
     getProductTrafficSummary(productId, {
-      rangeDays: 30,
+      rangeDays: ANALYTICS_REPORTING_WINDOW_DAYS,
       includeAdvanced: canViewAnalytics,
       previousComparison: true,
     }).catch((error) => {
@@ -352,22 +346,12 @@ export default async function ViewUserProductPage({
   const boostFormAction =
     boostMode === "setup_before_publish" ? publishAndBoost : choosePlan
 
-  const pageViews30d = trafficSummary?.totalViews ?? 0
-  const visitors30d = trafficSummary?.uniqueVisitors ?? 0
+  const pageViews = trafficSummary?.totalViews ?? 0
+  const visitors = trafficSummary?.uniqueVisitors ?? 0
   const viewsDelta = trafficSummary?.totalViewsChange ?? 0
   const trafficTrendPositive = viewsDelta >= 0
   const trafficBars = trafficSummary?.viewsOverTime.slice(-8) ?? []
   const trafficBarMax = Math.max(1, ...trafficBars.map((point) => point.views))
-  const topReferrers = trafficSummary?.referrerBreakdown.slice(0, 3) ?? []
-  const totalReferrerViews = topReferrers.reduce(
-    (sum, item) => sum + item.views,
-    0,
-  )
-  const topCountries = trafficSummary?.countryBreakdown.slice(0, 3) ?? []
-  const totalCountryViews = topCountries.reduce(
-    (sum, item) => sum + item.views,
-    0,
-  )
   const publicUrl = `shipyardhq.com${publicPath}`
   const verificationStatus = product.verification?.isVerified
     ? "Verified"
@@ -439,7 +423,9 @@ export default async function ViewUserProductPage({
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className={panelTitleClass}>Live Performance Pulse</h2>
-                    <p className={mutedTextClass}>Last 30 days</p>
+                    <p className={mutedTextClass}>
+                      {ANALYTICS_REPORTING_WINDOW_LABEL}
+                    </p>
                   </div>
                   <div
                     className={cn(
@@ -467,10 +453,10 @@ export default async function ViewUserProductPage({
                       Page Views
                     </p>
                     <p className="mt-1 text-4xl font-semibold text-[#00162a]">
-                      {formatCompactNumber(pageViews30d)}
+                      {formatCompactNumber(pageViews)}
                     </p>
                     <p className="mt-1 text-xs text-[#71869e]">
-                      {formatFullNumber(visitors30d)} unique visitors
+                      {formatFullNumber(visitors)} visitors
                     </p>
                   </div>
                   <div className="flex min-h-24 flex-col justify-end">
@@ -512,126 +498,6 @@ export default async function ViewUserProductPage({
                   </div>
                 </div>
               </section>
-
-              <div className="grid gap-6 md:grid-cols-2">
-                <section className={panelClass}>
-                  <div className="mb-4 flex items-center gap-2">
-                    <Share2 className="size-5 text-[#0051d5]" aria-hidden />
-                    <h2 className={panelTitleClass}>Top Referrers</h2>
-                  </div>
-                  {canViewAnalytics ? (
-                    topReferrers.length ? (
-                      <div className="space-y-3">
-                        {topReferrers.map((item) => {
-                          const percent = sharePercent(
-                            item.views,
-                            totalReferrerViews,
-                          )
-                          return (
-                            <div key={item.referrer} className="space-y-2">
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="truncate font-medium text-[#0b1c30]">
-                                  {item.referrer === "(direct)"
-                                    ? "Direct"
-                                    : item.referrer}
-                                </span>
-                                <span className="text-[#43474c]">
-                                  {Math.round(percent)}%
-                                </span>
-                              </div>
-                              <div className="h-2 overflow-hidden rounded-full bg-[#EFF6FF]">
-                                <div
-                                  className="h-full rounded-full bg-[#0051d5]"
-                                  style={{ width: `${percent}%` }}
-                                />
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      <p className={mutedTextClass}>
-                        Referrer data will appear as tracked traffic arrives.
-                      </p>
-                    )
-                  ) : (
-                    <div className={dashedCalloutClass}>
-                      <div className="flex items-start gap-2 text-sm text-[#43474c]">
-                        <LockKeyhole className="mt-0.5 size-4" aria-hidden />
-                        <div>
-                          <p className="font-medium text-[#0b1c30]">
-                            Source breakdown is locked.
-                          </p>
-                          <Link
-                            href={upgradePath}
-                            className="text-[#0051d5] hover:underline"
-                          >
-                            Upgrade to unlock referrer insights
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </section>
-
-                <section className={panelClass}>
-                  <div className="mb-4 flex items-center gap-2">
-                    <MapPin className="size-5 text-[#0051d5]" aria-hidden />
-                    <h2 className={panelTitleClass}>Geographic Distribution</h2>
-                  </div>
-                  {canViewAnalytics ? (
-                    topCountries.length ? (
-                      <div className="space-y-3">
-                        {topCountries.map((item) => {
-                          const percent = sharePercent(
-                            item.views,
-                            totalCountryViews,
-                          )
-                          return (
-                            <div key={item.country} className="space-y-2">
-                              <div className="flex items-center justify-between gap-3 text-sm">
-                                <span className="truncate font-medium text-[#0b1c30]">
-                                  {item.country || "Unknown"}
-                                </span>
-                                <span className="text-[#43474c]">
-                                  {Math.round(percent)}%
-                                </span>
-                              </div>
-                              <div className="h-2 overflow-hidden rounded-full bg-[#EFF6FF]">
-                                <div
-                                  className="h-full rounded-full bg-[#0051d5]"
-                                  style={{ width: `${percent}%` }}
-                                />
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      <p className={mutedTextClass}>
-                        Country data will populate after analytics ingestion.
-                      </p>
-                    )
-                  ) : (
-                    <div className={dashedCalloutClass}>
-                      <div className="flex items-start gap-2 text-sm text-[#43474c]">
-                        <LockKeyhole className="mt-0.5 size-4" aria-hidden />
-                        <div>
-                          <p className="font-medium text-[#0b1c30]">
-                            Geography is locked.
-                          </p>
-                          <Link
-                            href={upgradePath}
-                            className="text-[#0051d5] hover:underline"
-                          >
-                            Upgrade to unlock locations
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </section>
-              </div>
 
               <section className={panelClass}>
                 <div className="mb-5 flex flex-wrap items-start justify-between gap-3">

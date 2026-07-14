@@ -42,7 +42,7 @@ export function OpenGraphSocialPreviewGeneratorTool() {
       }),
     [description, imageUrl, siteName, title, twitterCard, url],
   )
-  const safeImageUrl = imageUrl.replaceAll('"', "%22")
+  const safeImageUrl = imageUrl.replace(/"/g, "%22")
   const titleLength = title.trim().length
   const descriptionLength = description.trim().length
 

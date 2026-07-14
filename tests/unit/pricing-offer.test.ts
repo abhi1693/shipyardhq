@@ -25,7 +25,7 @@ function buildPlan({
   boostForDays: number
   featureKeys?: string[]
 } & Partial<OfferPlan>): OfferPlan {
-  const slug = overrides.slug ?? name.toLowerCase().replaceAll(" ", "-")
+  const slug = overrides.slug ?? name.toLowerCase().replace(/ /g, "-")
 
   return {
     id: overrides.id ?? `${slug}-${type}`,
@@ -206,7 +206,7 @@ describe("pricing offer packaging", () => {
     expect(proOffer.intro).toBe("Everything in Featured, plus…")
     expect(proOffer.items.map((item) => item.label)).toEqual(
       expect.arrayContaining([
-        "Referrers, channels, devices, browsers & location insights",
+        "AI crawler, device, browser & location insights",
         "AI-search ready badge + dedicated Markdown profile",
       ]),
     )

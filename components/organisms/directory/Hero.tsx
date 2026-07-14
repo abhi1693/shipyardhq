@@ -16,8 +16,9 @@ type StatsShape = {
   totalCreators: number
   totalUpvotes: number
   topScore: number
-  pageViews30?: number
-  visitors30?: number
+  analyticsWindowDays?: number
+  pageViews?: number
+  visitors?: number
   trafficSeries?: Array<{
     date: string
     pageViews: number

@@ -39,9 +39,9 @@ const FEATURES = [
   {
     key: "analytics.advanced",
     name: "Advanced Analytics",
-    displayName: "Advanced referrer insights",
+    displayName: "AI traffic intelligence",
     description:
-      "Shows referrers, traffic channels, devices, browsers, countries, and cities for product discovery traffic.",
+      "Shows AI crawler attention, devices, browsers, operating systems, and countries for product discovery traffic.",
   },
   {
     key: "featured",

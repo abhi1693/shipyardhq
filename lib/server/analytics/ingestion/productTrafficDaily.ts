@@ -1,23 +1,23 @@
 import prisma from "@/lib/prisma"
+import { productPath } from "@/lib/routes"
+import { queryCloudflareHttpGroups } from "@/lib/server/analytics/cloudflareAnalytics"
+import { classifyTrafficComposition } from "@/lib/server/analytics/trafficComposition"
 import {
-  buildProductPageFilter,
   chunkArray,
+  cloudflareGroupLimit,
   extractProductSlug,
-  fetchGaReportRows,
-  normalizePercent,
-  parseGaDate,
-  parseMetricValue,
+  parseAnalyticsDate,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
-
-type ProductSlugMap = Map<string, string>
 
 type ProductTrafficDailyRow = {
   productId: string
   date: Date
-  source: "ga4"
+  source: "cloudflare"
   pageViews: number
   uniqueVisitors: number
+  browserRequests: number
+  browserVisits: number
   sessions: number
   bounceRate: number
   averageSessionDuration: number
@@ -28,19 +28,6 @@ type ProductTrafficDailyRow = {
   ingestionRunId?: string | null
 }
 
-type ProductTrafficAccumulator = {
-  productId: string
-  date: Date
-  pageViews: number
-  uniqueVisitors: number
-  sessions: number
-  newUsers: number
-  engagedSessions: number
-  bounceRateWeighted: number
-  durationWeighted: number
-  pagesPerSessionWeighted: number
-}
-
 export type ProductTrafficDailySyncResult = {
   rows: number
   stored: number
@@ -48,155 +35,127 @@ export type ProductTrafficDailySyncResult = {
   truncated: boolean
 }
 
-async function loadProductSlugMap(): Promise<ProductSlugMap> {
-  const rows = await prisma.product.findMany({
-    select: { id: true, slug: true },
-  })
-  const slugMap: ProductSlugMap = new Map()
-  for (const row of rows) {
-    slugMap.set(row.slug.toLowerCase(), row.id)
-  }
-  return slugMap
-}
-
 export async function syncProductTrafficDaily(args: {
   window: AnalyticsIngestionWindow
   ingestionRunId?: string | null
   maxRows?: number
 }): Promise<ProductTrafficDailySyncResult> {
-  const slugMap = await loadProductSlugMap()
-  if (slugMap.size === 0) {
+  const products = await prisma.product.findMany({
+    select: { id: true, slug: true },
+  })
+  const productIdBySlug = new Map(
+    products.map((product) => [product.slug.toLowerCase(), product.id]),
+  )
+  if (productIdBySlug.size === 0) {
     return { rows: 0, stored: 0, pages: 0, truncated: false }
   }
 
-  const metrics = [
-    { name: "screenPageViews" },
-    { name: "activeUsers" },
-    { name: "sessions" },
-    { name: "bounceRate" },
-    { name: "averageSessionDuration" },
-    { name: "newUsers" },
-    { name: "engagedSessions" },
-    { name: "screenPageViewsPerSession" },
-  ]
-
-  const { rows, pages, truncated } = await fetchGaReportRows({
-    request: {
-      dateRanges: [
-        { startDate: args.window.startDate, endDate: args.window.endDate },
-      ],
-      dimensions: [{ name: "date" }, { name: "pagePath" }],
-      metrics,
-      dimensionFilter: buildProductPageFilter(),
-      orderBys: [{ dimension: { dimensionName: "date" } }],
+  const limit = cloudflareGroupLimit(args.maxRows)
+  const queryBase = {
+    dateRange: {
+      startDate: args.window.startDate,
+      endDate: args.window.endDate,
     },
-    maxRows: args.maxRows,
-  })
+    pagePaths: products.map((product) => productPath(product.slug)),
+    limit,
+  } as const
+  const [groups, compositionGroups] = await Promise.all([
+    queryCloudflareHttpGroups({
+      ...queryBase,
+      dimensions: ["date", "clientRequestPath"],
+    }),
+    queryCloudflareHttpGroups({
+      ...queryBase,
+      dimensions: [
+        "date",
+        "clientRequestPath",
+        "verifiedBotCategory",
+        "userAgentBrowser",
+        "requestSource",
+      ],
+    }),
+  ])
+  const recordsByKey = new Map<string, ProductTrafficDailyRow>()
 
-  const aggregated = new Map<string, ProductTrafficAccumulator>()
+  for (const group of groups) {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const slug = extractProductSlug(group.dimensions?.clientRequestPath)
+    const productId = slug ? productIdBySlug.get(slug) : null
+    if (!date || !productId) continue
 
-  for (const row of rows) {
-    const date = parseGaDate(row.dimensionValues?.[0]?.value)
-    const path = row.dimensionValues?.[1]?.value
-    if (!date || !path) continue
-
-    const slug = extractProductSlug(path)
-    if (!slug) continue
-    const productId = slugMap.get(slug)
-    if (!productId) continue
-
-    const pageViews = parseMetricValue(row.metricValues?.[0]?.value)
-    const uniqueVisitors = parseMetricValue(row.metricValues?.[1]?.value)
-    const sessions = parseMetricValue(row.metricValues?.[2]?.value)
-    const bounceRate = normalizePercent(
-      parseMetricValue(row.metricValues?.[3]?.value),
-    )
-    const averageSessionDuration = parseMetricValue(
-      row.metricValues?.[4]?.value,
-    )
-    const newUsers = parseMetricValue(row.metricValues?.[5]?.value)
-    const engagedSessions = parseMetricValue(row.metricValues?.[6]?.value)
-    const pagesPerSession = parseMetricValue(row.metricValues?.[7]?.value)
-
+    const groupViews = Math.max(0, Math.round(Number(group.count) || 0))
+    const groupVisits = Math.max(0, Math.round(Number(group.sum?.visits) || 0))
     const key = `${productId}:${date.toISOString().slice(0, 10)}`
-    const current =
-      aggregated.get(key) ??
-      ({
-        productId,
-        date,
-        pageViews: 0,
-        uniqueVisitors: 0,
-        sessions: 0,
-        newUsers: 0,
-        engagedSessions: 0,
-        bounceRateWeighted: 0,
-        durationWeighted: 0,
-        pagesPerSessionWeighted: 0,
-      } satisfies ProductTrafficAccumulator)
+    const current = recordsByKey.get(key)
+    if (current) {
+      current.pageViews += groupViews
+      current.uniqueVisitors += groupVisits
+      current.sessions += groupVisits
+      current.pagesPerSession =
+        current.sessions > 0 ? current.pageViews / current.sessions : 0
+      continue
+    }
 
-    current.pageViews += pageViews
-    current.uniqueVisitors += uniqueVisitors
-    current.sessions += sessions
-    current.newUsers += newUsers
-    current.engagedSessions += engagedSessions
-    current.bounceRateWeighted += sessions > 0 ? bounceRate * sessions : 0
-    current.durationWeighted +=
-      sessions > 0 ? averageSessionDuration * sessions : 0
-    current.pagesPerSessionWeighted +=
-      sessions > 0 ? pagesPerSession * sessions : 0
-
-    aggregated.set(key, current)
+    recordsByKey.set(key, {
+      productId,
+      date,
+      source: "cloudflare",
+      pageViews: groupViews,
+      uniqueVisitors: groupVisits,
+      browserRequests: 0,
+      browserVisits: 0,
+      sessions: groupVisits,
+      bounceRate: 0,
+      averageSessionDuration: 0,
+      newUsers: 0,
+      returningVisitors: 0,
+      engagementRate: 0,
+      pagesPerSession: groupVisits > 0 ? groupViews / groupVisits : 0,
+      ingestionRunId: args.ingestionRunId ?? null,
+    })
   }
 
-  const records: ProductTrafficDailyRow[] = Array.from(aggregated.values()).map(
-    (entry) => {
-      const sessions = entry.sessions
-      const bounceRate = sessions > 0 ? entry.bounceRateWeighted / sessions : 0
-      const averageSessionDuration =
-        sessions > 0 ? entry.durationWeighted / sessions : 0
-      const pagesPerSession =
-        sessions > 0 ? entry.pagesPerSessionWeighted / sessions : 0
-      const engagementRate =
-        sessions > 0 ? (entry.engagedSessions / sessions) * 100 : 0
+  for (const group of compositionGroups) {
+    const classification = classifyTrafficComposition({
+      verifiedBotCategory: group.dimensions?.verifiedBotCategory,
+      userAgentBrowser: group.dimensions?.userAgentBrowser,
+      requestSource: group.dimensions?.requestSource,
+    })
+    if (classification.segment !== "browser") continue
 
-      return {
-        productId: entry.productId,
-        date: entry.date,
-        source: "ga4",
-        pageViews: Math.round(entry.pageViews),
-        uniqueVisitors: Math.round(entry.uniqueVisitors),
-        sessions: Math.round(entry.sessions),
-        bounceRate,
-        averageSessionDuration,
-        newUsers: Math.round(entry.newUsers),
-        returningVisitors: Math.max(
-          Math.round(entry.uniqueVisitors) - Math.round(entry.newUsers),
-          0,
-        ),
-        engagementRate,
-        pagesPerSession,
-        ingestionRunId: args.ingestionRunId ?? null,
-      }
-    },
-  )
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const slug = extractProductSlug(group.dimensions?.clientRequestPath)
+    const productId = slug ? productIdBySlug.get(slug) : null
+    if (!date || !productId) continue
+
+    const record = recordsByKey.get(
+      `${productId}:${date.toISOString().slice(0, 10)}`,
+    )
+    if (!record) continue
+
+    record.browserRequests += Math.max(0, Math.round(Number(group.count) || 0))
+    record.browserVisits += Math.max(
+      0,
+      Math.round(Number(group.sum?.visits) || 0),
+    )
+  }
 
   await prisma.productTrafficDaily.deleteMany({
     where: {
-      source: "ga4",
+      source: "cloudflare",
       date: { gte: args.window.start, lte: args.window.end },
     },
   })
 
-  if (!records.length) {
-    return { rows: rows.length, stored: 0, pages, truncated }
+  const records = Array.from(recordsByKey.values())
+  for (const batch of chunkArray(records, 500)) {
+    await prisma.productTrafficDaily.createMany({ data: batch })
   }
 
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.productTrafficDaily.createMany({
-      data: batch,
-    })
+  return {
+    rows: groups.length + compositionGroups.length,
+    stored: records.length,
+    pages: 1,
+    truncated: groups.length >= limit || compositionGroups.length >= limit,
   }
-
-  return { rows: rows.length, stored: records.length, pages, truncated }
 }

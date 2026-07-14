@@ -42,6 +42,7 @@ import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { ProductCategorySummary } from "@/lib/products/categories"
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
 const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
 const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
@@ -81,7 +82,7 @@ const HOMEPAGE_VALUE_POINTS = [
   {
     icon: MousePointerClick,
     title: "Learn what earns attention",
-    body: "Clicks, votes, rankings, and traffic signals help you understand which positioning is landing with builders.",
+    body: "Product visits, votes, rankings, and traffic signals help you understand which positioning is landing with builders.",
   },
   {
     icon: Trophy,
@@ -104,7 +105,7 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
   {
     icon: BarChart3,
     title: "Upgrade for deeper feedback loops",
-    body: "Pro adds referrer insights and spotlight surfaces so you can see where attention comes from.",
+    body: "Pro adds AI crawler insights and spotlight surfaces so you can see how automated discovery is growing.",
   },
 ] as const
 
@@ -191,8 +192,8 @@ function HomepageHero() {
         </h1>
         <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-[#43474c]">
           {BRAND_NAME} is a live launch board for apps, SaaS tools, APIs, and
-          startup projects. Submit your product, earn votes and clicks, then add
-          more reach only when the launch is ready for it.
+          startup projects. Submit your product, earn votes and product visits,
+          then add more reach only when the launch is ready for it.
         </p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
@@ -213,7 +214,7 @@ function HomepageHero() {
         <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
           <span>Free to submit</span>
           <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
-          <span>Votes and builder clicks</span>
+          <span>Votes and measured visits</span>
           <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
           <span>Optional visibility boosts</span>
         </div>
@@ -275,10 +276,11 @@ async function getCachedHomepageDataSections() {
   const [launchOfDay, homepageStats] = await Promise.all([
     getHomepageLaunchOfDay().catch(() => null),
     getLeaderboardStats().catch(() => ({
-      pageViews30: 0,
-      visitors30: 0,
+      analyticsWindowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+      pageViews: 0,
+      visitors: 0,
       trafficSeries: [],
-      realtimeVisitors: 1,
+      realtimeVisitors: 0,
     })),
   ])
 
@@ -525,8 +527,8 @@ function HomepageWhyExistsSection() {
             <p>
               We built {BRAND_NAME} for the messy part after you ship: getting
               enough useful attention to know what is working. The feed, votes,
-              clicks, rankings, and analytics are here to help a launch turn
-              into a clearer next move.
+              product visits, rankings, and analytics are here to help a launch
+              turn into a clearer next move.
             </p>
             <p>
               Start free. If a launch is ready for more visibility, paid plans

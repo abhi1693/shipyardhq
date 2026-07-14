@@ -30,27 +30,27 @@ import { BRAND_NAME } from "@/lib/brand"
 
 const SCORE_INPUTS = [
   {
-    title: "Weighted Inputs",
+    title: "Bounded inputs",
     detail:
-      "Upvotes from active Shipyard members carry the strongest weight in the ranking model.",
+      "Member upvotes remain linear, while browser requests and visits use capped, diminishing weights.",
     icon: BarChart3,
   },
   {
-    title: "No Paid Shortcuts",
+    title: "Browser traffic only",
     detail:
-      "We filter bots and synthetic traffic with velocity checks before it can affect rank.",
+      "Verified bots, crawlers, platform-generated requests, and unclassified traffic stay visible in analytics but do not add leaderboard points.",
     icon: ShieldCheck,
   },
   {
-    title: "Real-time Logic",
+    title: "Repeatable scoring",
     detail:
-      "Leaderboard ranks recalculate as votes and product traffic events are recorded.",
+      "Rankings refresh hourly, while a new member upvote triggers an immediate product refresh.",
     icon: RotateCw,
   },
   {
-    title: "Fair Tie Handling",
+    title: "Fair tie handling",
     detail:
-      "Ties are broken by upvotes, unique visitors, page views, and deterministic product order.",
+      "Ties are broken by upvotes, browser visits, browser requests, and deterministic product order.",
     icon: Scale,
   },
 ]
@@ -194,7 +194,7 @@ export function LeaderboardGuidePageContent() {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-4 text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-white/70">
                     <span>U = Monthly Upvotes</span>
-                    <span>V = Unique Visitors</span>
+                    <span>V = Visitors</span>
                     <span>P = Page Views</span>
                   </div>
                 </div>

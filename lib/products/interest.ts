@@ -2,6 +2,7 @@ import type {
   ProductInterestBadgeSpec,
   ProductInterestSignals,
 } from "@/types/product-interest"
+import { ANALYTICS_REPORTING_WINDOW_LABEL } from "@/lib/analytics/reportingWindow"
 
 const DEFAULT_BADGE_COUNT_FORMAT = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -22,8 +23,8 @@ export function buildProductInterestBadges(
   interest: ProductInterestSignals | null | undefined,
   options?: {
     maxBadges?: number
-    includeBuildersClicked?: boolean
-    minBuildersClicked?: number
+    includeVisitCount?: boolean
+    minVisitCount?: number
   },
 ): ProductInterestBadgeSpec[] {
   if (!interest) return []
@@ -33,45 +34,42 @@ export function buildProductInterestBadges(
       ? Math.floor(options.maxBadges)
       : 2
 
-  const clicks7d = Math.max(0, Math.round(safeNumber(interest.clicks7d)))
-  const uniqueVisitors7d = Math.max(
+  const pageViews = Math.max(0, Math.round(safeNumber(interest.pageViews)))
+  const visitors = Math.max(0, Math.round(safeNumber(interest.visitors)))
+  const repeatVisits = Math.max(
     0,
-    Math.round(safeNumber(interest.uniqueVisitors7d)),
+    Math.round(safeNumber(interest.repeatVisits)),
   )
-  const repeatVisits7d = Math.max(
-    0,
-    Math.round(safeNumber(interest.repeatVisits7d)),
-  )
-  const clickVelocityWoW = safeNumber(interest.clickVelocityWoW)
+  const pageViewChangeRatio = safeNumber(interest.pageViewChangeRatio)
 
   const specs: ProductInterestBadgeSpec[] = []
 
   const risingFast =
-    clicks7d >= 12 && clickVelocityWoW >= 0.4 && uniqueVisitors7d >= 8
-  const trendingThisWeek =
-    clicks7d >= 60 ||
-    uniqueVisitors7d >= 45 ||
-    (clicks7d >= 25 && clickVelocityWoW >= 0.2)
+    pageViews >= 12 && pageViewChangeRatio >= 0.4 && visitors >= 8
+  const trending =
+    pageViews >= 60 ||
+    visitors >= 45 ||
+    (pageViews >= 25 && pageViewChangeRatio >= 0.2)
   const consistentlyDiscovered =
-    uniqueVisitors7d >= 10 &&
-    repeatVisits7d >= 5 &&
-    repeatVisits7d / Math.max(uniqueVisitors7d, 1) >= 0.25
+    visitors >= 10 &&
+    repeatVisits >= 5 &&
+    repeatVisits / Math.max(visitors, 1) >= 0.25
 
   if (risingFast) {
     specs.push({
       key: "rising-fast",
       label: "Rising fast",
       variant: "success",
-      title: "Click velocity is up week over week",
+      title: "Page views are up versus the previous reporting window",
     })
   }
 
-  if (specs.length < maxBadges && trendingThisWeek) {
+  if (specs.length < maxBadges && trending) {
     specs.push({
-      key: "trending-this-week",
-      label: "Trending this week",
+      key: "trending",
+      label: "Trending now",
       variant: "default",
-      title: "High interest this week",
+      title: `High interest in the ${ANALYTICS_REPORTING_WINDOW_LABEL.toLowerCase()}`,
     })
   }
 
@@ -84,22 +82,22 @@ export function buildProductInterestBadges(
     })
   }
 
-  const minBuildersClicked =
-    typeof options?.minBuildersClicked === "number"
-      ? Math.max(0, Math.floor(options.minBuildersClicked))
+  const minVisitCount =
+    typeof options?.minVisitCount === "number"
+      ? Math.max(0, Math.floor(options.minVisitCount))
       : 3
 
   if (
     specs.length < maxBadges &&
-    options?.includeBuildersClicked !== false &&
-    uniqueVisitors7d >= minBuildersClicked
+    options?.includeVisitCount !== false &&
+    visitors >= minVisitCount
   ) {
-    const builderNoun = uniqueVisitors7d === 1 ? "builder" : "builders"
+    const visitNoun = visitors === 1 ? "visit" : "visits"
     specs.push({
-      key: "builders-clicked",
-      label: `${formatCompactCount(uniqueVisitors7d)} ${builderNoun} clicked`,
+      key: "visit-count",
+      label: `${formatCompactCount(visitors)} ${visitNoun}`,
       variant: "secondary",
-      title: "Unique visitors in the last 7 days",
+      title: `Visits in the ${ANALYTICS_REPORTING_WINDOW_LABEL.toLowerCase()}`,
     })
   }
 

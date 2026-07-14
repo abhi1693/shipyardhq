@@ -11,6 +11,7 @@ interface ObjectHeadingProps {
   updatedAt: Date | string
   slug?: string | null
   subtitle?: string
+  showIdentifier?: boolean
   onDelete?: () => void
   onEdit?: () => void
   extraActions?: React.ReactNode
@@ -23,6 +24,7 @@ export function ObjectHeading({
   updatedAt,
   slug,
   subtitle,
+  showIdentifier = true,
   onDelete,
   onEdit,
   extraActions,
@@ -44,15 +46,17 @@ export function ObjectHeading({
         </div>
 
         <div className="mt-4 flex flex-col items-start gap-2 text-sm sm:mt-0 sm:items-end sm:text-right">
-          <div className="font-mono text-muted-foreground">
-            {slug ? (
-              <>
-                {id} <span className="text-black">({slug})</span>
-              </>
-            ) : (
-              <>{id}</>
-            )}
-          </div>
+          {showIdentifier ? (
+            <div className="font-mono text-muted-foreground">
+              {slug ? (
+                <>
+                  {id} <span className="text-black">({slug})</span>
+                </>
+              ) : (
+                <>{id}</>
+              )}
+            </div>
+          ) : null}
 
           <div className="flex items-center gap-2">
             {extraActions}

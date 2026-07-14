@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { ANALYTICS_REPORTING_WINDOW_LABEL } from "@/lib/analytics/reportingWindow"
 import Link from "next/link"
 import { BarChart3, ChevronRight, Hash, TrendingUp } from "lucide-react"
 
@@ -278,7 +279,7 @@ export function TaxonomyIndexPage({
   totalItems,
   itemUnit = "products",
   trendingItems,
-  trendingWindowLabel = "Last 7 days",
+  trendingWindowLabel = ANALYTICS_REPORTING_WINDOW_LABEL,
   pulseTitle = "Directory Pulse",
   pulseStats,
   quickLinksTitle = "Quick Shortcuts",

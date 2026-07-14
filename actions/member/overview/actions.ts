@@ -3,9 +3,13 @@
 import { addDays, format, formatISO, startOfDay, subDays } from "date-fns"
 import { auth } from "@clerk/nextjs/server"
 
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  getCompletedAnalyticsWindow,
+} from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
-import { getProductTrafficFromGa } from "@/lib/server/analytics/googleAnalytics"
+import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import type {
   ProductEngagementSummaryPoint,
@@ -30,21 +34,12 @@ async function getCurrentUser(): Promise<UserRef> {
   return { id: user.id }
 }
 
-function buildGaDateRange(windowDays: number, today: Date) {
-  const end = today
-  const start = subDays(end, windowDays - 1)
-  return {
-    startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(end, "yyyy-MM-dd"),
-  }
-}
-
 function buildViewsOverTime({
-  gaTimeseries,
+  analyticsTimeseries,
   windowDays,
   today,
 }: {
-  gaTimeseries: Array<{
+  analyticsTimeseries: Array<{
     date: string
     pageViews: number
     uniqueVisitors: number
@@ -57,7 +52,7 @@ function buildViewsOverTime({
     { views: number; uniqueVisitors: number }
   >()
 
-  for (const point of gaTimeseries) {
+  for (const point of analyticsTimeseries) {
     const dayKey = formatISO(startOfDay(new Date(point.date)), {
       representation: "date",
     })
@@ -189,11 +184,12 @@ async function getEngagementSummary({
 }
 
 export async function getMemberTrafficOverview(
-  days = 7,
+  days = ANALYTICS_REPORTING_WINDOW_DAYS,
 ): Promise<MemberTrafficOverview> {
   const { id } = await getCurrentUser()
   const windowDays = Math.max(1, days)
-  const today = startOfDay(new Date())
+  const reportingWindow = getCompletedAnalyticsWindow(windowDays)
+  const endDay = reportingWindow.end
 
   const products = await prisma.product.findMany({
     where: { userId: id },
@@ -201,7 +197,7 @@ export async function getMemberTrafficOverview(
   })
 
   if (products.length === 0) {
-    return buildEmptySummary(windowDays, today)
+    return buildEmptySummary(windowDays, endDay)
   }
 
   const productIds = products.map((product: { id: string }) => product.id)
@@ -214,27 +210,31 @@ export async function getMemberTrafficOverview(
     ),
   )
 
-  const [gaTraffic, engagement] = await Promise.all([
+  const analyticsProvider = getAnalyticsProvider("cache")
+  const [traffic, engagement] = await Promise.all([
     pagePaths.length
-      ? getProductTrafficFromGa({
+      ? analyticsProvider.getProductTraffic({
           pagePaths,
-          dateRange: buildGaDateRange(windowDays, today),
+          dateRange: {
+            startDate: reportingWindow.startDate,
+            endDate: reportingWindow.endDate,
+          },
           includeAdvanced: false,
         })
       : Promise.resolve(null),
-    getEngagementSummary({ productIds, windowDays, today }),
+    getEngagementSummary({ productIds, windowDays, today: endDay }),
   ])
 
   const viewsOverTime = buildViewsOverTime({
-    gaTimeseries: gaTraffic?.timeseries ?? [],
+    analyticsTimeseries: traffic?.timeseries ?? [],
     windowDays,
-    today,
+    today: endDay,
   })
 
   return {
     rangeDays: windowDays,
-    totalViews: gaTraffic?.pageViews ?? 0,
-    uniqueVisitors: gaTraffic?.uniqueVisitors ?? 0,
+    totalViews: traffic?.pageViews ?? 0,
+    uniqueVisitors: traffic?.uniqueVisitors ?? 0,
     upvotesInRange: engagement.upvotes,
     viewsOverTime,
     engagementOverTime: engagement.timeline,

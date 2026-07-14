@@ -48,7 +48,7 @@ describe("pricing conversion journey", () => {
       "Standard card in the homepage launch feed",
     )
     expect(container).toHaveTextContent(
-      "Track views, visits, visitors, engagement, and upvotes",
+      "Track views, visitors, audience insights, and upvotes",
     )
     expect(container).toHaveTextContent(
       "$0 to publish · One-time boosts never auto-renew",

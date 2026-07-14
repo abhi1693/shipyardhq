@@ -1,25 +1,24 @@
 export type ProductInterestSignals = {
   /**
-   * GA page views for the product page in the last 7 days.
-   * Used as a proxy for "clicks" (proof of intent to view).
+   * Cloudflare page views for the product page in the reporting window.
    */
-  clicks7d: number
+  pageViews: number
 
   /**
-   * Week-over-week change in clicks for the last 7 days vs prior 7 days.
+   * Change in page views versus the previous equivalent reporting window.
    * Expressed as a ratio (e.g. 0.5 === +50%).
    */
-  clickVelocityWoW: number
+  pageViewChangeRatio: number
 
   /**
-   * Unique visitors for the product page in the last 7 days.
+   * Cloudflare visitors for the product page in the reporting window.
    */
-  uniqueVisitors7d: number
+  visitors: number
 
   /**
-   * Repeat visits in the last 7 days (sessions - unique visitors).
+   * Repeat visits when the active analytics provider can supply them.
    */
-  repeatVisits7d: number
+  repeatVisits: number
 }
 
 export type ProductInterestBadgeVariant =

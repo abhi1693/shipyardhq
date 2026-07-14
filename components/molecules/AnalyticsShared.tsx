@@ -1,6 +1,13 @@
 import type { ReactNode } from "react"
 import Image from "next/image"
-import { Monitor, MousePointer2, Smartphone, Tablet } from "lucide-react"
+import {
+  Bot,
+  Globe2,
+  Monitor,
+  MousePointer2,
+  Smartphone,
+  Tablet,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -102,7 +109,7 @@ const OS_LOGOS: OsLogoDefinition[] = [
   {
     label: "Chrome OS",
     file: "chrome-os.png",
-    matchers: [/chrome os/i, /cros/i],
+    matchers: [/chrome\s*os/i, /cros/i],
   },
   {
     label: "Linux",
@@ -221,7 +228,23 @@ export function FlagIcon({
 
 export function BrowserIcon({ name }: { name: string }) {
   const logo = resolveBrowserLogo(name)
-  if (!logo) return null
+  if (!logo) {
+    const isAutomated = /bot|crawler|spider/i.test(name)
+    const FallbackIcon = isAutomated ? Bot : Globe2
+    const label = `${name.trim() || "Unknown"} ${
+      isAutomated ? "bot" : "browser"
+    } icon`
+
+    return (
+      <span
+        className="inline-flex h-4 w-4 items-center justify-center"
+        role="img"
+        aria-label={label}
+      >
+        <FallbackIcon className="h-4 w-4 text-slate-400" aria-hidden />
+      </span>
+    )
+  }
 
   const relativePath =
     logo.assetPath ??
@@ -246,7 +269,17 @@ export function BrowserIcon({ name }: { name: string }) {
 
 export function OsIcon({ name }: { name: string }) {
   const logo = resolveOsLogo(name)
-  if (!logo) return null
+  if (!logo) {
+    return (
+      <span
+        className="inline-flex h-4 w-4 items-center justify-center"
+        role="img"
+        aria-label={`${name.trim() || "Unknown"} operating system icon`}
+      >
+        <Monitor className="h-4 w-4 text-slate-400" aria-hidden />
+      </span>
+    )
+  }
 
   const src = `${OS_LOGO_BASE}/${logo.file}`
 

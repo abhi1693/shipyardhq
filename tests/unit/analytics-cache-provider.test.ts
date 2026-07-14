@@ -15,38 +15,25 @@ const cacheMocks = vi.hoisted(() => ({
   cacheMiss: vi.fn(),
 }))
 
-const gaMocks = vi.hoisted(() => ({
-  fetchRealtimeVisitorsFromGa: vi.fn(),
+const cloudflareMocks = vi.hoisted(() => ({
+  fetchRecentVisitorsFromCloudflare: vi.fn(),
 }))
 
 vi.mock("@/lib/server/cache", () => cacheMocks)
 
-vi.mock("@/lib/server/analytics/googleAnalytics", () => ({
-  fetchRealtimeVisitorsFromGa: gaMocks.fetchRealtimeVisitorsFromGa,
-  hasGaAnalyticsConfig: () => true,
-  isTransientGaError: (error: unknown) => {
-    const errorLike = error as { code?: unknown; message?: unknown }
-    return (
-      errorLike.code === 14 ||
-      String(errorLike.message ?? "")
-        .toLowerCase()
-        .includes("deadline exceeded")
-    )
+vi.mock("@/lib/server/analytics/cloudflareAnalytics", () => ({
+  fetchRecentVisitorsFromCloudflare:
+    cloudflareMocks.fetchRecentVisitorsFromCloudflare,
+  hasCloudflareAnalyticsConfig: () => true,
+  isTransientCloudflareError: (error: unknown) => {
+    return String((error as { message?: unknown }).message ?? "")
+      .toLowerCase()
+      .includes("timeout")
   },
 }))
 
 vi.mock("@/lib/server/analytics/providers/db", () => ({
   dbAnalyticsProvider: {
-    getProductTraffic: vi.fn(),
-    getProductTrafficMap: vi.fn(),
-    getSiteAnalyticsSnapshot: vi.fn(),
-    getHomepageTraffic: vi.fn(),
-    getRealtimeVisitors: vi.fn(),
-  },
-}))
-
-vi.mock("@/lib/server/analytics/providers/ga", () => ({
-  gaAnalyticsProvider: {
     getProductTraffic: vi.fn(),
     getProductTrafficMap: vi.fn(),
     getSiteAnalyticsSnapshot: vi.fn(),
@@ -61,31 +48,33 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
   beforeEach(() => {
     cacheMocks.cacheHit.mockReset()
     cacheMocks.cacheMiss.mockReset().mockResolvedValue(undefined)
-    gaMocks.fetchRealtimeVisitorsFromGa.mockReset()
+    cloudflareMocks.fetchRecentVisitorsFromCloudflare.mockReset()
   })
 
-  it("uses cached realtime visitors without calling GA", async () => {
+  it("uses cached recent visitors without calling Cloudflare", async () => {
     cacheMocks.cacheHit.mockResolvedValueOnce(7)
 
     await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(7)
 
-    expect(gaMocks.fetchRealtimeVisitorsFromGa).not.toHaveBeenCalled()
+    expect(
+      cloudflareMocks.fetchRecentVisitorsFromCloudflare,
+    ).not.toHaveBeenCalled()
     expect(cacheMocks.cacheMiss).not.toHaveBeenCalled()
   })
 
-  it("stores a short fallback when GA realtime times out", async () => {
+  it("stores a short fallback when Cloudflare times out", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     cacheMocks.cacheHit.mockResolvedValueOnce(null)
-    gaMocks.fetchRealtimeVisitorsFromGa.mockRejectedValueOnce(
-      new Error("deadline exceeded"),
+    cloudflareMocks.fetchRecentVisitorsFromCloudflare.mockRejectedValueOnce(
+      new Error("request timeout"),
     )
 
-    await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(1)
+    await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(0)
 
     expect(errorSpy).not.toHaveBeenCalled()
     expect(cacheMocks.cacheMiss).toHaveBeenCalledWith(
       expect.objectContaining({
-        key: "analytics:realtime:visitors:v1",
+        key: "analytics:realtime:visitors:v3",
         value: 0,
         ttlSeconds: 120,
       }),
@@ -94,21 +83,23 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
     errorSpy.mockRestore()
   })
 
-  it("logs unexpected GA realtime failures before falling back", async () => {
+  it("logs unexpected Cloudflare failures before falling back", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-    const error = new Error("GA_PROPERTY_ID is missing")
+    const error = new Error("Cloudflare token is invalid")
     cacheMocks.cacheHit.mockResolvedValueOnce(null)
-    gaMocks.fetchRealtimeVisitorsFromGa.mockRejectedValueOnce(error)
+    cloudflareMocks.fetchRecentVisitorsFromCloudflare.mockRejectedValueOnce(
+      error,
+    )
 
-    await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(1)
+    await expect(cacheAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(0)
 
     expect(errorSpy).toHaveBeenCalledWith(
-      "[analytics] failed to fetch realtime visitors from GA",
+      "[analytics] failed to fetch recent Cloudflare traffic",
       { error },
     )
     expect(cacheMocks.cacheMiss).toHaveBeenCalledWith(
       expect.objectContaining({
-        key: "analytics:realtime:visitors:v1",
+        key: "analytics:realtime:visitors:v3",
         value: 0,
         ttlSeconds: 120,
       }),

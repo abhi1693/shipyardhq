@@ -359,8 +359,6 @@ export type ProductWhereInput = {
   metadata?: Prisma.XOR<Prisma.ProductMetadataNullableScalarRelationFilter, Prisma.ProductMetadataWhereInput> | null
   analytics?: Prisma.XOR<Prisma.ProductAnalyticsNullableScalarRelationFilter, Prisma.ProductAnalyticsWhereInput> | null
   trafficDaily?: Prisma.ProductTrafficDailyListRelationFilter
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyListRelationFilter
-  trafficChannels?: Prisma.ProductTrafficChannelDailyListRelationFilter
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyListRelationFilter
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyListRelationFilter
   trafficDevices?: Prisma.ProductTrafficDeviceDailyListRelationFilter
@@ -411,8 +409,6 @@ export type ProductOrderByWithRelationInput = {
   metadata?: Prisma.ProductMetadataOrderByWithRelationInput
   analytics?: Prisma.ProductAnalyticsOrderByWithRelationInput
   trafficDaily?: Prisma.ProductTrafficDailyOrderByRelationAggregateInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyOrderByRelationAggregateInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyOrderByRelationAggregateInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyOrderByRelationAggregateInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyOrderByRelationAggregateInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyOrderByRelationAggregateInput
@@ -466,8 +462,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   metadata?: Prisma.XOR<Prisma.ProductMetadataNullableScalarRelationFilter, Prisma.ProductMetadataWhereInput> | null
   analytics?: Prisma.XOR<Prisma.ProductAnalyticsNullableScalarRelationFilter, Prisma.ProductAnalyticsWhereInput> | null
   trafficDaily?: Prisma.ProductTrafficDailyListRelationFilter
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyListRelationFilter
-  trafficChannels?: Prisma.ProductTrafficChannelDailyListRelationFilter
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyListRelationFilter
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyListRelationFilter
   trafficDevices?: Prisma.ProductTrafficDeviceDailyListRelationFilter
@@ -575,8 +569,6 @@ export type ProductCreateInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -624,8 +616,6 @@ export type ProductUncheckedCreateInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -673,8 +663,6 @@ export type ProductUpdateInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -722,8 +710,6 @@ export type ProductUncheckedUpdateInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -1126,34 +1112,6 @@ export type ProductUpdateOneRequiredWithoutTrafficDailyNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutTrafficDailyInput, Prisma.ProductUpdateWithoutTrafficDailyInput>, Prisma.ProductUncheckedUpdateWithoutTrafficDailyInput>
 }
 
-export type ProductCreateNestedOneWithoutTrafficReferrersInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutTrafficReferrersInput, Prisma.ProductUncheckedCreateWithoutTrafficReferrersInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutTrafficReferrersInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutTrafficReferrersNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutTrafficReferrersInput, Prisma.ProductUncheckedCreateWithoutTrafficReferrersInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutTrafficReferrersInput
-  upsert?: Prisma.ProductUpsertWithoutTrafficReferrersInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutTrafficReferrersInput, Prisma.ProductUpdateWithoutTrafficReferrersInput>, Prisma.ProductUncheckedUpdateWithoutTrafficReferrersInput>
-}
-
-export type ProductCreateNestedOneWithoutTrafficChannelsInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutTrafficChannelsInput, Prisma.ProductUncheckedCreateWithoutTrafficChannelsInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutTrafficChannelsInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutTrafficChannelsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutTrafficChannelsInput, Prisma.ProductUncheckedCreateWithoutTrafficChannelsInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutTrafficChannelsInput
-  upsert?: Prisma.ProductUpsertWithoutTrafficChannelsInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutTrafficChannelsInput, Prisma.ProductUpdateWithoutTrafficChannelsInput>, Prisma.ProductUncheckedUpdateWithoutTrafficChannelsInput>
-}
-
 export type ProductCreateNestedOneWithoutTrafficBrowsersInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutTrafficBrowsersInput, Prisma.ProductUncheckedCreateWithoutTrafficBrowsersInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutTrafficBrowsersInput
@@ -1496,8 +1454,6 @@ export type ProductCreateWithoutKeywordIndexInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -1544,8 +1500,6 @@ export type ProductUncheckedCreateWithoutKeywordIndexInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -1608,8 +1562,6 @@ export type ProductUpdateWithoutKeywordIndexInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -1656,8 +1608,6 @@ export type ProductUncheckedUpdateWithoutKeywordIndexInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -1704,8 +1654,6 @@ export type ProductCreateWithoutAlternativesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -1752,8 +1700,6 @@ export type ProductUncheckedCreateWithoutAlternativesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -1850,8 +1796,6 @@ export type ProductCreateWithoutLeaderboardScoresInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -1898,8 +1842,6 @@ export type ProductUncheckedCreateWithoutLeaderboardScoresInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -1962,8 +1904,6 @@ export type ProductUpdateWithoutLeaderboardScoresInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -2010,8 +1950,6 @@ export type ProductUncheckedUpdateWithoutLeaderboardScoresInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -2058,8 +1996,6 @@ export type ProductCreateWithoutProductMediaInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -2106,8 +2042,6 @@ export type ProductUncheckedCreateWithoutProductMediaInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -2170,8 +2104,6 @@ export type ProductUpdateWithoutProductMediaInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -2218,8 +2150,6 @@ export type ProductUncheckedUpdateWithoutProductMediaInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -2266,8 +2196,6 @@ export type ProductCreateWithoutVerificationInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -2314,8 +2242,6 @@ export type ProductUncheckedCreateWithoutVerificationInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -2378,8 +2304,6 @@ export type ProductUpdateWithoutVerificationInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -2426,8 +2350,6 @@ export type ProductUncheckedUpdateWithoutVerificationInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -2473,8 +2395,6 @@ export type ProductCreateWithoutMetadataInput = {
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -2521,8 +2441,6 @@ export type ProductUncheckedCreateWithoutMetadataInput = {
   categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -2585,8 +2503,6 @@ export type ProductUpdateWithoutMetadataInput = {
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -2633,8 +2549,6 @@ export type ProductUncheckedUpdateWithoutMetadataInput = {
   categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -2681,8 +2595,6 @@ export type ProductCreateWithoutAnalyticsInput = {
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -2729,8 +2641,6 @@ export type ProductUncheckedCreateWithoutAnalyticsInput = {
   categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -2793,8 +2703,6 @@ export type ProductUpdateWithoutAnalyticsInput = {
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -2841,8 +2749,6 @@ export type ProductUncheckedUpdateWithoutAnalyticsInput = {
   categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -2889,8 +2795,6 @@ export type ProductCreateWithoutTrafficDailyInput = {
   plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -2937,8 +2841,6 @@ export type ProductUncheckedCreateWithoutTrafficDailyInput = {
   categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -3001,8 +2903,6 @@ export type ProductUpdateWithoutTrafficDailyInput = {
   plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -3049,424 +2949,6 @@ export type ProductUncheckedUpdateWithoutTrafficDailyInput = {
   categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
-  keywordIndex?: Prisma.ProductKeywordUncheckedUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  planGrants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-}
-
-export type ProductCreateWithoutTrafficReferrersInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutProductsInput
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  categories?: Prisma.ProductCategoryCreateNestedManyWithoutProductInput
-  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
-  keywordIndex?: Prisma.ProductKeywordCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  planGrants?: Prisma.ProductPlanGrantCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-}
-
-export type ProductUncheckedCreateWithoutTrafficReferrersInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
-  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
-  keywordIndex?: Prisma.ProductKeywordUncheckedCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  planGrants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-}
-
-export type ProductCreateOrConnectWithoutTrafficReferrersInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutTrafficReferrersInput, Prisma.ProductUncheckedCreateWithoutTrafficReferrersInput>
-}
-
-export type ProductUpsertWithoutTrafficReferrersInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutTrafficReferrersInput, Prisma.ProductUncheckedUpdateWithoutTrafficReferrersInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutTrafficReferrersInput, Prisma.ProductUncheckedCreateWithoutTrafficReferrersInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutTrafficReferrersInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutTrafficReferrersInput, Prisma.ProductUncheckedUpdateWithoutTrafficReferrersInput>
-}
-
-export type ProductUpdateWithoutTrafficReferrersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  categories?: Prisma.ProductCategoryUpdateManyWithoutProductNestedInput
-  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
-  keywordIndex?: Prisma.ProductKeywordUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  planGrants?: Prisma.ProductPlanGrantUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutTrafficReferrersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
-  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUncheckedUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedUpdateManyWithoutProductNestedInput
-  keywordIndex?: Prisma.ProductKeywordUncheckedUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
-  planGrants?: Prisma.ProductPlanGrantUncheckedUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUncheckedUpdateManyWithoutProductsNestedInput
-}
-
-export type ProductCreateWithoutTrafficChannelsInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutProductsInput
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  categories?: Prisma.ProductCategoryCreateNestedManyWithoutProductInput
-  plan?: Prisma.PlanCreateNestedOneWithoutProductsInput
-  metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreCreateNestedManyWithoutProductInput
-  keywordIndex?: Prisma.ProductKeywordCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutProductInput
-  planGrants?: Prisma.ProductPlanGrantCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductCreateNestedManyWithoutProductsInput
-}
-
-export type ProductUncheckedCreateWithoutTrafficChannelsInput = {
-  id?: string
-  name: string
-  slug: string
-  tagline: string
-  description: string
-  websiteUrl: string
-  logo: string
-  userId: string
-  categoryId: string
-  planId?: string | null
-  subscriptionId?: string | null
-  planAssignedAt?: Date | string | null
-  type: $Enums.ProductType
-  pricingModel: $Enums.PricingModel
-  status?: $Enums.ProductStatus
-  publishedAt?: Date | string | null
-  startingPriceCents?: number | null
-  currencyCode?: string | null
-  bannerImage?: string | null
-  keywords?: Prisma.ProductCreatekeywordsInput | string[]
-  platforms?: Prisma.ProductCreateplatformsInput | $Enums.Platform[]
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  categories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutProductInput
-  metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
-  analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUncheckedCreateNestedManyWithoutProductInput
-  verification?: Prisma.ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-  ProductBadge?: Prisma.ProductBadgeUncheckedCreateNestedManyWithoutProductInput
-  ProductMedia?: Prisma.ProductMediaUncheckedCreateNestedManyWithoutProductInput
-  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
-  placementSchedules?: Prisma.PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUncheckedCreateNestedManyWithoutProductInput
-  keywordIndex?: Prisma.ProductKeywordUncheckedCreateNestedManyWithoutProductInput
-  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutProductInput
-  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutProductInput
-  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
-  planGrants?: Prisma.ProductPlanGrantUncheckedCreateNestedManyWithoutProductInput
-  alternatives?: Prisma.AlternativeProductUncheckedCreateNestedManyWithoutProductsInput
-}
-
-export type ProductCreateOrConnectWithoutTrafficChannelsInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutTrafficChannelsInput, Prisma.ProductUncheckedCreateWithoutTrafficChannelsInput>
-}
-
-export type ProductUpsertWithoutTrafficChannelsInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutTrafficChannelsInput, Prisma.ProductUncheckedUpdateWithoutTrafficChannelsInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutTrafficChannelsInput, Prisma.ProductUncheckedCreateWithoutTrafficChannelsInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutTrafficChannelsInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutTrafficChannelsInput, Prisma.ProductUncheckedUpdateWithoutTrafficChannelsInput>
-}
-
-export type ProductUpdateWithoutTrafficChannelsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  categories?: Prisma.ProductCategoryUpdateManyWithoutProductNestedInput
-  plan?: Prisma.PlanUpdateOneWithoutProductsNestedInput
-  metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
-  trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
-  trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
-  trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
-  trafficCities?: Prisma.ProductTrafficCityDailyUpdateManyWithoutProductNestedInput
-  verification?: Prisma.ProductVerificationUpdateOneWithoutProductNestedInput
-  ProductBadge?: Prisma.ProductBadgeUpdateManyWithoutProductNestedInput
-  ProductMedia?: Prisma.ProductMediaUpdateManyWithoutProductNestedInput
-  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutProductNestedInput
-  placementSchedules?: Prisma.PlacementScheduleUpdateManyWithoutProductNestedInput
-  leaderboardScores?: Prisma.ProductLeaderboardScoreUpdateManyWithoutProductNestedInput
-  keywordIndex?: Prisma.ProductKeywordUpdateManyWithoutProductNestedInput
-  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutProductNestedInput
-  redemptions?: Prisma.RedemptionUpdateManyWithoutProductNestedInput
-  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutProductNestedInput
-  planGrants?: Prisma.ProductPlanGrantUpdateManyWithoutProductNestedInput
-  alternatives?: Prisma.AlternativeProductUpdateManyWithoutProductsNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutTrafficChannelsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  websiteUrl?: Prisma.StringFieldUpdateOperationsInput | string
-  logo?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  planId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  planAssignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
-  pricingModel?: Prisma.EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
-  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
-  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  startingPriceCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bannerImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  keywords?: Prisma.ProductUpdatekeywordsInput | string[]
-  platforms?: Prisma.ProductUpdateplatformsInput | $Enums.Platform[]
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  categories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutProductNestedInput
-  metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
-  analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-  trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -3514,8 +2996,6 @@ export type ProductCreateWithoutTrafficBrowsersInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
@@ -3562,8 +3042,6 @@ export type ProductUncheckedCreateWithoutTrafficBrowsersInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
@@ -3626,8 +3104,6 @@ export type ProductUpdateWithoutTrafficBrowsersInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
@@ -3674,8 +3150,6 @@ export type ProductUncheckedUpdateWithoutTrafficBrowsersInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -3722,8 +3196,6 @@ export type ProductCreateWithoutTrafficOperatingSystemsInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
@@ -3770,8 +3242,6 @@ export type ProductUncheckedCreateWithoutTrafficOperatingSystemsInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
@@ -3834,8 +3304,6 @@ export type ProductUpdateWithoutTrafficOperatingSystemsInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
@@ -3882,8 +3350,6 @@ export type ProductUncheckedUpdateWithoutTrafficOperatingSystemsInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -3930,8 +3396,6 @@ export type ProductCreateWithoutTrafficDevicesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyCreateNestedManyWithoutProductInput
@@ -3978,8 +3442,6 @@ export type ProductUncheckedCreateWithoutTrafficDevicesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedCreateNestedManyWithoutProductInput
@@ -4042,8 +3504,6 @@ export type ProductUpdateWithoutTrafficDevicesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUpdateManyWithoutProductNestedInput
@@ -4090,8 +3550,6 @@ export type ProductUncheckedUpdateWithoutTrafficDevicesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficCountries?: Prisma.ProductTrafficCountryDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -4138,8 +3596,6 @@ export type ProductCreateWithoutTrafficCountriesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -4186,8 +3642,6 @@ export type ProductUncheckedCreateWithoutTrafficCountriesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -4250,8 +3704,6 @@ export type ProductUpdateWithoutTrafficCountriesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -4298,8 +3750,6 @@ export type ProductUncheckedUpdateWithoutTrafficCountriesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -4346,8 +3796,6 @@ export type ProductCreateWithoutTrafficCitiesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -4394,8 +3842,6 @@ export type ProductUncheckedCreateWithoutTrafficCitiesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -4458,8 +3904,6 @@ export type ProductUpdateWithoutTrafficCitiesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -4506,8 +3950,6 @@ export type ProductUncheckedUpdateWithoutTrafficCitiesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -4554,8 +3996,6 @@ export type ProductCreateWithoutProductUpvoteInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -4602,8 +4042,6 @@ export type ProductUncheckedCreateWithoutProductUpvoteInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -4666,8 +4104,6 @@ export type ProductUpdateWithoutProductUpvoteInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -4714,8 +4150,6 @@ export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -4761,8 +4195,6 @@ export type ProductCreateWithoutUserInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -4809,8 +4241,6 @@ export type ProductUncheckedCreateWithoutUserInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -4883,8 +4313,6 @@ export type ProductCreateWithoutCategoryInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -4931,8 +4359,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5005,8 +4431,6 @@ export type ProductCreateWithoutCategoriesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -5053,8 +4477,6 @@ export type ProductUncheckedCreateWithoutCategoriesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5117,8 +4539,6 @@ export type ProductUpdateWithoutCategoriesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -5165,8 +4585,6 @@ export type ProductUncheckedUpdateWithoutCategoriesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -5213,8 +4631,6 @@ export type ProductCreateWithoutPlanInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -5261,8 +4677,6 @@ export type ProductUncheckedCreateWithoutPlanInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5336,8 +4750,6 @@ export type ProductCreateWithoutPlanGrantsInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -5384,8 +4796,6 @@ export type ProductUncheckedCreateWithoutPlanGrantsInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5448,8 +4858,6 @@ export type ProductUpdateWithoutPlanGrantsInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -5496,8 +4904,6 @@ export type ProductUncheckedUpdateWithoutPlanGrantsInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -5544,8 +4950,6 @@ export type ProductCreateWithoutProductBadgeInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -5592,8 +4996,6 @@ export type ProductUncheckedCreateWithoutProductBadgeInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5656,8 +5058,6 @@ export type ProductUpdateWithoutProductBadgeInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -5704,8 +5104,6 @@ export type ProductUncheckedUpdateWithoutProductBadgeInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -5752,8 +5150,6 @@ export type ProductCreateWithoutRewardTransactionsInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -5800,8 +5196,6 @@ export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -5864,8 +5258,6 @@ export type ProductUpdateWithoutRewardTransactionsInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -5912,8 +5304,6 @@ export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -5960,8 +5350,6 @@ export type ProductCreateWithoutRedemptionsInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -6008,8 +5396,6 @@ export type ProductUncheckedCreateWithoutRedemptionsInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -6072,8 +5458,6 @@ export type ProductUpdateWithoutRedemptionsInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6120,8 +5504,6 @@ export type ProductUncheckedUpdateWithoutRedemptionsInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -6168,8 +5550,6 @@ export type ProductCreateWithoutFeatureEntitlementsInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -6216,8 +5596,6 @@ export type ProductUncheckedCreateWithoutFeatureEntitlementsInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -6280,8 +5658,6 @@ export type ProductUpdateWithoutFeatureEntitlementsInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6328,8 +5704,6 @@ export type ProductUncheckedUpdateWithoutFeatureEntitlementsInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -6376,8 +5750,6 @@ export type ProductCreateWithoutPlacementSchedulesInput = {
   metadata?: Prisma.ProductMetadataCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyCreateNestedManyWithoutProductInput
@@ -6424,8 +5796,6 @@ export type ProductUncheckedCreateWithoutPlacementSchedulesInput = {
   metadata?: Prisma.ProductMetadataUncheckedCreateNestedOneWithoutProductInput
   analytics?: Prisma.ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedCreateNestedManyWithoutProductInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedCreateNestedManyWithoutProductInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedCreateNestedManyWithoutProductInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedCreateNestedManyWithoutProductInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedCreateNestedManyWithoutProductInput
@@ -6488,8 +5858,6 @@ export type ProductUpdateWithoutPlacementSchedulesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6536,8 +5904,6 @@ export type ProductUncheckedUpdateWithoutPlacementSchedulesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -6584,8 +5950,6 @@ export type ProductUpdateWithoutAlternativesInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6632,8 +5996,6 @@ export type ProductUncheckedUpdateWithoutAlternativesInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -6730,8 +6092,6 @@ export type ProductUpdateWithoutUserInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6778,8 +6138,6 @@ export type ProductUncheckedUpdateWithoutUserInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -6876,8 +6234,6 @@ export type ProductUpdateWithoutCategoryInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -6924,8 +6280,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -7022,8 +6376,6 @@ export type ProductUpdateWithoutPlanInput = {
   metadata?: Prisma.ProductMetadataUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUpdateManyWithoutProductNestedInput
@@ -7070,8 +6422,6 @@ export type ProductUncheckedUpdateWithoutPlanInput = {
   metadata?: Prisma.ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
   analytics?: Prisma.ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
   trafficDaily?: Prisma.ProductTrafficDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficReferrers?: Prisma.ProductTrafficReferrerDailyUncheckedUpdateManyWithoutProductNestedInput
-  trafficChannels?: Prisma.ProductTrafficChannelDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficBrowsers?: Prisma.ProductTrafficBrowserDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficOperatingSystems?: Prisma.ProductTrafficOperatingSystemDailyUncheckedUpdateManyWithoutProductNestedInput
   trafficDevices?: Prisma.ProductTrafficDeviceDailyUncheckedUpdateManyWithoutProductNestedInput
@@ -7124,8 +6474,6 @@ export type ProductUncheckedUpdateManyWithoutPlanInput = {
 export type ProductCountOutputType = {
   categories: number
   trafficDaily: number
-  trafficReferrers: number
-  trafficChannels: number
   trafficBrowsers: number
   trafficOperatingSystems: number
   trafficDevices: number
@@ -7147,8 +6495,6 @@ export type ProductCountOutputType = {
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | ProductCountOutputTypeCountCategoriesArgs
   trafficDaily?: boolean | ProductCountOutputTypeCountTrafficDailyArgs
-  trafficReferrers?: boolean | ProductCountOutputTypeCountTrafficReferrersArgs
-  trafficChannels?: boolean | ProductCountOutputTypeCountTrafficChannelsArgs
   trafficBrowsers?: boolean | ProductCountOutputTypeCountTrafficBrowsersArgs
   trafficOperatingSystems?: boolean | ProductCountOutputTypeCountTrafficOperatingSystemsArgs
   trafficDevices?: boolean | ProductCountOutputTypeCountTrafficDevicesArgs
@@ -7189,20 +6535,6 @@ export type ProductCountOutputTypeCountCategoriesArgs<ExtArgs extends runtime.Ty
  */
 export type ProductCountOutputTypeCountTrafficDailyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductTrafficDailyWhereInput
-}
-
-/**
- * ProductCountOutputType without action
- */
-export type ProductCountOutputTypeCountTrafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductTrafficReferrerDailyWhereInput
-}
-
-/**
- * ProductCountOutputType without action
- */
-export type ProductCountOutputTypeCountTrafficChannelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductTrafficChannelDailyWhereInput
 }
 
 /**
@@ -7349,8 +6681,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   metadata?: boolean | Prisma.Product$metadataArgs<ExtArgs>
   analytics?: boolean | Prisma.Product$analyticsArgs<ExtArgs>
   trafficDaily?: boolean | Prisma.Product$trafficDailyArgs<ExtArgs>
-  trafficReferrers?: boolean | Prisma.Product$trafficReferrersArgs<ExtArgs>
-  trafficChannels?: boolean | Prisma.Product$trafficChannelsArgs<ExtArgs>
   trafficBrowsers?: boolean | Prisma.Product$trafficBrowsersArgs<ExtArgs>
   trafficOperatingSystems?: boolean | Prisma.Product$trafficOperatingSystemsArgs<ExtArgs>
   trafficDevices?: boolean | Prisma.Product$trafficDevicesArgs<ExtArgs>
@@ -7464,8 +6794,6 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   metadata?: boolean | Prisma.Product$metadataArgs<ExtArgs>
   analytics?: boolean | Prisma.Product$analyticsArgs<ExtArgs>
   trafficDaily?: boolean | Prisma.Product$trafficDailyArgs<ExtArgs>
-  trafficReferrers?: boolean | Prisma.Product$trafficReferrersArgs<ExtArgs>
-  trafficChannels?: boolean | Prisma.Product$trafficChannelsArgs<ExtArgs>
   trafficBrowsers?: boolean | Prisma.Product$trafficBrowsersArgs<ExtArgs>
   trafficOperatingSystems?: boolean | Prisma.Product$trafficOperatingSystemsArgs<ExtArgs>
   trafficDevices?: boolean | Prisma.Product$trafficDevicesArgs<ExtArgs>
@@ -7506,8 +6834,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     metadata: Prisma.$ProductMetadataPayload<ExtArgs> | null
     analytics: Prisma.$ProductAnalyticsPayload<ExtArgs> | null
     trafficDaily: Prisma.$ProductTrafficDailyPayload<ExtArgs>[]
-    trafficReferrers: Prisma.$ProductTrafficReferrerDailyPayload<ExtArgs>[]
-    trafficChannels: Prisma.$ProductTrafficChannelDailyPayload<ExtArgs>[]
     trafficBrowsers: Prisma.$ProductTrafficBrowserDailyPayload<ExtArgs>[]
     trafficOperatingSystems: Prisma.$ProductTrafficOperatingSystemDailyPayload<ExtArgs>[]
     trafficDevices: Prisma.$ProductTrafficDeviceDailyPayload<ExtArgs>[]
@@ -7951,8 +7277,6 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   metadata<T extends Prisma.Product$metadataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$metadataArgs<ExtArgs>>): Prisma.Prisma__ProductMetadataClient<runtime.Types.Result.GetResult<Prisma.$ProductMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   analytics<T extends Prisma.Product$analyticsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$analyticsArgs<ExtArgs>>): Prisma.Prisma__ProductAnalyticsClient<runtime.Types.Result.GetResult<Prisma.$ProductAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   trafficDaily<T extends Prisma.Product$trafficDailyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficDailyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  trafficReferrers<T extends Prisma.Product$trafficReferrersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficReferrersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficReferrerDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  trafficChannels<T extends Prisma.Product$trafficChannelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficChannelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficChannelDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trafficBrowsers<T extends Prisma.Product$trafficBrowsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficBrowsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficBrowserDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trafficOperatingSystems<T extends Prisma.Product$trafficOperatingSystemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficOperatingSystemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficOperatingSystemDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   trafficDevices<T extends Prisma.Product$trafficDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$trafficDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductTrafficDeviceDailyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8525,54 +7849,6 @@ export type Product$trafficDailyArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ProductTrafficDailyScalarFieldEnum | Prisma.ProductTrafficDailyScalarFieldEnum[]
-}
-
-/**
- * Product.trafficReferrers
- */
-export type Product$trafficReferrersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductTrafficReferrerDaily
-   */
-  select?: Prisma.ProductTrafficReferrerDailySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductTrafficReferrerDaily
-   */
-  omit?: Prisma.ProductTrafficReferrerDailyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductTrafficReferrerDailyInclude<ExtArgs> | null
-  where?: Prisma.ProductTrafficReferrerDailyWhereInput
-  orderBy?: Prisma.ProductTrafficReferrerDailyOrderByWithRelationInput | Prisma.ProductTrafficReferrerDailyOrderByWithRelationInput[]
-  cursor?: Prisma.ProductTrafficReferrerDailyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductTrafficReferrerDailyScalarFieldEnum | Prisma.ProductTrafficReferrerDailyScalarFieldEnum[]
-}
-
-/**
- * Product.trafficChannels
- */
-export type Product$trafficChannelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductTrafficChannelDaily
-   */
-  select?: Prisma.ProductTrafficChannelDailySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductTrafficChannelDaily
-   */
-  omit?: Prisma.ProductTrafficChannelDailyOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductTrafficChannelDailyInclude<ExtArgs> | null
-  where?: Prisma.ProductTrafficChannelDailyWhereInput
-  orderBy?: Prisma.ProductTrafficChannelDailyOrderByWithRelationInput | Prisma.ProductTrafficChannelDailyOrderByWithRelationInput[]
-  cursor?: Prisma.ProductTrafficChannelDailyWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductTrafficChannelDailyScalarFieldEnum | Prisma.ProductTrafficChannelDailyScalarFieldEnum[]
 }
 
 /**

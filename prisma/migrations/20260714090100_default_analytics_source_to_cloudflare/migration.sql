@@ -1,0 +1,17 @@
+ALTER TABLE "AnalyticsIngestionRun" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficReferrerDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficChannelDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficBrowserDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficOperatingSystemDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficDeviceDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficCountryDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "ProductTrafficCityDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficReferrerDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficBrowserDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficOperatingSystemDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficDeviceDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficCountryDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficRegionDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';
+ALTER TABLE "SiteTrafficCityDaily" ALTER COLUMN "source" SET DEFAULT 'cloudflare';

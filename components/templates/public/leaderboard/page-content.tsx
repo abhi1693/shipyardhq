@@ -74,8 +74,8 @@ function LeaderboardHero({
           : "This month's leaderboard"}
       </h1>
       <p className="mx-auto mb-8 max-w-2xl text-[16px] leading-6 text-[#43474c]">
-        Products are ranked by monthly score, unique visitors, and page views.
-        Updated every 6 hours.
+        Products are ranked by bounded browser activity and member upvotes.
+        Updated hourly.
       </p>
       <div className="flex flex-wrap justify-center gap-4">
         <Button
@@ -134,7 +134,7 @@ function Pill({
 function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
   const interestBadges = buildProductInterestBadges(item.interest, {
     maxBadges: 2,
-    includeBuildersClicked: true,
+    includeVisitCount: true,
   })
   const badgeLabels = item.badges?.slice(0, 2) ?? []
   const isTopRank = item.rank === 1

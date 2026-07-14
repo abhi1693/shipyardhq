@@ -125,7 +125,7 @@ function buildClusters({
 }
 
 function csvCell(value: string) {
-  return `"${value.replaceAll('"', '""')}"`
+  return `"${value.replace(/"/g, '""')}"`
 }
 
 export function StartupKeywordGeneratorTool() {
@@ -297,13 +297,13 @@ export function StartupKeywordGeneratorTool() {
             {clusters.map((cluster) => (
               <section
                 key={cluster.name}
-                aria-labelledby={`cluster-${cluster.name.replaceAll(" ", "-").toLowerCase()}`}
+                aria-labelledby={`cluster-${cluster.name.replace(/ /g, "-").toLowerCase()}`}
                 className="rounded-lg border border-slate-200 p-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3
-                      id={`cluster-${cluster.name.replaceAll(" ", "-").toLowerCase()}`}
+                      id={`cluster-${cluster.name.replace(/ /g, "-").toLowerCase()}`}
                       className="text-sm font-semibold text-slate-950"
                     >
                       {cluster.name}

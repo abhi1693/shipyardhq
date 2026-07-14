@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { type ReactNode } from "react"
 
 import { ArrowUpRight, BadgeCheck, Flame } from "lucide-react"
@@ -12,7 +13,6 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { ProductScore } from "@/components/molecules/ProductScore"
-import { ProductClickLink } from "@/components/molecules/ProductClickLink"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { cn } from "@/lib/utils"
@@ -20,6 +20,7 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
+import { productPath } from "@/lib/routes"
 
 const LOGO_SIZE = 60
 
@@ -108,7 +109,7 @@ export function ProductFeedCard({
 
   const interestBadges = buildProductInterestBadges(item.interest, {
     maxBadges: 2,
-    includeBuildersClicked: true,
+    includeVisitCount: true,
   })
 
   const badgeColorMap: Record<string, string> = {
@@ -273,21 +274,16 @@ export function ProductFeedCard({
     cardVariant === "sponsored" ? `/r/sponsored/${item.slug}` : undefined
 
   return (
-    <ProductClickLink
-      productSlug={item.slug}
-      href={redirectHref}
+    <Link
+      href={redirectHref ?? productPath(item.slug)}
       prefetch={redirectHref ? false : undefined}
       target={redirectHref ? "_blank" : undefined}
       rel={redirectHref ? "noopener noreferrer" : undefined}
       className={cardClasses}
       data-testid="homepage-feed-card"
-      formProps={{
-        className: "h-full",
-        "data-testid": "homepage-feed-card-form",
-      }}
     >
       {cardContent}
-    </ProductClickLink>
+    </Link>
   )
 }
 

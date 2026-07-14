@@ -55,8 +55,8 @@ const PLACEMENT_POINTS = [
   },
   {
     icon: BarChart3,
-    title: "Advanced referrer insights",
-    body: "See where discovery traffic comes from across referrers, channels, devices, browsers, and locations.",
+    title: "AI traffic intelligence",
+    body: "See AI crawler attention alongside device, browser, operating-system, and location insights.",
   },
 ] as const
 
@@ -232,8 +232,8 @@ export default async function PricingPage() {
               Turn your launch into measurable discovery.
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[#43474c] sm:text-lg sm:leading-7">
-              Publish free, earn votes and clicks, and buy extra reach only when
-              the timing is right.
+              Publish free, earn votes and product visits, and buy extra reach
+              only when the timing is right.
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:flex sm:items-center sm:justify-center">

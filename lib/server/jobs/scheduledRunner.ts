@@ -1,6 +1,8 @@
 import { revalidateMonthlyLeaderboard } from "@/lib/cache/revalidate"
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { refreshProductInterestCache } from "@/lib/server/analytics/productInterest"
+import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
 import {
   runAnalyticsIngestion,
   type IngestionJobKey,
@@ -35,12 +37,14 @@ export type ScheduledJobRunResult = {
 }
 
 const HOUR_MS = 60 * 60 * 1000
-const DEFAULT_TRENDING_CURRENT_WINDOW_HOURS = 6
-const DEFAULT_TRENDING_PREVIOUS_WINDOW_HOURS = 6
+const DAY_MS = 24 * HOUR_MS
+const DEFAULT_TRENDING_CURRENT_WINDOW_DAYS = 1
+const DEFAULT_TRENDING_PREVIOUS_WINDOW_DAYS = 1
 const DEFAULT_TRENDING_MIN_SCORE = 5
 const DEFAULT_TRENDING_MIN_RATIO = 1.5
 const DEFAULT_TRENDING_LIMIT = 1
-const TRENDING_TTL_MS = 12 * HOUR_MS
+const TRENDING_TTL_MS = DAY_MS
+const CLOUDFLARE_INGESTION_REFRESH_DAYS = 7
 
 const ANALYTICS_SYNC_JOBS: IngestionJobKey[] = [
   "product_traffic_daily",
@@ -120,6 +124,19 @@ async function runMonthlyLeaderboardJob() {
     periodEnd,
     asOf: new Date(),
   })
+  if (result.deferred) {
+    console.info("[scheduled.monthly-leaderboard] run deferred", {
+      month: targetMonth.toISOString(),
+      reason: "analytics-pending",
+    })
+    return {
+      success: true,
+      deferred: true,
+      reason: "analytics-pending",
+      result,
+    }
+  }
+
   const monthKey = toMonthKey(periodStart)
   console.info("[scheduled.monthly-leaderboard] leaderboard generated", {
     monthKey,
@@ -180,23 +197,45 @@ async function runHomepageFeedRefreshJob() {
 
 async function runBadgesTrendingJob() {
   const now = new Date()
-  const currentWindowHours = DEFAULT_TRENDING_CURRENT_WINDOW_HOURS
-  const previousWindowHours = DEFAULT_TRENDING_PREVIOUS_WINDOW_HOURS
+  const currentWindowDays = DEFAULT_TRENDING_CURRENT_WINDOW_DAYS
+  const previousWindowDays = DEFAULT_TRENDING_PREVIOUS_WINDOW_DAYS
   const minScore = DEFAULT_TRENDING_MIN_SCORE
   const minRatio = DEFAULT_TRENDING_MIN_RATIO
   const limit = DEFAULT_TRENDING_LIMIT
 
-  const currentStart = new Date(now.getTime() - currentWindowHours * HOUR_MS)
+  const currentEnd = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  )
+  const currentStart = new Date(
+    currentEnd.getTime() - currentWindowDays * DAY_MS,
+  )
   const previousStart = new Date(
-    currentStart.getTime() - previousWindowHours * HOUR_MS,
+    currentStart.getTime() - previousWindowDays * DAY_MS,
   )
   const previousEnd = currentStart
+
+  const hasTrafficRollup = await hasAnalyticsIngestionCoverage(
+    "product_traffic_daily",
+    {
+      start: previousStart,
+      end: new Date(currentEnd.getTime() - DAY_MS),
+    },
+  )
+  if (!hasTrafficRollup) {
+    return {
+      success: true,
+      deferred: true,
+      assignedCount: 0,
+      candidatesChecked: 0,
+      reason: "analytics-pending",
+    }
+  }
 
   const [currentScores, previousScores] = await Promise.all([
     computeLeaderboardWindow({
       periodStart: currentStart,
-      periodEnd: now,
-      asOf: now,
+      periodEnd: currentEnd,
+      asOf: currentEnd,
       limit,
     }),
     computeLeaderboardWindow({
@@ -264,8 +303,8 @@ async function runBadgesTrendingJob() {
     assignedCount: assigned.length,
     candidatesChecked: candidates.length,
     params: {
-      currentWindowHours,
-      previousWindowHours,
+      currentWindowDays,
+      previousWindowDays,
       minScore,
       minRatio,
       limit,
@@ -274,33 +313,35 @@ async function runBadgesTrendingJob() {
 }
 
 async function runAnalyticsProductInterestJob() {
-  const days = 7
+  const days = ANALYTICS_REPORTING_WINDOW_DAYS
   const topLimit = 60
   const perCategoryLimit = 60
-  const alsoClickedLimit = 12
-  const skipAlsoClicked = true
+  const alsoViewedLimit = 12
+  const skipAlsoViewed = true
 
   const result = await refreshProductInterestCache({
     days,
     topLimit,
     perCategoryLimit,
-    alsoClickedLimit,
-    skipAlsoClicked,
+    alsoViewedLimit,
+    skipAlsoViewed,
   })
 
   return {
     days,
     topLimit,
     perCategoryLimit,
-    alsoClickedLimit,
-    skipAlsoClicked,
+    alsoViewedLimit,
+    skipAlsoViewed,
     ...result,
   }
 }
 
 async function runAnalyticsSyncJob() {
   return runAnalyticsIngestion({
-    days: 1,
+    // Independent of the reporting window: this is the repair range available
+    // from Cloudflare's short-lived zone analytics retention.
+    days: CLOUDFLARE_INGESTION_REFRESH_DAYS,
     jobs: ANALYTICS_SYNC_JOBS,
   })
 }

@@ -4,9 +4,9 @@ import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
 export async function GET() {
   try {
-    const visitors = await getAnalyticsProvider("cache").getRealtimeVisitors()
+    const views = await getAnalyticsProvider("cache").getRealtimeVisitors()
     return NextResponse.json(
-      { visitors: Math.max(1, visitors) },
+      { views: Math.max(0, views) },
       {
         status: 200,
         headers: {
@@ -15,7 +15,7 @@ export async function GET() {
       },
     )
   } catch (error) {
-    console.error("[analytics] failed to fetch realtime visitors", error)
-    return NextResponse.json({ visitors: 1 }, { status: 200 })
+    console.error("[analytics] failed to fetch recent page views", error)
+    return NextResponse.json({ views: 0 }, { status: 200 })
   }
 }

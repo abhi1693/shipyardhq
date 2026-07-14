@@ -31,6 +31,6 @@ One-time pricing is selected by default. The recurring control is labeled “Kee
 
 - Free: public product page, standard homepage launch-feed card, standard Browse/directory discovery, basic product analytics, and product-sitemap inclusion.
 - Featured: everything in Free, plus a sponsored card in the homepage launch feed, priority position in Browse and supported filtered result feeds, and a direct do-follow product-page link.
-- Pro: everything in Featured, plus advanced referrer/channel/device/location insights, AI-search ready badge and dedicated Markdown profile, and eligibility for the sitewide Partner Spotlight bar and product, leaderboard, and directory sponsor panels.
+- Pro: everything in Featured, plus AI crawler/device/browser/location insights, AI-search ready badge and dedicated Markdown profile, and eligibility for the sitewide Partner Spotlight bar and product, leaderboard, and directory sponsor panels.
 
 The `featured` entitlement is present in production data but does not currently create a `ProductBadge("featured")` when a plan is purchased. Do not promise a Featured badge until that fulfillment bridge exists.

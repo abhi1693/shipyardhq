@@ -24,4 +24,18 @@ describe("scheduled BullMQ jobs", () => {
       expect("path" in definition).toBe(false)
     }
   })
+
+  it("runs traffic-dependent scoring after the daily analytics sync", () => {
+    const patterns = new Map(
+      SCHEDULED_JOB_DEFINITIONS.map((definition) => [
+        definition.id,
+        definition.pattern,
+      ]),
+    )
+
+    expect(patterns.get("analytics-sync")).toBe("0 0 2 * * *")
+    expect(patterns.get("leaderboard-highlights-day")).toBe("0 15 3 * * *")
+    expect(patterns.get("leaderboard-highlights-week")).toBe("0 30 3 * * 1")
+    expect(patterns.get("badges-trending")).toBe("0 45 3 * * *")
+  })
 })

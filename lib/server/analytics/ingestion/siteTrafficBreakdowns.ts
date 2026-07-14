@@ -1,9 +1,17 @@
+import { formatCountryName } from "@/lib/geo"
 import prisma from "@/lib/prisma"
 import {
+  AI_VERIFIED_BOT_CATEGORIES,
+  normalizeManagedLabels,
+} from "@/lib/server/analytics/aiCrawlerAttention"
+import { queryCloudflareHttpGroups } from "@/lib/server/analytics/cloudflareAnalytics"
+import { parseUtcHour } from "@/lib/server/analytics/hourlyActivity"
+import { classifyTrafficComposition } from "@/lib/server/analytics/trafficComposition"
+import {
   chunkArray,
-  fetchGaReportRows,
-  parseGaDate,
-  parseMetricValue,
+  cloudflareGroupLimit,
+  normalizePath,
+  parseAnalyticsDate,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
 
@@ -15,274 +23,20 @@ type BreakdownResult = {
   truncated: boolean
 }
 
-type NumericKeys<T> = {
-  [K in keyof T]: T[K] extends number ? K : never
-}[keyof T]
-
 export type SiteTrafficBreakdownSyncResult = {
   breakdowns: BreakdownResult[]
 }
 
-type BreakdownCollectorInput<T extends Record<string, any>> = {
-  name: string
-  window: AnalyticsIngestionWindow
-  dimensions: string[]
-  metricName: string
-  maxRows?: number
-  ingestionRunId?: string | null
-  buildRecord: (args: {
-    date: Date
-    dimensionValues: string[]
-    metricValue: number
-    ingestionRunId?: string | null
-  }) => T | null
-  recordKey: (record: T) => string
-  metricField: NumericKeys<T>
-  replaceRecords: (records: T[]) => Promise<void>
+function groupViews(group: { count: number }) {
+  return Math.max(0, Math.round(Number(group.count) || 0))
 }
 
-async function collectBreakdownRecords<T extends Record<string, any>>(
-  input: BreakdownCollectorInput<T>,
-): Promise<BreakdownResult> {
-  const { rows, pages, truncated } = await fetchGaReportRows({
-    request: {
-      dateRanges: [
-        { startDate: input.window.startDate, endDate: input.window.endDate },
-      ],
-      dimensions: input.dimensions.map((name) => ({ name })),
-      metrics: [{ name: input.metricName }],
-      orderBys: [
-        {
-          metric: { metricName: input.metricName },
-          desc: true,
-        },
-      ],
-    },
-    maxRows: input.maxRows,
-  })
-
-  const aggregated = new Map<string, T>()
-
-  for (const row of rows) {
-    const date = parseGaDate(row.dimensionValues?.[0]?.value)
-    if (!date) continue
-
-    const metricValue = Math.round(
-      parseMetricValue(row.metricValues?.[0]?.value),
-    )
-    if (metricValue <= 0) continue
-
-    const dimensionValues = (row.dimensionValues ?? [])
-      .slice(1)
-      .map((entry) => entry?.value ?? "")
-
-    const record = input.buildRecord({
-      date,
-      dimensionValues,
-      metricValue,
-      ingestionRunId: input.ingestionRunId ?? null,
-    })
-    if (!record) continue
-
-    const key = input.recordKey(record)
-    const current = aggregated.get(key)
-    if (!current) {
-      aggregated.set(key, record)
-      continue
-    }
-
-    const metricField = input.metricField as string
-    const currentValue = Number(
-      (current as Record<string, number>)[metricField] ?? 0,
-    )
-    ;(current as Record<string, number>)[metricField] =
-      currentValue + metricValue
-    aggregated.set(key, current)
-  }
-
-  const records = Array.from(aggregated.values())
-  await input.replaceRecords(records)
-
-  return {
-    name: input.name,
-    rows: rows.length,
-    stored: records.length,
-    pages,
-    truncated,
-  }
-}
-
-async function replaceSiteTrafficReferrers(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    referrer: string
-    pageViews: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
+async function insertBatches<T>(
+  records: T[],
+  createMany: (batch: T[]) => Promise<unknown>,
 ) {
-  await prisma.siteTrafficReferrerDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficReferrerDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficBrowsers(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    browser: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficBrowserDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficBrowserDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficOperatingSystems(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    operatingSystem: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficOperatingSystemDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficOperatingSystemDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficDevices(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    deviceCategory: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficDeviceDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficDeviceDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficCountries(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    country: string
-    countryCode: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficCountryDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficCountryDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficRegions(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    region: string
-    country: string
-    countryCode: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficRegionDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficRegionDaily.createMany({ data: batch })
-  }
-}
-
-async function replaceSiteTrafficCities(
-  records: Array<{
-    date: Date
-    source: "ga4"
-    city: string
-    region: string
-    country: string
-    countryCode: string
-    visitors: number
-    ingestionRunId?: string | null
-  }>,
-  window: AnalyticsIngestionWindow,
-) {
-  await prisma.siteTrafficCityDaily.deleteMany({
-    where: {
-      source: "ga4",
-      date: { gte: window.start, lte: window.end },
-    },
-  })
-
-  if (!records.length) return
-  const BATCH_SIZE = 500
-  for (const batch of chunkArray(records, BATCH_SIZE)) {
-    await prisma.siteTrafficCityDaily.createMany({ data: batch })
+  for (const batch of chunkArray(records, 500)) {
+    await createMany(batch)
   }
 }
 
@@ -291,209 +45,358 @@ export async function syncSiteTrafficBreakdowns(args: {
   ingestionRunId?: string | null
   maxRows?: number
 }): Promise<SiteTrafficBreakdownSyncResult> {
-  const breakdowns: BreakdownResult[] = []
-  const source = "ga4" as const
+  const limit = cloudflareGroupLimit(args.maxRows)
+  const baseQuery = {
+    dateRange: {
+      startDate: args.window.startDate,
+      endDate: args.window.endDate,
+    },
+    limit,
+  } as const
+  const [
+    browserGroups,
+    osGroups,
+    deviceGroups,
+    countryGroups,
+    hourlyGroups,
+    compositionGroups,
+    aiCrawlerStatusGroups,
+    aiCrawlerEndpointGroups,
+  ] = await Promise.all([
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: ["date", "userAgentBrowser"],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: ["date", "userAgentOS"],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: ["date", "clientDeviceType"],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: ["date", "clientCountryName"],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: ["datetimeHour"],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: [
+        "date",
+        "verifiedBotCategory",
+        "userAgentBrowser",
+        "requestSource",
+      ],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: [
+        "date",
+        "verifiedBotCategory",
+        "payPerCrawlStatus",
+        "edgeResponseStatus",
+      ],
+      verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
+    }),
+    queryCloudflareHttpGroups({
+      ...baseQuery,
+      dimensions: [
+        "date",
+        "verifiedBotCategory",
+        "clientRequestPath",
+        "apiGatewayMatchedEndpoint",
+        "webAssetsLabelsManaged",
+      ],
+      verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
+    }),
+  ])
 
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "referrers",
-      window: args.window,
-      dimensions: ["date", "sessionSource"],
-      metricName: "screenPageViews",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "pageViews",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const rawLabel = dimensionValues[0]?.trim()
-        const normalizedLabel =
-          rawLabel === "(direct)" ? "Direct / none" : rawLabel
-        const referrer =
-          normalizedLabel && normalizedLabel.length > 0
-            ? normalizedLabel
-            : "Direct / none"
-        return {
-          date,
-          source,
-          referrer,
-          pageViews: Math.round(metricValue),
-          ingestionRunId,
-        }
+  const source = "cloudflare" as const
+  const ingestionRunId = args.ingestionRunId ?? null
+  const browsers = browserGroups.flatMap((group) => {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const visitors = groupViews(group)
+    if (!date || visitors <= 0) return []
+    return [
+      {
+        date,
+        source,
+        browser: group.dimensions?.userAgentBrowser?.trim() || "Unknown",
+        visitors,
+        ingestionRunId,
       },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.referrer}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficReferrers(records, args.window),
+    ]
+  })
+  const operatingSystems = osGroups.flatMap((group) => {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const visitors = groupViews(group)
+    if (!date || visitors <= 0) return []
+    return [
+      {
+        date,
+        source,
+        operatingSystem: group.dimensions?.userAgentOS?.trim() || "Unknown",
+        visitors,
+        ingestionRunId,
+      },
+    ]
+  })
+  const devices = deviceGroups.flatMap((group) => {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const visitors = groupViews(group)
+    if (!date || visitors <= 0) return []
+    return [
+      {
+        date,
+        source,
+        deviceCategory:
+          group.dimensions?.clientDeviceType?.trim().toLowerCase() || "unknown",
+        visitors,
+        ingestionRunId,
+      },
+    ]
+  })
+  const countries = countryGroups.flatMap((group) => {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const visitors = groupViews(group)
+    if (!date || visitors <= 0) return []
+    const countryCode = group.dimensions?.clientCountryName?.trim() || ""
+    return [
+      {
+        date,
+        source,
+        country: formatCountryName(countryCode),
+        countryCode,
+        visitors,
+        ingestionRunId,
+      },
+    ]
+  })
+  const hourlyActivity = hourlyGroups.flatMap((group) => {
+    const timestamp = parseUtcHour(group.dimensions?.datetimeHour)
+    const requests = groupViews(group)
+    const visits = Math.max(0, Math.round(Number(group.sum?.visits) || 0))
+    if (!timestamp || requests <= 0) return []
+    return [
+      {
+        timestamp,
+        source,
+        requests,
+        visits,
+        ingestionRunId,
+      },
+    ]
+  })
+  const compositionByKey = new Map<
+    string,
+    {
+      date: Date
+      source: typeof source
+      segment: string
+      category: string
+      requests: number
+      ingestionRunId: string | null
+    }
+  >()
+  for (const group of compositionGroups) {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const requests = groupViews(group)
+    if (!date || requests <= 0) continue
+
+    const classification = classifyTrafficComposition({
+      verifiedBotCategory: group.dimensions?.verifiedBotCategory,
+      userAgentBrowser: group.dimensions?.userAgentBrowser,
+      requestSource: group.dimensions?.requestSource,
+    })
+    const key = [
+      date.toISOString(),
+      classification.segment,
+      classification.category,
+    ].join(":")
+    const current = compositionByKey.get(key)
+    if (current) {
+      current.requests += requests
+      continue
+    }
+
+    compositionByKey.set(key, {
+      date,
+      source,
+      segment: classification.segment,
+      category: classification.category,
+      requests,
+      ingestionRunId,
+    })
+  }
+  const composition = Array.from(compositionByKey.values())
+  const aiCrawlerStatuses = aiCrawlerStatusGroups.flatMap((group) => {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const category = group.dimensions?.verifiedBotCategory?.trim() || "Unknown"
+    const requests = groupViews(group)
+    if (!date || requests <= 0) return []
+    return [
+      {
+        date,
+        source,
+        category,
+        crawlStatus: group.dimensions?.payPerCrawlStatus?.trim() || "unknown",
+        responseStatus: Math.max(
+          0,
+          Math.round(Number(group.dimensions?.edgeResponseStatus) || 0),
+        ),
+        requests,
+        ingestionRunId,
+      },
+    ]
+  })
+  const aiCrawlerEndpointMap = new Map<
+    string,
+    {
+      date: Date
+      source: typeof source
+      category: string
+      endpoint: string
+      matchedEndpoint: string
+      managedLabels: Set<string>
+      requests: number
+      ingestionRunId: string | null
+    }
+  >()
+  for (const group of aiCrawlerEndpointGroups) {
+    const date = parseAnalyticsDate(group.dimensions?.date)
+    const requests = groupViews(group)
+    if (!date || requests <= 0) continue
+
+    const category = group.dimensions?.verifiedBotCategory?.trim() || "Unknown"
+    const endpoint = normalizePath(group.dimensions?.clientRequestPath)
+    const matchedEndpoint =
+      group.dimensions?.apiGatewayMatchedEndpoint?.trim() || ""
+    const key = [date.toISOString(), category, endpoint, matchedEndpoint].join(
+      ":",
+    )
+    const current = aiCrawlerEndpointMap.get(key) ?? {
+      date,
+      source,
+      category,
+      endpoint,
+      matchedEndpoint,
+      managedLabels: new Set<string>(),
+      requests: 0,
+      ingestionRunId,
+    }
+    current.requests += requests
+    for (const label of normalizeManagedLabels(
+      group.dimensions?.webAssetsLabelsManaged,
+    )) {
+      current.managedLabels.add(label)
+    }
+    aiCrawlerEndpointMap.set(key, current)
+  }
+  const aiCrawlerEndpoints = Array.from(aiCrawlerEndpointMap.values()).map(
+    (record) => ({
+      ...record,
+      managedLabels: Array.from(record.managedLabels),
     }),
   )
+  const hourlyWindowEnd = new Date(args.window.end)
+  hourlyWindowEnd.setUTCDate(hourlyWindowEnd.getUTCDate() + 1)
 
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "browsers",
-      window: args.window,
-      dimensions: ["date", "browser"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const browser = dimensionValues[0]?.trim() || "Unknown"
-        return {
-          date,
-          source,
-          browser,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
+  await prisma.$transaction([
+    prisma.siteTrafficHourly.deleteMany({
+      where: {
+        source,
+        timestamp: { gte: args.window.start, lt: hourlyWindowEnd },
       },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.browser}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficBrowsers(records, args.window),
     }),
+    prisma.siteTrafficCompositionDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteAiCrawlerStatusDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteAiCrawlerEndpointDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficBrowserDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficOperatingSystemDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficDeviceDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficCountryDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficRegionDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+    prisma.siteTrafficCityDaily.deleteMany({
+      where: { source, date: { gte: args.window.start, lte: args.window.end } },
+    }),
+  ])
+
+  await insertBatches(browsers, (data) =>
+    prisma.siteTrafficBrowserDaily.createMany({ data }),
+  )
+  await insertBatches(operatingSystems, (data) =>
+    prisma.siteTrafficOperatingSystemDaily.createMany({ data }),
+  )
+  await insertBatches(devices, (data) =>
+    prisma.siteTrafficDeviceDaily.createMany({ data }),
+  )
+  await insertBatches(countries, (data) =>
+    prisma.siteTrafficCountryDaily.createMany({ data }),
+  )
+  await insertBatches(hourlyActivity, (data) =>
+    prisma.siteTrafficHourly.createMany({ data }),
+  )
+  await insertBatches(composition, (data) =>
+    prisma.siteTrafficCompositionDaily.createMany({ data }),
+  )
+  await insertBatches(aiCrawlerStatuses, (data) =>
+    prisma.siteAiCrawlerStatusDaily.createMany({ data }),
+  )
+  await insertBatches(aiCrawlerEndpoints, (data) =>
+    prisma.siteAiCrawlerEndpointDaily.createMany({ data }),
   )
 
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "operating-systems",
-      window: args.window,
-      dimensions: ["date", "operatingSystem"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const operatingSystem = dimensionValues[0]?.trim() || "Unknown"
-        return {
-          date,
-          source,
-          operatingSystem,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
-      },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.operatingSystem}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficOperatingSystems(records, args.window),
-    }),
-  )
-
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "devices",
-      window: args.window,
-      dimensions: ["date", "deviceCategory"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const deviceCategory =
-          dimensionValues[0]?.trim().toLowerCase() || "unknown"
-        return {
-          date,
-          source,
-          deviceCategory,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
-      },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.deviceCategory}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficDevices(records, args.window),
-    }),
-  )
-
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "countries",
-      window: args.window,
-      dimensions: ["date", "country", "countryId"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const country = dimensionValues[0]?.trim() || "Unknown"
-        const countryCode = dimensionValues[1]?.trim() || ""
-        return {
-          date,
-          source,
-          country,
-          countryCode,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
-      },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.country}:${record.countryCode}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficCountries(records, args.window),
-    }),
-  )
-
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "regions",
-      window: args.window,
-      dimensions: ["date", "region", "country", "countryId"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const region = dimensionValues[0]?.trim() || "Unknown"
-        const country = dimensionValues[1]?.trim() || "Unknown"
-        const countryCode = dimensionValues[2]?.trim() || ""
-        return {
-          date,
-          source,
-          region,
-          country,
-          countryCode,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
-      },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.region}:${record.country}:${record.countryCode}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficRegions(records, args.window),
-    }),
-  )
-
-  breakdowns.push(
-    await collectBreakdownRecords({
-      name: "cities",
-      window: args.window,
-      dimensions: ["date", "city", "region", "country", "countryId"],
-      metricName: "activeUsers",
-      maxRows: args.maxRows,
-      ingestionRunId: args.ingestionRunId ?? null,
-      metricField: "visitors",
-      buildRecord: ({ date, dimensionValues, metricValue, ingestionRunId }) => {
-        const city = dimensionValues[0]?.trim() || "Unknown"
-        const region = dimensionValues[1]?.trim() || "Unknown"
-        const country = dimensionValues[2]?.trim() || "Unknown"
-        const countryCode = dimensionValues[3]?.trim() || ""
-        return {
-          date,
-          source,
-          city,
-          region,
-          country,
-          countryCode,
-          visitors: Math.round(metricValue),
-          ingestionRunId,
-        }
-      },
-      recordKey: (record) =>
-        `${record.date.toISOString().slice(0, 10)}:${record.city}:${record.region}:${record.country}:${record.countryCode}`,
-      replaceRecords: async (records) =>
-        replaceSiteTrafficCities(records, args.window),
-    }),
-  )
-
-  return { breakdowns }
+  const result = (name: string, rows: number, stored: number) => ({
+    name,
+    rows,
+    stored,
+    pages: 1,
+    truncated: rows >= limit,
+  })
+  return {
+    breakdowns: [
+      result("browsers", browserGroups.length, browsers.length),
+      result("operatingSystems", osGroups.length, operatingSystems.length),
+      result("devices", deviceGroups.length, devices.length),
+      result("countries", countryGroups.length, countries.length),
+      result("hourlyActivity", hourlyGroups.length, hourlyActivity.length),
+      result(
+        "trafficComposition",
+        compositionGroups.length,
+        composition.length,
+      ),
+      result(
+        "aiCrawlerStatuses",
+        aiCrawlerStatusGroups.length,
+        aiCrawlerStatuses.length,
+      ),
+      result(
+        "aiCrawlerEndpoints",
+        aiCrawlerEndpointGroups.length,
+        aiCrawlerEndpoints.length,
+      ),
+      result("regions", 0, 0),
+      result("cities", 0, 0),
+    ],
+  }
 }

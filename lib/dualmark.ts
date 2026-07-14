@@ -176,7 +176,7 @@ const homeMarkdownDescription = [
   "2. The maker submits a product from the member product submission flow.",
   "3. The product listing can include a name, tagline, description, logo, website URL, category, use cases, keywords, supported platforms, product type, pricing model, and starting price metadata.",
   "4. After publication, the product can appear on its canonical product page and in public discovery surfaces such as browse, category, tag, platform, pricing, product-type, and use-case pages.",
-  "5. Launch signals such as votes, clicks, analytics, ranking context, verification, badges, and promotion status can help visitors evaluate the listing.",
+  "5. Launch signals such as votes, visits, analytics, ranking context, verification, badges, and promotion status can help visitors evaluate the listing.",
   "6. Optional paid visibility plans can add featured, sponsored, priority, spotlight, or analytics-oriented placement depending on available plans.",
   "",
   "## Key Directories and Retrieval Targets",

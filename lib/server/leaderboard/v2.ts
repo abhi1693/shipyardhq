@@ -1,31 +1,27 @@
 import prisma from "@/lib/prisma"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { getAnalyticsProvider } from "@/lib/server/analytics/store"
+import {
+  capDailyLeaderboardTraffic,
+  DEFAULT_LEADERBOARD_WEIGHTS,
+  scoreLeaderboardMetrics,
+  type LeaderboardWeights,
+} from "@/lib/server/leaderboard/scoring"
+import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
+
+export type { LeaderboardWeights } from "@/lib/server/leaderboard/scoring"
 
 type MetricMaps = {
-  views: Map<string, number>
-  uniqueVisitors: Map<string, number>
+  browserRequests: Map<string, number>
+  browserVisits: Map<string, number>
+  scoredBrowserRequests: Map<string, number>
+  scoredBrowserVisits: Map<string, number>
   upvotes: Map<string, number>
-}
-
-type TrafficLookupMode = "analytics" | "stored"
-
-export type LeaderboardWeights = {
-  views: number
-  uniqueVisitors: number
-  upvotes: number
-}
-
-const DEFAULT_WEIGHTS: LeaderboardWeights = {
-  views: 1,
-  uniqueVisitors: 3,
-  upvotes: 10,
 }
 
 type ScoreRow = {
   productId: string
-  views: number
-  uniqueVisitors: number
+  browserRequests: number
+  browserVisits: number
   upvotes: number
   score: number
   scoreComponents: Record<string, number>
@@ -35,8 +31,8 @@ type ScoreRow = {
 export type LeaderboardScoreRow = ScoreRow & { rank: number }
 
 function metricsHaveActivity(metrics: MetricMaps): boolean {
-  return [metrics.views, metrics.uniqueVisitors, metrics.upvotes].some((map) =>
-    Array.from(map.values()).some((value) => value > 0),
+  return [metrics.browserRequests, metrics.browserVisits, metrics.upvotes].some(
+    (map) => Array.from(map.values()).some((value) => value > 0),
   )
 }
 
@@ -66,7 +62,22 @@ export async function generateLeaderboardRun(options: {
   periodEnd: Date
   weights?: LeaderboardWeights
   asOf?: Date
-}): Promise<{ runId: string; scores: number; windowEnd: Date }> {
+}): Promise<{
+  runId: string
+  scores: number
+  windowEnd: Date
+  deferred: boolean
+}> {
+  const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
+  if (!(await hasLatestScoringTrafficRollup(options.periodStart, windowEnd))) {
+    console.info("[leaderboard] generate run deferred", {
+      periodStart: options.periodStart.toISOString(),
+      windowEnd: windowEnd.toISOString(),
+      reason: "analytics-pending",
+    })
+    return { runId: "", scores: 0, windowEnd, deferred: true }
+  }
+
   const run = await createLeaderboardRun(options)
 
   console.info("[leaderboard] generate run start", {
@@ -81,12 +92,13 @@ export async function generateLeaderboardRun(options: {
     data: { status: "processing" },
   })
 
-  const weights = options.weights ?? DEFAULT_WEIGHTS
-  const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
+  const weights = options.weights ?? DEFAULT_LEADERBOARD_WEIGHTS
   const metrics = await collectMetrics(options.periodStart, windowEnd)
   const hasActivity = metricsHaveActivity(metrics)
   const rankedRows = hasActivity
-    ? applyRanks(computeScores(metrics, weights, []))
+    ? applyRanks(
+        computeScores(metrics, weights, []).filter((row) => row.score > 0),
+      )
     : []
 
   await persistScores(run.id, rankedRows)
@@ -102,7 +114,12 @@ export async function generateLeaderboardRun(options: {
     windowEnd: windowEnd.toISOString(),
   })
 
-  return { runId: run.id, scores: rankedRows.length, windowEnd }
+  return {
+    runId: run.id,
+    scores: rankedRows.length,
+    windowEnd,
+    deferred: false,
+  }
 }
 
 export function getCurrentLeaderboardWindow(now: Date = new Date()): {
@@ -180,21 +197,22 @@ export async function computeLeaderboardWindow(options: {
   asOf?: Date
   productIds?: string[]
   limit?: number
-  trafficLookup?: TrafficLookupMode
 }): Promise<LeaderboardScoreRow[]> {
   const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
-  const weights = options.weights ?? DEFAULT_WEIGHTS
+  if (!(await hasScoringTrafficCoverage(options.periodStart, windowEnd))) {
+    return []
+  }
+
+  const weights = options.weights ?? DEFAULT_LEADERBOARD_WEIGHTS
   const productIds = options.productIds?.filter(Boolean)
-  const trafficLookup = options.trafficLookup ?? "analytics"
 
   const metrics = productIds?.length
     ? await collectMetricsForProducts(
         productIds,
         options.periodStart,
         windowEnd,
-        trafficLookup,
       )
-    : await collectMetrics(options.periodStart, windowEnd, trafficLookup)
+    : await collectMetrics(options.periodStart, windowEnd)
 
   const hasActivity = metricsHaveActivity(metrics)
   if (!hasActivity) return []
@@ -216,16 +234,29 @@ export async function updateLeaderboardScoresForProducts(options: {
   productIds: string[]
   weights?: LeaderboardWeights
   asOf?: Date
-}): Promise<{ runId: string; updated: number; windowEnd: Date }> {
+}): Promise<{
+  runId: string
+  updated: number
+  windowEnd: Date
+  deferred: boolean
+}> {
   const productIds = Array.from(new Set(options.productIds)).filter(Boolean)
   if (!productIds.length) {
-    return { runId: "", updated: 0, windowEnd: options.periodEnd }
+    return {
+      runId: "",
+      updated: 0,
+      windowEnd: options.periodEnd,
+      deferred: false,
+    }
+  }
+
+  const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
+  if (!(await hasLatestScoringTrafficRollup(options.periodStart, windowEnd))) {
+    return { runId: "", updated: 0, windowEnd, deferred: true }
   }
 
   const run = await createLeaderboardRun(options)
-
-  const windowEnd = resolveWindowEnd(options.periodEnd, options.asOf)
-  const weights = options.weights ?? DEFAULT_WEIGHTS
+  const weights = options.weights ?? DEFAULT_LEADERBOARD_WEIGHTS
   const metrics = await collectMetricsForProducts(
     productIds,
     options.periodStart,
@@ -240,7 +271,7 @@ export async function updateLeaderboardScoresForProducts(options: {
       weights: options.weights,
       asOf: options.asOf,
     })
-    return { runId, updated: 0, windowEnd }
+    return { runId, updated: 0, windowEnd, deferred: false }
   }
 
   console.info("[leaderboard] update scores for products", {
@@ -257,8 +288,8 @@ export async function updateLeaderboardScoresForProducts(options: {
       runId: run.id,
       productSlug: slug,
       score: row.score,
-      views: row.views,
-      uniqueVisitors: row.uniqueVisitors,
+      browserRequests: row.browserRequests,
+      browserVisits: row.browserVisits,
       upvotes: row.upvotes,
     })
 
@@ -272,15 +303,15 @@ export async function updateLeaderboardScoresForProducts(options: {
       create: {
         runId: run.id,
         productId: row.productId,
-        views: row.views,
-        uniqueVisitors: row.uniqueVisitors,
+        views: row.browserRequests,
+        uniqueVisitors: row.browserVisits,
         upvotes: row.upvotes,
         score: row.score,
         scoreComponents: row.scoreComponents,
       },
       update: {
-        views: row.views,
-        uniqueVisitors: row.uniqueVisitors,
+        views: row.browserRequests,
+        uniqueVisitors: row.browserVisits,
         upvotes: row.upvotes,
         score: row.score,
         scoreComponents: row.scoreComponents,
@@ -301,18 +332,56 @@ export async function updateLeaderboardScoresForProducts(options: {
     })
   }
 
-  return { runId: run.id, updated: rows.length, windowEnd }
+  return {
+    runId: run.id,
+    updated: rows.length,
+    windowEnd,
+    deferred: false,
+  }
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+async function hasScoringTrafficCoverage(
+  periodStart: Date,
+  windowEnd: Date,
+): Promise<boolean> {
+  if (windowEnd <= periodStart) return false
+
+  return hasAnalyticsIngestionCoverage("product_traffic_daily", {
+    start: periodStart,
+    end: new Date(windowEnd.getTime() - DAY_MS),
+  })
+}
+
+async function hasLatestScoringTrafficRollup(
+  periodStart: Date,
+  windowEnd: Date,
+): Promise<boolean> {
+  if (windowEnd <= periodStart) return false
+
+  const latestCompletedDay = new Date(windowEnd.getTime() - DAY_MS)
+  return hasAnalyticsIngestionCoverage("product_traffic_daily", {
+    start: latestCompletedDay,
+    end: latestCompletedDay,
+  })
 }
 
 function resolveWindowEnd(periodEnd: Date, asOf?: Date): Date {
   if (!asOf) return periodEnd
-  return new Date(Math.min(periodEnd.getTime(), asOf.getTime()))
+
+  // Traffic is stored as completed UTC-day rollups. Keep every scoring signal
+  // on that same boundary so current-day upvotes are not scored without the
+  // corresponding traffic data.
+  const completedDayBoundary = new Date(
+    Date.UTC(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate()),
+  )
+  return new Date(Math.min(periodEnd.getTime(), completedDayBoundary.getTime()))
 }
 
 async function collectMetrics(
   periodStart: Date,
   periodEnd: Date,
-  trafficLookup: TrafficLookupMode = "analytics",
 ): Promise<MetricMaps> {
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
@@ -320,19 +389,13 @@ async function collectMetrics(
       select: { id: true, slug: true },
     })
 
-  return collectMetricsForProductList(
-    products,
-    periodStart,
-    periodEnd,
-    trafficLookup,
-  )
+  return collectMetricsForProductList(products, periodStart, periodEnd)
 }
 
 async function collectMetricsForProducts(
   productIds: string[],
   periodStart: Date,
   periodEnd: Date,
-  trafficLookup: TrafficLookupMode = "analytics",
 ): Promise<MetricMaps> {
   const products: Array<{ id: string; slug: string }> =
     await prisma.product.findMany({
@@ -340,38 +403,27 @@ async function collectMetricsForProducts(
       select: { id: true, slug: true },
     })
 
-  return collectMetricsForProductList(
-    products,
-    periodStart,
-    periodEnd,
-    trafficLookup,
-  )
+  return collectMetricsForProductList(products, periodStart, periodEnd)
 }
 
 async function collectMetricsForProductList(
   products: Array<{ id: string; slug: string }>,
   periodStart: Date,
   periodEnd: Date,
-  trafficLookup: TrafficLookupMode,
 ): Promise<MetricMaps> {
   const productIds = products.map((product: { id: string }) => product.id)
   if (!productIds.length) {
     return {
-      views: new Map(),
-      uniqueVisitors: new Map(),
+      browserRequests: new Map(),
+      browserVisits: new Map(),
+      scoredBrowserRequests: new Map(),
+      scoredBrowserVisits: new Map(),
       upvotes: new Map(),
     }
   }
 
-  const dateRange = buildDateRange(periodStart, periodEnd)
   const [trafficMap, upvotes] = await Promise.all([
-    getProductTrafficMapForLeaderboard({
-      products,
-      dateRange,
-      periodStart,
-      periodEnd,
-      trafficLookup,
-    }),
+    getStoredProductScoringTrafficMap(productIds, periodStart, periodEnd),
     prisma.productUpvote.groupBy({
       by: ["productId"],
       where: {
@@ -384,14 +436,18 @@ async function collectMetricsForProductList(
   ])
 
   const metrics: MetricMaps = {
-    views: new Map(),
-    uniqueVisitors: new Map(),
+    browserRequests: new Map(),
+    browserVisits: new Map(),
+    scoredBrowserRequests: new Map(),
+    scoredBrowserVisits: new Map(),
     upvotes: new Map(),
   }
 
   for (const [productId, values] of trafficMap.entries()) {
-    metrics.views.set(productId, values.pageViews)
-    metrics.uniqueVisitors.set(productId, values.uniqueVisitors)
+    metrics.browserRequests.set(productId, values.browserRequests)
+    metrics.browserVisits.set(productId, values.browserVisits)
+    metrics.scoredBrowserRequests.set(productId, values.scoredBrowserRequests)
+    metrics.scoredBrowserVisits.set(productId, values.scoredBrowserVisits)
   }
 
   for (const entry of upvotes) {
@@ -401,77 +457,59 @@ async function collectMetricsForProductList(
   return metrics
 }
 
-async function getProductTrafficMapForLeaderboard(args: {
-  products: Array<{ id: string; slug: string }>
-  dateRange: { startDate: string; endDate: string }
-  periodStart: Date
-  periodEnd: Date
-  trafficLookup: TrafficLookupMode
-}) {
-  if (args.trafficLookup === "stored") {
-    return getStoredProductTrafficMap(
-      args.products.map((product) => product.id),
-      args.periodStart,
-      args.periodEnd,
-    )
-  }
-
-  const analyticsProvider = getAnalyticsProvider("cache")
-  return analyticsProvider.getProductTrafficMap({
-    products: args.products,
-    dateRange: args.dateRange,
-  })
-}
-
-async function getStoredProductTrafficMap(
+async function getStoredProductScoringTrafficMap(
   productIds: string[],
   periodStart: Date,
   periodEnd: Date,
 ) {
-  const rows = await prisma.productTrafficDaily.groupBy({
-    by: ["productId"],
+  const rows = await prisma.productTrafficDaily.findMany({
     where: {
       productId: { in: productIds },
-      source: "ga4",
+      source: "cloudflare",
       date: { gte: periodStart, lt: periodEnd },
     },
-    _sum: {
-      pageViews: true,
-      uniqueVisitors: true,
-      sessions: true,
+    select: {
+      productId: true,
+      browserRequests: true,
+      browserVisits: true,
     },
   })
 
   const results = new Map<
     string,
-    { pageViews: number; uniqueVisitors: number; sessions: number }
+    {
+      browserRequests: number
+      browserVisits: number
+      scoredBrowserRequests: number
+      scoredBrowserVisits: number
+    }
   >()
 
   for (const productId of productIds) {
-    results.set(productId, { pageViews: 0, uniqueVisitors: 0, sessions: 0 })
-  }
-
-  for (const row of rows) {
-    results.set(row.productId, {
-      pageViews: Number(row._sum.pageViews ?? 0),
-      uniqueVisitors: Number(row._sum.uniqueVisitors ?? 0),
-      sessions: Number(row._sum.sessions ?? 0),
+    results.set(productId, {
+      browserRequests: 0,
+      browserVisits: 0,
+      scoredBrowserRequests: 0,
+      scoredBrowserVisits: 0,
     })
   }
 
+  for (const row of rows) {
+    const current = results.get(row.productId)
+    if (!current) continue
+    const browserRequests = Math.max(0, Number(row.browserRequests ?? 0))
+    const browserVisits = Math.max(0, Number(row.browserVisits ?? 0))
+    const scored = capDailyLeaderboardTraffic({
+      browserRequests,
+      browserVisits,
+    })
+    current.browserRequests += browserRequests
+    current.browserVisits += browserVisits
+    current.scoredBrowserRequests += scored.browserRequests
+    current.scoredBrowserVisits += scored.browserVisits
+  }
+
   return results
-}
-
-function buildDateRange(periodStart: Date, periodEnd: Date) {
-  const start = formatDate(periodStart)
-  const endDate = new Date(periodEnd)
-  endDate.setUTCDate(endDate.getUTCDate() - 1)
-  const end = formatDate(endDate < periodStart ? periodStart : endDate)
-  return { startDate: start, endDate: end }
-}
-
-function formatDate(date: Date): string {
-  return date.toISOString().slice(0, 10)
 }
 
 function computeScores(
@@ -481,57 +519,39 @@ function computeScores(
 ): ScoreRow[] {
   const productIds = new Set<string>([
     ...seedProductIds,
-    ...metrics.views.keys(),
-    ...metrics.uniqueVisitors.keys(),
+    ...metrics.browserRequests.keys(),
+    ...metrics.browserVisits.keys(),
     ...metrics.upvotes.keys(),
   ])
-
-  const baseRows: Array<
-    Omit<ScoreRow, "score" | "scoreComponents" | "rank"> & {
-      baseScore: number
-      baseScoreComponents: Record<string, number>
-    }
-  > = []
 
   const rows: ScoreRow[] = []
 
   for (const productId of productIds) {
-    const views = metrics.views.get(productId) ?? 0
-    const uniqueVisitors = metrics.uniqueVisitors.get(productId) ?? 0
+    const browserRequests = metrics.browserRequests.get(productId) ?? 0
+    const browserVisits = metrics.browserVisits.get(productId) ?? 0
+    const scoredBrowserRequests =
+      metrics.scoredBrowserRequests.get(productId) ?? 0
+    const scoredBrowserVisits = metrics.scoredBrowserVisits.get(productId) ?? 0
     const upvotes = metrics.upvotes.get(productId) ?? 0
-    const baseScoreComponents = {
-      views: views * weights.views,
-      uniqueVisitors: uniqueVisitors * weights.uniqueVisitors,
-      upvotes: upvotes * weights.upvotes,
-    }
-
-    const baseScore = Object.values(baseScoreComponents).reduce(
-      (total, value) => total + value,
-      0,
+    const scored = scoreLeaderboardMetrics(
+      {
+        browserRequests: scoredBrowserRequests,
+        browserVisits: scoredBrowserVisits,
+        upvotes,
+      },
+      weights,
     )
 
-    baseRows.push({
-      productId,
-      views,
-      uniqueVisitors,
-      upvotes,
-      baseScore,
-      baseScoreComponents,
-    })
-  }
-
-  for (const entry of baseRows) {
-    const score = entry.baseScore <= 0 ? 0 : entry.baseScore
     rows.push({
-      productId: entry.productId,
-      views: entry.views,
-      uniqueVisitors: entry.uniqueVisitors,
-      upvotes: entry.upvotes,
-      score,
+      productId,
+      browserRequests,
+      browserVisits,
+      upvotes,
+      score: scored.score,
       scoreComponents: {
-        ...entry.baseScoreComponents,
-        baseScore: entry.baseScore,
-        finalScore: score,
+        browserRequests,
+        browserVisits,
+        ...scored.components,
       },
     })
   }
@@ -562,9 +582,10 @@ function applyRanks(rows: ScoreRow[]): ScoreRow[] {
   const sorted = [...rows].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score
     if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes
-    if (b.uniqueVisitors !== a.uniqueVisitors)
-      return b.uniqueVisitors - a.uniqueVisitors
-    if (b.views !== a.views) return b.views - a.views
+    if (b.browserVisits !== a.browserVisits)
+      return b.browserVisits - a.browserVisits
+    if (b.browserRequests !== a.browserRequests)
+      return b.browserRequests - a.browserRequests
     return a.productId.localeCompare(b.productId)
   })
 
@@ -589,8 +610,8 @@ async function persistScores(runId: string, rows: ScoreRow[]) {
       data: batch.map((row) => ({
         runId,
         productId: row.productId,
-        views: row.views,
-        uniqueVisitors: row.uniqueVisitors,
+        views: row.browserRequests,
+        uniqueVisitors: row.browserVisits,
         upvotes: row.upvotes,
         score: row.score,
         scoreComponents: row.scoreComponents,

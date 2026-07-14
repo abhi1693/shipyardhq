@@ -40,7 +40,7 @@ export function FreeLaunchDeliverable() {
             className="mt-0.5 size-4 shrink-0 text-[#0051d5]"
             aria-hidden
           />
-          <span>Track views, visits, visitors, engagement, and upvotes</span>
+          <span>Track views, visitors, audience insights, and upvotes</span>
         </div>
         <p className="mt-1 pl-6 text-[11px] leading-4 text-[#667085] sm:mt-0 sm:pl-0 sm:text-right">
           Upgrade only when you want priority placement.

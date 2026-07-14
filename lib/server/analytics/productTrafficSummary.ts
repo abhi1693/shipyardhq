@@ -1,13 +1,15 @@
 import { format, startOfDay, subDays } from "date-fns"
 
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
-import { type GaDateRange } from "@/lib/server/analytics/googleAnalytics"
-import type { ProductTrafficSummary as ProviderProductTrafficSummary } from "@/lib/server/analytics/providerTypes"
+import type {
+  AnalyticsDateRange,
+  ProductTrafficSummary as ProviderProductTrafficSummary,
+} from "@/lib/server/analytics/providerTypes"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import type {
   ProductTrafficAdvancedInsights,
-  ProductTrafficReferrerCategory,
   ProductTrafficSummary,
   ProductTrafficSummaryPoint,
 } from "@/types/analytics"
@@ -19,9 +21,9 @@ type SummaryOptions = {
   previousComparison?: boolean
 }
 
-type GaSummary = ProviderProductTrafficSummary
+type AnalyticsSummary = ProviderProductTrafficSummary
 
-function buildDateRange(rangeDays: number): GaDateRange {
+function buildDateRange(rangeDays: number): AnalyticsDateRange {
   const end = startOfDay(subDays(new Date(), 1))
   const start = subDays(end, Math.max(rangeDays - 1, 0))
   return {
@@ -30,7 +32,7 @@ function buildDateRange(rangeDays: number): GaDateRange {
   }
 }
 
-function previousRange(range: GaDateRange): GaDateRange {
+function previousRange(range: AnalyticsDateRange): AnalyticsDateRange {
   const end = startOfDay(new Date(range.startDate))
   const spanDays =
     Math.max(
@@ -53,7 +55,7 @@ function calcChange(current: number, previous: number) {
   return ((current - previous) / previous) * 100
 }
 
-function toSummaryPoints(timeseries: GaSummary["timeseries"]) {
+function toSummaryPoints(timeseries: AnalyticsSummary["timeseries"]) {
   return timeseries.map<ProductTrafficSummaryPoint>((point) => ({
     date: point.date,
     label: point.label,
@@ -62,19 +64,10 @@ function toSummaryPoints(timeseries: GaSummary["timeseries"]) {
   }))
 }
 
-function buildAdvanced(ga: GaSummary): ProductTrafficAdvancedInsights {
-  const normalizeReferrerCategory = (
-    category: string,
-  ): ProductTrafficReferrerCategory => {
-    const normalized = category.toLowerCase()
-    if (normalized === "direct") return "direct"
-    if (normalized.includes("search")) return "search"
-    if (normalized.includes("social")) return "social"
-    if (normalized.includes("email")) return "email"
-    return "other"
-  }
-
-  const regionTotals = ga.cities.reduce((acc, entry) => {
+function buildAdvanced(
+  analytics: AnalyticsSummary,
+): ProductTrafficAdvancedInsights {
+  const regionTotals = analytics.cities.reduce((acc, entry) => {
     const region = entry.region || "Unknown region"
     const country = entry.country ?? null
     const key = `${country ?? "unknown"}|${region}`
@@ -85,60 +78,54 @@ function buildAdvanced(ga: GaSummary): ProductTrafficAdvancedInsights {
   }, new Map<string, { region: string; country: string | null; views: number }>())
 
   return {
-    uniqueVisitorsOverTime: toSummaryPoints(ga.timeseries),
+    uniqueVisitorsOverTime: toSummaryPoints(analytics.timeseries),
     pathBreakdown: [],
-    osBreakdown: ga.operatingSystems.map((os) => ({
+    osBreakdown: analytics.operatingSystems.map((os) => ({
       os: os.os,
       views: os.visitors,
     })),
     regionBreakdown: Array.from(regionTotals.values()).sort(
       (a, b) => b.views - a.views,
     ),
-    cityBreakdown: ga.cities.map((city) => ({
+    cityBreakdown: analytics.cities.map((city) => ({
       country: city.country ?? null,
       region: city.region ?? null,
       city: city.city,
       views: city.visitors,
     })),
-    referrerCategoryBreakdown: ga.referrerCategories.map((entry) => ({
-      category: normalizeReferrerCategory(entry.category),
-      label: entry.category,
-      views: entry.views,
-    })),
     newVsReturning: {
-      newVisitors: ga.newUsers,
-      returningVisitors: ga.returningVisitors,
+      newVisitors: analytics.newUsers,
+      returningVisitors: analytics.returningVisitors,
       unknownVisitors: 0,
       returningRate:
-        ga.uniqueVisitors > 0
-          ? (ga.returningVisitors / ga.uniqueVisitors) * 100
+        analytics.uniqueVisitors > 0
+          ? (analytics.returningVisitors / analytics.uniqueVisitors) * 100
           : 0,
     },
     anomalies: [],
     topProducts: undefined,
-    referrerProductMatrix: undefined,
   }
 }
 
 function buildSummary({
-  ga,
-  gaPrevious,
+  analytics,
+  previousAnalytics,
   rangeDays,
   upvotesInRange,
   previousUpvotes,
 }: {
-  ga: GaSummary
-  gaPrevious: GaSummary | null
+  analytics: AnalyticsSummary
+  previousAnalytics: AnalyticsSummary | null
   rangeDays: number
   upvotesInRange: number
   previousUpvotes: number
 }): ProductTrafficSummary {
-  const totalViews = ga.pageViews
-  const previousViews = gaPrevious?.pageViews ?? 0
-  const uniqueVisitors = ga.uniqueVisitors
-  const previousUniqueVisitors = gaPrevious?.uniqueVisitors ?? 0
+  const totalViews = analytics.pageViews
+  const previousViews = previousAnalytics?.pageViews ?? 0
+  const uniqueVisitors = analytics.uniqueVisitors
+  const previousUniqueVisitors = previousAnalytics?.uniqueVisitors ?? 0
 
-  const viewsOverTime = toSummaryPoints(ga.timeseries)
+  const viewsOverTime = toSummaryPoints(analytics.timeseries)
   const engagementsOverTime = viewsOverTime.map((point) => ({
     date: point.date,
     label: point.label,
@@ -147,9 +134,10 @@ function buildSummary({
 
   const viewsPreviousDay =
     viewsOverTime.length > 0 ? viewsOverTime[viewsOverTime.length - 1].views : 0
-  const viewsSevenDays = viewsOverTime
-    .slice(-7)
-    .reduce((sum, point) => sum + point.views, 0)
+  const viewsInRange = viewsOverTime.reduce(
+    (sum, point) => sum + point.views,
+    0,
+  )
 
   const deviceLabel = (device: string) => {
     switch (device) {
@@ -164,7 +152,7 @@ function buildSummary({
     }
   }
 
-  const deviceBreakdown = ga.devices.map((device) => ({
+  const deviceBreakdown = analytics.devices.map((device) => ({
     device: device.deviceCategory as any,
     label: deviceLabel(device.deviceCategory),
     views: device.visitors,
@@ -181,7 +169,7 @@ function buildSummary({
     averageViewsPerDay:
       rangeDays > 0 ? Math.round((totalViews / rangeDays) * 10) / 10 : 0,
     viewsToday: viewsPreviousDay,
-    viewsSevenDays,
+    viewsInRange,
     upvotesInRange,
     previousUpvotes,
     upvotesChange: calcChange(upvotesInRange, previousUpvotes),
@@ -190,29 +178,25 @@ function buildSummary({
     upvoteConversionRateChange: calcChange(upvotesInRange, previousUpvotes),
     botViews: 0,
     previousBotViews: 0,
-    topCountry: ga.countries[0]
-      ? { country: ga.countries[0].country, views: ga.countries[0].visitors }
-      : undefined,
-    topReferrer: ga.referrers[0]
-      ? { referrer: ga.referrers[0].referrer, views: ga.referrers[0].views }
+    topCountry: analytics.countries[0]
+      ? {
+          country: analytics.countries[0].country,
+          views: analytics.countries[0].visitors,
+        }
       : undefined,
     viewsOverTime,
     deviceBreakdown,
-    countryBreakdown: ga.countries.map((country) => ({
+    countryBreakdown: analytics.countries.map((country) => ({
       country: country.country,
       views: country.visitors,
     })),
-    browserBreakdown: ga.browsers.map((browser) => ({
+    browserBreakdown: analytics.browsers.map((browser) => ({
       browser: browser.browser,
       views: browser.visitors,
     })),
     userAgentBreakdown: [],
-    referrerBreakdown: ga.referrers.map((referrer) => ({
-      referrer: referrer.referrer,
-      views: referrer.views,
-    })),
     engagementOverTime: engagementsOverTime,
-    advanced: buildAdvanced(ga),
+    advanced: buildAdvanced(analytics),
     filters: { includeBots: false },
   }
 
@@ -221,7 +205,7 @@ function buildSummary({
 
 async function countUpvotes(
   productIds: string[],
-  range: GaDateRange,
+  range: AnalyticsDateRange,
 ): Promise<number> {
   const start = new Date(range.startDate)
   const end = startOfDay(new Date(range.endDate))
@@ -246,7 +230,10 @@ export async function getProductTrafficSummary(
     throw new Error(`Product not found for id ${productId}`)
   }
 
-  const rangeDays = Math.max(options.rangeDays ?? 7, 1)
+  const rangeDays = Math.max(
+    options.rangeDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
+    1,
+  )
   const dateRange = buildDateRange(rangeDays)
   const prevRange =
     options.previousComparison === false ? null : previousRange(dateRange)
@@ -255,26 +242,27 @@ export async function getProductTrafficSummary(
 
   const analyticsProvider = getAnalyticsProvider("cache")
 
-  const [ga, gaPrevious, upvotesInRange, previousUpvotes] = await Promise.all([
-    analyticsProvider.getProductTraffic({
-      pagePaths,
-      dateRange,
-      includeAdvanced: options.includeAdvanced,
-    }),
-    prevRange
-      ? analyticsProvider.getProductTraffic({
-          pagePaths,
-          dateRange: prevRange,
-          includeAdvanced: options.includeAdvanced,
-        })
-      : Promise.resolve(null),
-    countUpvotes([productId], dateRange),
-    prevRange ? countUpvotes([productId], prevRange) : Promise.resolve(0),
-  ])
+  const [analytics, previousAnalytics, upvotesInRange, previousUpvotes] =
+    await Promise.all([
+      analyticsProvider.getProductTraffic({
+        pagePaths,
+        dateRange,
+        includeAdvanced: options.includeAdvanced,
+      }),
+      prevRange
+        ? analyticsProvider.getProductTraffic({
+            pagePaths,
+            dateRange: prevRange,
+            includeAdvanced: options.includeAdvanced,
+          })
+        : Promise.resolve(null),
+      countUpvotes([productId], dateRange),
+      prevRange ? countUpvotes([productId], prevRange) : Promise.resolve(0),
+    ])
 
   return buildSummary({
-    ga,
-    gaPrevious,
+    analytics,
+    previousAnalytics,
     rangeDays,
     upvotesInRange,
     previousUpvotes,

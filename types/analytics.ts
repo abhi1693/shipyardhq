@@ -36,13 +36,6 @@ export interface ProductTrafficUserAgentBreakdownItem extends ProductTrafficBrea
   device: DeviceCategory
 }
 
-export interface ProductTrafficReferrerBreakdownItem extends ProductTrafficBreakdownItem {
-  referrer: string
-}
-
-export type ProductTrafficReferrerCategory =
-  "direct" | "search" | "social" | "email" | "other"
-
 export interface ProductTrafficPathBreakdownItem extends ProductTrafficBreakdownItem {
   path: string
   previousViews: number
@@ -64,11 +57,6 @@ export interface ProductTrafficCityBreakdownItem extends ProductTrafficBreakdown
   city: string
 }
 
-export interface ProductTrafficReferrerCategoryBreakdownItem extends ProductTrafficBreakdownItem {
-  category: ProductTrafficReferrerCategory
-  label: string
-}
-
 export interface ProductTrafficNewReturningBreakdown {
   newVisitors: number
   returningVisitors: number
@@ -87,18 +75,6 @@ export interface ProductTrafficAnomaly {
   share?: number
 }
 
-export interface ProductTrafficReferrerMatrixProduct {
-  productId: string
-  productName?: string
-  views: number
-}
-
-export interface ProductTrafficReferrerMatrixRow {
-  referrer: string
-  views: number
-  topProducts: ProductTrafficReferrerMatrixProduct[]
-}
-
 export interface ProductTrafficTopProduct {
   productId: string
   productName?: string
@@ -112,11 +88,9 @@ export interface ProductTrafficAdvancedInsights {
   osBreakdown: ProductTrafficOsBreakdownItem[]
   regionBreakdown: ProductTrafficRegionBreakdownItem[]
   cityBreakdown: ProductTrafficCityBreakdownItem[]
-  referrerCategoryBreakdown: ProductTrafficReferrerCategoryBreakdownItem[]
   newVsReturning: ProductTrafficNewReturningBreakdown
   anomalies: ProductTrafficAnomaly[]
   topProducts?: ProductTrafficTopProduct[]
-  referrerProductMatrix?: ProductTrafficReferrerMatrixRow[]
 }
 
 export interface ProductTrafficSummary {
@@ -129,7 +103,7 @@ export interface ProductTrafficSummary {
   uniqueVisitorsChange: number
   averageViewsPerDay: number
   viewsToday: number
-  viewsSevenDays: number
+  viewsInRange: number
   upvotesInRange: number
   previousUpvotes: number
   upvotesChange: number
@@ -138,13 +112,11 @@ export interface ProductTrafficSummary {
   botViews: number
   previousBotViews: number
   topCountry?: { country: string; views: number }
-  topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
   deviceBreakdown: ProductTrafficDeviceBreakdownItem[]
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   userAgentBreakdown: ProductTrafficUserAgentBreakdownItem[]
-  referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
   engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
   filters: {

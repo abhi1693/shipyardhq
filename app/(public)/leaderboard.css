@@ -6,7 +6,7 @@
 
 @source "./leaderboard/**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../components/molecules/LeaderboardTopPlacement.tsx";
-@source "../../components/molecules/LiveVisitorsPill.tsx";
+@source "../../components/molecules/RecentViewsPill.tsx";
 @source "../../components/molecules/ProductFeedCard*.tsx";
 @source "../../components/molecules/ProductList.skeleton.tsx";
 @source "../../components/molecules/ProductScore.tsx";

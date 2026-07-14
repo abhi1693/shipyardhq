@@ -393,7 +393,14 @@ export function buildProductMarkdownDocument(
   if (rankRows.length) {
     sections.push(
       `## Rank History\n\n${markdownTable(
-        ["Period", "Rank", "Score", "Views", "Unique visitors", "Upvotes"],
+        [
+          "Period",
+          "Rank",
+          "Score",
+          "Browser requests",
+          "Browser visits",
+          "Upvotes",
+        ],
         rankRows,
       )}`,
     )

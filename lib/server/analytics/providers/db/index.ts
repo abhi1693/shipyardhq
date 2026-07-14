@@ -1,21 +1,23 @@
-import { format, subDays } from "date-fns"
+import { format } from "date-fns"
 
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  getAnalyticsReportingWindow,
+} from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
+import { fetchRecentVisitorsFromCloudflare } from "@/lib/server/analytics/cloudflareAnalytics"
+import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
 import type {
   AnalyticsDateRange,
   AnalyticsProvider,
+  HomepageTraffic,
   ProductTrafficSummary,
+  SiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/providerTypes"
-import type { HomepageTraffic } from "@/lib/server/analytics/googleAnalytics"
-import { gaAnalyticsProvider } from "@/lib/server/analytics/providers/ga"
-import { extractProductSlug } from "@/lib/server/analytics/providers/ga/helpers"
-
-type IngestionJobKey =
-  | "product_traffic_daily"
-  | "product_traffic_breakdowns"
-  | "site_traffic_daily"
-  | "site_traffic_breakdowns"
+import { extractProductSlug } from "@/lib/server/analytics/helpers"
+import { buildHourlyActivity } from "@/lib/server/analytics/hourlyActivity"
+import { buildAiCrawlerAttention } from "@/lib/server/analytics/aiCrawlerAttention"
 
 type RangeBounds = {
   start: Date
@@ -23,7 +25,6 @@ type RangeBounds = {
   days: number
 }
 
-type ReferrerRow = { referrer: string; _sum: { pageViews: number | null } }
 type BrowserRow = { browser: string; _sum: { visitors: number | null } }
 type OperatingSystemRow = {
   operatingSystem: string
@@ -48,15 +49,15 @@ type CityRow = {
   countryCode: string
   _sum: { visitors: number | null }
 }
+type TrafficCompositionRow = {
+  segment: string
+  category: string
+  _sum: { requests: number | null }
+}
 type TopProductCandidateRow = {
   productId: string
   _sum: { pageViews: number | null }
 }
-type ProductReferrerRow = {
-  referrer: string
-  _sum: { pageViews: number | null }
-}
-type ProductChannelRow = { channel: string; _sum: { pageViews: number | null } }
 type ProductBrowserRow = { browser: string; _sum: { visitors: number | null } }
 type ProductOperatingSystemRow = {
   operatingSystem: string
@@ -77,6 +78,77 @@ type ProductCityRow = {
   country: string
   countryCode: string
   _sum: { visitors: number | null }
+}
+
+function emptyProductTrafficSummary(): ProductTrafficSummary {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    newUsers: 0,
+    returningVisitors: 0,
+    sessions: 0,
+    bounceRate: 0,
+    averageSessionDuration: 0,
+    browsers: [],
+    operatingSystems: [],
+    countries: [],
+    cities: [],
+    devices: [],
+    timeseries: [],
+  }
+}
+
+function emptySiteAnalyticsSnapshot(): SiteAnalyticsSnapshot {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    sessions: 0,
+    bounceRate: 0,
+    averageSessionDuration: 0,
+    newUsers: 0,
+    engagementRate: 0,
+    pagesPerSession: 0,
+    timeseries: [],
+    browsers: [],
+    operatingSystems: [],
+    devices: [],
+    countries: [],
+    regions: [],
+    cities: [],
+    hourlyActivity: [],
+    aiCrawlerAttention: {
+      totalRequests: 0,
+      shareOfTraffic: 0,
+      successfulRequests: 0,
+      successRate: 0,
+      categories: [],
+      crawlStatuses: [],
+      responseStatuses: [],
+      endpoints: [],
+    },
+    trafficComposition: {
+      totalRequests: 0,
+      browserRequests: 0,
+      verifiedAutomatedRequests: 0,
+      otherRequests: 0,
+      verifiedCategories: [],
+    },
+    topProductPages: [],
+  }
+}
+
+function emptyProductTrafficMap(
+  products: Array<{ id: string }>,
+): Map<
+  string,
+  { pageViews: number; uniqueVisitors: number; sessions: number }
+> {
+  return new Map(
+    products.map((product) => [
+      product.id,
+      { pageViews: 0, uniqueVisitors: 0, sessions: 0 },
+    ]),
+  )
 }
 
 function toUtcDate(value: string): Date | null {
@@ -117,39 +189,17 @@ function dateKey(date: Date) {
   return date.toISOString().slice(0, 10)
 }
 
-function resolveSlugFromPaths(pagePaths: string[]): string | null {
-  const slugs = new Set(
-    pagePaths.map((path) => extractProductSlug(path)).filter(Boolean),
-  )
-  if (slugs.size !== 1) return null
-  return Array.from(slugs.values())[0] ?? null
-}
-
-async function hasIngestionCoverage(
-  job: IngestionJobKey,
-  bounds: RangeBounds,
-): Promise<boolean> {
-  const run = await prisma.analyticsIngestionRun.findFirst({
-    where: {
-      source: "ga4",
-      job,
-      status: "completed",
-      windowStart: { lte: bounds.start },
-      windowEnd: { gte: bounds.end },
-    },
-    select: { id: true },
-    orderBy: { finishedAt: "desc" },
-  })
-
-  return Boolean(run)
+function resolveSlugsFromPaths(pagePaths: string[]): string[] {
+  return Array.from(
+    new Set(pagePaths.map((path) => extractProductSlug(path)).filter(Boolean)),
+  ) as string[]
 }
 
 function defaultSiteDateRange(): AnalyticsDateRange {
-  const end = subDays(new Date(), 1)
-  const start = subDays(end, 29)
+  const { startDate, endDate } = getAnalyticsReportingWindow()
   return {
-    startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(end, "yyyy-MM-dd"),
+    startDate,
+    endDate,
   }
 }
 
@@ -162,9 +212,9 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
   if (!bounds) return null
 
   const [hasSiteDaily, hasSiteBreakdowns, hasProductDaily] = await Promise.all([
-    hasIngestionCoverage("site_traffic_daily", bounds),
-    hasIngestionCoverage("site_traffic_breakdowns", bounds),
-    hasIngestionCoverage("product_traffic_daily", bounds),
+    hasAnalyticsIngestionCoverage("site_traffic_daily", bounds),
+    hasAnalyticsIngestionCoverage("site_traffic_breakdowns", bounds),
+    hasAnalyticsIngestionCoverage("product_traffic_daily", bounds),
   ])
 
   if (!hasSiteDaily || !hasSiteBreakdowns || !hasProductDaily) {
@@ -173,15 +223,26 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
 
   const dailyRows = await prisma.siteTrafficDaily.findMany({
     where: {
-      source: "ga4",
+      source: "cloudflare",
       date: { gte: bounds.start, lte: bounds.end },
     },
     orderBy: { date: "asc" },
   })
 
-  const dailyByDate = new Map<string, (typeof dailyRows)[number]>()
+  const dailyByDate = new Map<
+    string,
+    { pageViews: number; uniqueVisitors: number }
+  >()
   for (const row of dailyRows) {
-    dailyByDate.set(dateKey(row.date), row)
+    const key = dateKey(row.date)
+    const current = dailyByDate.get(key) ?? {
+      pageViews: 0,
+      uniqueVisitors: 0,
+    }
+    dailyByDate.set(key, {
+      pageViews: current.pageViews + row.pageViews,
+      uniqueVisitors: current.uniqueVisitors + row.uniqueVisitors,
+    })
   }
 
   let pageViews = 0
@@ -223,28 +284,21 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
   }
 
   const [
-    referrerRows,
     browserRows,
     osRows,
     deviceRows,
     countryRows,
     regionRows,
     cityRows,
+    hourlyRows,
+    compositionRows,
+    aiCrawlerStatusRows,
+    aiCrawlerEndpointRows,
   ] = await Promise.all([
-    prisma.siteTrafficReferrerDaily.groupBy({
-      by: ["referrer"],
-      where: {
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { pageViews: true },
-      orderBy: { _sum: { pageViews: "desc" } },
-      take: 12,
-    }),
     prisma.siteTrafficBrowserDaily.groupBy({
       by: ["browser"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
@@ -254,7 +308,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     prisma.siteTrafficOperatingSystemDaily.groupBy({
       by: ["operatingSystem"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
@@ -264,7 +318,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     prisma.siteTrafficDeviceDaily.groupBy({
       by: ["deviceCategory"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
@@ -274,7 +328,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     prisma.siteTrafficCountryDaily.groupBy({
       by: ["country", "countryCode"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
@@ -284,7 +338,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     prisma.siteTrafficRegionDaily.groupBy({
       by: ["region", "country", "countryCode"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
@@ -294,23 +348,78 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     prisma.siteTrafficCityDaily.groupBy({
       by: ["city", "region", "country", "countryCode"],
       where: {
-        source: "ga4",
+        source: "cloudflare",
         date: { gte: bounds.start, lte: bounds.end },
       },
       _sum: { visitors: true },
       orderBy: { _sum: { visitors: "desc" } },
       take: 10,
     }),
+    prisma.siteTrafficHourly.findMany({
+      where: {
+        source: "cloudflare",
+        timestamp: {
+          gte: bounds.start,
+          lt: addUtcDays(bounds.end, 1),
+        },
+      },
+      select: { timestamp: true, requests: true, visits: true },
+      orderBy: { timestamp: "asc" },
+    }),
+    prisma.siteTrafficCompositionDaily.groupBy({
+      by: ["segment", "category"],
+      where: {
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { requests: true },
+      orderBy: { _sum: { requests: "desc" } },
+    }),
+    prisma.siteAiCrawlerStatusDaily.findMany({
+      where: {
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      select: {
+        category: true,
+        crawlStatus: true,
+        responseStatus: true,
+        requests: true,
+      },
+    }),
+    prisma.siteAiCrawlerEndpointDaily.groupBy({
+      by: ["endpoint"],
+      where: {
+        source: "cloudflare",
+        date: { gte: bounds.start, lte: bounds.end },
+      },
+      _sum: { requests: true },
+      orderBy: { _sum: { requests: "desc" } },
+      take: 12,
+    }),
   ])
 
-  const referrers = referrerRows.map((row: ReferrerRow) => {
-    const views = Number(row._sum.pageViews ?? 0)
-    return {
-      referrer: row.referrer,
-      views,
-      share: pageViews > 0 ? (views / pageViews) * 100 : 0,
-    }
-  })
+  const aiCrawlerEndpointMetadata =
+    aiCrawlerEndpointRows.length > 0
+      ? await prisma.siteAiCrawlerEndpointDaily.findMany({
+          where: {
+            source: "cloudflare",
+            date: { gte: bounds.start, lte: bounds.end },
+            endpoint: {
+              in: aiCrawlerEndpointRows.map((row) => row.endpoint),
+            },
+            OR: [
+              { managedLabels: { isEmpty: false } },
+              { NOT: { matchedEndpoint: "" } },
+            ],
+          },
+          select: {
+            endpoint: true,
+            matchedEndpoint: true,
+            managedLabels: true,
+          },
+        })
+      : []
 
   const browsers = browserRows.map((row: BrowserRow) => {
     const visitors = Number(row._sum.visitors ?? 0)
@@ -371,12 +480,83 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
       share: uniqueVisitors > 0 ? (visitors / uniqueVisitors) * 100 : 0,
     }
   })
+  const hourlyActivity = buildHourlyActivity(hourlyRows)
+
+  let browserRequests = 0
+  let verifiedAutomatedRequests = 0
+  let otherRequests = 0
+  const verifiedCategories: SiteAnalyticsSnapshot["trafficComposition"]["verifiedCategories"] =
+    []
+
+  for (const row of compositionRows as TrafficCompositionRow[]) {
+    const requests = Math.max(0, Number(row._sum.requests ?? 0))
+    if (row.segment === "browser") {
+      browserRequests += requests
+    } else if (row.segment === "verified_automated") {
+      verifiedAutomatedRequests += requests
+      verifiedCategories.push({
+        category: row.category,
+        requests,
+        share: 0,
+      })
+    } else {
+      otherRequests += requests
+    }
+  }
+
+  const classifiedRequests =
+    browserRequests + verifiedAutomatedRequests + otherRequests
+  // Grouped adaptive estimates can drift slightly; the raw total is authoritative.
+  otherRequests =
+    pageViews > 0
+      ? Math.max(0, pageViews - browserRequests - verifiedAutomatedRequests)
+      : otherRequests
+  const compositionTotal =
+    pageViews > 0
+      ? Math.max(pageViews, browserRequests + verifiedAutomatedRequests)
+      : classifiedRequests
+  const trafficComposition = {
+    totalRequests: compositionTotal,
+    browserRequests,
+    verifiedAutomatedRequests,
+    otherRequests,
+    verifiedCategories: verifiedCategories
+      .map((category) => ({
+        ...category,
+        share:
+          compositionTotal > 0
+            ? (category.requests / compositionTotal) * 100
+            : 0,
+      }))
+      .sort((a, b) => b.requests - a.requests),
+  }
+  const aiCrawlerAttention = buildAiCrawlerAttention({
+    totalSiteRequests: pageViews,
+    categories: verifiedCategories,
+    statuses: aiCrawlerStatusRows,
+    endpoints: [
+      ...aiCrawlerEndpointRows.map((row) => ({
+        category: "AI Crawler",
+        endpoint: row.endpoint,
+        matchedEndpoint: "",
+        managedLabels: [],
+        requests: Number(row._sum.requests ?? 0),
+      })),
+      ...aiCrawlerEndpointMetadata.map((row) => ({
+        category: "AI Crawler",
+        endpoint: row.endpoint,
+        matchedEndpoint: row.matchedEndpoint,
+        managedLabels: row.managedLabels,
+        requests: 0,
+      })),
+    ],
+  })
 
   const topProductLimit = Math.max(1, args?.topProductLimit ?? 6)
   const topProductCandidates = await prisma.productTrafficDaily.groupBy({
     by: ["productId"],
     where: {
-      source: "ga4",
+      source: "cloudflare",
       date: { gte: bounds.start, lte: bounds.end },
     },
     _sum: { pageViews: true },
@@ -403,7 +583,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
       prisma.productTrafficDaily.findMany({
         where: {
           productId: { in: candidateIds },
-          source: "ga4",
+          source: "cloudflare",
           date: { gte: bounds.start, lte: bounds.end },
         },
       }),
@@ -492,7 +672,6 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     newUsers: resolvedNewUsers,
     engagementRate,
     pagesPerSession,
-    referrers,
     timeseries,
     browsers,
     operatingSystems,
@@ -500,6 +679,9 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
     countries,
     regions,
     cities,
+    hourlyActivity,
+    aiCrawlerAttention,
+    trafficComposition,
     topProductPages,
   }
 }
@@ -509,45 +691,44 @@ async function getProductTrafficFromDb(args: {
   dateRange: AnalyticsDateRange
   includeAdvanced?: boolean
 }): Promise<ProductTrafficSummary | null> {
-  const slug = resolveSlugFromPaths(args.pagePaths)
-  if (!slug) return null
+  const slugs = resolveSlugsFromPaths(args.pagePaths)
+  if (slugs.length === 0) return null
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
+  const products = await prisma.product.findMany({
+    where: { slug: { in: slugs } },
     select: { id: true },
   })
-  if (!product) return null
+  const productIds = products.map((product) => product.id)
+  if (productIds.length === 0) return null
 
   const bounds = resolveRangeBounds(args.dateRange)
   if (!bounds) return null
 
-  const hasDailyCoverage = await hasIngestionCoverage(
-    "product_traffic_daily",
-    bounds,
-  )
-  if (!hasDailyCoverage) return null
-
   const includeAdvanced = args.includeAdvanced ?? true
-  const hasBreakdownCoverage = includeAdvanced
-    ? await hasIngestionCoverage("product_traffic_breakdowns", bounds)
-    : false
-
-  if (includeAdvanced && !hasBreakdownCoverage) {
-    return null
-  }
 
   const dailyRows = await prisma.productTrafficDaily.findMany({
     where: {
-      productId: product.id,
-      source: "ga4",
+      productId: { in: productIds },
+      source: "cloudflare",
       date: { gte: bounds.start, lte: bounds.end },
     },
     orderBy: { date: "asc" },
   })
 
-  const dailyByDate = new Map<string, (typeof dailyRows)[number]>()
+  const dailyByDate = new Map<
+    string,
+    { pageViews: number; uniqueVisitors: number }
+  >()
   for (const row of dailyRows) {
-    dailyByDate.set(dateKey(row.date), row)
+    const key = dateKey(row.date)
+    const current = dailyByDate.get(key) ?? {
+      pageViews: 0,
+      uniqueVisitors: 0,
+    }
+    dailyByDate.set(key, {
+      pageViews: current.pageViews + row.pageViews,
+      uniqueVisitors: current.uniqueVisitors + row.uniqueVisitors,
+    })
   }
 
   let pageViews = 0
@@ -593,8 +774,6 @@ async function getProductTrafficFromDb(args: {
       averageSessionDuration,
       newUsers,
       returningVisitors,
-      referrers: [],
-      referrerCategories: [],
       browsers: [],
       operatingSystems: [],
       countries: [],
@@ -604,111 +783,64 @@ async function getProductTrafficFromDb(args: {
     }
   }
 
-  const [
-    referrerRows,
-    channelRows,
-    browserRows,
-    osRows,
-    deviceRows,
-    countryRows,
-    cityRows,
-  ] = await Promise.all([
-    prisma.productTrafficReferrerDaily.groupBy({
-      by: ["referrer"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { pageViews: true },
-      orderBy: { _sum: { pageViews: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficChannelDaily.groupBy({
-      by: ["channel"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { pageViews: true },
-      orderBy: { _sum: { pageViews: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficBrowserDaily.groupBy({
-      by: ["browser"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficOperatingSystemDaily.groupBy({
-      by: ["operatingSystem"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficDeviceDaily.groupBy({
-      by: ["deviceCategory"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficCountryDaily.groupBy({
-      by: ["country", "countryCode"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 8,
-    }),
-    prisma.productTrafficCityDaily.groupBy({
-      by: ["city", "region", "country", "countryCode"],
-      where: {
-        productId: product.id,
-        source: "ga4",
-        date: { gte: bounds.start, lte: bounds.end },
-      },
-      _sum: { visitors: true },
-      orderBy: { _sum: { visitors: "desc" } },
-      take: 8,
-    }),
-  ])
-
-  const referrers = referrerRows.map((row: ProductReferrerRow) => {
-    const views = Number(row._sum.pageViews ?? 0)
-    return {
-      referrer: row.referrer,
-      views,
-      share: pageViews > 0 ? (views / pageViews) * 100 : 0,
-    }
-  })
-
-  const referrerCategories = channelRows.map((row: ProductChannelRow) => {
-    const views = Number(row._sum.pageViews ?? 0)
-    return {
-      category: row.channel,
-      views,
-      share: pageViews > 0 ? (views / pageViews) * 100 : 0,
-    }
-  })
+  const [browserRows, osRows, deviceRows, countryRows, cityRows] =
+    await Promise.all([
+      prisma.productTrafficBrowserDaily.groupBy({
+        by: ["browser"],
+        where: {
+          productId: { in: productIds },
+          source: "cloudflare",
+          date: { gte: bounds.start, lte: bounds.end },
+        },
+        _sum: { visitors: true },
+        orderBy: { _sum: { visitors: "desc" } },
+        take: 8,
+      }),
+      prisma.productTrafficOperatingSystemDaily.groupBy({
+        by: ["operatingSystem"],
+        where: {
+          productId: { in: productIds },
+          source: "cloudflare",
+          date: { gte: bounds.start, lte: bounds.end },
+        },
+        _sum: { visitors: true },
+        orderBy: { _sum: { visitors: "desc" } },
+        take: 8,
+      }),
+      prisma.productTrafficDeviceDaily.groupBy({
+        by: ["deviceCategory"],
+        where: {
+          productId: { in: productIds },
+          source: "cloudflare",
+          date: { gte: bounds.start, lte: bounds.end },
+        },
+        _sum: { visitors: true },
+        orderBy: { _sum: { visitors: "desc" } },
+        take: 8,
+      }),
+      prisma.productTrafficCountryDaily.groupBy({
+        by: ["country", "countryCode"],
+        where: {
+          productId: { in: productIds },
+          source: "cloudflare",
+          date: { gte: bounds.start, lte: bounds.end },
+        },
+        _sum: { visitors: true },
+        orderBy: { _sum: { visitors: "desc" } },
+        take: 8,
+      }),
+      prisma.productTrafficCityDaily.groupBy({
+        by: ["city", "region", "country", "countryCode"],
+        where: {
+          productId: { in: productIds },
+          source: "cloudflare",
+          date: { gte: bounds.start, lte: bounds.end },
+        },
+        _sum: { visitors: true },
+        orderBy: { _sum: { visitors: "desc" } },
+        take: 8,
+      }),
+    ])
 
   const browsers = browserRows.map((row: ProductBrowserRow) => ({
     browser: row.browser,
@@ -751,8 +883,6 @@ async function getProductTrafficFromDb(args: {
     averageSessionDuration,
     newUsers,
     returningVisitors,
-    referrers,
-    referrerCategories,
     browsers,
     operatingSystems,
     countries,
@@ -772,12 +902,6 @@ async function getProductTrafficMapFromDb(args: {
   const bounds = resolveRangeBounds(args.dateRange)
   if (!bounds) return null
 
-  const hasDailyCoverage = await hasIngestionCoverage(
-    "product_traffic_daily",
-    bounds,
-  )
-  if (!hasDailyCoverage) return null
-
   const productIds = Array.from(
     new Set(args.products.map((product) => product.id).filter(Boolean)),
   )
@@ -789,7 +913,7 @@ async function getProductTrafficMapFromDb(args: {
     by: ["productId"],
     where: {
       productId: { in: productIds },
-      source: "ga4",
+      source: "cloudflare",
       date: { gte: bounds.start, lte: bounds.end },
     },
     _sum: {
@@ -823,8 +947,9 @@ async function getHomepageTrafficFromDb(): Promise<HomepageTraffic | null> {
   if (!snapshot) return null
 
   return {
-    pageViews30: snapshot.pageViews,
-    visitors30: snapshot.uniqueVisitors,
+    windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+    pageViews: snapshot.pageViews,
+    visitors: snapshot.uniqueVisitors,
     trafficSeries: snapshot.timeseries.map((point) => ({
       date: point.date,
       pageViews: point.pageViews,
@@ -835,48 +960,29 @@ async function getHomepageTrafficFromDb(): Promise<HomepageTraffic | null> {
 
 export const dbAnalyticsProvider: AnalyticsProvider = {
   async getProductTraffic(args) {
-    try {
-      const dbResult = await getProductTrafficFromDb(args)
-      if (dbResult) {
-        return dbResult
-      }
-    } catch (error) {
-      console.error("[analytics] DB product traffic lookup failed", { error })
-    }
-    return gaAnalyticsProvider.getProductTraffic(args)
+    return (await getProductTrafficFromDb(args)) ?? emptyProductTrafficSummary()
   },
   async getProductTrafficMap(args) {
-    try {
-      const dbResult = await getProductTrafficMapFromDb(args)
-      if (dbResult) {
-        return dbResult
-      }
-    } catch (error) {
-      console.error("[analytics] DB traffic map lookup failed", { error })
-    }
-    return gaAnalyticsProvider.getProductTrafficMap(args)
+    return (
+      (await getProductTrafficMapFromDb(args)) ??
+      emptyProductTrafficMap(args.products)
+    )
   },
   async getSiteAnalyticsSnapshot(args) {
-    try {
-      const dbResult = await getSiteAnalyticsSnapshotFromDb(args)
-      if (dbResult) {
-        return dbResult
-      }
-    } catch (error) {
-      console.error("[analytics] DB site snapshot lookup failed", { error })
-    }
-    return gaAnalyticsProvider.getSiteAnalyticsSnapshot(args)
+    return (
+      (await getSiteAnalyticsSnapshotFromDb(args)) ??
+      emptySiteAnalyticsSnapshot()
+    )
   },
   async getHomepageTraffic() {
-    try {
-      const dbResult = await getHomepageTrafficFromDb()
-      if (dbResult) {
-        return dbResult
+    return (
+      (await getHomepageTrafficFromDb()) ?? {
+        windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+        pageViews: 0,
+        visitors: 0,
+        trafficSeries: [],
       }
-    } catch (error) {
-      console.error("[analytics] DB homepage traffic lookup failed", { error })
-    }
-    return gaAnalyticsProvider.getHomepageTraffic()
+    )
   },
-  getRealtimeVisitors: () => gaAnalyticsProvider.getRealtimeVisitors(),
+  getRealtimeVisitors: () => fetchRecentVisitorsFromCloudflare(),
 }

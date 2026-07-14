@@ -15,6 +15,10 @@ import {
 } from "@/lib/vendor/prisma/client"
 import type { PrismaClient } from "@/lib/vendor/prisma/client"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
+import {
+  capDailyLeaderboardTraffic,
+  scoreLeaderboardMetrics,
+} from "@/lib/server/leaderboard/scoring"
 
 import { seedAlternatives } from "./seed.alternatives"
 import { seedCategories } from "./seed.categories"
@@ -872,14 +876,14 @@ async function upsertDevProducts(
       create: {
         productId: product.id,
         githubUrl: `https://github.com/shipyardhq/${seed.slug}`,
-        twitterUrl: `https://x.com/${seed.slug.replaceAll("-", "")}`,
+        twitterUrl: `https://x.com/${seed.slug.replace(/-/g, "")}`,
         videoUrl: `${seed.websiteUrl}/video`,
         contactEmail: `hello@${seed.slug}.local`,
         utmCampaign: `dev-${seed.slug}`,
       },
       update: {
         githubUrl: `https://github.com/shipyardhq/${seed.slug}`,
-        twitterUrl: `https://x.com/${seed.slug.replaceAll("-", "")}`,
+        twitterUrl: `https://x.com/${seed.slug.replace(/-/g, "")}`,
         videoUrl: `${seed.websiteUrl}/video`,
         contactEmail: `hello@${seed.slug}.local`,
         utmCampaign: `dev-${seed.slug}`,
@@ -1058,6 +1062,8 @@ function productTrafficForDay(seed: DevProductSeed, index: number) {
   return {
     pageViews,
     uniqueVisitors,
+    browserRequests: Math.round(pageViews * 0.68),
+    browserVisits: Math.round(uniqueVisitors * 0.78),
     sessions,
     bounceRate: round(0.28 + (index % 5) * 0.035),
     averageSessionDuration: 58 + (index % 6) * 11,
@@ -1084,14 +1090,14 @@ async function seedIngestionCoverage(
     await prisma.analyticsIngestionRun.upsert({
       where: {
         source_job_windowStart_windowEnd: {
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           job,
           windowStart,
           windowEnd,
         },
       },
       create: {
-        source: AnalyticsDataSource.ga4,
+        source: AnalyticsDataSource.cloudflare,
         job,
         status: AnalyticsIngestionStatus.completed,
         windowStart,
@@ -1123,18 +1129,6 @@ async function seedTraffic(
 
   await Promise.all([
     prisma.productTrafficDaily.deleteMany({
-      where: {
-        productId: { in: productIds },
-        date: { gte: windowStart, lte: windowEnd },
-      },
-    }),
-    prisma.productTrafficReferrerDaily.deleteMany({
-      where: {
-        productId: { in: productIds },
-        date: { gte: windowStart, lte: windowEnd },
-      },
-    }),
-    prisma.productTrafficChannelDaily.deleteMany({
       where: {
         productId: { in: productIds },
         date: { gte: windowStart, lte: windowEnd },
@@ -1173,9 +1167,6 @@ async function seedTraffic(
     prisma.siteTrafficDaily.deleteMany({
       where: { date: { gte: windowStart, lte: windowEnd } },
     }),
-    prisma.siteTrafficReferrerDaily.deleteMany({
-      where: { date: { gte: windowStart, lte: windowEnd } },
-    }),
     prisma.siteTrafficBrowserDaily.deleteMany({
       where: { date: { gte: windowStart, lte: windowEnd } },
     }),
@@ -1209,10 +1200,6 @@ async function seedTraffic(
     chunkStart += productChunkSize
   ) {
     const productDaily: Prisma.ProductTrafficDailyCreateManyInput[] = []
-    const productReferrers: Prisma.ProductTrafficReferrerDailyCreateManyInput[] =
-      []
-    const productChannels: Prisma.ProductTrafficChannelDailyCreateManyInput[] =
-      []
     const productBrowsers: Prisma.ProductTrafficBrowserDailyCreateManyInput[] =
       []
     const productOs: Prisma.ProductTrafficOperatingSystemDailyCreateManyInput[] =
@@ -1236,77 +1223,29 @@ async function seedTraffic(
         productDaily.push({
           productId,
           date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           ...metrics,
         })
-
-        productReferrers.push(
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            referrer: "google.com",
-            pageViews: Math.round(metrics.pageViews * 0.36),
-          },
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            referrer: "x.com",
-            pageViews: Math.round(metrics.pageViews * 0.18),
-          },
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            referrer: "(direct)",
-            pageViews: Math.round(metrics.pageViews * 0.24),
-          },
-        )
-
-        productChannels.push(
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            channel: "Organic Search",
-            pageViews: Math.round(metrics.pageViews * 0.42),
-          },
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            channel: "Social",
-            pageViews: Math.round(metrics.pageViews * 0.22),
-          },
-          {
-            productId,
-            date,
-            source: AnalyticsDataSource.ga4,
-            channel: "Direct",
-            pageViews: Math.round(metrics.pageViews * 0.26),
-          },
-        )
 
         productBrowsers.push(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             browser: "Chrome",
             visitors: Math.round(metrics.uniqueVisitors * 0.58),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             browser: "Safari",
             visitors: Math.round(metrics.uniqueVisitors * 0.27),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             browser: "Firefox",
             visitors: Math.round(metrics.uniqueVisitors * 0.11),
           },
@@ -1316,21 +1255,21 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             operatingSystem: "macOS",
             visitors: Math.round(metrics.uniqueVisitors * 0.43),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             operatingSystem: "Windows",
             visitors: Math.round(metrics.uniqueVisitors * 0.31),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             operatingSystem: "iOS",
             visitors: Math.round(metrics.uniqueVisitors * 0.16),
           },
@@ -1340,21 +1279,21 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             deviceCategory: "desktop",
             visitors: Math.round(metrics.uniqueVisitors * 0.62),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             deviceCategory: "mobile",
             visitors: Math.round(metrics.uniqueVisitors * 0.32),
           },
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             deviceCategory: "tablet",
             visitors: Math.round(metrics.uniqueVisitors * 0.06),
           },
@@ -1364,7 +1303,7 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             country: "United States",
             countryCode: "US",
             visitors: Math.round(metrics.uniqueVisitors * 0.45),
@@ -1372,7 +1311,7 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             country: "India",
             countryCode: "IN",
             visitors: Math.round(metrics.uniqueVisitors * 0.25),
@@ -1380,7 +1319,7 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             country: "United Kingdom",
             countryCode: "GB",
             visitors: Math.round(metrics.uniqueVisitors * 0.12),
@@ -1391,7 +1330,7 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             city: "San Francisco",
             region: "California",
             country: "United States",
@@ -1401,7 +1340,7 @@ async function seedTraffic(
           {
             productId,
             date,
-            source: AnalyticsDataSource.ga4,
+            source: AnalyticsDataSource.cloudflare,
             city: "Bengaluru",
             region: "Karnataka",
             country: "India",
@@ -1436,8 +1375,6 @@ async function seedTraffic(
 
     await Promise.all([
       prisma.productTrafficDaily.createMany({ data: productDaily }),
-      prisma.productTrafficReferrerDaily.createMany({ data: productReferrers }),
-      prisma.productTrafficChannelDaily.createMany({ data: productChannels }),
       prisma.productTrafficBrowserDaily.createMany({ data: productBrowsers }),
       prisma.productTrafficOperatingSystemDaily.createMany({ data: productOs }),
       prisma.productTrafficDeviceDaily.createMany({ data: productDevices }),
@@ -1460,7 +1397,7 @@ async function seedTraffic(
 
       return {
         date: new Date(key),
-        source: AnalyticsDataSource.ga4,
+        source: AnalyticsDataSource.cloudflare,
         pageViews: metrics.pageViews,
         uniqueVisitors: metrics.uniqueVisitors,
         sessions: metrics.sessions,
@@ -1476,40 +1413,18 @@ async function seedTraffic(
 
   await prisma.siteTrafficDaily.createMany({ data: siteDaily })
 
-  const siteBreakdownRows = siteDaily.flatMap((row) => [
-    {
-      date: row.date,
-      source: AnalyticsDataSource.ga4,
-      referrer: "google.com",
-      pageViews: Math.round(row.pageViews * 0.34),
-    },
-    {
-      date: row.date,
-      source: AnalyticsDataSource.ga4,
-      referrer: "x.com",
-      pageViews: Math.round(row.pageViews * 0.19),
-    },
-    {
-      date: row.date,
-      source: AnalyticsDataSource.ga4,
-      referrer: "(direct)",
-      pageViews: Math.round(row.pageViews * 0.29),
-    },
-  ])
-
   await Promise.all([
-    prisma.siteTrafficReferrerDaily.createMany({ data: siteBreakdownRows }),
     prisma.siteTrafficBrowserDaily.createMany({
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           browser: "Chrome",
           visitors: Math.round(row.uniqueVisitors * 0.59),
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           browser: "Safari",
           visitors: Math.round(row.uniqueVisitors * 0.26),
         },
@@ -1519,13 +1434,13 @@ async function seedTraffic(
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           operatingSystem: "macOS",
           visitors: Math.round(row.uniqueVisitors * 0.41),
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           operatingSystem: "Windows",
           visitors: Math.round(row.uniqueVisitors * 0.34),
         },
@@ -1535,13 +1450,13 @@ async function seedTraffic(
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           deviceCategory: "desktop",
           visitors: Math.round(row.uniqueVisitors * 0.64),
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           deviceCategory: "mobile",
           visitors: Math.round(row.uniqueVisitors * 0.31),
         },
@@ -1551,14 +1466,14 @@ async function seedTraffic(
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           country: "United States",
           countryCode: "US",
           visitors: Math.round(row.uniqueVisitors * 0.43),
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           country: "India",
           countryCode: "IN",
           visitors: Math.round(row.uniqueVisitors * 0.24),
@@ -1569,7 +1484,7 @@ async function seedTraffic(
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           region: "California",
           country: "United States",
           countryCode: "US",
@@ -1577,7 +1492,7 @@ async function seedTraffic(
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           region: "Karnataka",
           country: "India",
           countryCode: "IN",
@@ -1589,7 +1504,7 @@ async function seedTraffic(
       data: siteDaily.flatMap((row) => [
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           city: "San Francisco",
           region: "California",
           country: "United States",
@@ -1598,7 +1513,7 @@ async function seedTraffic(
         },
         {
           date: row.date,
-          source: AnalyticsDataSource.ga4,
+          source: AnalyticsDataSource.cloudflare,
           city: "Bengaluru",
           region: "Karnataka",
           country: "India",
@@ -1634,14 +1549,17 @@ async function seedLeaderboard(
   })
 
   const productIds = Array.from(productIdBySlug.values())
-  const [traffic, upvotes] = await Promise.all([
-    prisma.productTrafficDaily.groupBy({
-      by: ["productId"],
+  const [trafficRows, upvotes] = await Promise.all([
+    prisma.productTrafficDaily.findMany({
       where: {
         productId: { in: productIds },
         date: { gte: periodStart, lt: periodEnd },
       },
-      _sum: { pageViews: true, uniqueVisitors: true },
+      select: {
+        productId: true,
+        browserRequests: true,
+        browserVisits: true,
+      },
     }),
     prisma.productUpvote.groupBy({
       by: ["productId"],
@@ -1656,19 +1574,58 @@ async function seedLeaderboard(
   const upvotesByProduct = new Map(
     upvotes.map((row) => [row.productId, row._count.productId]),
   )
-  const scores = traffic
-    .map((row) => {
-      const views = row._sum.pageViews ?? 0
-      const uniqueVisitors = row._sum.uniqueVisitors ?? 0
-      const productUpvotes = upvotesByProduct.get(row.productId) ?? 0
-      return {
-        productId: row.productId,
-        views,
-        uniqueVisitors,
+  const trafficByProduct = new Map<
+    string,
+    {
+      browserRequests: number
+      browserVisits: number
+      scoredBrowserRequests: number
+      scoredBrowserVisits: number
+    }
+  >()
+  for (const row of trafficRows) {
+    const current = trafficByProduct.get(row.productId) ?? {
+      browserRequests: 0,
+      browserVisits: 0,
+      scoredBrowserRequests: 0,
+      scoredBrowserVisits: 0,
+    }
+    const capped = capDailyLeaderboardTraffic(row)
+    current.browserRequests += row.browserRequests
+    current.browserVisits += row.browserVisits
+    current.scoredBrowserRequests += capped.browserRequests
+    current.scoredBrowserVisits += capped.browserVisits
+    trafficByProduct.set(row.productId, current)
+  }
+
+  const scores = productIds
+    .map((productId) => {
+      const traffic = trafficByProduct.get(productId) ?? {
+        browserRequests: 0,
+        browserVisits: 0,
+        scoredBrowserRequests: 0,
+        scoredBrowserVisits: 0,
+      }
+      const productUpvotes = upvotesByProduct.get(productId) ?? 0
+      const scored = scoreLeaderboardMetrics({
+        browserRequests: traffic.scoredBrowserRequests,
+        browserVisits: traffic.scoredBrowserVisits,
         upvotes: productUpvotes,
-        score: views + uniqueVisitors * 3 + productUpvotes * 10,
+      })
+      return {
+        productId,
+        browserRequests: traffic.browserRequests,
+        browserVisits: traffic.browserVisits,
+        upvotes: productUpvotes,
+        score: scored.score,
+        scoreComponents: {
+          browserRequests: traffic.browserRequests,
+          browserVisits: traffic.browserVisits,
+          ...scored.components,
+        },
       }
     })
+    .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
 
   await prisma.productLeaderboardScore.deleteMany({ where: { runId: run.id } })
@@ -1677,15 +1634,11 @@ async function seedLeaderboard(
       data: scores.map((score, index) => ({
         runId: run.id,
         productId: score.productId,
-        views: score.views,
-        uniqueVisitors: score.uniqueVisitors,
+        views: score.browserRequests,
+        uniqueVisitors: score.browserVisits,
         upvotes: score.upvotes,
         score: score.score,
-        scoreComponents: json({
-          views: score.views,
-          uniqueVisitors: score.uniqueVisitors,
-          upvotes: score.upvotes,
-        }),
+        scoreComponents: json(score.scoreComponents),
         rank: index + 1,
       })),
     })

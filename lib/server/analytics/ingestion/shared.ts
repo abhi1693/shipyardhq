@@ -1,11 +1,10 @@
-import { protos } from "@google-analytics/data"
 import { subDays } from "date-fns"
 
-import { runGaReport } from "@/lib/server/analytics/googleAnalytics"
-
-export const GA_REPORT_PAGE_SIZE = 10_000
-export const GA_REPORT_MAX_PAGES = 50
-export const GA_REPORT_MAX_ROWS = 50_000
+export type IngestionJobKey =
+  | "product_traffic_daily"
+  | "product_traffic_breakdowns"
+  | "site_traffic_daily"
+  | "site_traffic_breakdowns"
 
 export type AnalyticsIngestionWindow = {
   start: Date
@@ -42,7 +41,7 @@ export function resolveIngestionWindow({
   endDate,
   days,
 }: WindowInput): AnalyticsIngestionWindow {
-  const end = parseIsoDate(endDate) ?? toUtcDay(new Date())
+  const end = parseIsoDate(endDate) ?? toUtcDay(subDays(new Date(), 1))
   const spanDays = Math.max(1, Math.floor(days ?? 7))
   const start = parseIsoDate(startDate) ?? subDays(end, spanDays - 1)
 
@@ -66,19 +65,10 @@ export function resolveIngestionWindow({
   }
 }
 
-export function parseGaDate(value?: string | null): Date | null {
-  if (!value || value.length !== 8) return null
-  const year = Number(value.slice(0, 4))
-  const month = Number(value.slice(4, 6))
-  const day = Number(value.slice(6, 8))
-  if (
-    !Number.isFinite(year) ||
-    !Number.isFinite(month) ||
-    !Number.isFinite(day)
-  ) {
-    return null
-  }
-  return new Date(Date.UTC(year, month - 1, day))
+export function parseAnalyticsDate(value?: string | null): Date | null {
+  if (!value) return null
+  const parsed = new Date(`${value.slice(0, 10)}T00:00:00Z`)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
 export function normalizePath(value?: string | null): string {
@@ -95,20 +85,6 @@ export function extractProductSlug(path?: string | null): string | null {
   const normalized = normalizePath(path)
   const match = normalized.match(/^\/products\/([^/]+)/)
   return match ? match[1]!.toLowerCase() : null
-}
-
-export function normalizeReferrerDomain(value?: string | null): string {
-  const raw = value?.trim()
-  if (!raw || raw === "(direct)") return "direct"
-
-  const cleaned = raw
-    .replace(/^https?:\/\//i, "")
-    .replace(/^www\./i, "")
-    .trim()
-    .toLowerCase()
-
-  const domain = cleaned.split(/[/#?]/)[0]
-  return domain || "direct"
 }
 
 export function parseMetricValue(value?: string | null): number {
@@ -130,73 +106,6 @@ export function chunkArray<T>(items: T[], size: number): T[][] {
   return chunks
 }
 
-export function buildProductPageFilter(): protos.google.analytics.data.v1beta.IFilterExpression {
-  return {
-    andGroup: {
-      expressions: [
-        {
-          filter: {
-            fieldName: "pagePath",
-            stringFilter: {
-              matchType:
-                protos.google.analytics.data.v1beta.Filter.StringFilter
-                  .MatchType.BEGINS_WITH,
-              value: "/products/",
-            },
-          },
-        },
-      ],
-    },
-  }
-}
-
-export async function fetchGaReportRows(args: {
-  request: Omit<Parameters<typeof runGaReport>[0], "offset" | "limit">
-  pageSize?: number
-  maxRows?: number
-  maxPages?: number
-}): Promise<{
-  rows: protos.google.analytics.data.v1beta.IRow[]
-  pages: number
-  truncated: boolean
-}> {
-  const pageSize = Math.max(1, Math.floor(args.pageSize ?? GA_REPORT_PAGE_SIZE))
-  const maxRows = Math.max(1, Math.floor(args.maxRows ?? GA_REPORT_MAX_ROWS))
-  const maxPages = Math.max(1, Math.floor(args.maxPages ?? GA_REPORT_MAX_PAGES))
-
-  const rows: protos.google.analytics.data.v1beta.IRow[] = []
-  let offset = 0
-  let pages = 0
-  let truncated = false
-
-  while (true) {
-    const remaining = maxRows - rows.length
-    if (remaining <= 0) {
-      truncated = true
-      break
-    }
-
-    const limit = Math.min(pageSize, remaining)
-    const response = await runGaReport({
-      ...args.request,
-      limit,
-      offset,
-    })
-    const batch = response.rows ?? []
-    rows.push(...batch)
-    pages += 1
-
-    if (batch.length < limit) {
-      break
-    }
-
-    offset += batch.length
-
-    if (pages >= maxPages) {
-      truncated = true
-      break
-    }
-  }
-
-  return { rows, pages, truncated }
+export function cloudflareGroupLimit(maxRows?: number) {
+  return Math.min(10_000, Math.max(1, Math.floor(maxRows ?? 10_000)))
 }

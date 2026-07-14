@@ -12,7 +12,8 @@ Shipyard HQ is a launch intelligence network for independent builders. Makers ca
 - Clerk authentication
 - Dodo Payments
 - Redis and BullMQ for cache and background work
-- Google Analytics / GA4 Data API for traffic reporting
+- Cloudflare Web Analytics and GraphQL Analytics API for traffic reporting
+- Google Analytics for internal event and conversion collection
 - Cloudflare R2-compatible object storage for product media
 
 ## Project Layout
@@ -111,14 +112,14 @@ Redis and jobs:
 
 Analytics:
 
-- `GOOGLE_ANALYTICS_ID`
-- `GOOGLE_ANALYTICS_API_SECRET`
-- `GA_PROPERTY_ID`
-- `GA_CREDENTIALS_JSON`
-- `GA_SERVICE_ACCOUNT_JSON`
-- `SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64`
-- `GA4_SERVICE_ACCOUNT_JSON_BASE64`
-- `GA_EXCLUDED_HOSTNAMES`
+- `GOOGLE_ANALYTICS_ID` - GA4 measurement ID used by the production gtag and Measurement Protocol events.
+- `GOOGLE_ANALYTICS_API_SECRET` - GA4 Measurement Protocol secret for server-side events.
+- `GA_EXCLUDED_HOSTNAMES` - optional comma-separated hostnames that must not send browser events.
+- `CLOUDFLARE_ZONE_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ANALYTICS_START_DATE` - optional earliest reporting date.
+- `CLOUDFLARE_ANALYTICS_RETENTION_DAYS` - optional raw HTTP retention window.
+- `CLOUDFLARE_ANALYTICS_TIMEOUT_MS` - optional GraphQL request timeout.
 
 Storage:
 
@@ -191,18 +192,13 @@ Use it in production when scheduled jobs, BullMQ queues, cache refresh tasks, an
 
 ## Analytics
 
-Google Analytics is used for public traffic and product analytics reporting. GA4 Data API access is documented in:
+Cloudflare Web Analytics is used for public traffic, product analytics reporting,
+and scoring. Google Analytics remains enabled independently for internal event
+and conversion collection. Cloudflare beacon and GraphQL API access are
+documented in:
 
 ```text
-docs/ga4-data-api-access.md
-```
-
-Manual read-only GA4 sanity check:
-
-```bash
-GA4_PROPERTY_ID="123456789" \
-SHIPYARD_GA4_SERVICE_ACCOUNT_JSON_BASE64="..." \
-npx tsx scripts/ga4-sanity.ts
+docs/cloudflare-web-analytics.md
 ```
 
 ## Media Storage

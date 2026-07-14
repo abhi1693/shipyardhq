@@ -40,8 +40,8 @@ async function handleSessionCreated(event: WebhookEvent) {
 
   const session = event.data as SessionPayload
   const user = session.user
-
   const method = pickMethodFromUser(user)
+
   if (!method) {
     console.info("[clerk-webhook] no supported auth method resolved", {
       userId: user?.id ?? null,
@@ -56,8 +56,8 @@ async function handleUserCreated(event: WebhookEvent) {
   if (event.type !== "user.created") return
 
   const user = event.data as SessionUserPayload
-
   const method = pickMethodFromUser(user)
+
   if (!method) {
     console.info("[clerk-webhook] no supported sign up method resolved", {
       userId: user?.id ?? null,
@@ -91,7 +91,7 @@ function pickMethodFromUser(user?: SessionUserPayload) {
   const email = emails[0]
   if (!email) return undefined
 
-  const linkedTo = Array.isArray(email?.linked_to) ? email?.linked_to || [] : []
+  const linkedTo = Array.isArray(email?.linked_to) ? email.linked_to || [] : []
   if (linkedTo.length === 0) return "Email"
 
   for (const link of linkedTo) {

@@ -30,10 +30,10 @@ type PlanType = PublicPlan["type"]
 type ProductUpgradeProductStatus = "draft" | "published" | "archived"
 
 export type ProductUpgradePerformanceSnapshot = {
-  siteUniqueVisitors30d: number
-  sitePageViews30d: number
-  productUniqueVisitors30d: number
-  productPageViews30d: number
+  siteVisitors: number
+  sitePageViews: number
+  productVisitors: number
+  productPageViews: number
   productUpvotes: number
 }
 
@@ -52,10 +52,10 @@ const PLAN_TYPE_OPTIONS: { value: PlanType; label: string }[] = [
 ]
 
 const EMPTY_PERFORMANCE_SNAPSHOT: ProductUpgradePerformanceSnapshot = {
-  siteUniqueVisitors30d: 0,
-  sitePageViews30d: 0,
-  productUniqueVisitors30d: 0,
-  productPageViews30d: 0,
+  siteVisitors: 0,
+  sitePageViews: 0,
+  productVisitors: 0,
+  productPageViews: 0,
   productUpvotes: 0,
 }
 
@@ -96,17 +96,13 @@ function planExposureShare(rank: number) {
 
 function productDemandSignal(snapshot: ProductUpgradePerformanceSnapshot) {
   const productVisitors =
-    snapshot.productUniqueVisitors30d ||
-    Math.round(snapshot.productPageViews30d * 0.65)
+    snapshot.productVisitors || Math.round(snapshot.productPageViews * 0.65)
 
   return productVisitors + snapshot.productUpvotes * 12
 }
 
 function siteAudienceSignal(snapshot: ProductUpgradePerformanceSnapshot) {
-  return (
-    snapshot.siteUniqueVisitors30d ||
-    Math.round(snapshot.sitePageViews30d * 0.65)
-  )
+  return snapshot.siteVisitors || Math.round(snapshot.sitePageViews * 0.65)
 }
 
 function planMetrics(

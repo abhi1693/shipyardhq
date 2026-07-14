@@ -15,7 +15,7 @@ import {
   computeLeaderboardWindow,
   getCurrentLeaderboardWindow,
 } from "@/lib/server/leaderboard/v2"
-import { GA_MIN_START_DATE } from "@/lib/server/analytics/googleAnalytics"
+import { CLOUDFLARE_ANALYTICS_MIN_START_DATE } from "@/lib/server/analytics/cloudflareAnalytics"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import {
   productCardSelect,
@@ -78,8 +78,8 @@ const startOfUtcDay = (date: Date) =>
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
   )
 
-const GA_MIN_LEADERBOARD_DATE = startOfUtcDay(
-  new Date(`${GA_MIN_START_DATE}T00:00:00Z`),
+const ANALYTICS_MIN_LEADERBOARD_DATE = startOfUtcDay(
+  new Date(`${CLOUDFLARE_ANALYTICS_MIN_START_DATE}T00:00:00Z`),
 )
 
 export type LeaderboardHighlightPeriod = "day" | "week" | "month"
@@ -171,6 +171,22 @@ function getPeriodWindow(
   return getCurrentLeaderboardWindow(now)
 }
 
+function getPreviousCompletedPeriodWindow(
+  period: Exclude<LeaderboardHighlightPeriod, "month">,
+  now: Date,
+) {
+  const currentPeriod = getPeriodWindow(period, now)
+  const previousPeriod = getPeriodWindow(
+    period,
+    new Date(currentPeriod.periodStart.getTime() - 1),
+  )
+
+  return {
+    periodStart: previousPeriod.periodStart,
+    periodEnd: currentPeriod.periodStart,
+  }
+}
+
 function formatPeriodLabel(
   period: LeaderboardHighlightPeriod,
   periodStart: Date,
@@ -212,7 +228,7 @@ export async function resolvePeriodWindowFromParts(args: {
 }): Promise<{ periodStart: Date; periodEnd: Date; label: string } | null> {
   const year = Number(args.year)
   if (!Number.isFinite(year) || year < 1970 || year > 3000) return null
-  const earliestAllowedMs = GA_MIN_LEADERBOARD_DATE.getTime()
+  const earliestAllowedMs = ANALYTICS_MIN_LEADERBOARD_DATE.getTime()
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
 
@@ -416,8 +432,9 @@ export async function getLeaderboardStats() {
     totalCreators,
     totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
     topScore: topProduct?.upvotes ?? 0,
-    pageViews30: homepageTraffic.pageViews30,
-    visitors30: homepageTraffic.visitors30,
+    analyticsWindowDays: homepageTraffic.windowDays,
+    pageViews: homepageTraffic.pageViews,
+    visitors: homepageTraffic.visitors,
     trafficSeries: homepageTraffic.trafficSeries,
     realtimeVisitors,
   }
@@ -451,18 +468,19 @@ async function getOrCreateActiveLeaderboardRun() {
     return existing
   }
 
-  const { runId } = await generateLeaderboardRun({
+  const generated = await generateLeaderboardRun({
     periodStart,
     periodEnd,
     asOf: new Date(),
   })
+  if (generated.deferred) return null
 
   const created = await prisma.leaderboardRun.findUnique({
-    where: { id: runId },
+    where: { id: generated.runId },
     select: { id: true, periodStart: true, periodEnd: true },
   })
 
-  return created ?? { id: runId, periodStart, periodEnd }
+  return created ?? { id: generated.runId, periodStart, periodEnd }
 }
 
 export async function getTopRankedProducts(args?: {
@@ -486,6 +504,8 @@ export async function getTopRankedProducts(args?: {
 
   // Ensure the run exists and is populated before reading scores.
   const run = await getOrCreateActiveLeaderboardRun()
+  if (!run) return []
+
   const scoreExists = await prisma.productLeaderboardScore.findFirst({
     where: { runId: run.id },
     select: { id: true },
@@ -536,11 +556,18 @@ async function resolveProductOfThePeriod(
   limit = 3,
 ): Promise<ProductOfThePeriodResult> {
   const now = new Date()
-  const { periodStart, periodEnd } = getPeriodWindow(period, now)
+  const { periodStart, periodEnd } =
+    period === "month"
+      ? getPeriodWindow(period, now)
+      : getPreviousCompletedPeriodWindow(period, now)
   const label = formatPeriodLabel(period, periodStart, periodEnd)
 
   if (period === "month") {
     const run = await getOrCreateActiveLeaderboardRun()
+    if (!run) {
+      return { period, label, periodStart, periodEnd, products: [] }
+    }
+
     const rows = await prisma.productLeaderboardScore.findMany({
       where: {
         runId: run.id,
@@ -575,7 +602,7 @@ async function resolveProductOfThePeriod(
   const rankedRows = await computeLeaderboardWindow({
     periodStart,
     periodEnd,
-    asOf: now,
+    asOf: periodEnd,
   })
   const winners = rankedRows.slice(0, limit)
   const productIds = winners.map((row) => row.productId)
@@ -886,7 +913,6 @@ async function loadPeriodicLeaderboard(
       periodStart: args.periodStart,
       periodEnd: args.periodEnd,
       asOf: new Date(),
-      trafficLookup: "stored",
       limit,
       productIds: filteredProductIds ?? undefined,
     }),
@@ -993,7 +1019,7 @@ export async function warmHistoricalPeriodicLeaderboardCache(args?: {
   for (let offset = 1; offset <= days; offset += 1) {
     const periodStart = new Date(today)
     periodStart.setUTCDate(today.getUTCDate() - offset)
-    if (periodStart.getTime() < GA_MIN_LEADERBOARD_DATE.getTime()) break
+    if (periodStart.getTime() < ANALYTICS_MIN_LEADERBOARD_DATE.getTime()) break
     const periodEnd = new Date(periodStart)
     periodEnd.setUTCDate(periodStart.getUTCDate() + 1)
     addWindow({
@@ -1108,8 +1134,10 @@ export async function getMonthlyTopRankedProducts(args?: {
       periodStart,
       periodEnd,
       asOf: new Date(),
-    }).then(async ({ runId }) =>
-      prisma.leaderboardRun.findUnique({ where: { id: runId } }),
+    }).then(async ({ runId, deferred }) =>
+      deferred
+        ? null
+        : prisma.leaderboardRun.findUnique({ where: { id: runId } }),
     ))
 
   const rankings = run

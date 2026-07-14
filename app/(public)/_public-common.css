@@ -22,7 +22,6 @@
 @source "../../components/layout/public/**/*.{js,ts,jsx,tsx}";
 @source "../../components/molecules/BrandWordmark.tsx";
 @source "../../components/molecules/PageHeader.tsx";
-@source "../../components/molecules/ProductClickLink.tsx";
 @source "../../components/molecules/ProductCategoryPills.tsx";
 @source "../../components/molecules/SponsorPromo.tsx";
 @source "../../components/molecules/SquareImage.tsx";

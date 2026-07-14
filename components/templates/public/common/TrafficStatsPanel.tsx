@@ -14,12 +14,14 @@ import {
 } from "recharts"
 
 import { Card, CardContent } from "@/components/atoms/card"
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 import { ANALYTICS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 export interface TrafficStatsPayload {
-  pageViews30?: number | null
-  visitors30?: number | null
+  analyticsWindowDays?: number | null
+  pageViews?: number | null
+  visitors?: number | null
   trafficSeries?: Array<{
     date: string
     pageViews: number
@@ -78,8 +80,8 @@ function calculateSeriesDelta(
   return ((current - previous) / previous) * 100
 }
 
-function formatDelta(value: number | null) {
-  if (value == null) return "Last 30d"
+function formatDelta(value: number | null, windowDays: number) {
+  if (value == null) return `Last ${windowDays}d`
   const sign = value > 0 ? "+" : ""
   return `${sign}${value.toFixed(1)}%`
 }
@@ -178,6 +180,7 @@ function TrafficMetricCard({
   label,
   value,
   delta,
+  windowDays,
   color,
   data,
   dataKey,
@@ -186,6 +189,7 @@ function TrafficMetricCard({
   label: string
   value: number
   delta: number | null
+  windowDays: number
   color: string
   data: TrafficMetricPoint[]
   dataKey: "pageViews" | "visitors"
@@ -210,7 +214,7 @@ function TrafficMetricCard({
               delta == null || delta >= 0 ? "text-[#166534]" : "text-[#ba1a1a]",
             )}
           >
-            {formatDelta(delta)}
+            {formatDelta(delta, windowDays)}
           </div>
         </div>
         <div className="mt-4 min-w-0">
@@ -236,7 +240,7 @@ function LivePerformanceCard({ count }: { count: number }) {
           {formatter.format(count)}
         </span>
         <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
-          Active Builders
+          Views / 5m
         </span>
         <Zap className="ml-auto size-[18px] text-[#cbd5e1]" aria-hidden />
       </div>
@@ -252,7 +256,7 @@ export function TrafficStatsPanel({
   className?: string
 }) {
   const [activeBuilderCount, setActiveBuilderCount] = useState(
-    Math.max(1, initialStats.realtimeVisitors ?? 1),
+    Math.max(0, initialStats.realtimeVisitors ?? 0),
   )
 
   useEffect(() => {
@@ -266,9 +270,9 @@ export function TrafficStatsPanel({
         })
         if (!response.ok) return
 
-        const payload = (await response.json()) as { visitors?: number | null }
-        if (!canceled && typeof payload.visitors === "number") {
-          setActiveBuilderCount(Math.max(1, payload.visitors))
+        const payload = (await response.json()) as { views?: number | null }
+        if (!canceled && typeof payload.views === "number") {
+          setActiveBuilderCount(Math.max(0, payload.views))
         }
       } catch {
         // Keep the last known cached value when the realtime request fails.
@@ -284,8 +288,12 @@ export function TrafficStatsPanel({
     }
   }, [])
 
-  const views = initialStats.pageViews30 ?? 0
-  const visitors = initialStats.visitors30 ?? 0
+  const windowDays = Math.max(
+    1,
+    initialStats.analyticsWindowDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
+  )
+  const views = initialStats.pageViews ?? 0
+  const visitors = initialStats.visitors ?? 0
   const metricSeries = normalizeMetricSeries(initialStats.trafficSeries)
   const fallbackSeries: TrafficMetricPoint[] = [
     {
@@ -295,8 +303,8 @@ export function TrafficStatsPanel({
       visitors,
     },
     {
-      label: "Last 30d",
-      date: "last-30d",
+      label: `Last ${windowDays}d`,
+      date: `last-${windowDays}d`,
       pageViews: views,
       visitors,
     },
@@ -312,6 +320,7 @@ export function TrafficStatsPanel({
           label="Views"
           value={views}
           delta={viewsDelta}
+          windowDays={windowDays}
           color="#0051d5"
           data={chartSeries}
           dataKey="pageViews"
@@ -321,6 +330,7 @@ export function TrafficStatsPanel({
           label="Visitors"
           value={visitors}
           delta={visitorsDelta}
+          windowDays={windowDays}
           color="#16a34a"
           data={chartSeries}
           dataKey="visitors"

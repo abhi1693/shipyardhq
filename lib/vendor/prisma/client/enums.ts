@@ -66,7 +66,7 @@ export type Platform = (typeof Platform)[keyof typeof Platform]
 
 
 export const AnalyticsDataSource = {
-  ga4: 'ga4'
+  cloudflare: 'cloudflare'
 } as const
 
 export type AnalyticsDataSource = (typeof AnalyticsDataSource)[keyof typeof AnalyticsDataSource]
