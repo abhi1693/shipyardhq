@@ -1,9 +1,6 @@
 import { Suspense } from "react"
 
-import {
-  MemberProductsPageContent,
-  MemberProductsPageSkeleton,
-} from "@/components/templates/member/products/page-content"
+import { MemberProductsPageContent } from "@/components/templates/member/products/page-content"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const metadata = buildPageMetadata({
@@ -13,7 +10,7 @@ export const metadata = buildPageMetadata({
 
 export default function MemberProductsPage() {
   return (
-    <Suspense fallback={<MemberProductsPageSkeleton />}>
+    <Suspense fallback={null}>
       <MemberProductsPageContent />
     </Suspense>
   )

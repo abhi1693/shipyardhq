@@ -38,7 +38,6 @@ import {
 } from "@/components/atoms/dialog"
 import { Input } from "@/components/atoms/input"
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
-import { MemberAccountProfileSkeleton } from "@/components/pages/MemberAccountProfile.skeleton"
 import { HOME_PATH, MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -313,7 +312,7 @@ export default function MemberAccountProfile({
   })
 
   if (!isLoaded) {
-    return <MemberAccountProfileInlineSkeleton />
+    return null
   }
 
   if (!user) {
@@ -996,8 +995,4 @@ export default function MemberAccountProfile({
       </Dialog>
     </div>
   )
-}
-
-function MemberAccountProfileInlineSkeleton() {
-  return <MemberAccountProfileSkeleton />
 }

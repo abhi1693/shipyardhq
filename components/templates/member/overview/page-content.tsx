@@ -15,7 +15,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-import { Skeleton } from "@/components/atoms/skeleton"
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
@@ -90,7 +89,7 @@ export async function MemberOverviewPageContent() {
         </ProductDraftStartButton>
       </header>
 
-      <Suspense fallback={<AnalyticsSectionSkeleton />}>
+      <Suspense fallback={null}>
         <MemberOverviewDashboard />
       </Suspense>
     </div>
@@ -530,123 +529,4 @@ function EmptyPanel({
 
 function formatRelativeDate(date: Date) {
   return formatDistanceToNow(date, { addSuffix: true })
-}
-
-function AnalyticsSectionSkeleton() {
-  return (
-    <div className="space-y-6">
-      <AnalyticsStatRowSkeleton />
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 space-y-6 lg:col-span-8">
-          <ChartCardSkeleton />
-          <ListCardSkeleton />
-        </div>
-        <div className="col-span-12 space-y-6 lg:col-span-4">
-          <PanelSkeleton className="bg-slate-950" />
-          <PanelSkeleton className="bg-[#341100]" />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function AnalyticsStatRowSkeleton() {
-  return (
-    <section className="grid gap-4 md:grid-cols-3">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div
-          key={`stat-skeleton-${index}`}
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
-        >
-          <div className="mb-4 flex items-start justify-between">
-            <Skeleton className="h-9 w-9 rounded-lg" tone="muted" />
-            <Skeleton className="h-4 w-20 rounded-full" tone="muted" />
-          </div>
-          <Skeleton className="h-3 w-24 rounded-full" tone="muted" />
-          <Skeleton className="mt-3 h-9 w-32 rounded-full" tone="soft" />
-        </div>
-      ))}
-    </section>
-  )
-}
-
-function ChartCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <Skeleton className="h-5 w-48 rounded-full" tone="soft" />
-          <Skeleton className="h-4 w-72 max-w-full rounded-full" tone="muted" />
-        </div>
-        <Skeleton className="h-8 w-32 rounded-lg" tone="muted" />
-      </div>
-      <Skeleton className="h-[280px] rounded-lg" tone="muted" />
-    </div>
-  )
-}
-
-function ListCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-        <Skeleton className="h-5 w-36 rounded-full" tone="soft" />
-        <Skeleton className="h-4 w-16 rounded-full" tone="muted" />
-      </div>
-      <div className="divide-y divide-slate-200">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={`product-row-skeleton-${index}`} className="flex p-4">
-            <Skeleton className="h-12 w-12 rounded-lg" tone="muted" />
-            <div className="ml-4 flex-1 space-y-2">
-              <Skeleton className="h-5 w-48 max-w-full rounded-full" />
-              <Skeleton className="h-4 w-28 rounded-full" tone="muted" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function PanelSkeleton({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "rounded-xl border border-slate-200 bg-white p-6 shadow-sm",
-        className,
-      )}
-    >
-      <Skeleton className="h-4 w-32 rounded-full" tone="muted" />
-      <Skeleton className="mt-4 h-8 w-40 rounded-full" tone="soft" />
-      <div className="mt-6 space-y-3">
-        <Skeleton className="h-4 w-full rounded-full" tone="muted" />
-        <Skeleton className="h-4 w-4/5 rounded-full" tone="muted" />
-        <Skeleton className="h-4 w-2/3 rounded-full" tone="muted" />
-      </div>
-    </div>
-  )
-}
-
-export function MemberOverviewPageSkeleton() {
-  return (
-    <div
-      className="w-full space-y-6"
-      data-slot="member-overview-skeleton"
-      aria-busy="true"
-    >
-      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
-          <Skeleton className="h-9 w-96 max-w-full rounded-lg" tone="soft" />
-          <Skeleton
-            className="h-5 w-[34rem] max-w-full rounded-full"
-            tone="muted"
-          />
-        </div>
-        <Skeleton
-          className="h-11 w-44 rounded-lg bg-slate-950/15"
-          tone="muted"
-        />
-      </header>
-      <AnalyticsSectionSkeleton />
-    </div>
-  )
 }
