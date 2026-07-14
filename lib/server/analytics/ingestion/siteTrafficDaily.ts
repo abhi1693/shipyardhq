@@ -4,6 +4,7 @@ import {
   chunkArray,
   cloudflareGroupLimit,
   parseAnalyticsDate,
+  type AnalyticsIngestionProgressReporter,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
 
@@ -33,8 +34,12 @@ export async function syncSiteTrafficDaily(args: {
   window: AnalyticsIngestionWindow
   ingestionRunId?: string | null
   maxRows?: number
+  onProgress?: AnalyticsIngestionProgressReporter
 }): Promise<SiteTrafficDailySyncResult> {
   const limit = cloudflareGroupLimit(args.maxRows)
+  args.onProgress?.(
+    `Requesting site daily totals for ${args.window.days} completed UTC days`,
+  )
   const groups = await queryCloudflareHttpGroups({
     dateRange: {
       startDate: args.window.startDate,
@@ -43,6 +48,7 @@ export async function syncSiteTrafficDaily(args: {
     dimensions: ["date"],
     limit,
   })
+  args.onProgress?.(`Fetched ${groups.length} site daily groups`)
   const records: SiteTrafficDailyRow[] = groups.flatMap((group) => {
     const date = parseAnalyticsDate(group.dimensions?.date)
     if (!date) return []
@@ -66,6 +72,10 @@ export async function syncSiteTrafficDaily(args: {
     ]
   })
 
+  args.onProgress?.(
+    `Prepared ${records.length} site daily rows; replacing stored daily rows`,
+  )
+
   await prisma.siteTrafficDaily.deleteMany({
     where: {
       source: "cloudflare",
@@ -75,6 +85,7 @@ export async function syncSiteTrafficDaily(args: {
   for (const batch of chunkArray(records, 500)) {
     await prisma.siteTrafficDaily.createMany({ data: batch })
   }
+  args.onProgress?.(`Stored ${records.length} site daily rows`)
 
   return {
     rows: groups.length,

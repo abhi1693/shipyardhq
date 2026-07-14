@@ -43,7 +43,8 @@ export type AnalyticsIngestionProgressEvent = {
   job: IngestionJobKey
   jobCount: number
   jobIndex: number
-  phase: "started" | "completed" | "failed"
+  message?: string
+  phase: "started" | "progress" | "completed" | "failed"
   runId: string
   stats?: unknown
 }
@@ -145,6 +146,17 @@ export async function runAnalyticsIngestion(
       phase: "started",
       runId: run.id,
     })
+    const reportProgress = (message: string) => {
+      options.onProgress?.({
+        elapsedMs: Date.now() - jobStartedAt,
+        job,
+        jobCount: requestedJobs.length,
+        jobIndex: index + 1,
+        message,
+        phase: "progress",
+        runId: run.id,
+      })
+    }
 
     try {
       let stats:
@@ -158,24 +170,28 @@ export async function runAnalyticsIngestion(
           window,
           ingestionRunId: run.id,
           maxRows: options.maxRows,
+          onProgress: reportProgress,
         })
       } else if (job === "product_traffic_breakdowns") {
         stats = await syncProductTrafficBreakdowns({
           window,
           ingestionRunId: run.id,
           maxRows: options.maxRows,
+          onProgress: reportProgress,
         })
       } else if (job === "site_traffic_daily") {
         stats = await syncSiteTrafficDaily({
           window,
           ingestionRunId: run.id,
           maxRows: options.maxRows,
+          onProgress: reportProgress,
         })
       } else {
         stats = await syncSiteTrafficBreakdowns({
           window,
           ingestionRunId: run.id,
           maxRows: options.maxRows,
+          onProgress: reportProgress,
         })
       }
 

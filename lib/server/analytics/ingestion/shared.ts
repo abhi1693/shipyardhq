@@ -14,6 +14,8 @@ export type AnalyticsIngestionWindow = {
   days: number
 }
 
+export type AnalyticsIngestionProgressReporter = (message: string) => void
+
 type WindowInput = {
   startDate?: string | null
   endDate?: string | null

@@ -15,6 +15,7 @@ import {
   cloudflareGroupLimit,
   normalizePath,
   parseAnalyticsDate,
+  type AnalyticsIngestionProgressReporter,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
 
@@ -35,6 +36,16 @@ function groupViews(group: { count: number }) {
   return Math.max(0, Math.round(Number(group.count) || 0))
 }
 
+function formatProgressCount(value: number) {
+  return Math.max(0, value).toLocaleString("en-US")
+}
+
+function formatWindowLabel(start: string, end: string) {
+  return `${start.slice(0, 16).replace("T", " ")} to ${end
+    .slice(0, 16)
+    .replace("T", " ")} UTC`
+}
+
 async function insertBatches<T>(
   records: T[],
   createMany: (batch: T[]) => Promise<unknown>,
@@ -48,6 +59,7 @@ export async function syncSiteTrafficBreakdowns(args: {
   window: AnalyticsIngestionWindow
   ingestionRunId?: string | null
   maxRows?: number
+  onProgress?: AnalyticsIngestionProgressReporter
 }): Promise<SiteTrafficBreakdownSyncResult> {
   const limit = cloudflareGroupLimit(args.maxRows)
   const baseQuery = {
@@ -57,6 +69,26 @@ export async function syncSiteTrafficBreakdowns(args: {
     },
     limit,
   } as const
+  const datasetCount = 8
+  let completedDatasets = 0
+  const trackDataset = async <T>(
+    label: string,
+    promise: Promise<T>,
+    rowCount: (result: T) => number,
+  ) => {
+    const result = await promise
+    completedDatasets += 1
+    args.onProgress?.(
+      `Fetched site ${label}: ${formatProgressCount(
+        rowCount(result),
+      )} groups (${completedDatasets}/${datasetCount} datasets)`,
+    )
+    return result
+  }
+
+  args.onProgress?.(
+    `Requesting ${datasetCount} site breakdown datasets for ${args.window.days} completed UTC days`,
+  )
   const [
     browserGroups,
     osGroups,
@@ -67,58 +99,110 @@ export async function syncSiteTrafficBreakdowns(args: {
     aiCrawlerStatusGroups,
     aiCrawlerEndpointResult,
   ] = await Promise.all([
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: ["date", "userAgentBrowser"],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: ["date", "userAgentOS"],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: ["date", "clientDeviceType"],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: ["date", "clientCountryName"],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: ["datetimeHour"],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: [
-        "date",
-        "verifiedBotCategory",
-        "userAgentBrowser",
-        "requestSource",
-      ],
-    }),
-    queryCloudflareHttpGroups({
-      ...baseQuery,
-      dimensions: [
-        "date",
-        "verifiedBotCategory",
-        "payPerCrawlStatus",
-        "edgeResponseStatus",
-      ],
-      verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
-    }),
-    queryCloudflareHttpGroupsWithMetadata({
-      ...baseQuery,
-      dimensions: [
-        "date",
-        "verifiedBotCategory",
-        "clientRequestPath",
-        "apiGatewayMatchedEndpoint",
-        "webAssetsLabelsManaged",
-      ],
-      limitScope: "per-window",
-      splitOnLimit: true,
-      verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
-    }),
+    trackDataset(
+      "browsers",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: ["date", "userAgentBrowser"],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "operating systems",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: ["date", "userAgentOS"],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "devices",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: ["date", "clientDeviceType"],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "countries",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: ["date", "clientCountryName"],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "hourly activity",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: ["datetimeHour"],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "traffic composition",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: [
+          "date",
+          "verifiedBotCategory",
+          "userAgentBrowser",
+          "requestSource",
+        ],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "AI crawler statuses",
+      queryCloudflareHttpGroups({
+        ...baseQuery,
+        dimensions: [
+          "date",
+          "verifiedBotCategory",
+          "payPerCrawlStatus",
+          "edgeResponseStatus",
+        ],
+        verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
+      }),
+      (result) => result.length,
+    ),
+    trackDataset(
+      "AI crawler endpoints",
+      queryCloudflareHttpGroupsWithMetadata({
+        ...baseQuery,
+        dimensions: [
+          "date",
+          "verifiedBotCategory",
+          "clientRequestPath",
+          "apiGatewayMatchedEndpoint",
+          "webAssetsLabelsManaged",
+        ],
+        limitScope: "per-window",
+        onWindowProgress: (event) => {
+          const windowLabel = formatWindowLabel(
+            event.windowStart,
+            event.windowEnd,
+          )
+          if (event.action === "split") {
+            args.onProgress?.(
+              `AI crawler endpoint window ${windowLabel} hit ${formatProgressCount(
+                event.groups,
+              )}/${formatProgressCount(event.limit)} groups; splitting`,
+            )
+            return
+          }
+
+          args.onProgress?.(
+            `AI crawler endpoint window ${windowLabel} fetched ${formatProgressCount(
+              event.groups,
+            )} groups (${event.windowsQueried} API requests so far)`,
+          )
+        },
+        splitOnLimit: true,
+        verifiedBotCategories: [...AI_VERIFIED_BOT_CATEGORIES],
+      }),
+      (result) => result.groups.length,
+    ),
   ])
   const aiCrawlerEndpointGroups = aiCrawlerEndpointResult.groups
 
@@ -312,6 +396,26 @@ export async function syncSiteTrafficBreakdowns(args: {
   const hourlyWindowEnd = new Date(args.window.end)
   hourlyWindowEnd.setUTCDate(hourlyWindowEnd.getUTCDate() + 1)
 
+  args.onProgress?.(
+    `Prepared site breakdown rows: ${formatProgressCount(
+      browsers.length,
+    )} browsers, ${formatProgressCount(
+      operatingSystems.length,
+    )} operating systems, ${formatProgressCount(
+      devices.length,
+    )} devices, ${formatProgressCount(
+      countries.length,
+    )} countries, ${formatProgressCount(
+      hourlyActivity.length,
+    )} hourly activity, ${formatProgressCount(
+      composition.length,
+    )} traffic composition, ${formatProgressCount(
+      aiCrawlerStatuses.length,
+    )} AI crawler statuses, ${formatProgressCount(
+      aiCrawlerEndpoints.length,
+    )} AI crawler endpoints; replacing stored breakdown rows`,
+  )
+
   await prisma.$transaction([
     prisma.siteTrafficHourly.deleteMany({
       where: {
@@ -341,30 +445,51 @@ export async function syncSiteTrafficBreakdowns(args: {
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
     }),
   ])
-
   await insertBatches(browsers, (data) =>
     prisma.siteTrafficBrowserDaily.createMany({ data }),
+  )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(browsers.length)} browser rows`,
   )
   await insertBatches(operatingSystems, (data) =>
     prisma.siteTrafficOperatingSystemDaily.createMany({ data }),
   )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(operatingSystems.length)} operating system rows`,
+  )
   await insertBatches(devices, (data) =>
     prisma.siteTrafficDeviceDaily.createMany({ data }),
   )
+  args.onProgress?.(`Stored ${formatProgressCount(devices.length)} device rows`)
   await insertBatches(countries, (data) =>
     prisma.siteTrafficCountryDaily.createMany({ data }),
+  )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(countries.length)} country rows`,
   )
   await insertBatches(hourlyActivity, (data) =>
     prisma.siteTrafficHourly.createMany({ data }),
   )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(hourlyActivity.length)} hourly activity rows`,
+  )
   await insertBatches(composition, (data) =>
     prisma.siteTrafficCompositionDaily.createMany({ data }),
+  )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(composition.length)} traffic composition rows`,
   )
   await insertBatches(aiCrawlerStatuses, (data) =>
     prisma.siteAiCrawlerStatusDaily.createMany({ data }),
   )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(aiCrawlerStatuses.length)} AI crawler status rows`,
+  )
   await insertBatches(aiCrawlerEndpoints, (data) =>
     prisma.siteAiCrawlerEndpointDaily.createMany({ data }),
+  )
+  args.onProgress?.(
+    `Stored ${formatProgressCount(aiCrawlerEndpoints.length)} AI crawler endpoint rows`,
   )
 
   const result = (

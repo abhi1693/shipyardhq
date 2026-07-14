@@ -289,6 +289,16 @@ export type CloudflareHttpQuery = {
   limit?: number
   limitScope?: "total" | "per-window"
   splitOnLimit?: boolean
+  onWindowProgress?: (event: CloudflareHttpWindowProgressEvent) => void
+}
+
+export type CloudflareHttpWindowProgressEvent = {
+  action: "completed" | "split"
+  groups: number
+  limit: number
+  windowEnd: string
+  windowStart: string
+  windowsQueried: number
 }
 
 export type CloudflareHttpQueryResult = {
@@ -409,6 +419,14 @@ export async function queryCloudflareHttpGroupsWithMetadata(
         const startMs = new Date(window.start).getTime()
         const endMs = new Date(window.end).getTime()
         if (endMs - startMs > MIN_QUERY_SPLIT_WINDOW_MS) {
+          args.onWindowProgress?.({
+            action: "split",
+            groups: groups.length,
+            limit,
+            windowEnd: window.end,
+            windowStart: window.start,
+            windowsQueried,
+          })
           const midpoint = new Date(
             startMs + Math.floor((endMs - startMs) / 2),
           ).toISOString()
@@ -420,6 +438,14 @@ export async function queryCloudflareHttpGroupsWithMetadata(
 
       groupSets.push(groups)
       truncated ||= groups.length >= limit
+      args.onWindowProgress?.({
+        action: "completed",
+        groups: groups.length,
+        limit,
+        windowEnd: window.end,
+        windowStart: window.start,
+        windowsQueried,
+      })
     } finally {
       clearTimeout(timeout)
     }

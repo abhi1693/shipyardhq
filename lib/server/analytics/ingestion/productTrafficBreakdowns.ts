@@ -8,6 +8,7 @@ import {
   cloudflareGroupLimit,
   extractProductSlug,
   parseAnalyticsDate,
+  type AnalyticsIngestionProgressReporter,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
 
@@ -57,14 +58,19 @@ export async function syncProductTrafficBreakdowns(args: {
   window: AnalyticsIngestionWindow
   ingestionRunId?: string | null
   maxRows?: number
+  onProgress?: AnalyticsIngestionProgressReporter
 }): Promise<ProductTrafficBreakdownSyncResult> {
   const products = await prisma.product.findMany({
     select: { id: true, slug: true },
   })
+  args.onProgress?.(`Loaded ${products.length} products for product breakdowns`)
   const productIdBySlug = new Map(
     products.map((product) => [product.slug.toLowerCase(), product.id]),
   )
-  if (productIdBySlug.size === 0) return { breakdowns: [] }
+  if (productIdBySlug.size === 0) {
+    args.onProgress?.("No products found; skipping product breakdowns")
+    return { breakdowns: [] }
+  }
 
   const limit = cloudflareGroupLimit(args.maxRows)
   const baseQuery = {
@@ -75,24 +81,53 @@ export async function syncProductTrafficBreakdowns(args: {
     pagePaths: products.map((product) => productPath(product.slug)),
     limit,
   } as const
+  const datasetCount = 4
+  let completedDatasets = 0
+  const trackGroups = async <T extends { length: number }>(
+    label: string,
+    promise: Promise<T>,
+  ) => {
+    const result = await promise
+    completedDatasets += 1
+    args.onProgress?.(
+      `Fetched product ${label}: ${result.length} groups (${completedDatasets}/${datasetCount} datasets)`,
+    )
+    return result
+  }
+
+  args.onProgress?.(
+    `Requesting ${datasetCount} product breakdown datasets for ${args.window.days} completed UTC days`,
+  )
   const [browserGroups, osGroups, deviceGroups, countryGroups] =
     await Promise.all([
-      queryCloudflareHttpGroups({
-        ...baseQuery,
-        dimensions: ["date", "clientRequestPath", "userAgentBrowser"],
-      }),
-      queryCloudflareHttpGroups({
-        ...baseQuery,
-        dimensions: ["date", "clientRequestPath", "userAgentOS"],
-      }),
-      queryCloudflareHttpGroups({
-        ...baseQuery,
-        dimensions: ["date", "clientRequestPath", "clientDeviceType"],
-      }),
-      queryCloudflareHttpGroups({
-        ...baseQuery,
-        dimensions: ["date", "clientRequestPath", "clientCountryName"],
-      }),
+      trackGroups(
+        "browsers",
+        queryCloudflareHttpGroups({
+          ...baseQuery,
+          dimensions: ["date", "clientRequestPath", "userAgentBrowser"],
+        }),
+      ),
+      trackGroups(
+        "operating systems",
+        queryCloudflareHttpGroups({
+          ...baseQuery,
+          dimensions: ["date", "clientRequestPath", "userAgentOS"],
+        }),
+      ),
+      trackGroups(
+        "devices",
+        queryCloudflareHttpGroups({
+          ...baseQuery,
+          dimensions: ["date", "clientRequestPath", "clientDeviceType"],
+        }),
+      ),
+      trackGroups(
+        "countries",
+        queryCloudflareHttpGroups({
+          ...baseQuery,
+          dimensions: ["date", "clientRequestPath", "clientCountryName"],
+        }),
+      ),
     ])
 
   const source = "cloudflare" as const
@@ -175,6 +210,10 @@ export async function syncProductTrafficBreakdowns(args: {
     )
   }
 
+  args.onProgress?.(
+    `Prepared product breakdown rows: ${browsers.size} browsers, ${operatingSystems.size} operating systems, ${devices.size} devices, ${countries.size} countries; replacing stored breakdown rows`,
+  )
+
   await prisma.$transaction([
     prisma.productTrafficBrowserDaily.deleteMany({
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
@@ -189,19 +228,24 @@ export async function syncProductTrafficBreakdowns(args: {
       where: { source, date: { gte: args.window.start, lte: args.window.end } },
     }),
   ])
-
   await insertBatches(Array.from(browsers.values()), (data) =>
     prisma.productTrafficBrowserDaily.createMany({ data }),
   )
+  args.onProgress?.(`Stored ${browsers.size} product browser rows`)
   await insertBatches(Array.from(operatingSystems.values()), (data) =>
     prisma.productTrafficOperatingSystemDaily.createMany({ data }),
+  )
+  args.onProgress?.(
+    `Stored ${operatingSystems.size} product operating system rows`,
   )
   await insertBatches(Array.from(devices.values()), (data) =>
     prisma.productTrafficDeviceDaily.createMany({ data }),
   )
+  args.onProgress?.(`Stored ${devices.size} product device rows`)
   await insertBatches(Array.from(countries.values()), (data) =>
     prisma.productTrafficCountryDaily.createMany({ data }),
   )
+  args.onProgress?.(`Stored ${countries.size} product country rows`)
 
   const result = (name: string, rows: number, stored: number) => ({
     name,

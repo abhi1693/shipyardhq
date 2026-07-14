@@ -320,6 +320,7 @@ describe("Cloudflare analytics API", () => {
       .mockResolvedValueOnce(response([group("/capped-a"), group("/capped-b")]))
       .mockResolvedValueOnce(response([group("/first-half")]))
       .mockResolvedValueOnce(response([group("/second-half")]))
+    const onWindowProgress = vi.fn()
     vi.stubGlobal("fetch", fetchMock)
 
     await expect(
@@ -328,6 +329,7 @@ describe("Cloudflare analytics API", () => {
         dimensions: ["clientRequestPath"],
         limit: 2,
         limitScope: "per-window",
+        onWindowProgress,
         splitOnLimit: true,
       }),
     ).resolves.toEqual({
@@ -337,6 +339,40 @@ describe("Cloudflare analytics API", () => {
     })
 
     expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(onWindowProgress).toHaveBeenCalledTimes(3)
+    expect(onWindowProgress).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        action: "split",
+        groups: 2,
+        limit: 2,
+        windowStart: "2026-07-13T00:00:00.000Z",
+        windowEnd: "2026-07-14T00:00:00.000Z",
+        windowsQueried: 1,
+      }),
+    )
+    expect(onWindowProgress).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        action: "completed",
+        groups: 1,
+        limit: 2,
+        windowStart: "2026-07-13T00:00:00.000Z",
+        windowEnd: "2026-07-13T12:00:00.000Z",
+        windowsQueried: 2,
+      }),
+    )
+    expect(onWindowProgress).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        action: "completed",
+        groups: 1,
+        limit: 2,
+        windowStart: "2026-07-13T12:00:00.000Z",
+        windowEnd: "2026-07-14T00:00:00.000Z",
+        windowsQueried: 3,
+      }),
+    )
     const filters = fetchMock.mock.calls.map(([, request]) => {
       const payload = JSON.parse(String((request as RequestInit).body)) as {
         variables: { filter: { AND: Array<Record<string, string>> } }

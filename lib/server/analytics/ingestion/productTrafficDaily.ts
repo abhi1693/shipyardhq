@@ -7,6 +7,7 @@ import {
   cloudflareGroupLimit,
   extractProductSlug,
   parseAnalyticsDate,
+  type AnalyticsIngestionProgressReporter,
   type AnalyticsIngestionWindow,
 } from "@/lib/server/analytics/ingestion/shared"
 
@@ -39,14 +40,17 @@ export async function syncProductTrafficDaily(args: {
   window: AnalyticsIngestionWindow
   ingestionRunId?: string | null
   maxRows?: number
+  onProgress?: AnalyticsIngestionProgressReporter
 }): Promise<ProductTrafficDailySyncResult> {
   const products = await prisma.product.findMany({
     select: { id: true, slug: true },
   })
+  args.onProgress?.(`Loaded ${products.length} products for product traffic`)
   const productIdBySlug = new Map(
     products.map((product) => [product.slug.toLowerCase(), product.id]),
   )
   if (productIdBySlug.size === 0) {
+    args.onProgress?.("No products found; skipping product traffic daily")
     return { rows: 0, stored: 0, pages: 0, truncated: false }
   }
 
@@ -75,6 +79,9 @@ export async function syncProductTrafficDaily(args: {
       ],
     }),
   ])
+  args.onProgress?.(
+    `Fetched product daily groups: ${groups.length} totals and ${compositionGroups.length} traffic composition groups`,
+  )
   const recordsByKey = new Map<string, ProductTrafficDailyRow>()
 
   for (const group of groups) {
@@ -140,6 +147,11 @@ export async function syncProductTrafficDaily(args: {
     )
   }
 
+  const records = Array.from(recordsByKey.values())
+  args.onProgress?.(
+    `Prepared ${records.length} product-day rows; replacing stored daily rows`,
+  )
+
   await prisma.productTrafficDaily.deleteMany({
     where: {
       source: "cloudflare",
@@ -147,10 +159,10 @@ export async function syncProductTrafficDaily(args: {
     },
   })
 
-  const records = Array.from(recordsByKey.values())
   for (const batch of chunkArray(records, 500)) {
     await prisma.productTrafficDaily.createMany({ data: batch })
   }
+  args.onProgress?.(`Stored ${records.length} product-day rows`)
 
   return {
     rows: groups.length + compositionGroups.length,

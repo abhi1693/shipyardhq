@@ -130,8 +130,98 @@ function formatElapsed(elapsedMs: number) {
   return `${(elapsedMs / 1_000).toFixed(1)}s`
 }
 
-function logDetails(message: string, details: unknown) {
-  console.info(`${message}\n${JSON.stringify(details, null, 2)}`)
+function pluralize(count: number, singular: string, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`
+}
+
+function formatCount(value: number) {
+  return Math.max(0, value).toLocaleString("en-US")
+}
+
+function humanizeDatasetName(value: string) {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .replace(/\bai\b/i, "AI")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function readNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0
+}
+
+function readBoolean(value: unknown) {
+  return typeof value === "boolean" ? value : false
+}
+
+function summarizeJobStats(prefix: string, stats: unknown) {
+  if (!isRecord(stats)) {
+    console.info(`${prefix}: no structured result details returned`)
+    return
+  }
+
+  if (Array.isArray(stats.breakdowns)) {
+    const breakdowns = stats.breakdowns.filter(isRecord)
+    const fetched = breakdowns.reduce(
+      (total, breakdown) => total + readNumber(breakdown.rows),
+      0,
+    )
+    const stored = breakdowns.reduce(
+      (total, breakdown) => total + readNumber(breakdown.stored),
+      0,
+    )
+    const truncated = breakdowns.some((breakdown) =>
+      readBoolean(breakdown.truncated),
+    )
+
+    console.info(
+      `${prefix}: stored ${formatCount(stored)} rows from ${formatCount(
+        fetched,
+      )} fetched groups across ${pluralize(breakdowns.length, "dataset")}${
+        truncated ? "; at least one dataset hit the row limit" : ""
+      }`,
+    )
+
+    for (const breakdown of breakdowns) {
+      const name =
+        typeof breakdown.name === "string"
+          ? humanizeDatasetName(breakdown.name)
+          : "Dataset"
+      const queryWindows = readNumber(breakdown.queryWindows)
+      const windowPart =
+        queryWindows > 0 ? `, ${formatCount(queryWindows)} API requests` : ""
+      console.info(
+        `[analytics.backfill]   - ${name}: ${formatCount(
+          readNumber(breakdown.rows),
+        )} fetched, ${formatCount(
+          readNumber(breakdown.stored),
+        )} stored${windowPart}, ${
+          readBoolean(breakdown.truncated) ? "truncated" : "complete"
+        }`,
+      )
+    }
+    return
+  }
+
+  if ("rows" in stats || "stored" in stats) {
+    const rows = readNumber(stats.rows)
+    const stored = readNumber(stats.stored)
+    const pages = readNumber(stats.pages)
+    console.info(
+      `${prefix}: stored ${formatCount(stored)} rows from ${formatCount(
+        rows,
+      )} fetched groups${pages > 1 ? ` across ${formatCount(pages)} pages` : ""}${
+        readBoolean(stats.truncated) ? "; hit the row limit" : ""
+      }`,
+    )
+    return
+  }
+
+  console.info(`${prefix}: no recognized result summary`)
 }
 
 function validateRetentionWindow(args: {
@@ -193,13 +283,13 @@ async function main() {
     retentionDays,
   })
 
-  console.info("[analytics.backfill] starting", {
-    startDate: window.startDate,
-    endDate: window.endDate,
-    days: window.days,
-    includeBreakdowns: !options.dailyOnly,
-    maxRows: options.maxRows ?? 10_000,
-  })
+  console.info(
+    `[analytics.backfill] starting ${window.startDate} through ${
+      window.endDate
+    } (${pluralize(window.days, "completed UTC day")}; breakdowns ${
+      options.dailyOnly ? "disabled" : "included"
+    }; max ${formatCount(options.maxRows ?? 10_000)} groups/request)`,
+  )
   console.info(
     "[analytics.backfill] analytics rows in this range will be replaced idempotently",
   )
@@ -219,18 +309,32 @@ async function main() {
       onProgress: (event) => {
         const prefix = `[analytics.backfill] [${event.jobIndex}/${event.jobCount}] ${event.job}`
         if (event.phase === "started") {
-          console.info(`${prefix}: started`, { runId: event.runId })
+          console.info(`${prefix}: started (run ${event.runId})`)
           return
         }
 
-        logDetails(
-          `${prefix}: ${event.phase} in ${formatElapsed(event.elapsedMs)}`,
-          {
-            runId: event.runId,
-            ...(event.stats === undefined ? {} : { stats: event.stats }),
-            ...(event.error === undefined ? {} : { error: event.error }),
-          },
+        if (event.phase === "progress") {
+          console.info(
+            `${prefix}: ${event.message ?? "working"} (${formatElapsed(
+              event.elapsedMs,
+            )} elapsed)`,
+          )
+          return
+        }
+
+        if (event.phase === "failed") {
+          console.error(
+            `${prefix}: failed in ${formatElapsed(event.elapsedMs)} - ${
+              event.error ?? "unknown error"
+            }`,
+          )
+          return
+        }
+
+        console.info(
+          `${prefix}: completed in ${formatElapsed(event.elapsedMs)}`,
         )
+        summarizeJobStats(prefix, event.stats)
       },
     })
 
@@ -241,13 +345,16 @@ async function main() {
       )
     }
 
-    console.info("[analytics.backfill] completed", {
-      elapsed: formatElapsed(Date.now() - backfillStartedAt),
-      startDate: result.window.startDate,
-      endDate: result.window.endDate,
-      jobsCompleted: result.results.length - failures.length,
-      jobsFailed: failures.length,
-    })
+    console.info(
+      `[analytics.backfill] completed in ${formatElapsed(
+        Date.now() - backfillStartedAt,
+      )}: ${pluralize(
+        result.results.length - failures.length,
+        "job",
+      )} succeeded, ${pluralize(failures.length, "job")} failed (${
+        result.window.startDate
+      } through ${result.window.endDate})`,
+    )
   } finally {
     await prisma.$disconnect()
   }
