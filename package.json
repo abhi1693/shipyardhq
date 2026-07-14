@@ -23,7 +23,7 @@
     "next@16.2.6": {
       "postcss": "8.5.15"
     },
-    "postcss": "$postcss",
+    "postcss": "^8.5.19",
     "protobufjs": "^7.6.1",
     "socket.io-client": {
       "engine.io-client": "^6.6.5",
@@ -140,7 +140,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.10",
     "jsdom": "^29.1.1",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.19",
     "prettier": "^3.9.4",
     "tailwindcss": "^4.3.2",
     "typescript": "^6.0.3",

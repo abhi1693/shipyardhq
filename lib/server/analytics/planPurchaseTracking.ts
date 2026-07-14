@@ -153,6 +153,23 @@ async function buildPurchasePayload(input: TrackInput) {
   return null
 }
 
+function textValue(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    return value.trim() || undefined
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `${value}`
+  }
+  return undefined
+}
+
+function metadataTextValue(
+  metadata: Record<string, unknown> | null | undefined,
+  key: string,
+): string | undefined {
+  return textValue(metadata?.[key])
+}
+
 async function buildFromPayment(input: TrackInput) {
   let payment = input.payment
   if (!payment && input.paymentId) {
@@ -166,10 +183,10 @@ async function buildFromPayment(input: TrackInput) {
   if (payment.status && payment.status !== "succeeded") return null
 
   const coupon =
-    payment.metadata?.discount_code ||
-    payment.metadata?.coupon ||
-    payment.discounts?.[0]?.code ||
-    payment.discounts?.[0]?.discount_id ||
+    metadataTextValue(payment.metadata, "discount_code") ||
+    metadataTextValue(payment.metadata, "coupon") ||
+    textValue(payment.discounts?.[0]?.code) ||
+    textValue(payment.discounts?.[0]?.discount_id) ||
     undefined
 
   const lineItems = await dodoClient.payments
@@ -225,15 +242,16 @@ async function buildFromPayment(input: TrackInput) {
       id:
         line?.items_id ||
         cart?.product_id ||
-        payment.metadata?.planId ||
-        payment.metadata?.productId ||
+        metadataTextValue(payment.metadata, "planId") ||
+        metadataTextValue(payment.metadata, "productId") ||
         `item_${i + 1}`,
       name: line?.name || line?.description || "Unknown item",
       productId: cart?.product_id || line?.items_id,
       quantity,
       basePriceCents,
-      affiliation: payment.metadata?.productSlug,
-      variant: payment.metadata?.planSlug || cart?.product_id,
+      affiliation: metadataTextValue(payment.metadata, "productSlug"),
+      variant:
+        metadataTextValue(payment.metadata, "planSlug") || cart?.product_id,
     })
   }
 
@@ -342,9 +360,10 @@ async function buildFromSubscription(input: TrackInput) {
   const totalAmountCents = perUnitCents * quantity
 
   const coupon =
-    subscription.metadata?.discount_code ||
-    subscription.metadata?.coupon ||
+    metadataTextValue(subscription.metadata, "discount_code") ||
+    metadataTextValue(subscription.metadata, "coupon") ||
     undefined
+  const planSlug = metadataTextValue(subscription.metadata, "planSlug")
 
   let productName: string | undefined
   if (subscription.product_id) {
@@ -372,9 +391,7 @@ async function buildFromSubscription(input: TrackInput) {
         item_name: productName || "Unknown product",
         quantity,
         price: perUnitCents / 100,
-        ...(subscription.metadata?.planSlug
-          ? { item_variant: subscription.metadata.planSlug }
-          : {}),
+        ...(planSlug ? { item_variant: planSlug } : {}),
       },
     ],
   }
