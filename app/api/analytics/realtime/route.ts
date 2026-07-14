@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+const REALTIME_CACHE_CONTROL = "private, no-store, max-age=0"
+
 export async function GET() {
   try {
     const views = await getAnalyticsProvider("cache").getRealtimeVisitors()
@@ -10,12 +15,20 @@ export async function GET() {
       {
         status: 200,
         headers: {
-          "cache-control": "no-store",
+          "cache-control": REALTIME_CACHE_CONTROL,
         },
       },
     )
   } catch (error) {
     console.error("[analytics] failed to fetch recent page views", error)
-    return NextResponse.json({ views: 0 }, { status: 200 })
+    return NextResponse.json(
+      { views: 0 },
+      {
+        status: 200,
+        headers: {
+          "cache-control": REALTIME_CACHE_CONTROL,
+        },
+      },
+    )
   }
 }
