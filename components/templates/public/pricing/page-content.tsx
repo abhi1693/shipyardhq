@@ -21,12 +21,12 @@ export const PRICING_FAQS = [
   {
     question: "Where do paid placements appear?",
     answer:
-      "Featured adds a sponsored card to the homepage launch feed and priority position in Browse, alternatives, use-case, platform, pricing-model, and product-type results. Pro also adds eligibility for the sitewide Partner Spotlight bar plus product, leaderboard, and directory sponsor panels.",
+      "Featured adds a sponsored card to the homepage launch feed, priority position in Browse, alternatives, use-case, platform, pricing-model, and product-type results, plus audience insights and an AI-readable profile. Pro also adds eligibility for the sitewide Partner Spotlight bar plus product, leaderboard, and directory sponsor panels.",
   },
   {
     question: "What does AI-search ready profile mean?",
     answer:
-      "Pro adds an AI-search ready badge and a dedicated profile section to the Markdown version of your listing. It helps retrieval systems interpret the page, but it does not guarantee rankings or citations.",
+      "Featured and Pro add an AI-search ready badge and a dedicated profile section to the Markdown version of your listing. It helps retrieval systems interpret the page, but it does not guarantee rankings or citations.",
   },
   {
     question: "Can my team collaborate on launches?",

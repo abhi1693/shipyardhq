@@ -12,8 +12,9 @@ const FEATURES = [
   {
     key: "analytics.basic",
     name: "Basic Analytics",
-    displayName: "Basic launch analytics",
-    description: "Shows basic view count",
+    displayName: "Launch traffic pulse",
+    description:
+      "Shows recent views, visits, and launch activity for the product.",
   },
   {
     key: "backlink",
@@ -32,16 +33,16 @@ const FEATURES = [
   {
     key: "product.aiSearchReady",
     name: "AI Search Readiness",
-    displayName: "AI-search ready profile",
+    displayName: "AI-readable product profile",
     description:
-      "Structured product facts, markdown retrieval, schema, sitemap inclusion, and crawler-readable metadata.",
+      "Adds structured metadata, schema, sitemap inclusion, and crawler-readable product facts.",
   },
   {
     key: "analytics.advanced",
     name: "Advanced Analytics",
-    displayName: "AI traffic intelligence",
+    displayName: "Traffic and audience insights",
     description:
-      "Shows AI crawler attention, devices, browsers, operating systems, and countries for product discovery traffic.",
+      "Shows views, visits, browser, device, operating system, country, and AI crawler attention where available.",
   },
   {
     key: "featured",
