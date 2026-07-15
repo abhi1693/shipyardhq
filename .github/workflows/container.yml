@@ -18,7 +18,7 @@ jobs:
     name: Build linux/arm64
     uses: abhi1693/actions/.github/workflows/docker-build-push.yml@master
     with:
-      runs-on: ubuntu-24.04-arm
+      runs-on: home-lab-arm64
       image: ghcr.io/abhi1693/shipyardhq
       context: .
       file: Dockerfile

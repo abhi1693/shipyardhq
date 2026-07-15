@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   unit:
-    runs-on: ubuntu-latest
+    runs-on: home-lab-arm64
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6

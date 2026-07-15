@@ -12,7 +12,7 @@ permissions:
 jobs:
   secret-scan:
     name: Secret Scan (gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: home-lab-arm64
     timeout-minutes: 10
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -30,7 +30,7 @@ jobs:
 
   dependency-audit:
     name: Dependency Audit (npm audit)
-    runs-on: ubuntu-latest
+    runs-on: home-lab-arm64
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
