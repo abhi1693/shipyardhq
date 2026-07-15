@@ -9,6 +9,10 @@ on:
         description: Semver image version without a leading v
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ github.actor }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write
