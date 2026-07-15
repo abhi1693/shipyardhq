@@ -240,7 +240,7 @@ function LivePerformanceCard({ count }: { count: number }) {
           {formatter.format(count)}
         </span>
         <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
-          Views / 5m
+          Views / 1m
         </span>
         <Zap className="ml-auto size-[18px] text-[#cbd5e1]" aria-hidden />
       </div>
@@ -280,7 +280,7 @@ export function TrafficStatsPanel({
     }
 
     refreshRealtimeVisitors()
-    const interval = window.setInterval(refreshRealtimeVisitors, 30000)
+    const interval = window.setInterval(refreshRealtimeVisitors, 60_000)
 
     return () => {
       canceled = true

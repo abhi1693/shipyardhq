@@ -759,7 +759,7 @@ export function AnalyticsPublicDashboard({
       } catch {
         // Preserve the last successful count until the next refresh.
       } finally {
-        if (!stopped) timeout = setTimeout(refresh, 15_000)
+        if (!stopped) timeout = setTimeout(refresh, 60_000)
       }
     }
 
@@ -802,7 +802,7 @@ export function AnalyticsPublicDashboard({
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#24c875] opacity-60" />
                 <span className="relative inline-flex size-2 rounded-full bg-[#18b867]" />
               </span>
-              {numberFormatter.format(recentViews)} views / 5m
+              {numberFormatter.format(recentViews)} views / 1m
             </span>
           </div>
         </header>

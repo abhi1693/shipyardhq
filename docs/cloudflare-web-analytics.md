@@ -61,5 +61,5 @@ preserves the returned daily rollups in PostgreSQL.
 
 Application requests read historical analytics through the Redis cache and
 PostgreSQL provider only. The request path calls Cloudflare directly only for
-the five-minute realtime visitor counter; scheduled ingestion remains the sole
+the one-minute realtime visitor counter; scheduled ingestion remains the sole
 writer of historical Cloudflare data.

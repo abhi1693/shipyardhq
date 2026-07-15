@@ -62,7 +62,7 @@ export async function TaxonomyTrafficStatsSidebar() {
         <Link
           href={ANALYTICS_PATH}
           className="block w-full rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
-          aria-label={`View analytics for ${formatter.format(recentViews)} page views in the last five minutes`}
+          aria-label={`View analytics for ${formatter.format(recentViews)} page views in the last minute`}
         >
           <div className="flex w-full items-center gap-3 rounded-xl border border-white/[0.06] bg-[#00162a] px-4 py-3 shadow-sm transition-colors duration-300 hover:border-white/20">
             <div className="relative flex size-3 items-center justify-center">
@@ -72,7 +72,7 @@ export async function TaxonomyTrafficStatsSidebar() {
               {formatter.format(recentViews)}
             </span>
             <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
-              Views / 5m
+              Views / 1m
             </span>
             <Zap className="ml-auto size-[18px] text-[#cbd5e1]" aria-hidden />
           </div>

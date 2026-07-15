@@ -76,7 +76,7 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
       expect.objectContaining({
         key: "analytics:realtime:visitors:v3",
         value: 0,
-        ttlSeconds: 120,
+        ttlSeconds: 60,
       }),
     )
 
@@ -101,7 +101,7 @@ describe("cacheAnalyticsProvider realtime visitors", () => {
       expect.objectContaining({
         key: "analytics:realtime:visitors:v3",
         value: 0,
-        ttlSeconds: 120,
+        ttlSeconds: 60,
       }),
     )
 

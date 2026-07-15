@@ -33,7 +33,7 @@ export function RecentViewsPill({ initialViews }: { initialViews: number }) {
       } catch {
         // Keep the last value and retry on the next interval.
       } finally {
-        if (!aborted) timeout = setTimeout(fetchCount, 15_000)
+        if (!aborted) timeout = setTimeout(fetchCount, 60_000)
       }
     }
 
@@ -57,7 +57,7 @@ export function RecentViewsPill({ initialViews }: { initialViews: number }) {
       <div className="flex items-baseline gap-1 text-sm font-semibold text-emerald-900">
         <span>{formatter.format(count)}</span>
         <span className="text-[11px] font-medium text-emerald-700">
-          views / 5m
+          views / 1m
         </span>
       </div>
     </div>

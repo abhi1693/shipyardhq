@@ -869,7 +869,7 @@ export async function getHomepageTrafficFromCloudflare(): Promise<HomepageTraffi
 export async function fetchRecentVisitorsFromCloudflare() {
   if (!hasCloudflareAnalyticsConfig()) return 0
   const end = new Date()
-  const start = new Date(end.getTime() - 5 * 60 * 1000)
+  const start = new Date(end.getTime() - 60 * 1000)
   const groups = await queryCloudflareHttpGroups({
     startTime: start.toISOString(),
     endTime: end.toISOString(),
