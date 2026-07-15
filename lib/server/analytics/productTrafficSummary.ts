@@ -7,6 +7,7 @@ import type {
   AnalyticsDateRange,
   ProductTrafficSummary as ProviderProductTrafficSummary,
 } from "@/lib/server/analytics/providerTypes"
+import { getAvailableProductAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import type {
   ProductTrafficAdvancedInsights,
@@ -22,15 +23,6 @@ type SummaryOptions = {
 }
 
 type AnalyticsSummary = ProviderProductTrafficSummary
-
-function buildDateRange(rangeDays: number): AnalyticsDateRange {
-  const end = startOfDay(subDays(new Date(), 1))
-  const start = subDays(end, Math.max(rangeDays - 1, 0))
-  return {
-    startDate: format(start, "yyyy-MM-dd"),
-    endDate: format(end, "yyyy-MM-dd"),
-  }
-}
 
 function previousRange(range: AnalyticsDateRange): AnalyticsDateRange {
   const end = startOfDay(new Date(range.startDate))
@@ -230,11 +222,19 @@ export async function getProductTrafficSummary(
     throw new Error(`Product not found for id ${productId}`)
   }
 
-  const rangeDays = Math.max(
+  const maxRangeDays = Math.max(
     options.rangeDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
     1,
   )
-  const dateRange = buildDateRange(rangeDays)
+  const reportingWindow = await getAvailableProductAnalyticsReportingWindow({
+    includeAdvanced: options.includeAdvanced ?? true,
+    maxDays: maxRangeDays,
+  })
+  const rangeDays = reportingWindow.days
+  const dateRange = {
+    startDate: reportingWindow.startDate,
+    endDate: reportingWindow.endDate,
+  }
   const prevRange =
     options.previousComparison === false ? null : previousRange(dateRange)
 

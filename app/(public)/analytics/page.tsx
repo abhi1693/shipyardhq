@@ -14,11 +14,8 @@ import { cacheGetOrSet } from "@/lib/server/cache"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { BRAND_NAME } from "@/lib/brand"
-import {
-  ANALYTICS_REPORTING_WINDOW_DAYS,
-  getAnalyticsReportingWindow,
-  getPreviousAnalyticsReportingWindow,
-} from "@/lib/analytics/reportingWindow"
+import { getPreviousAnalyticsReportingWindow } from "@/lib/analytics/reportingWindow"
+import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 
 const PAGE_TITLE = "Analytics"
 const ANALYTICS_PAGE_TOP_PRODUCT_LIMIT = 8
@@ -36,22 +33,27 @@ export const metadata = buildPageMetadata({
 })
 
 async function getCachedAnalyticsPageData({
+  rangeDays,
   rangeStartDate,
   rangeEndDate,
+  prevRangeDays,
   prevRangeStartDate,
   prevRangeEndDate,
 }: {
+  rangeDays: number
   rangeStartDate: string
   rangeEndDate: string
+  prevRangeDays: number
   prevRangeStartDate: string
   prevRangeEndDate: string
 }) {
   return cacheGetOrSet({
     key: [
       "analytics:page:traffic-snapshot:v7",
-      `${ANALYTICS_REPORTING_WINDOW_DAYS}d`,
+      `${rangeDays}d`,
       rangeStartDate,
       rangeEndDate,
+      `${prevRangeDays}d`,
       prevRangeStartDate,
       prevRangeEndDate,
       `top${ANALYTICS_PAGE_TOP_PRODUCT_LIMIT}`,
@@ -136,15 +138,17 @@ export default function AnalyticsPage() {
 async function AnalyticsPageContent() {
   await connection()
 
-  const reportingWindow = getAnalyticsReportingWindow()
+  const reportingWindow = await getAvailableSiteAnalyticsReportingWindow()
   const previousReportingWindow =
     getPreviousAnalyticsReportingWindow(reportingWindow)
 
   const [{ snapshot, previousSnapshot, topProducts }, recentViews] =
     await Promise.all([
       getCachedAnalyticsPageData({
+        rangeDays: reportingWindow.days,
         rangeStartDate: reportingWindow.startDate,
         rangeEndDate: reportingWindow.endDate,
+        prevRangeDays: previousReportingWindow.days,
         prevRangeStartDate: previousReportingWindow.startDate,
         prevRangeEndDate: previousReportingWindow.endDate,
       }),

@@ -25,6 +25,7 @@ import {
   hasCloudflareAnalyticsConfig,
   isTransientCloudflareError,
 } from "@/lib/server/analytics/cloudflareAnalytics"
+import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 
 const REALTIME_VISITORS_CACHE_KEY = buildCacheKey(
   "analytics:realtime:visitors:v3",
@@ -105,12 +106,16 @@ function cacheKeyForSiteSnapshot(args?: {
   )
 }
 
-const HOMEPAGE_TRAFFIC_CACHE_KEY = buildCacheKey(
-  "analytics:cache:homepage-traffic:v7",
-  `${ANALYTICS_REPORTING_WINDOW_DAYS}d`,
-)
 const ANALYTICS_CACHE_PREFIX = buildCacheKey("analytics:cache")
 const ANALYTICS_PAGE_CACHE_PREFIX = buildCacheKey("analytics:page")
+
+function cacheKeyForHomepageTraffic(dateRange: AnalyticsDateRange) {
+  return buildCacheKey(
+    "analytics:cache:homepage-traffic:v8",
+    dateRange.startDate,
+    dateRange.endDate,
+  )
+}
 
 function emptyProductTrafficSummary(): ProductTrafficSummary {
   return {
@@ -366,7 +371,13 @@ async function fetchSiteSnapshotWithCache(args?: {
   dateRange?: AnalyticsDateRange
   topProductLimit?: number
 }): Promise<SiteAnalyticsSnapshot> {
-  const cacheKey = cacheKeyForSiteSnapshot(args)
+  const resolvedArgs = args?.dateRange
+    ? args
+    : {
+        ...args,
+        dateRange: await getAvailableSiteAnalyticsReportingWindow(),
+      }
+  const cacheKey = cacheKeyForSiteSnapshot(resolvedArgs)
   const cached = await cacheHit<SiteAnalyticsSnapshot>({
     key: cacheKey,
     onError: (error) => {
@@ -380,7 +391,7 @@ async function fetchSiteSnapshotWithCache(args?: {
 
   let fresh: SiteAnalyticsSnapshot
   try {
-    fresh = await dbAnalyticsProvider.getSiteAnalyticsSnapshot(args)
+    fresh = await dbAnalyticsProvider.getSiteAnalyticsSnapshot(resolvedArgs)
   } catch (error) {
     console.error("[analytics] failed to fetch site snapshot", { error })
     return emptySiteAnalyticsSnapshot()
@@ -401,8 +412,14 @@ async function fetchSiteSnapshotWithCache(args?: {
 }
 
 async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
+  const reportingWindow = await getAvailableSiteAnalyticsReportingWindow()
+  const dateRange = {
+    startDate: reportingWindow.startDate,
+    endDate: reportingWindow.endDate,
+  }
+  const cacheKey = cacheKeyForHomepageTraffic(dateRange)
   const cached = await cacheHit<HomepageTraffic>({
-    key: HOMEPAGE_TRAFFIC_CACHE_KEY,
+    key: cacheKey,
     onError: (error) => {
       console.error("[analytics] failed to read homepage traffic cache", {
         error,
@@ -416,11 +433,23 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
 
   let fresh: HomepageTraffic
   try {
-    fresh = await dbAnalyticsProvider.getHomepageTraffic()
+    const snapshot = await dbAnalyticsProvider.getSiteAnalyticsSnapshot({
+      dateRange,
+    })
+    fresh = {
+      windowDays: reportingWindow.days,
+      pageViews: snapshot.pageViews,
+      visitors: snapshot.uniqueVisitors,
+      trafficSeries: snapshot.timeseries.map((point) => ({
+        date: point.date,
+        pageViews: point.pageViews,
+        visitors: point.uniqueVisitors,
+      })),
+    }
   } catch (error) {
     console.error("[analytics] failed to fetch homepage traffic", { error })
     return {
-      windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+      windowDays: 1,
       pageViews: 0,
       visitors: 0,
       trafficSeries: [],
@@ -428,7 +457,7 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
   }
 
   await cacheMiss({
-    key: HOMEPAGE_TRAFFIC_CACHE_KEY,
+    key: cacheKey,
     value: fresh,
     ttlSeconds: HOMEPAGE_TRAFFIC_TTL_SECONDS,
     onError: (error) => {

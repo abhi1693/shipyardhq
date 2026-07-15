@@ -12,10 +12,11 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000
 describe("analytics reporting window", () => {
   const referenceDate = new Date("2026-07-14T12:00:00Z")
 
-  it("uses the configured number of completed UTC days", () => {
+  it("uses the configured maximum number of completed UTC days", () => {
     const window = getAnalyticsReportingWindow(referenceDate)
 
     expect(window.days).toBe(ANALYTICS_REPORTING_WINDOW_DAYS)
+    expect(window.startDate).toBe("2026-06-14")
     expect(window.endDate).toBe("2026-07-13")
     expect(
       (window.end.getTime() - window.start.getTime()) / DAY_IN_MS + 1,

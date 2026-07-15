@@ -1,14 +1,19 @@
-export const ANALYTICS_REPORTING_WINDOW_DAYS = 7
+export const ANALYTICS_REPORTING_WINDOW_DAYS = 30
 
-function formatWindowLabel(days: number) {
-  return `Last ${days} ${days === 1 ? "day" : "days"}`
+export function formatAnalyticsReportingWindowLabel(days: number) {
+  const normalizedDays = Math.max(1, Math.floor(days))
+  return `Last ${normalizedDays} ${normalizedDays === 1 ? "day" : "days"}`
 }
 
-export const ANALYTICS_REPORTING_WINDOW_LABEL = formatWindowLabel(
-  ANALYTICS_REPORTING_WINDOW_DAYS,
-)
+export function formatAnalyticsReportingWindowShortLabel(days: number) {
+  return `${Math.max(1, Math.floor(days))}d`
+}
 
-export const ANALYTICS_REPORTING_WINDOW_SHORT_LABEL = `${ANALYTICS_REPORTING_WINDOW_DAYS}d`
+export const ANALYTICS_REPORTING_WINDOW_LABEL =
+  formatAnalyticsReportingWindowLabel(ANALYTICS_REPORTING_WINDOW_DAYS)
+
+export const ANALYTICS_REPORTING_WINDOW_SHORT_LABEL =
+  formatAnalyticsReportingWindowShortLabel(ANALYTICS_REPORTING_WINDOW_DAYS)
 
 export type AnalyticsReportingWindow = {
   days: number

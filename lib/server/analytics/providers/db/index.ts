@@ -1,13 +1,10 @@
 import { format } from "date-fns"
 
-import {
-  ANALYTICS_REPORTING_WINDOW_DAYS,
-  getAnalyticsReportingWindow,
-} from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
 import { fetchRecentVisitorsFromCloudflare } from "@/lib/server/analytics/cloudflareAnalytics"
 import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
+import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 import type {
   AnalyticsDateRange,
   AnalyticsProvider,
@@ -175,8 +172,9 @@ function resolveSlugsFromPaths(pagePaths: string[]): string[] {
   ) as string[]
 }
 
-function defaultSiteDateRange(): AnalyticsDateRange {
-  const { startDate, endDate } = getAnalyticsReportingWindow()
+async function defaultSiteDateRange(): Promise<AnalyticsDateRange> {
+  const { startDate, endDate } =
+    await getAvailableSiteAnalyticsReportingWindow()
   return {
     startDate,
     endDate,
@@ -187,7 +185,7 @@ async function getSiteAnalyticsSnapshotFromDb(args?: {
   dateRange?: AnalyticsDateRange
   topProductLimit?: number
 }) {
-  const requestedRange = args?.dateRange ?? defaultSiteDateRange()
+  const requestedRange = args?.dateRange ?? (await defaultSiteDateRange())
   const bounds = resolveRangeBounds(requestedRange)
   if (!bounds) return null
 
@@ -859,11 +857,17 @@ async function getProductTrafficMapFromDb(args: {
 }
 
 async function getHomepageTrafficFromDb(): Promise<HomepageTraffic | null> {
-  const snapshot = await getSiteAnalyticsSnapshotFromDb()
+  const reportingWindow = await getAvailableSiteAnalyticsReportingWindow()
+  const snapshot = await getSiteAnalyticsSnapshotFromDb({
+    dateRange: {
+      startDate: reportingWindow.startDate,
+      endDate: reportingWindow.endDate,
+    },
+  })
   if (!snapshot) return null
 
   return {
-    windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+    windowDays: reportingWindow.days,
     pageViews: snapshot.pageViews,
     visitors: snapshot.uniqueVisitors,
     trafficSeries: snapshot.timeseries.map((point) => ({
@@ -893,7 +897,7 @@ export const dbAnalyticsProvider: AnalyticsProvider = {
   async getHomepageTraffic() {
     return (
       (await getHomepageTrafficFromDb()) ?? {
-        windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+        windowDays: 1,
         pageViews: 0,
         visitors: 0,
         trafficSeries: [],

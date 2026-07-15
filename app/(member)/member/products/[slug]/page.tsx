@@ -38,7 +38,7 @@ import { cn } from "@/lib/utils"
 import { PrivateHeaderSlot } from "@/components/layout/headers/private-header-slot"
 import {
   ANALYTICS_REPORTING_WINDOW_DAYS,
-  ANALYTICS_REPORTING_WINDOW_LABEL,
+  formatAnalyticsReportingWindowLabel,
 } from "@/lib/analytics/reportingWindow"
 
 const panelClass =
@@ -125,6 +125,9 @@ export default async function ViewUserProductPage({
     }),
   ])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
+  const trafficWindowLabel = formatAnalyticsReportingWindowLabel(
+    trafficSummary?.rangeDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
+  )
   const productPlanType = product.plan?.type ?? currentPlanPublic?.type ?? null
   const hasPaidPlan = !isFreePlan && (product.plan?.price ?? 0) > 0
   const headerPlanAction = isFreePlan
@@ -423,9 +426,7 @@ export default async function ViewUserProductPage({
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className={panelTitleClass}>Live Performance Pulse</h2>
-                    <p className={mutedTextClass}>
-                      {ANALYTICS_REPORTING_WINDOW_LABEL}
-                    </p>
+                    <p className={mutedTextClass}>{trafficWindowLabel}</p>
                   </div>
                   <div
                     className={cn(

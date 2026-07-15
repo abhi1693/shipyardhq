@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils"
 import { MEMBER_PRODUCTS_PATH, memberProductPath } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
-import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
 type StatDefinition = {
   id: string
@@ -98,7 +97,7 @@ export async function MemberOverviewPageContent() {
 
 async function MemberOverviewDashboard() {
   const [summary, snapshot] = await Promise.all([
-    getMemberTrafficOverview(ANALYTICS_REPORTING_WINDOW_DAYS),
+    getMemberTrafficOverview(),
     getMemberDashboardSnapshot(),
   ])
 
@@ -113,7 +112,7 @@ async function MemberOverviewDashboard() {
       value: summary.totalViews,
       icon: Eye,
       tint: "blue",
-      meta: `${ANALYTICS_REPORTING_WINDOW_DAYS}D window`,
+      meta: `${summary.rangeDays}D window`,
     },
     {
       id: "visits",

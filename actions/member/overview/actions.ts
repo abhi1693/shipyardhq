@@ -3,12 +3,10 @@
 import { addDays, format, formatISO, startOfDay, subDays } from "date-fns"
 import { auth } from "@clerk/nextjs/server"
 
-import {
-  ANALYTICS_REPORTING_WINDOW_DAYS,
-  getCompletedAnalyticsWindow,
-} from "@/lib/analytics/reportingWindow"
+import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
+import { getAvailableProductAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 import { getAnalyticsProvider } from "@/lib/server/analytics/store"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import type {
@@ -187,8 +185,11 @@ export async function getMemberTrafficOverview(
   days = ANALYTICS_REPORTING_WINDOW_DAYS,
 ): Promise<MemberTrafficOverview> {
   const { id } = await getCurrentUser()
-  const windowDays = Math.max(1, days)
-  const reportingWindow = getCompletedAnalyticsWindow(windowDays)
+  const reportingWindow = await getAvailableProductAnalyticsReportingWindow({
+    includeAdvanced: false,
+    maxDays: Math.max(1, days),
+  })
+  const windowDays = reportingWindow.days
   const endDay = reportingWindow.end
 
   const products = await prisma.product.findMany({

@@ -2,12 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const analyticsMocks = vi.hoisted(() => ({
   fetchRecentVisitorsFromCloudflare: vi.fn(),
+  getAnalyticsIngestionCoveredRange: vi.fn(),
   hasAnalyticsIngestionCoverage: vi.fn(),
 }))
 
 vi.mock("@/lib/prisma", () => ({ default: {} }))
 
 vi.mock("@/lib/server/analytics/ingestion/coverage", () => ({
+  getAnalyticsIngestionCoveredRange:
+    analyticsMocks.getAnalyticsIngestionCoveredRange,
   hasAnalyticsIngestionCoverage: analyticsMocks.hasAnalyticsIngestionCoverage,
 }))
 
@@ -17,19 +20,20 @@ vi.mock("@/lib/server/analytics/cloudflareAnalytics", () => ({
 }))
 
 import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
-import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
 describe("dbAnalyticsProvider Cloudflare boundary", () => {
   beforeEach(() => {
     analyticsMocks.fetchRecentVisitorsFromCloudflare.mockReset()
+    analyticsMocks.getAnalyticsIngestionCoveredRange.mockReset()
     analyticsMocks.hasAnalyticsIngestionCoverage.mockReset()
   })
 
   it("returns an empty historical result when database coverage is missing", async () => {
+    analyticsMocks.getAnalyticsIngestionCoveredRange.mockResolvedValue(null)
     analyticsMocks.hasAnalyticsIngestionCoverage.mockResolvedValue(false)
 
     await expect(dbAnalyticsProvider.getHomepageTraffic()).resolves.toEqual({
-      windowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
+      windowDays: 1,
       pageViews: 0,
       visitors: 0,
       trafficSeries: [],

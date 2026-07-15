@@ -36,10 +36,10 @@ import { AiCrawlerTimeseriesChart } from "@/components/molecules/AiCrawlerTimese
 import { TrafficTimeseriesChart } from "@/components/molecules/TrafficTimeseriesChart"
 import { Button } from "@/components/atoms/button"
 import {
-  ANALYTICS_REPORTING_WINDOW_LABEL,
-  getAnalyticsReportingWindow,
+  formatAnalyticsReportingWindowLabel,
   getPreviousAnalyticsReportingWindow,
 } from "@/lib/analytics/reportingWindow"
+import { getAvailableProductAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 import {
   buildProductAiCrawlerAttention,
   getProductAiCrawlerAttention,
@@ -235,8 +235,13 @@ export default async function ProductAnalyticsPage({
     redirect(memberProductPath(product.slug))
   }
 
-  const reportingWindow = getAnalyticsReportingWindow()
+  const reportingWindow = await getAvailableProductAnalyticsReportingWindow({
+    includeAdvanced: hasAdvancedAnalytics,
+  })
   const previousWindow = getPreviousAnalyticsReportingWindow(reportingWindow)
+  const reportingWindowLabel = formatAnalyticsReportingWindowLabel(
+    reportingWindow.days,
+  )
   const analyticsProvider = getAnalyticsProvider("cache")
 
   const [traffic, previousTraffic] = await Promise.all([
@@ -315,14 +320,14 @@ export default async function ProductAnalyticsPage({
             <AnalyticsMetricCard
               label="Views"
               value={formatter.format(traffic.pageViews)}
-              helper={`Page views · ${ANALYTICS_REPORTING_WINDOW_LABEL}`}
+              helper={`Page views · ${reportingWindowLabel}`}
               delta={metricDeltas.views}
               icon={<TrendingUp className="h-4 w-4" aria-hidden />}
             />
             <AnalyticsMetricCard
               label="Visitors"
               value={formatter.format(traffic.uniqueVisitors)}
-              helper={`Visits · ${ANALYTICS_REPORTING_WINDOW_LABEL}`}
+              helper={`Visits · ${reportingWindowLabel}`}
               delta={metricDeltas.visits}
               icon={<MousePointer2 className="h-4 w-4" aria-hidden />}
             />
@@ -339,7 +344,7 @@ export default async function ProductAnalyticsPage({
                   Views & visitors
                 </CardTitle>
                 <CardDescription className="text-sm text-muted-foreground">
-                  {ANALYTICS_REPORTING_WINDOW_LABEL}
+                  {reportingWindowLabel}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-2">
@@ -356,7 +361,7 @@ export default async function ProductAnalyticsPage({
           {aiAttention ? (
             <ProductAiCrawlerAttentionCard
               attention={aiAttention}
-              rangeLabel={ANALYTICS_REPORTING_WINDOW_LABEL}
+              rangeLabel={reportingWindowLabel}
             />
           ) : (
             <AiAnalyticsUpgradeCard href={upgradeHref} />

@@ -42,6 +42,16 @@ vi.mock("@/lib/server/analytics/providers/db", () => ({
   },
 }))
 
+vi.mock("@/lib/server/analytics/reportingWindow", () => ({
+  getAvailableSiteAnalyticsReportingWindow: vi.fn().mockResolvedValue({
+    days: 1,
+    start: new Date("2026-07-13T00:00:00.000Z"),
+    end: new Date("2026-07-13T00:00:00.000Z"),
+    startDate: "2026-07-13",
+    endDate: "2026-07-13",
+  }),
+}))
+
 import { cacheAnalyticsProvider } from "@/lib/server/analytics/providers/cache"
 
 describe("cacheAnalyticsProvider realtime visitors", () => {

@@ -3,7 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 vi.mock("@/lib/prisma", () => ({ default: {} }))
 
 import { CLOUDFLARE_ANALYTICS_DATASET } from "@/lib/server/analytics/cloudflareAnalytics"
-import { coversAnalyticsRange } from "@/lib/server/analytics/ingestion/coverage"
+import {
+  coversAnalyticsRange,
+  resolveCoveredAnalyticsRange,
+} from "@/lib/server/analytics/ingestion/coverage"
 import { resolveIngestionWindow } from "@/lib/server/analytics/ingestion/shared"
 
 function utcDate(value: string) {
@@ -76,5 +79,36 @@ describe("analytics ingestion coverage", () => {
         bounds,
       ),
     ).toBe(false)
+  })
+
+  it("resolves the longest covered suffix across required jobs", () => {
+    const range = resolveCoveredAnalyticsRange(
+      [
+        [coverageRun("2026-06-14", "2026-07-13")],
+        [coverageRun("2026-07-01", "2026-07-13")],
+      ],
+      {
+        start: utcDate("2026-06-14"),
+        end: utcDate("2026-07-13"),
+      },
+    )
+
+    expect(range?.start.toISOString().slice(0, 10)).toBe("2026-07-01")
+    expect(range?.end.toISOString().slice(0, 10)).toBe("2026-07-13")
+    expect(range?.days).toBe(13)
+  })
+
+  it("shifts the effective end date back to the latest covered day", () => {
+    const range = resolveCoveredAnalyticsRange(
+      [[coverageRun("2026-07-01", "2026-07-12")]],
+      {
+        start: utcDate("2026-07-01"),
+        end: utcDate("2026-07-13"),
+      },
+    )
+
+    expect(range?.start.toISOString().slice(0, 10)).toBe("2026-07-01")
+    expect(range?.end.toISOString().slice(0, 10)).toBe("2026-07-12")
+    expect(range?.days).toBe(12)
   })
 })
