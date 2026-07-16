@@ -26,6 +26,10 @@ describe("markdown for agents", () => {
     expect(toMarkdownPath("/products/example.md")).toBe("/products/example.md")
   })
 
+  it("leaves ads.txt outside Dualmark content negotiation", () => {
+    expect(dualmarkConfig.middleware.skipPaths).toContain("/ads.txt")
+  })
+
   it("renders a substantive home index markdown document", () => {
     const homePage = dualmarkConfig.staticPages.find(
       (page) => page.pattern === HOME_PATH,

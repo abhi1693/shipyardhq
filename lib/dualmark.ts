@@ -595,7 +595,7 @@ export const dualmarkConfig = {
   siteUrl,
   internalNamespace: DUALMARK_INTERNAL_NAMESPACE,
   middleware: {
-    skipPaths: ["/api", "/member", "/.well-known"],
+    skipPaths: ["/api", "/member", "/.well-known", "/ads.txt"],
   },
   headers: {
     cacheControl: PUBLIC_CONTENT_CACHE_CONTROL,
