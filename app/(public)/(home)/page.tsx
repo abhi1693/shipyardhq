@@ -280,7 +280,6 @@ async function getCachedHomepageDataSections() {
       pageViews: 0,
       visitors: 0,
       trafficSeries: [],
-      realtimeVisitors: 0,
     })),
   ])
 

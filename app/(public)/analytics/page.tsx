@@ -142,18 +142,15 @@ async function AnalyticsPageContent() {
   const previousReportingWindow =
     getPreviousAnalyticsReportingWindow(reportingWindow)
 
-  const [{ snapshot, previousSnapshot, topProducts }, recentViews] =
-    await Promise.all([
-      getCachedAnalyticsPageData({
-        rangeDays: reportingWindow.days,
-        rangeStartDate: reportingWindow.startDate,
-        rangeEndDate: reportingWindow.endDate,
-        prevRangeDays: previousReportingWindow.days,
-        prevRangeStartDate: previousReportingWindow.startDate,
-        prevRangeEndDate: previousReportingWindow.endDate,
-      }),
-      getAnalyticsProvider("cache").getRealtimeVisitors(),
-    ])
+  const { snapshot, previousSnapshot, topProducts } =
+    await getCachedAnalyticsPageData({
+      rangeDays: reportingWindow.days,
+      rangeStartDate: reportingWindow.startDate,
+      rangeEndDate: reportingWindow.endDate,
+      prevRangeDays: previousReportingWindow.days,
+      prevRangeStartDate: previousReportingWindow.startDate,
+      prevRangeEndDate: previousReportingWindow.endDate,
+    })
 
   const currentRatio =
     snapshot.sessions > 0 ? snapshot.pageViews / snapshot.sessions : 0
@@ -194,7 +191,6 @@ async function AnalyticsPageContent() {
         )}
         visitsDelta={computeDelta(snapshot.sessions, previousSnapshot.sessions)}
         ratioDelta={computeDelta(currentRatio, previousRatio)}
-        initialRecentViews={recentViews}
         points={snapshot.timeseries.map((point) => ({
           date: point.date,
           label: point.label,

@@ -20,26 +20,13 @@ import type {
   SiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/providerTypes"
 import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
-import {
-  fetchRecentVisitorsFromCloudflare,
-  hasCloudflareAnalyticsConfig,
-  isTransientCloudflareError,
-} from "@/lib/server/analytics/cloudflareAnalytics"
 import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 
-const REALTIME_VISITORS_CACHE_KEY = buildCacheKey(
-  "analytics:realtime:visitors:v3",
-)
 const DAILY_TRAFFIC_TTL_SECONDS = 60 * 60 * 24
-const REALTIME_VISITORS_TTL_SECONDS = 60
 const PRODUCT_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const PRODUCT_TRAFFIC_MAP_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const SITE_SNAPSHOT_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
 const HOMEPAGE_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
-
-function normalizeRealtimeVisitors(value: number) {
-  return Math.max(0, value)
-}
 
 function normalizeKeyParts(parts: string[]): string[] {
   return Array.from(
@@ -205,60 +192,6 @@ export async function invalidateAnalyticsCache(reason = "manual") {
   )
 
   return { analytics, pages }
-}
-
-async function getCachedRealtimeVisitors(): Promise<number | null> {
-  const cached = await cacheHit<number>({
-    key: REALTIME_VISITORS_CACHE_KEY,
-    deserialize: (value) => Number(value),
-    onError: (error) => {
-      console.error("[analytics] failed to read realtime cache", { error })
-    },
-  })
-
-  if (!Number.isFinite(cached ?? NaN)) {
-    return null
-  }
-
-  return cached ?? null
-}
-
-async function storeRealtimeVisitors(value: number) {
-  await cacheMiss({
-    key: REALTIME_VISITORS_CACHE_KEY,
-    value,
-    ttlSeconds: REALTIME_VISITORS_TTL_SECONDS,
-    serialize: (payload) => String(payload),
-    onError: (error) => {
-      console.error("[analytics] failed to write realtime cache", { error })
-    },
-  })
-}
-
-async function fetchRealtimeVisitorsWithCache(): Promise<number> {
-  const cached = await getCachedRealtimeVisitors()
-  if (cached !== null) {
-    return normalizeRealtimeVisitors(cached)
-  }
-
-  if (!hasCloudflareAnalyticsConfig()) {
-    await storeRealtimeVisitors(0)
-    return normalizeRealtimeVisitors(0)
-  }
-
-  try {
-    const fresh = await fetchRecentVisitorsFromCloudflare()
-    await storeRealtimeVisitors(fresh)
-    return normalizeRealtimeVisitors(fresh)
-  } catch (error) {
-    if (!isTransientCloudflareError(error)) {
-      console.error("[analytics] failed to fetch recent Cloudflare traffic", {
-        error,
-      })
-    }
-    await storeRealtimeVisitors(0)
-    return normalizeRealtimeVisitors(0)
-  }
 }
 
 async function fetchProductTrafficWithCache(args: {
@@ -475,5 +408,4 @@ export const cacheAnalyticsProvider: AnalyticsProvider = {
   getProductTrafficMap: (args) => fetchProductTrafficMapWithCache(args),
   getSiteAnalyticsSnapshot: (args) => fetchSiteSnapshotWithCache(args),
   getHomepageTraffic: () => fetchHomepageTrafficWithCache(),
-  getRealtimeVisitors: () => fetchRealtimeVisitorsWithCache(),
 }

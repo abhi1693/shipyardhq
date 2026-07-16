@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { useMemo, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
 import {
   Area,
@@ -29,7 +29,6 @@ import {
   FlagIcon,
   OsIcon,
 } from "@/components/molecules/AnalyticsShared"
-import { useVisibilityGate } from "@/hooks/use-visibility-gate"
 import { cn } from "@/lib/utils"
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -89,7 +88,6 @@ export type AnalyticsPublicDashboardProps = {
   requestsDelta: number | null
   visitsDelta: number | null
   ratioDelta: number | null
-  initialRecentViews: number
   points: PublicAnalyticsPoint[]
   hourlyActivity: PublicHourlyActivityPoint[]
   products: PublicAnalyticsRankedItem[]
@@ -721,7 +719,6 @@ export function AnalyticsPublicDashboard({
   requestsDelta,
   visitsDelta,
   ratioDelta,
-  initialRecentViews,
   points,
   hourlyActivity,
   products,
@@ -731,46 +728,6 @@ export function AnalyticsPublicDashboard({
   operatingSystems,
   devices,
 }: AnalyticsPublicDashboardProps) {
-  const [recentViews, setRecentViews] = useState(
-    Math.max(0, initialRecentViews),
-  )
-  const { ref, isActive } = useVisibilityGate<HTMLDivElement>()
-
-  useEffect(() => {
-    if (!isActive) return
-
-    let stopped = false
-    let timeout: ReturnType<typeof setTimeout> | null = null
-    let controller: AbortController | null = null
-
-    const refresh = async () => {
-      try {
-        controller?.abort()
-        controller = new AbortController()
-        const response = await fetch("/api/analytics/realtime", {
-          cache: "no-store",
-          signal: controller.signal,
-        })
-        if (!response.ok) return
-        const payload = (await response.json()) as { views?: number }
-        if (!stopped && Number.isFinite(payload.views)) {
-          setRecentViews(Math.max(0, payload.views ?? 0))
-        }
-      } catch {
-        // Preserve the last successful count until the next refresh.
-      } finally {
-        if (!stopped) timeout = setTimeout(refresh, 60_000)
-      }
-    }
-
-    refresh()
-    return () => {
-      stopped = true
-      controller?.abort()
-      if (timeout) clearTimeout(timeout)
-    }
-  }, [isActive])
-
   const ratio = visits > 0 ? requests / visits : 0
   const sparklineData = useMemo(
     () =>
@@ -784,7 +741,7 @@ export function AnalyticsPublicDashboard({
   )
 
   return (
-    <div ref={ref} className="bg-[#f5f6f8] text-[#17202a]">
+    <div className="bg-[#f5f6f8] text-[#17202a]">
       <div className="mx-auto w-full max-w-[1480px] px-3 py-5 sm:px-5 lg:px-6">
         <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -793,18 +750,9 @@ export function AnalyticsPublicDashboard({
             </h1>
             <p className="mt-1 text-xs text-[#69727d]">{rangeLabel}</p>
           </div>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="hidden text-[#7a828d] sm:inline">
-              Updated {updatedAt}
-            </span>
-            <span className="inline-flex h-9 items-center gap-2 rounded-md border border-[#dfe3e8] bg-white px-3 font-medium text-[#26313d]">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#24c875] opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-[#18b867]" />
-              </span>
-              {numberFormatter.format(recentViews)} views / 1m
-            </span>
-          </div>
+          <span className="hidden text-xs text-[#7a828d] sm:inline">
+            Updated {updatedAt}
+          </span>
         </header>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

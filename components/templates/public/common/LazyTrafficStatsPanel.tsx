@@ -21,7 +21,6 @@ function TrafficStatsPanelSkeleton({ className }: { className?: string }) {
       <div className="grid grid-cols-1 gap-3 @[20rem]:grid-cols-2">
         <div className="min-h-[150px] rounded-xl border border-[#E2E8F0] bg-white shadow-sm" />
         <div className="min-h-[150px] rounded-xl border border-[#E2E8F0] bg-white shadow-sm" />
-        <div className="h-[68px] rounded-xl bg-[#00162a] @[20rem]:col-span-2" />
       </div>
     </div>
   )

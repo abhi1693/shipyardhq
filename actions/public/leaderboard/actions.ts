@@ -406,26 +406,19 @@ export async function getLeaderboardStats() {
   )
 
   const analyticsProvider = getAnalyticsProvider("cache")
-  const [
-    totalProducts,
-    totalCreators,
-    upvoteAgg,
-    topProduct,
-    homepageTraffic,
-    realtimeVisitors,
-  ] = await Promise.all([
-    prisma.product.count({}),
-    prisma.user.count({}),
-    prisma.productAnalytics.aggregate({
-      _sum: { upvotes: true },
-    }),
-    prisma.productAnalytics.findFirst({
-      orderBy: { upvotes: "desc" },
-      select: { upvotes: true },
-    }),
-    analyticsProvider.getHomepageTraffic(),
-    analyticsProvider.getRealtimeVisitors(),
-  ])
+  const [totalProducts, totalCreators, upvoteAgg, topProduct, homepageTraffic] =
+    await Promise.all([
+      prisma.product.count({}),
+      prisma.user.count({}),
+      prisma.productAnalytics.aggregate({
+        _sum: { upvotes: true },
+      }),
+      prisma.productAnalytics.findFirst({
+        orderBy: { upvotes: "desc" },
+        select: { upvotes: true },
+      }),
+      analyticsProvider.getHomepageTraffic(),
+    ])
 
   return {
     totalProducts,
@@ -436,7 +429,6 @@ export async function getLeaderboardStats() {
     pageViews: homepageTraffic.pageViews,
     visitors: homepageTraffic.visitors,
     trafficSeries: homepageTraffic.trafficSeries,
-    realtimeVisitors,
   }
 }
 

@@ -1,8 +1,6 @@
 "use client"
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { Activity, Users, Zap } from "lucide-react"
+import { Activity, Users } from "lucide-react"
 import type { TooltipContentProps } from "recharts"
 import {
   Area,
@@ -15,7 +13,6 @@ import {
 
 import { Card, CardContent } from "@/components/atoms/card"
 import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
-import { ANALYTICS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 export interface TrafficStatsPayload {
@@ -27,7 +24,6 @@ export interface TrafficStatsPayload {
     pageViews: number
     visitors: number
   }> | null
-  realtimeVisitors?: number | null
 }
 
 type TrafficMetricPoint = {
@@ -225,29 +221,6 @@ function TrafficMetricCard({
   )
 }
 
-function LivePerformanceCard({ count }: { count: number }) {
-  return (
-    <Link
-      href={ANALYTICS_PATH}
-      className="block w-full rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#0051d5] focus-visible:ring-offset-2 @[20rem]:col-span-2"
-      aria-label={`View live performance analytics for ${formatter.format(count)} active builders`}
-    >
-      <div className="flex w-full items-center gap-3 rounded-xl border border-white/[0.06] bg-[#00162a] px-4 py-3 shadow-sm transition-colors duration-300 hover:border-white/20">
-        <div className="relative flex size-3 items-center justify-center">
-          <div className="size-2.5 animate-[pulse-glow_2s_infinite_ease-in-out] rounded-full bg-[#00e676]" />
-        </div>
-        <span className="ml-1 text-[32px] font-bold leading-none text-white">
-          {formatter.format(count)}
-        </span>
-        <span className="whitespace-nowrap text-[12px] font-extrabold uppercase leading-none tracking-[0.05em] text-[#00e676]">
-          Views / 1m
-        </span>
-        <Zap className="ml-auto size-[18px] text-[#cbd5e1]" aria-hidden />
-      </div>
-    </Link>
-  )
-}
-
 export function TrafficStatsPanel({
   initialStats,
   className,
@@ -255,39 +228,6 @@ export function TrafficStatsPanel({
   initialStats: TrafficStatsPayload
   className?: string
 }) {
-  const [activeBuilderCount, setActiveBuilderCount] = useState(
-    Math.max(0, initialStats.realtimeVisitors ?? 0),
-  )
-
-  useEffect(() => {
-    let canceled = false
-
-    async function refreshRealtimeVisitors() {
-      try {
-        const response = await fetch("/api/analytics/realtime", {
-          cache: "no-store",
-          headers: { accept: "application/json" },
-        })
-        if (!response.ok) return
-
-        const payload = (await response.json()) as { views?: number | null }
-        if (!canceled && typeof payload.views === "number") {
-          setActiveBuilderCount(Math.max(0, payload.views))
-        }
-      } catch {
-        // Keep the last known cached value when the realtime request fails.
-      }
-    }
-
-    refreshRealtimeVisitors()
-    const interval = window.setInterval(refreshRealtimeVisitors, 60_000)
-
-    return () => {
-      canceled = true
-      window.clearInterval(interval)
-    }
-  }, [])
-
   const windowDays = Math.max(
     1,
     initialStats.analyticsWindowDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
@@ -336,7 +276,6 @@ export function TrafficStatsPanel({
           dataKey="visitors"
           Icon={Users}
         />
-        <LivePerformanceCard count={activeBuilderCount} />
       </div>
     </div>
   )

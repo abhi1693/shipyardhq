@@ -22,7 +22,6 @@ export async function GET() {
         pageViews: 0,
         visitors: 0,
         trafficSeries: [],
-        realtimeVisitors: 0,
       },
       { status: 200 },
     )

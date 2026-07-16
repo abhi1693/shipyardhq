@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const analyticsMocks = vi.hoisted(() => ({
-  fetchRecentVisitorsFromCloudflare: vi.fn(),
   getAnalyticsIngestionCoveredRange: vi.fn(),
   hasAnalyticsIngestionCoverage: vi.fn(),
 }))
@@ -14,16 +13,10 @@ vi.mock("@/lib/server/analytics/ingestion/coverage", () => ({
   hasAnalyticsIngestionCoverage: analyticsMocks.hasAnalyticsIngestionCoverage,
 }))
 
-vi.mock("@/lib/server/analytics/cloudflareAnalytics", () => ({
-  fetchRecentVisitorsFromCloudflare:
-    analyticsMocks.fetchRecentVisitorsFromCloudflare,
-}))
-
 import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
 
 describe("dbAnalyticsProvider Cloudflare boundary", () => {
   beforeEach(() => {
-    analyticsMocks.fetchRecentVisitorsFromCloudflare.mockReset()
     analyticsMocks.getAnalyticsIngestionCoveredRange.mockReset()
     analyticsMocks.hasAnalyticsIngestionCoverage.mockReset()
   })
@@ -38,17 +31,5 @@ describe("dbAnalyticsProvider Cloudflare boundary", () => {
       visitors: 0,
       trafficSeries: [],
     })
-    expect(
-      analyticsMocks.fetchRecentVisitorsFromCloudflare,
-    ).not.toHaveBeenCalled()
-  })
-
-  it("calls Cloudflare for realtime visitors", async () => {
-    analyticsMocks.fetchRecentVisitorsFromCloudflare.mockResolvedValue(42)
-
-    await expect(dbAnalyticsProvider.getRealtimeVisitors()).resolves.toBe(42)
-    expect(
-      analyticsMocks.fetchRecentVisitorsFromCloudflare,
-    ).toHaveBeenCalledOnce()
   })
 })

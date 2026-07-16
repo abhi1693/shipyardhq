@@ -2,7 +2,6 @@ import { format } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
-import { fetchRecentVisitorsFromCloudflare } from "@/lib/server/analytics/cloudflareAnalytics"
 import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
 import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
 import type {
@@ -904,5 +903,4 @@ export const dbAnalyticsProvider: AnalyticsProvider = {
       }
     )
   },
-  getRealtimeVisitors: () => fetchRecentVisitorsFromCloudflare(),
 }

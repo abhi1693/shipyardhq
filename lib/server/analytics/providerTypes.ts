@@ -171,5 +171,4 @@ export type AnalyticsProvider = {
     topProductLimit?: number
   }) => Promise<SiteAnalyticsSnapshot>
   getHomepageTraffic: () => Promise<HomepageTraffic>
-  getRealtimeVisitors: () => Promise<number>
 }
