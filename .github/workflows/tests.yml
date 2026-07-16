@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: "npm"
+          package-manager-cache: false
 
       - name: Install deps (ignore scripts)
         run: npm ci --ignore-scripts --legacy-peer-deps
