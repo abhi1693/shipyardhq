@@ -115,6 +115,31 @@ describe("Dodo billing return route", () => {
     expect(location.searchParams.get("billingToken")).toBeTruthy()
   })
 
+  it("never redirects a customer to an incoming or configured bind address", async () => {
+    const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL
+    process.env.NEXT_PUBLIC_APP_URL = "http://0.0.0.0:3000"
+    returnMocks.grantFindFirst.mockResolvedValueOnce({ id: "grant_1" })
+
+    try {
+      const response = await GET(
+        new Request(
+          `http://0.0.0.0:3000/api/billing/dodo/return?productId=${PRODUCT_ID}&planId=${PLAN_ID}&payment_id=pay_1`,
+        ),
+      )
+      const location = new URL(response.headers.get("location") ?? "")
+
+      expect(location.origin).toBe("https://shipyardhq.dev")
+      expect(location.pathname).toBe("/member/products/shipyard")
+      expect(location.searchParams.get("billing")).toBe("success")
+    } finally {
+      if (configuredAppUrl === undefined) {
+        delete process.env.NEXT_PUBLIC_APP_URL
+      } else {
+        process.env.NEXT_PUBLIC_APP_URL = configuredAppUrl
+      }
+    }
+  })
+
   it("falls back to correlated polling when cache refresh fails after the grant commits", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     returnMocks.refreshCaches.mockRejectedValueOnce(

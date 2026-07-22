@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
 
+import { GET as getToolsSitemap } from "@/app/(sitemaps)/sitemap-tools.xml/route"
+import { GET as getSitemapIndex } from "@/app/(sitemaps)/sitemap.xml/route"
+import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
   escapeXml,
   getSitemapShardCount,
@@ -10,6 +13,7 @@ import {
   urlsetXml,
 } from "@/lib/sitemap"
 import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
+import { FREE_SEO_TOOLS, freeToolPath } from "@/lib/tools/catalog"
 
 describe("sitemap utilities", () => {
   it("escapes XML-sensitive values", () => {
@@ -68,5 +72,19 @@ describe("sitemap utilities", () => {
     expect(response.headers.get("cache-control")).toBe(
       PUBLIC_CONTENT_CACHE_CONTROL,
     )
+  })
+
+  it("indexes the tools sitemap and every canonical free-tool URL", async () => {
+    const indexXml = await (await getSitemapIndex()).text()
+    const toolsXml = await getToolsSitemap().text()
+    const base = resolveSiteUrl()
+
+    expect(indexXml).toContain(`${base}/sitemap-tools.xml`)
+    expect(toolsXml.match(/<loc>/g)).toHaveLength(FREE_SEO_TOOLS.length + 1)
+    expect(toolsXml).toContain(`<loc>${base}/tools</loc>`)
+
+    for (const tool of FREE_SEO_TOOLS) {
+      expect(toolsXml).toContain(`<loc>${base}${freeToolPath(tool.slug)}</loc>`)
+    }
   })
 })

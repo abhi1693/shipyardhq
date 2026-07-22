@@ -222,6 +222,30 @@ describe("product detail structured data", () => {
     ).not.toHaveProperty("offers")
   })
 
+  it("describes free web tools with their language and concrete features", () => {
+    const structuredData = buildWebApplicationStructuredData({
+      path: "/tools/seo-audit",
+      name: "Free SEO Audit",
+      featureList: ["Technical checks", "Markdown export"],
+      isAccessibleForFree: true,
+      inLanguage: "en",
+      offers: { price: 0, priceCurrency: "USD" },
+    })
+
+    expect(structuredData).toMatchObject({
+      "@type": "WebApplication",
+      "@id": "http://localhost:3000/tools/seo-audit#webapplication",
+      featureList: ["Technical checks", "Markdown export"],
+      isAccessibleForFree: true,
+      inLanguage: "en",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    })
+  })
+
   it("links WebPage schema to the product entity", () => {
     const structuredData = buildWebPageStructuredData({
       path: "/products/embed-bot",

@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest"
 import {
   FREE_SEO_TOOL_BY_SLUG,
   FREE_SEO_TOOLS,
+  FREE_TOOLS_PAGE_DESCRIPTION,
+  FREE_TOOLS_PAGE_TITLE,
   getFreeTool,
   getRelatedFreeTools,
   isFreeToolSlug,
@@ -22,8 +24,10 @@ import {
 import { FREE_TOOL_SLUGS } from "@/lib/tools/types"
 
 describe("free SEO tool catalog", () => {
-  it("defines exactly one complete catalog entry for each of the ten slugs", () => {
-    expect(FREE_TOOL_SLUGS).toHaveLength(10)
+  const titleSuffix = " | Free SEO Tools | Shipyard HQ"
+
+  it("defines exactly one complete catalog entry for every supported slug", () => {
+    expect(FREE_TOOL_SLUGS).toHaveLength(23)
     expect(FREE_SEO_TOOLS).toHaveLength(FREE_TOOL_SLUGS.length)
     expect(new Set(FREE_TOOL_SLUGS).size).toBe(FREE_TOOL_SLUGS.length)
     expect(new Set(FREE_SEO_TOOLS.map((tool) => tool.slug)).size).toBe(
@@ -44,8 +48,36 @@ describe("free SEO tool catalog", () => {
     }
   })
 
+  it("keeps every search snippet unique and within reviewable lengths", () => {
+    const titles = FREE_SEO_TOOLS.map(
+      (tool) => `${tool.seoTitle ?? tool.name}${titleSuffix}`,
+    )
+    const descriptions = FREE_SEO_TOOLS.map((tool) => tool.metaDescription)
+
+    expect(new Set(titles).size).toBe(titles.length)
+    expect(new Set(descriptions).size).toBe(descriptions.length)
+    expect(`${FREE_TOOLS_PAGE_TITLE} | Shipyard HQ`.length).toBeLessThanOrEqual(
+      65,
+    )
+    expect(FREE_TOOLS_PAGE_DESCRIPTION.length).toBeGreaterThanOrEqual(120)
+    expect(FREE_TOOLS_PAGE_DESCRIPTION.length).toBeLessThanOrEqual(160)
+
+    for (const [index, title] of titles.entries()) {
+      expect(title.length, FREE_SEO_TOOLS[index]?.slug).toBeGreaterThanOrEqual(
+        30,
+      )
+      expect(title.length, FREE_SEO_TOOLS[index]?.slug).toBeLessThanOrEqual(65)
+    }
+
+    for (const tool of FREE_SEO_TOOLS) {
+      expect(tool.metaDescription.length, tool.slug).toBeGreaterThanOrEqual(120)
+      expect(tool.metaDescription.length, tool.slug).toBeLessThanOrEqual(160)
+    }
+  })
+
   it("keeps every related-tool reference valid, unique, and non-recursive", () => {
     for (const tool of FREE_SEO_TOOLS) {
+      expect(tool.relatedTools).toHaveLength(3)
       expect(new Set(tool.relatedTools).size).toBe(tool.relatedTools.length)
       expect(tool.relatedTools).not.toContain(tool.slug)
 

@@ -27,6 +27,9 @@ export type WebApplicationStructuredData = {
   applicationCategory?: string
   operatingSystem?: string | string[]
   browserRequirements?: string
+  featureList?: string | string[]
+  isAccessibleForFree?: boolean
+  inLanguage?: string
   offers?: {
     "@type": "Offer"
     price?: string
@@ -57,6 +60,9 @@ export type BuildWebApplicationStructuredDataOptions = {
   applicationCategory?: string
   operatingSystem?: string | string[]
   browserRequirements?: string
+  featureList?: string | string[]
+  isAccessibleForFree?: boolean
+  inLanguage?: string
   offers?: WebApplicationOffer
   author?: WebApplicationAuthor
 }
@@ -155,6 +161,9 @@ export function buildWebApplicationStructuredData(
   const applicationCategory = options.applicationCategory?.trim()
   const operatingSystem = normalizeStringArray(options.operatingSystem)
   const browserRequirements = options.browserRequirements?.trim()
+  const featureList = normalizeStringArray(options.featureList)
+  const isAccessibleForFree = options.isAccessibleForFree
+  const inLanguage = options.inLanguage?.trim()
   const offers = normalizeOffer(options.offers)
   const author = normalizeAuthor(siteUrl, options.author)
 
@@ -172,6 +181,9 @@ export function buildWebApplicationStructuredData(
     applicationCategory,
     operatingSystem,
     browserRequirements,
+    featureList,
+    isAccessibleForFree,
+    inLanguage,
     offers,
     author,
   })

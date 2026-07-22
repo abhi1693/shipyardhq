@@ -33,7 +33,7 @@ export function ToolWorkspaceGrid({
   return (
     <div
       className={cn(
-        "grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6",
+        "grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6",
         className,
       )}
     >

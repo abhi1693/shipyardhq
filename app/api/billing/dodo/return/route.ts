@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 
+import { getAppBaseUrl } from "@/lib/app-url"
 import { dodoClient } from "@/lib/dodo"
 import prisma from "@/lib/prisma"
 import {
@@ -27,12 +28,11 @@ type BillingRedirectCorrelation = {
 }
 
 function redirectUrl(
-  request: Request,
   path: string,
   billing: string,
   correlation: BillingRedirectCorrelation,
 ) {
-  const destination = new URL(path, request.url)
+  const destination = new URL(path, getAppBaseUrl())
   destination.searchParams.set("billing", billing)
   destination.searchParams.set("billingToken", correlation.token)
   if (correlation.productId) {
@@ -108,11 +108,11 @@ export async function GET(request: Request) {
   const { userId: clerkId } = await auth()
   if (!clerkId) {
     const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
-    return NextResponse.redirect(new URL(signInPath, request.url))
+    return NextResponse.redirect(new URL(signInPath, getAppBaseUrl()))
   }
   const user = await getActiveUserByClerkId(clerkId)
   if (!user) {
-    return NextResponse.redirect(new URL(HOME_PATH, request.url))
+    return NextResponse.redirect(new URL(HOME_PATH, getAppBaseUrl()))
   }
 
   let grantResult: ProductPlanGrantResult | null = null
@@ -206,7 +206,7 @@ export async function GET(request: Request) {
       : grantResult.outcome !== "invalid" && grantResult.outcome !== "ignored"),
   )
   return NextResponse.redirect(
-    redirectUrl(request, destination.path, billing, {
+    redirectUrl(destination.path, billing, {
       token: randomUUID(),
       productId: canPollOwnedGrant ? destination.productId : undefined,
       planId: canPollOwnedGrant ? expectedPlanId : undefined,

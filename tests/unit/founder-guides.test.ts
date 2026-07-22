@@ -10,7 +10,7 @@ function guideWordCount(guide: (typeof GUIDES)[number]) {
     ...guide.sections.flatMap((section) => [
       section.title,
       ...section.paragraphs,
-      ...(section.bullets ?? []),
+      ...("bullets" in section ? section.bullets : []),
     ]),
     ...guide.faqs.flatMap((faq) => [faq.question, faq.answer]),
   ]

@@ -5,11 +5,15 @@ import { ToolsIndexPage } from "@/components/templates/public/tools"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, TOOLS_PATH } from "@/lib/routes"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { FREE_SEO_TOOLS, freeToolPath } from "@/lib/tools/catalog"
+import {
+  FREE_SEO_TOOLS,
+  FREE_TOOLS_PAGE_DESCRIPTION,
+  FREE_TOOLS_PAGE_TITLE,
+  freeToolPath,
+} from "@/lib/tools/catalog"
 
-const PAGE_TITLE = "Free SEO Tools for Startups"
-const PAGE_DESCRIPTION =
-  "Use ten free SEO tools built for founders to improve product-page copy, search snippets, social previews, schema, crawler rules, and sitemaps."
+const PAGE_TITLE = FREE_TOOLS_PAGE_TITLE
+const PAGE_DESCRIPTION = FREE_TOOLS_PAGE_DESCRIPTION
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
@@ -45,6 +49,17 @@ export default function FreeToolsPage() {
               path: TOOLS_PATH,
               name: PAGE_TITLE,
               description: PAGE_DESCRIPTION,
+              keywords: [
+                "free SEO tools",
+                "SEO audit tools",
+                "technical SEO tools",
+                "content analysis tools",
+                "schema generators",
+              ],
+              mainEntity: {
+                type: "ItemList",
+                id: `${siteUrl}${TOOLS_PATH}#itemlist`,
+              },
             }}
             breadcrumbs={{
               items: [

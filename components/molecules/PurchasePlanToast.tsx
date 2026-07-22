@@ -195,8 +195,11 @@ export default function PurchasePlanToast() {
       toast.success("Your plan is active.", {
         id: BILLING_TOAST_ID,
       })
+      // Replacing the billing query already performs an App Router navigation
+      // and refreshes the server component tree. Starting router.refresh() at
+      // the same time queues a second navigation and can hold a link click
+      // until both operations finish.
       cleanBillingUrl()
-      router.refresh()
     }
 
     async function poll() {

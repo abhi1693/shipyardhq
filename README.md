@@ -80,7 +80,9 @@ Core:
 
 - `DATABASE_URL` - primary PostgreSQL connection string.
 - `DIRECT_DATABASE_URL` - optional direct database URL override.
-- `NEXT_PUBLIC_APP_URL` - canonical app URL.
+- `NEXT_PUBLIC_APP_URL` - canonical, client-facing app URL. Production must use
+  an absolute HTTPS origin such as `https://shipyardhq.dev`; container bind
+  addresses such as `0.0.0.0` are invalid.
 - `CACHE_ENV_PREFIX` - optional cache namespace prefix.
 - `CRON_SECRET` - bearer token for protected cron/refresh endpoints.
 
@@ -120,6 +122,10 @@ Analytics:
 - `CLOUDFLARE_ANALYTICS_START_DATE` - optional earliest reporting date.
 - `CLOUDFLARE_ANALYTICS_RETENTION_DAYS` - optional raw HTTP retention window.
 - `CLOUDFLARE_ANALYTICS_TIMEOUT_MS` - optional GraphQL request timeout.
+
+Public SEO tools:
+
+- `GOOGLE_PAGESPEED_API_KEY` - optional but recommended for dependable Core Web Vitals checks; without it, requests use Google's limited anonymous quota.
 
 Storage:
 

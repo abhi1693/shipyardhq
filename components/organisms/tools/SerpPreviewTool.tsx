@@ -1,7 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { CircleCheck, Code2, Monitor, Search, Smartphone } from "lucide-react"
+import {
+  CircleCheck,
+  Code2,
+  LoaderCircle,
+  Monitor,
+  Search,
+  Smartphone,
+} from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import { Input } from "@/components/atoms/input"
@@ -140,6 +147,50 @@ export function SerpPreviewTool() {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">(
     "desktop",
   )
+  const [fetching, setFetching] = useState(false)
+  const [fetchError, setFetchError] = useState("")
+
+  async function fetchMetadata() {
+    if (!url.valid) return
+    setFetching(true)
+    setFetchError("")
+    try {
+      const response = await fetch("/api/tools/seo-audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls: [pageUrl], includeSiteFiles: false }),
+      })
+      const data = (await response.json()) as {
+        error?: string
+        results?: Array<{
+          error?: string
+          audit?: {
+            title: string
+            description: string
+            canonical: string
+            finalUrl: string
+          }
+        }>
+      }
+      const result = data.results?.[0]
+      if (!response.ok || !result?.audit) {
+        throw new Error(
+          result?.error || data.error || "Metadata could not be fetched.",
+        )
+      }
+      setTitle(result.audit.title)
+      setDescription(result.audit.description)
+      setPageUrl(result.audit.canonical || result.audit.finalUrl)
+    } catch (error) {
+      setFetchError(
+        error instanceof Error
+          ? error.message
+          : "Metadata could not be fetched.",
+      )
+    } finally {
+      setFetching(false)
+    }
+  }
 
   const titleState = lengthStatus(title.length, TITLE_MIN, TITLE_MAX)
   const descriptionState = lengthStatus(
@@ -170,9 +221,25 @@ export function SerpPreviewTool() {
         title="Page metadata"
         description="Write the search title, description, and preferred URL for this page."
         action={
-          <ToolStatusBadge tone={completeFields === 3 ? "good" : "warning"}>
-            {completeFields}/3 complete
-          </ToolStatusBadge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!url.valid || fetching}
+              onClick={() => void fetchMetadata()}
+            >
+              {fetching ? (
+                <LoaderCircle className="animate-spin" aria-hidden />
+              ) : (
+                <Search aria-hidden />
+              )}
+              {fetching ? "Fetching…" : "Fetch from URL"}
+            </Button>
+            <ToolStatusBadge tone={completeFields === 3 ? "good" : "warning"}>
+              {completeFields}/3 complete
+            </ToolStatusBadge>
+          </div>
         }
       >
         <div className="space-y-6">
@@ -277,6 +344,9 @@ export function SerpPreviewTool() {
                 <CircleCheck className="size-3.5" aria-hidden="true" />
                 Valid canonical URL
               </p>
+            ) : null}
+            {fetchError ? (
+              <p className="text-xs leading-5 text-red-700">{fetchError}</p>
             ) : null}
           </ToolField>
         </div>

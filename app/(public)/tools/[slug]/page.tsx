@@ -28,7 +28,7 @@ export async function generateMetadata({
   if (!tool) return {}
 
   return buildPageMetadata({
-    title: tool.name,
+    title: tool.seoTitle ?? tool.name,
     section: "Free SEO Tools",
     description: tool.metaDescription,
     canonical: freeToolPath(tool.slug),
@@ -48,6 +48,9 @@ export default async function ToolPage({ params }: ToolPageProps) {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Any",
     browserRequirements: "JavaScript enabled",
+    featureList: [...tool.features],
+    isAccessibleForFree: true,
+    inLanguage: "en",
     offers: { price: 0, priceCurrency: "USD" },
     author: { type: "Organization", name: BRAND_NAME, url: HOME_PATH },
   })
@@ -64,6 +67,16 @@ export default async function ToolPage({ params }: ToolPageProps) {
               path,
               name: tool.name,
               description: tool.metaDescription,
+              keywords: [
+                tool.shortName,
+                `free ${tool.shortName}`,
+                tool.category,
+                ...tool.features,
+              ],
+              mainEntity: {
+                type: "WebApplication",
+                id: webApplication["@id"],
+              },
             }}
             breadcrumbs={{
               items: [

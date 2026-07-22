@@ -1,13 +1,22 @@
 import type { LucideIcon } from "lucide-react"
 import {
+  Activity,
+  BadgeCheck,
   Bot,
   Braces,
+  ClipboardCheck,
+  FileScan,
   FileText,
+  Gauge,
+  GitCompareArrows,
+  Globe2,
   ImageIcon,
   Link2,
   ListTree,
   Map,
   MessageSquareText,
+  MousePointerClick,
+  Repeat2,
   Search,
   Share2,
 } from "lucide-react"
@@ -26,6 +35,15 @@ const icons: Record<FreeToolIconName, LucideIcon> = {
   schema: Braces,
   bot: Bot,
   sitemap: Map,
+  audit: FileScan,
+  compare: GitCompareArrows,
+  speed: Gauge,
+  globe: Globe2,
+  redirect: Repeat2,
+  shield: BadgeCheck,
+  counter: Activity,
+  campaign: MousePointerClick,
+  checklist: ClipboardCheck,
 }
 
 export function ToolIcon({

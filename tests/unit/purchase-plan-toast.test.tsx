@@ -112,7 +112,7 @@ describe("PurchasePlanToast billing return journey", () => {
     expect(toastMocks.replace).toHaveBeenCalledWith(
       "/member/products/shipyard?planId=keep&celebrate=1",
     )
-    expect(toastMocks.refresh).toHaveBeenCalledTimes(1)
+    expect(toastMocks.refresh).not.toHaveBeenCalled()
     expect(toastMocks.fetch).toHaveBeenCalledTimes(1)
   })
 
@@ -143,7 +143,7 @@ describe("PurchasePlanToast billing return journey", () => {
     await act(async () => vi.advanceTimersToNextTimerAsync())
 
     expect(toastMocks.success).toHaveBeenCalledTimes(2)
-    expect(toastMocks.refresh).toHaveBeenCalledTimes(2)
+    expect(toastMocks.refresh).not.toHaveBeenCalled()
 
     await rerenderToast("")
     await rerenderToast("error=checkout_init_failed")
@@ -156,7 +156,7 @@ describe("PurchasePlanToast billing return journey", () => {
     )
   })
 
-  it("polls sequentially through transient processing and refreshes once on success", async () => {
+  it("polls sequentially and uses one route replacement on success", async () => {
     const warning = vi
       .spyOn(console, "warn")
       .mockImplementation(() => undefined)
@@ -192,7 +192,7 @@ describe("PurchasePlanToast billing return journey", () => {
     expect(toastMocks.replace).toHaveBeenCalledWith(
       "/member/products/shipyard?planId=keep",
     )
-    expect(toastMocks.refresh).toHaveBeenCalledTimes(1)
+    expect(toastMocks.refresh).not.toHaveBeenCalled()
 
     await act(async () => vi.advanceTimersByTimeAsync(30000))
     expect(toastMocks.fetch).toHaveBeenCalledTimes(3)
@@ -278,6 +278,6 @@ describe("PurchasePlanToast billing return journey", () => {
     await act(async () => vi.advanceTimersToNextTimerAsync())
 
     expect(toastMocks.success).toHaveBeenCalledTimes(1)
-    expect(toastMocks.refresh).toHaveBeenCalledTimes(1)
+    expect(toastMocks.refresh).not.toHaveBeenCalled()
   })
 })
