@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 import { Suspense } from "react"
 
 import prisma from "@/lib/prisma"
@@ -72,6 +73,7 @@ export async function generateMetadata(
   props: CategoryTrendsPageProps,
 ): Promise<Metadata> {
   const { slug } = await props.params
+  await connection()
   const category = await prisma.category.findUnique({
     where: { slug },
     select: { name: true, description: true, slug: true },
@@ -107,6 +109,7 @@ async function TrendingToolsInCategoryPageContent({
   params,
 }: CategoryTrendsPageProps) {
   const { slug } = await params
+  await connection()
   const [category, taxonomySponsors] = await Promise.all([
     prisma.category.findUnique({
       where: { slug },

@@ -31,7 +31,7 @@ const productAnalyticsSelect = {
   status: true,
   createdAt: true,
   updatedAt: true,
-  analytics: { select: { upvotes: true } },
+  analytics: { select: { upvotes: true, websiteClicks: true } },
   planGrants: {
     select: {
       id: true,
@@ -59,7 +59,7 @@ export type ProductAnalyticsRecord = Omit<
 }
 
 export async function getProductAnalyticsRecord(id: string) {
-  const cacheKey = buildCacheKey("analytics", "productAnalytics", "v3", id)
+  const cacheKey = buildCacheKey("analytics", "productAnalytics", "v4", id)
   const cacheTtlSeconds = resolveCacheTtl("fast")
 
   const cachedRecord = await cacheHit<ProductAnalyticsRecord | null>({
@@ -137,7 +137,7 @@ export async function invalidateProductAnalyticsRecordCache(
   reason = "manual",
 ) {
   return invalidateCacheByPrefix({
-    keyPrefix: buildCacheKey("analytics", "productAnalytics", "v3", productId),
+    keyPrefix: buildCacheKey("analytics", "productAnalytics", "v4", productId),
     onError: (error) => {
       console.error(
         "[analytics] failed to invalidate product analytics cache",

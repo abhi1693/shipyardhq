@@ -27,7 +27,13 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { Bot, MousePointer2, Sparkles, TrendingUp } from "lucide-react"
+import {
+  Bot,
+  ExternalLink,
+  MousePointer2,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react"
 
 import { AnalyticsListCard } from "@/components/molecules/AnalyticsListCard"
 import { AnalyticsMetricCard } from "@/components/molecules/AnalyticsMetricCard"
@@ -274,6 +280,7 @@ export default async function ProductAnalyticsPage({
       })
     : null
   const upvotes = product.analytics?.upvotes ?? 0
+  const websiteClicks = product.analytics?.websiteClicks ?? 0
   const formatter = new Intl.NumberFormat("en-US")
   const formatPercentOneDecimal = (value: number) =>
     formatPercent(value, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
@@ -316,7 +323,7 @@ export default async function ProductAnalyticsPage({
       headingActionsLeft={null}
       relationships={
         <div className="space-y-6">
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <AnalyticsMetricCard
               label="Views"
               value={formatter.format(traffic.pageViews)}
@@ -335,6 +342,12 @@ export default async function ProductAnalyticsPage({
               label="Upvotes"
               value={formatter.format(upvotes)}
               helper="All time"
+            />
+            <AnalyticsMetricCard
+              label="Website clicks"
+              value={formatter.format(websiteClicks)}
+              helper="Since click tracking began"
+              icon={<ExternalLink className="h-4 w-4" aria-hidden />}
             />
           </div>
           <div>

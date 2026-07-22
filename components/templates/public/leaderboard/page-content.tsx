@@ -13,7 +13,7 @@ import {
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
-import { Image } from "@/components/atoms/image"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import {
   GoogleAdsenseDisplayUnit,
@@ -157,9 +157,9 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
           href={productPath(item.slug)}
           className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#F8FAFC]"
         >
-          <Image
+          <ProductLogoImage
             src={item.logo}
-            alt={`${item.name} logo`}
+            name={item.name}
             width={48}
             height={48}
             sizes="48px"

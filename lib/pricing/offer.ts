@@ -38,7 +38,7 @@ const FEATURE_COPY: Record<string, string[]> = {
     "Views, visits, traffic trends & upvotes in your dashboard",
   ],
   "analytics.advanced": ["AI crawler, device, browser & location insights"],
-  backlink: ["Direct website link from your Shipyard product page"],
+  backlink: ["Direct website link with aggregate click tracking"],
   "product.sitemap": ["Included in Shipyard’s product sitemap"],
   "product.aiSearchReady": [
     "AI-search ready badge + dedicated Markdown profile",

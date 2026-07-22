@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/atoms/button"
 import { Image } from "@/components/atoms/image"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
-import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import {
   FreeLaunchDeliverable,
@@ -232,8 +231,8 @@ export default async function PricingPage() {
               Turn your launch into measurable discovery.
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-6 text-[#43474c] sm:text-lg sm:leading-7">
-              Publish free, earn votes and product visits, and buy extra reach
-              only when the timing is right.
+              Publish free, earn product visits, track website clicks, and buy
+              extra reach only when the timing is right.
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:flex sm:items-center sm:justify-center">
@@ -257,27 +256,6 @@ export default async function PricingPage() {
             <FreeLaunchDeliverable />
           </div>
         </section>
-
-        <AnswerBlocks
-          blocks={[
-            {
-              title: "What this page lists",
-              body: `${BRAND_NAME} pricing lists free submission, launch promotion, placement, and analytics options for makers publishing products in the Shipyard directory.`,
-            },
-            {
-              title: "Who it is for",
-              body: "This page is for founders, indie makers, SaaS teams, and product marketers deciding whether to list for free or add paid visibility during a launch window.",
-            },
-            {
-              title: "How placement works",
-              body: "Free launches receive a public product page plus standard homepage and directory discovery. Featured adds a sponsored homepage card and priority in supported result feeds. Pro adds advanced insights and eligibility for Partner Spotlight panels.",
-            },
-            {
-              title: "Freshness policy",
-              body: "Pricing content uses current public plan records where available and revalidates with the site so listing, placement, and promotion details can change as plans are updated.",
-            },
-          ]}
-        />
 
         <section
           id="plans"

@@ -407,28 +407,47 @@ export async function getLeaderboardStats() {
 
   const analyticsProvider = getAnalyticsProvider("cache")
   const { periodStart, periodEnd } = getCurrentLeaderboardWindow()
-  const [totalProducts, totalCreators, upvoteAgg, scoreAgg, homepageTraffic] =
-    await Promise.all([
-      prisma.product.count({}),
-      prisma.user.count({}),
-      prisma.productAnalytics.aggregate({
-        _sum: { upvotes: true },
+  const [
+    totalProducts,
+    totalCreators,
+    engagementAgg,
+    scoreAgg,
+    homepageTraffic,
+  ] = await Promise.all([
+    prisma.product.count({}),
+    prisma.user.count({}),
+    prisma.productAnalytics
+      .aggregate({
+        _sum: { upvotes: true, websiteClicks: true },
+      })
+      .catch((error) => {
+        const errorCode =
+          typeof error === "object" && error && "code" in error
+            ? error.code
+            : null
+        if (errorCode !== "P2022") {
+          console.error("[analytics] failed to load public engagement totals", {
+            error,
+          })
+        }
+        return { _sum: { upvotes: null, websiteClicks: null } }
       }),
-      prisma.productLeaderboardScore.aggregate({
-        where: {
-          run: { is: { periodStart, periodEnd } },
-          product: { is: buildPublicDiscoveryProductWhere() },
-        },
-        _sum: { score: true },
-        _max: { score: true },
-      }),
-      analyticsProvider.getHomepageTraffic(),
-    ])
+    prisma.productLeaderboardScore.aggregate({
+      where: {
+        run: { is: { periodStart, periodEnd } },
+        product: { is: buildPublicDiscoveryProductWhere() },
+      },
+      _sum: { score: true },
+      _max: { score: true },
+    }),
+    analyticsProvider.getHomepageTraffic(),
+  ])
 
   return {
     totalProducts,
     totalCreators,
-    totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
+    totalUpvotes: engagementAgg._sum.upvotes ?? 0,
+    websiteClicks: engagementAgg._sum.websiteClicks ?? 0,
     totalScore: scoreAgg._sum.score ?? 0,
     topScore: scoreAgg._max.score ?? 0,
     analyticsWindowDays: homepageTraffic.windowDays,

@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import prisma from "@/lib/prisma"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { productPath } from "@/lib/routes"
+import { recordProductWebsiteClick } from "@/lib/server/analytics/productWebsiteClicks"
 import { ensureUrlHasSchema } from "@/lib/utils"
 
 const isSafeHttpUrl = (rawUrl: string): rawUrl is string => {
@@ -34,6 +35,7 @@ export async function redirectToProductWebsite(
   const product = await prisma.product.findFirst({
     where: { slug, status: "published" },
     select: {
+      id: true,
       websiteUrl: true,
       metadata: {
         select: {
@@ -59,6 +61,14 @@ export async function redirectToProductWebsite(
   if (!isSafeHttpUrl(destination)) {
     return buildNoIndexRedirect(fallback)
   }
+
+  await recordProductWebsiteClick(product.id).catch((error) => {
+    console.error("[analytics] failed to record product website click", {
+      productId: product.id,
+      utmContent,
+      error,
+    })
+  })
 
   return buildNoIndexRedirect(destination, 307)
 }

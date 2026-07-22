@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-import { Image } from "@/components/atoms/image"
+import { ResilientImage } from "@/components/atoms/resilient-image"
 import {
   PRODUCT_GALLERY_MAIN_IMAGE_SIZES,
   type DirectProductGalleryImage,
@@ -66,6 +66,11 @@ export function ProductMediaGalleryClient({
   const shouldUseDirectInitialImage =
     currentIndex === 0 &&
     directInitialImage?.originalSrc === currentItem.imageUrl
+  const mediaFallback = (
+    <div className="absolute inset-0 flex items-center justify-center bg-[#eef2f7] px-6 text-center text-sm font-medium text-[#64748b]">
+      Preview unavailable
+    </div>
+  )
 
   const goToPrevious = () => {
     setSelectedIndex((prev) =>
@@ -91,20 +96,25 @@ export function ProductMediaGalleryClient({
       <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
         <div className="relative aspect-[16/9] w-full">
           {shouldUseDirectInitialImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <ResilientImage
               key={currentItem.id}
               src={directInitialImage.src}
-              srcSet={directInitialImage.srcSet}
-              sizes={directInitialImage.sizes}
+              sources={[
+                {
+                  srcSet: directInitialImage.srcSet,
+                  sizes: directInitialImage.sizes,
+                },
+              ]}
               alt={currentItem.altText || productName}
+              fill
               className="absolute inset-0 h-full w-full object-contain transition-opacity duration-200"
+              eager
               loading="eager"
               fetchPriority="high"
-              decoding="async"
+              fallback={mediaFallback}
             />
           ) : (
-            <Image
+            <ResilientImage
               key={currentItem.id}
               src={currentItem.imageUrl}
               alt={currentItem.altText || productName}
@@ -116,6 +126,7 @@ export function ProductMediaGalleryClient({
               loading={currentIndex === 0 ? "eager" : "lazy"}
               preload={currentIndex === 0}
               fetchPriority={currentIndex === 0 ? "high" : "auto"}
+              fallback={mediaFallback}
             />
           )}
         </div>
@@ -186,7 +197,7 @@ function GalleryThumbnailButton({
       )}
       aria-label={`View image ${index + 1}`}
     >
-      <Image
+      <ResilientImage
         src={item.imageUrl}
         alt={item.altText || productName}
         fill
@@ -196,6 +207,11 @@ function GalleryThumbnailButton({
         loading="lazy"
         fetchPriority="low"
         placeholder="empty"
+        fallback={
+          <span className="flex h-full w-full items-center justify-center bg-[#eef2f7] px-2 text-[10px] font-semibold uppercase tracking-wide text-[#64748b]">
+            No preview
+          </span>
+        }
       />
     </button>
   )

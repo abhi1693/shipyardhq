@@ -7,6 +7,7 @@ import {
   ArrowRight,
   ExternalLink,
   Eye,
+  MousePointerClick,
   Package,
   Rocket,
   ThumbsUp,
@@ -31,7 +32,7 @@ type StatDefinition = {
   label: string
   value: number
   icon: LucideIcon
-  tint: "blue" | "green" | "orange"
+  tint: "blue" | "green" | "orange" | "violet"
   meta: string
 }
 
@@ -129,6 +130,14 @@ async function MemberOverviewDashboard() {
       icon: ThumbsUp,
       tint: "orange",
       meta: "Community signal",
+    },
+    {
+      id: "website-clicks",
+      label: "Website clicks",
+      value: summary.websiteClicks,
+      icon: MousePointerClick,
+      tint: "violet",
+      meta: "Tracked outbound",
     },
   ]
 
@@ -266,7 +275,7 @@ function FirstLaunchActivationPanel() {
 
 function AnalyticsStatRow({ stats }: { stats: StatDefinition[] }) {
   return (
-    <section className="grid gap-4 md:grid-cols-3">
+    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
         <MetricCard key={stat.id} stat={stat} />
       ))}
@@ -286,6 +295,7 @@ function MetricCard({ stat }: { stat: StatDefinition }) {
             stat.tint === "blue" && "bg-blue-50 text-blue-700",
             stat.tint === "green" && "bg-lime-100 text-slate-950",
             stat.tint === "orange" && "bg-orange-50 text-orange-600",
+            stat.tint === "violet" && "bg-violet-50 text-violet-700",
           )}
         >
           <Icon className="h-5 w-5" aria-hidden />

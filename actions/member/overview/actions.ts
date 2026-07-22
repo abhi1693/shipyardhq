@@ -21,6 +21,7 @@ type MemberTrafficOverview = {
   totalViews: number
   uniqueVisitors: number
   upvotesInRange: number
+  websiteClicks: number
   viewsOverTime: ProductTrafficSummaryPoint[]
   engagementOverTime: ProductEngagementSummaryPoint[]
 }
@@ -130,6 +131,7 @@ function buildEmptySummary(
     totalViews: 0,
     uniqueVisitors: 0,
     upvotesInRange: 0,
+    websiteClicks: 0,
     viewsOverTime,
     engagementOverTime,
   }
@@ -212,7 +214,7 @@ export async function getMemberTrafficOverview(
   )
 
   const analyticsProvider = getAnalyticsProvider("cache")
-  const [traffic, engagement] = await Promise.all([
+  const [traffic, engagement, websiteClickAggregate] = await Promise.all([
     pagePaths.length
       ? analyticsProvider.getProductTraffic({
           pagePaths,
@@ -224,6 +226,10 @@ export async function getMemberTrafficOverview(
         })
       : Promise.resolve(null),
     getEngagementSummary({ productIds, windowDays, today: endDay }),
+    prisma.productAnalytics.aggregate({
+      where: { productId: { in: productIds } },
+      _sum: { websiteClicks: true },
+    }),
   ])
 
   const viewsOverTime = buildViewsOverTime({
@@ -237,6 +243,7 @@ export async function getMemberTrafficOverview(
     totalViews: traffic?.pageViews ?? 0,
     uniqueVisitors: traffic?.uniqueVisitors ?? 0,
     upvotesInRange: engagement.upvotes,
+    websiteClicks: websiteClickAggregate._sum.websiteClicks ?? 0,
     viewsOverTime,
     engagementOverTime: engagement.timeline,
   }

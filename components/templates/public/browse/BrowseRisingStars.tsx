@@ -1,7 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, TrendingUp } from "lucide-react"
 
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productPath } from "@/lib/routes"
@@ -16,9 +16,9 @@ function ProductLogo({ product }: { product: ProductCardBase }) {
   }
 
   return (
-    <Image
+    <ProductLogoImage
       src={product.logo}
-      alt={`${product.name} logo`}
+      name={product.name}
       width={48}
       height={48}
       className="h-full w-full object-cover"

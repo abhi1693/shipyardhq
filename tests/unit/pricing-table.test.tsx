@@ -188,6 +188,13 @@ describe("PricingTable", () => {
     expect(container).toHaveTextContent(
       "Get 30 days + advanced insights — $24.99",
     )
+    const proCta = Array.from(container.querySelectorAll("a")).find((link) =>
+      link.textContent?.includes("advanced insights"),
+    )
+    expect(proCta).toHaveClass("whitespace-normal", "has-[>svg]:px-4")
+    expect(proCta?.querySelector("span")).toHaveTextContent(
+      "Get 30 days + advanced insights — $24.99",
+    )
     expect(container).not.toHaveTextContent(
       "Boost my launch for 7 days — $4.99",
     )

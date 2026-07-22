@@ -268,6 +268,7 @@ export const ProductAnalyticsScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   upvotes: 'upvotes',
+  websiteClicks: 'websiteClicks',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

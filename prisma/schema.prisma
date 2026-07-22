@@ -253,15 +253,17 @@ model ProductMetadata {
 }
 
 model ProductAnalytics {
-  id        String   @id @default(cuid())
-  productId String   @unique
-  upvotes   Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  productId     String   @unique
+  upvotes       Int      @default(0)
+  websiteClicks Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([upvotes])
+  @@index([websiteClicks])
   @@index([createdAt])
   @@index([updatedAt])
 }

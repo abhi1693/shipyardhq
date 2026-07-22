@@ -39,15 +39,15 @@ const HERO_FEATURES: FeatureCard[] = [
   },
   {
     icon: IconAnchor,
-    title: "Add a direct website link",
+    title: "Turn interest into website visits",
     description:
-      "Eligible paid plans give interested visitors a direct path from your permanent Shipyard product page to your website.",
+      "Give interested visitors a direct path to your product and measure the aggregate website clicks Shipyard delivers.",
   },
   {
     icon: IconChartArrows,
     title: "Measure discovery",
     description:
-      "Track product visits, votes, rankings, traffic trends, and crawler attention from the same launch dashboard.",
+      "Track product visits, website clicks, votes, rankings, traffic trends, and crawler attention from the same launch dashboard.",
   },
 ]
 
@@ -72,9 +72,9 @@ const CORE_REASONS: FeatureCard[] = [
   },
   {
     icon: IconAnchor,
-    title: "A clear path to your product",
+    title: "Buyer action after discovery",
     description:
-      "A paid direct website link helps turn directory discovery into qualified product visits without making unrealistic SEO promises.",
+      "A clear website call to action turns directory interest into measurable outbound visits without making unrealistic SEO promises.",
   },
 ]
 
@@ -131,14 +131,14 @@ const COMPARISON_POINTS = [
   {
     feature: "Search footprint",
     shipyard:
-      "Canonical product data, structured markup, sitemap inclusion, related directory links, and a direct website link on eligible paid plans.",
+      "Canonical product data, structured markup, sitemap inclusion, and related discovery pages that help buyers understand each product.",
     others:
       "Search visibility depends on each platform's product-page and indexing model.",
   },
   {
     feature: "Measurement",
     shipyard:
-      "Product visits, votes, rankings, traffic trends, and crawler attention live beside the launch.",
+      "Product visits, website clicks, votes, rankings, traffic trends, and crawler attention live beside the launch.",
     others:
       "Available analytics and attribution differ across launch platforms.",
   },
@@ -158,15 +158,15 @@ const MOMENTUM_STEPS = [
   {
     title: "Promote with evidence",
     detail:
-      "Review traffic and product interest first, then add featured placement only when extra reach supports a real launch goal.",
+      "Review product visits and website clicks first, then add featured placement only when extra reach supports a real launch goal.",
   },
 ]
 
-const PAGE_TITLE = "Product Hunt Alternative for Startup Launches"
+const PAGE_TITLE = "A Product Hunt Alternative Built for Ongoing Discovery"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: `${BRAND_NAME} is a Product Hunt alternative where founders submit products free, keep a permanent directory page, and add paid promotion when ready.`,
+  description: `${BRAND_NAME} is a Product Hunt alternative where founders launch free, stay discoverable beyond launch day, and measure product visits and website clicks.`,
   canonical: WHY_SHIPYARD_PATH,
 })
 
@@ -190,12 +190,12 @@ export default function WhyShipyardPage() {
             Product Hunt alternative
           </span>
           <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-bold leading-tight text-black md:text-6xl">
-            A Product Hunt alternative built for lasting discovery.
+            A launch platform built to keep discovery moving.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#43474c] md:text-lg">
-            Submit your product for free, keep a permanent directory page,
-            appear across relevant discovery surfaces, and upgrade for more
-            reach and a direct website link when your launch is ready.
+            Submit your product for free, reach people across relevant discovery
+            surfaces, and measure whether product-page attention turns into real
+            website visits.
             <span className="mt-3 block text-sm">
               {BRAND_NAME} is independent and is not affiliated with Product
               Hunt.
@@ -247,23 +247,23 @@ export default function WhyShipyardPage() {
               </h2>
               <div className="mt-6 space-y-4 text-base leading-7 text-[#43474c]">
                 <p>
-                  Eligible paid plans include a direct link from your public
-                  Shipyard product page to your website. People who discover
-                  your launch can move from the directory to your product in one
-                  click.
+                  Every public product page gives interested visitors a clear
+                  next step to the product website. Shipyard now records the
+                  aggregate click so founders can measure traffic delivered, not
+                  just listing impressions.
                 </p>
                 <p>
-                  Because the link comes with a paid placement, Shipyard marks
-                  it as sponsored for Google. It is designed to bring relevant
-                  visitors to your product, not promise a Domain Rating or
-                  search ranking boost.
+                  Eligible paid plans keep a direct website destination and are
+                  marked as sponsored for Google. The outcome is measurable
+                  discovery and relevant visitors—not a promised Domain Rating
+                  or search-ranking boost.
                 </p>
               </div>
               <Link
                 href={PRICING_PATH}
                 className="mt-7 inline-flex text-sm font-semibold text-[#0051d5] underline-offset-4 hover:underline"
               >
-                Compare plans with direct website links
+                Compare discovery and placement plans
               </Link>
             </div>
           </div>

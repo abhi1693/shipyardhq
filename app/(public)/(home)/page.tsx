@@ -20,6 +20,7 @@ import {
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import {
   HomepageDropsInfiniteList,
   HomepageVoteStateProvider,
@@ -37,6 +38,7 @@ import {
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
   TOOLS_PATH,
+  WHY_SHIPYARD_PATH,
   guidePath,
   productPath,
 } from "@/lib/routes"
@@ -51,7 +53,7 @@ import {
   formatAnalyticsReportingWindowLabel,
 } from "@/lib/analytics/reportingWindow"
 
-const HOMEPAGE_TITLE = "Product Launch Platform and Startup Directory"
+const HOMEPAGE_TITLE = "Product Discovery and Launch Platform"
 const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
 const compactNumberFormatter = new Intl.NumberFormat("en-US", {
   notation: "compact",
@@ -60,7 +62,7 @@ const compactNumberFormatter = new Intl.NumberFormat("en-US", {
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description: `Discover new apps, SaaS products, and startup tools, or submit your product to ${BRAND_NAME}'s independent product launch directory. Get a free listing, weekly rankings, founder guides, and practical visibility insights.`,
+  description: `Put your product in front of people looking for what to try next. ${BRAND_NAME} combines launch discovery, rankings, founder tools, and analytics from product-page visit to website click.`,
   canonical: HOME_PATH,
 })
 
@@ -92,8 +94,8 @@ const HOMEPAGE_VALUE_POINTS = [
   },
   {
     icon: MousePointerClick,
-    title: "Learn what earns a click",
-    body: "Product visits, votes, rankings, and traffic signals help you understand which positioning is landing with builders.",
+    title: "See what turns into traffic",
+    body: "Track product visits, votes, rankings, and website clicks to see which positioning moves people from discovery to your product.",
   },
   {
     icon: Trophy,
@@ -142,7 +144,7 @@ const HOMEPAGE_EXPLORE_LINKS = [
 const HOMEPAGE_ANSWER_BLOCKS = [
   {
     title: "What Shipyard is",
-    body: `${BRAND_NAME} combines a live product launch directory with rankings, founder guides, free tools, and visibility insights for apps, SaaS products, APIs, and startups.`,
+    body: `${BRAND_NAME} is a product discovery and launch platform where people explore new software and founders can measure the path from a listing view to a website click.`,
   },
   {
     title: "Who it is for",
@@ -157,8 +159,8 @@ const HOMEPAGE_ANSWER_BLOCKS = [
     body: "Launch data updates as products are published, voted on, promoted, ranked, or refreshed in the public discovery feed.",
   },
   {
-    title: "Do-follow links and Domain Rating",
-    body: `A standard editorial link is often called a do-follow link. Paid ${BRAND_NAME} placements use a sponsored link instead. A listing can still introduce a new site to visitors, earn brand mentions, and support authority over time, but no product directory can guarantee a Domain Rating or search ranking boost.`,
+    title: "From discovery to website traffic",
+    body: `${BRAND_NAME} tracks aggregate website clicks so founders can see whether product-page attention turns into outbound visits. Links can also support brand discovery and citations, but traffic and buyer interest are the primary outcome—not a promised Domain Rating or search-ranking boost.`,
   },
 ] as const
 
@@ -170,8 +172,8 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
   },
   {
     icon: TrendingUp,
-    title: "Send buyers straight to your product",
-    body: "Paid plans add a direct website link from your public product page, giving interested visitors a clear path from discovery to your site.",
+    title: "Turn interest into measurable visits",
+    body: "Give interested visitors a clear path to your product and see the website clicks Shipyard delivers in your launch analytics.",
   },
   {
     icon: BarChart3,
@@ -212,15 +214,6 @@ function toDisplayDrop(
   }
 }
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((segment) => segment[0]?.toUpperCase() ?? "")
-    .join("")
-}
-
 function isPlaceholderLogo(logo: string) {
   return /(?:placehold(?:er)?\.(?:com|co)|[-_/]600x400(?:[._/-]|$))/i.test(logo)
 }
@@ -242,20 +235,15 @@ function ProductLogo({
         className,
       )}
     >
-      {shouldRenderLogo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={logo}
-          alt={`${product.name} logo`}
-          width={80}
-          height={80}
-          loading="eager"
-          decoding="async"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span>{initials(product.name)}</span>
-      )}
+      <ProductLogoImage
+        src={shouldRenderLogo ? logo : null}
+        name={product.name}
+        width={80}
+        height={80}
+        loading="eager"
+        className="h-full w-full object-cover"
+        fallbackClassName="bg-transparent text-white"
+      />
     </div>
   )
 }
@@ -269,24 +257,24 @@ function HomepageHero() {
             <PublicBuilderCountMessage />
           </span>
           <span className="hidden h-3 w-px bg-[#CBD5E1] sm:block" aria-hidden />
-          <span>Launches, rankings, guides, and growth tools</span>
+          <span>Discovery measured beyond the listing</span>
         </div>
 
         <h1 className="max-w-[940px] text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
-          Launch your product. Discover what&apos;s next.
+          Launch where people discover what to try next.
         </h1>
 
         <p className="mt-6 max-w-[760px] text-base leading-7 text-[#43474c]">
-          Shipyard is an independent platform for product launches and
-          discovery, with founder playbooks, free tools, public rankings, and
-          practical signals that help good products keep moving.
+          Shipyard turns a launch into ongoing discovery with live product
+          feeds, useful browse paths, public rankings, and analytics that follow
+          attention from the first page view to the website click.
         </p>
 
         <Link
-          href={guidePath("product-launch-checklist")}
+          href={WHY_SHIPYARD_PATH}
           className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#0051d5] underline decoration-[#0051d5]/30 underline-offset-4 hover:text-[#0048bf]"
         >
-          See how to prepare a launch
+          See how Shipyard drives discovery
           <ArrowRight className="size-4" aria-hidden />
         </Link>
 
@@ -395,6 +383,7 @@ async function getCachedHomepageDataSections() {
       totalProducts: null,
       totalCreators: null,
       totalUpvotes: null,
+      websiteClicks: null,
       totalScore: null,
       topScore: null,
       analyticsWindowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
@@ -475,8 +464,8 @@ async function HomepageDataSections() {
       value: homepageStats.totalCreators,
     },
     {
-      label: "Total score",
-      value: homepageStats.totalScore,
+      label: "Tracked clicks",
+      value: homepageStats.websiteClicks,
     },
   ] as const
 
@@ -702,7 +691,7 @@ async function HomepageDataSections() {
                 <HomepageVisibilityOptionsSection />
                 <AnswerBlocks
                   heading="Shipyard, explained"
-                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] p-5 sm:p-8"
+                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] px-5 py-4 sm:px-8"
                   blocks={[...HOMEPAGE_ANSWER_BLOCKS]}
                 />
               </div>
@@ -720,21 +709,21 @@ function HomepageWhyExistsSection() {
       <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
         <div className="border-b border-[#E2E8F0] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
-            Beyond the listing
+            Built for buyer action
           </span>
           <h3 className="mt-3 max-w-xl text-2xl font-bold leading-8 tracking-tight text-black sm:text-3xl sm:leading-10">
-            Shipyard is built for the whole launch journey.
+            A listing should create buyer action, not just another citation.
           </h3>
           <div className="mt-5 max-w-xl space-y-4 text-sm leading-6 text-[#43474c]">
             <p>
-              A permanent product page matters, but founders also need a better
-              way to prepare, launch, learn, and stay visible after the first
-              announcement fades.
+              A permanent product page matters, but the real job is to help the
+              right people discover it, understand it, and click through when it
+              solves a problem they have.
             </p>
             <p>
-              That is why the product feed now sits alongside useful rankings,
-              plain-English guides, free launch tools, and signals that help
-              turn attention into a clearer next move.
+              That is why Shipyard connects its launch feed to rankings,
+              high-intent browse paths, founder tools, and website-click
+              measurement that shows whether attention became traffic.
             </p>
           </div>
           <Link
@@ -791,7 +780,7 @@ function HomepageVisibilityOptionsSection() {
           <p className="mt-4 max-w-lg text-sm leading-6 text-[#D0E4FF]">
             Paid plans should feel like launch acceleration, not a toll booth:
             use them when you want a longer visibility window, stronger
-            placement, a direct product backlink, or deeper analytics for a
+            placement, more qualified website visits, or deeper analytics for a
             product that is ready.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">

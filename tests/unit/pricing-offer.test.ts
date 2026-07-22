@@ -196,7 +196,7 @@ describe("pricing offer packaging", () => {
     expect(featuredOffer.items.map((item) => item.label)).toEqual(
       expect.arrayContaining([
         "Sponsored card in the homepage launch feed",
-        "Direct website link from your Shipyard product page",
+        "Direct website link with aggregate click tracking",
       ]),
     )
     expect(featuredOffer.items.map((item) => item.label).join(" ")).not.toMatch(

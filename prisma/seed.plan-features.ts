@@ -18,10 +18,10 @@ const FEATURES = [
   },
   {
     key: "backlink",
-    name: "Backlink",
-    displayName: "Direct product website link",
+    name: "Direct Website Traffic",
+    displayName: "Direct website link with click tracking",
     description:
-      "Adds a direct sponsored link from the Shipyard product page to the product website.",
+      "Adds a direct sponsored website link and measures aggregate outbound clicks from the Shipyard product page.",
   },
   {
     key: "product.sitemap",

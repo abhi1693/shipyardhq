@@ -1,4 +1,4 @@
-import { Image } from "@/components/atoms/image"
+import { ResilientImage } from "@/components/atoms/resilient-image"
 import {
   ProductMediaGalleryClient,
   type ProductMediaGalleryItem,
@@ -64,25 +64,35 @@ export function ProductMediaGallery({
 
   const shouldUseDirectInitialImage =
     directInitialImage?.originalSrc === currentItem.imageUrl
+  const mediaFallback = (
+    <div className="absolute inset-0 flex items-center justify-center bg-[#eef2f7] px-6 text-center text-sm font-medium text-[#64748b]">
+      Preview unavailable
+    </div>
+  )
 
   return (
     <section className="space-y-4">
       <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
         <div className="relative aspect-[16/9] w-full">
           {shouldUseDirectInitialImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <ResilientImage
               src={directInitialImage.src}
-              srcSet={directInitialImage.srcSet}
-              sizes={directInitialImage.sizes}
+              sources={[
+                {
+                  srcSet: directInitialImage.srcSet,
+                  sizes: directInitialImage.sizes,
+                },
+              ]}
               alt={currentItem.altText || productName}
+              fill
               className="absolute inset-0 h-full w-full object-contain transition-opacity duration-200"
+              eager
               loading="eager"
               fetchPriority="high"
-              decoding="async"
+              fallback={mediaFallback}
             />
           ) : (
-            <Image
+            <ResilientImage
               src={currentItem.imageUrl}
               alt={currentItem.altText || productName}
               fill
@@ -93,6 +103,7 @@ export function ProductMediaGallery({
               loading="eager"
               preload
               fetchPriority="high"
+              fallback={mediaFallback}
             />
           )}
         </div>

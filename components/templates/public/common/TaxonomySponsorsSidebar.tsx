@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Rocket, Sparkles } from "lucide-react"
 
-import { Image } from "@/components/atoms/image"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type { TaxonomySponsorProduct } from "@/components/templates/public/common/TaxonomyDetailPage"
 
 const SPONSOR_DISPLAY_LIMIT = 4
@@ -81,9 +81,9 @@ function SponsorLogo({ product }: { product: TaxonomySponsorProduct }) {
   if (product.logo) {
     return (
       <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-black text-white">
-        <Image
+        <ProductLogoImage
           src={product.logo}
-          alt={`${product.name} logo`}
+          name={product.name}
           fill
           sizes="48px"
           className="object-cover"

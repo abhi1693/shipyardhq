@@ -1,8 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ExternalLink, ImageIcon } from "lucide-react"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -17,9 +17,9 @@ function ProductImage({ item }: { item: HomepageFeedItem }) {
   }
 
   return (
-    <Image
+    <ProductLogoImage
       src={item.logo}
-      alt={`${item.name} product image`}
+      name={item.name}
       fill
       sizes="(min-width: 1024px) 370px, (min-width: 768px) 50vw, 100vw"
       className="object-cover transition duration-500 group-hover:scale-105"

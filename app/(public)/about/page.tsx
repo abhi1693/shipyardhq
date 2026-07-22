@@ -148,15 +148,15 @@ export default function AboutPage() {
               A free listing gives a founder a public product page and standard
               eligibility for relevant discovery surfaces. Optional paid plans
               can add clearly described priority placement, sponsor panels,
-              analytics, and a direct website link.
+              analytics, measurable website clicks, and stronger discovery
+              placement.
             </p>
             <p>
-              Paid direct links are marked as sponsored for Google. They can
-              still bring relevant visitors to a product, but Shipyard does not
-              sell a guaranteed Domain Rating increase, a do-follow backlink, or
-              a search ranking. Sustainable search authority comes from a useful
-              product, complete public information, earned references, and
-              resources that people choose to cite.
+              Paid direct links are marked as sponsored for Google. Shipyard
+              measures their aggregate website clicks because relevant product
+              visits are the outcome founders can act on. We do not sell a
+              guaranteed Domain Rating increase, a do-follow backlink, or a
+              search ranking.
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-4">

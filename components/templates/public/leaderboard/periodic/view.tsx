@@ -8,7 +8,7 @@ import { getPartnerSpotlightProduct } from "@/actions/public/products/featured"
 import { getUseCaseHighlights } from "@/actions/public/use-cases/actions"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
-import { Image } from "@/components/atoms/image"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import {
   GoogleAdsenseDisplayUnit,
   GoogleAdsenseUnit,
@@ -164,9 +164,9 @@ function ArchiveLogo({
       )}
     >
       {item.logo ? (
-        <Image
+        <ProductLogoImage
           src={item.logo}
-          alt={`${item.name} logo`}
+          name={item.name}
           width={dimension}
           height={dimension}
           sizes={`${dimension}px`}
@@ -410,9 +410,9 @@ function InlinePartnerSpotlight({
         <div className="flex items-center gap-6">
           <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-3 shadow-xl">
             {product.logo ? (
-              <Image
+              <ProductLogoImage
                 src={product.logo}
-                alt={`${product.name} logo`}
+                name={product.name}
                 width={56}
                 height={56}
                 sizes="56px"

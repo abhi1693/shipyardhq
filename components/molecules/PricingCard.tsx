@@ -218,7 +218,7 @@ export function PricingCard({
               <Button
                 asChild
                 className={clsx(
-                  "h-auto w-full rounded-lg py-3 text-sm font-semibold shadow-none active:scale-[0.98]",
+                  "h-auto min-h-12 w-full gap-2 whitespace-normal rounded-lg px-4 py-3 text-center text-sm font-semibold leading-5 shadow-none has-[>svg]:px-4 active:scale-[0.98]",
                   isRecommended
                     ? "border-0 bg-black text-white hover:bg-black/90"
                     : isPro
@@ -227,7 +227,7 @@ export function PricingCard({
                 )}
               >
                 <a href={ctaHref}>
-                  {ctaLabel}
+                  <span className="min-w-0">{ctaLabel}</span>
                   {!isFree && (
                     <IconArrowUpRight className="size-4 transition-transform group-hover:translate-x-1" />
                   )}
@@ -335,14 +335,14 @@ export function PricingCard({
             <Button
               asChild
               className={clsx(
-                "group w-full justify-center gap-2 transition",
+                "group h-auto min-h-9 w-full justify-center gap-2 whitespace-normal px-4 text-center leading-5 transition has-[>svg]:px-4",
                 isFree
                   ? "border-[color:var(--brand-1)/0.4] bg-[color:var(--brand-1)] text-white shadow-[0px_20px_55px_-32px_rgba(7,58,104,0.65)] hover:border-[color:var(--brand-1)/0.55] hover:bg-[color:var(--brand-1)/0.92] hover:shadow-[0px_26px_70px_-34px_rgba(7,78,134,0.7)] focus-visible:border-[color:var(--brand-2)/0.6] focus-visible:ring-[color:var(--brand-2)/0.35]"
                   : "shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]",
               )}
             >
               <a href={ctaHref}>
-                {ctaLabel}
+                <span className="min-w-0">{ctaLabel}</span>
                 {!isFree && (
                   <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 )}

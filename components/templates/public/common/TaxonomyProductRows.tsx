@@ -1,10 +1,10 @@
 import { Fragment, type ReactNode } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
@@ -150,9 +150,9 @@ function ProductLogo({ product }: { product: HomepageFeedItem }) {
   }
 
   return (
-    <Image
+    <ProductLogoImage
       src={product.logo}
-      alt={`${product.name} logo`}
+      name={product.name}
       fill
       sizes="56px"
       className="object-cover"

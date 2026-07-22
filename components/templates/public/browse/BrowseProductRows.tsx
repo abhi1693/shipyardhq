@@ -1,8 +1,8 @@
 import { Fragment } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowUp, BadgeCheck, ImageIcon, Sparkles } from "lucide-react"
 
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type {
@@ -22,9 +22,9 @@ function ProductLogo({ product }: { product: ProductCardItem }) {
   }
 
   return (
-    <Image
+    <ProductLogoImage
       src={product.logo}
-      alt={`${product.name} logo`}
+      name={product.name}
       fill
       sizes="56px"
       className="object-cover"

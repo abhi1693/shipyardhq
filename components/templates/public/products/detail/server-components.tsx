@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Rocket } from "lucide-react"
 
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import ProductUpvoteBadge from "@/components/molecules/ProductUpvoteBadge"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
@@ -114,10 +115,9 @@ export async function SimilarProductsServer({
           >
             <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded bg-muted">
               {item.logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <ProductLogoImage
                   src={item.logo}
-                  alt={`${item.name} logo`}
+                  name={item.name}
                   width={48}
                   height={48}
                   loading="lazy"
@@ -186,10 +186,9 @@ export async function DetailSponsoredProductCard({
       <div className="relative z-10">
         <div className="mb-3 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-[#c0ff00]">
           {product.logo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <ProductLogoImage
               src={product.logo}
-              alt={`${product.name} logo`}
+              name={product.name}
               width={36}
               height={36}
               loading="lazy"

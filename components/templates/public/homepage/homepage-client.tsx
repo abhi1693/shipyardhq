@@ -16,7 +16,7 @@ import { BadgeCheck, ChevronUp } from "lucide-react"
 
 import { Card, CardContent } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
-import { Image } from "@/components/atoms/image"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type {
   HomepageFeedItem,
@@ -560,9 +560,9 @@ function DropProductLogo({
       )}
     >
       {product.logo ? (
-        <Image
+        <ProductLogoImage
           src={product.logo}
-          alt={`${product.name} logo`}
+          name={product.name}
           width={56}
           height={56}
           sizes={sponsored ? "56px" : "40px"}

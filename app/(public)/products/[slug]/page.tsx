@@ -3,6 +3,7 @@ import Link from "next/link"
 import { type ComponentType, type ComponentPropsWithoutRef } from "react"
 import { preload } from "react-dom"
 import { notFound } from "next/navigation"
+import { connection } from "next/server"
 import { JsonLdScript } from "next-seo"
 import { IconBrandChrome as ChromeIcon } from "@tabler/icons-react"
 import {
@@ -22,9 +23,11 @@ import {
 } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
+import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
+import { ProductWebsiteLink } from "@/components/molecules/ProductWebsiteLink"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import {
   Tooltip,
@@ -110,6 +113,7 @@ export async function generateMetadata(
   props: ProductPageProps,
 ): Promise<Metadata> {
   const { slug } = await props.params
+  await connection()
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return {}
 
@@ -408,6 +412,7 @@ function achievementToneClass(value?: string) {
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
+  await connection()
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return notFound()
 
@@ -1196,10 +1201,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     aria-label={`View ${alternative.name} alternative`}
                     className="group relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border border-border bg-white shadow-sm transition hover:border-foreground/15"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <ProductLogoImage
                       src={alternative.logoUrl}
-                      alt={`${alternative.name} logo`}
+                      name={alternative.name}
                       width={36}
                       height={36}
                       loading="lazy"
@@ -1287,10 +1291,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <div className="flex min-w-0 items-center gap-6">
             {product.logo ? (
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ProductLogoImage
                   src={product.logo}
-                  alt={`${product.name} logo`}
+                  name={product.name}
                   width={80}
                   height={80}
                   loading="lazy"
@@ -1342,15 +1345,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
           <div className="flex w-full flex-wrap gap-3 md:ml-auto md:w-auto md:justify-end">
             {websiteHref ? (
-              <a
+              <ProductWebsiteLink
                 href={websiteHref}
-                target="_blank"
+                productSlug={product.slug}
+                trackWithBeacon={hasDirectWebsiteLink}
                 rel={websiteRel}
                 className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
               >
                 <ExternalLink className="h-4 w-4" aria-hidden />
                 Visit website
-              </a>
+              </ProductWebsiteLink>
             ) : null}
             {videoHref ? (
               <a
