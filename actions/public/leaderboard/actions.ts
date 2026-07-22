@@ -23,7 +23,6 @@ import {
 } from "@/lib/products/selects"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import type { Prisma } from "@/lib/vendor/prisma/client"
-import { getAnalyticsReportingWindow } from "@/lib/analytics/reportingWindow"
 
 const buildCategorySlugFilter = (
   categorySlug: string,
@@ -407,39 +406,35 @@ export async function getLeaderboardStats() {
   )
 
   const analyticsProvider = getAnalyticsProvider("cache")
-  const reportingWindow = getAnalyticsReportingWindow()
-  const [totalProducts, totalCreators, upvoteAgg, topProduct, homepageTraffic] =
+  const { periodStart, periodEnd } = getCurrentLeaderboardWindow()
+  const [totalProducts, totalCreators, upvoteAgg, scoreAgg, homepageTraffic] =
     await Promise.all([
       prisma.product.count({}),
       prisma.user.count({}),
       prisma.productAnalytics.aggregate({
         _sum: { upvotes: true },
       }),
-      prisma.productAnalytics.findFirst({
-        orderBy: { upvotes: "desc" },
-        select: { upvotes: true },
-      }),
-      analyticsProvider.getSiteAnalyticsSnapshot({
-        dateRange: {
-          startDate: reportingWindow.startDate,
-          endDate: reportingWindow.endDate,
+      prisma.productLeaderboardScore.aggregate({
+        where: {
+          run: { is: { periodStart, periodEnd } },
+          product: { is: buildPublicDiscoveryProductWhere() },
         },
+        _sum: { score: true },
+        _max: { score: true },
       }),
+      analyticsProvider.getHomepageTraffic(),
     ])
 
   return {
     totalProducts,
     totalCreators,
     totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
-    topScore: topProduct?.upvotes ?? 0,
-    analyticsWindowDays: reportingWindow.days,
+    totalScore: scoreAgg._sum.score ?? 0,
+    topScore: scoreAgg._max.score ?? 0,
+    analyticsWindowDays: homepageTraffic.windowDays,
     pageViews: homepageTraffic.pageViews,
-    visitors: homepageTraffic.uniqueVisitors,
-    trafficSeries: homepageTraffic.timeseries.map((point) => ({
-      date: point.date,
-      pageViews: point.pageViews,
-      visitors: point.uniqueVisitors,
-    })),
+    visitors: homepageTraffic.visitors,
+    trafficSeries: homepageTraffic.trafficSeries,
   }
 }
 

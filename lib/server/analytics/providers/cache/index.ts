@@ -20,7 +20,10 @@ import type {
   SiteAnalyticsSnapshot,
 } from "@/lib/server/analytics/providerTypes"
 import { dbAnalyticsProvider } from "@/lib/server/analytics/providers/db"
-import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
+import {
+  getAvailableAnalyticsReportingWindow,
+  getAvailableSiteAnalyticsReportingWindow,
+} from "@/lib/server/analytics/reportingWindow"
 
 const DAILY_TRAFFIC_TTL_SECONDS = 60 * 60 * 24
 const PRODUCT_TRAFFIC_TTL_SECONDS = DAILY_TRAFFIC_TTL_SECONDS
@@ -98,7 +101,7 @@ const ANALYTICS_PAGE_CACHE_PREFIX = buildCacheKey("analytics:page")
 
 function cacheKeyForHomepageTraffic(dateRange: AnalyticsDateRange) {
   return buildCacheKey(
-    "analytics:cache:homepage-traffic:v8",
+    "analytics:cache:homepage-traffic:v9",
     dateRange.startDate,
     dateRange.endDate,
   )
@@ -345,7 +348,9 @@ async function fetchSiteSnapshotWithCache(args?: {
 }
 
 async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
-  const reportingWindow = await getAvailableSiteAnalyticsReportingWindow()
+  const reportingWindow = await getAvailableAnalyticsReportingWindow({
+    jobs: ["site_traffic_daily"],
+  })
   const dateRange = {
     startDate: reportingWindow.startDate,
     endDate: reportingWindow.endDate,
@@ -366,19 +371,7 @@ async function fetchHomepageTrafficWithCache(): Promise<HomepageTraffic> {
 
   let fresh: HomepageTraffic
   try {
-    const snapshot = await dbAnalyticsProvider.getSiteAnalyticsSnapshot({
-      dateRange,
-    })
-    fresh = {
-      windowDays: reportingWindow.days,
-      pageViews: snapshot.pageViews,
-      visitors: snapshot.uniqueVisitors,
-      trafficSeries: snapshot.timeseries.map((point) => ({
-        date: point.date,
-        pageViews: point.pageViews,
-        visitors: point.uniqueVisitors,
-      })),
-    }
+    fresh = await dbAnalyticsProvider.getHomepageTraffic()
   } catch (error) {
     console.error("[analytics] failed to fetch homepage traffic", { error })
     return {

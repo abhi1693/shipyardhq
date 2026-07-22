@@ -3,7 +3,10 @@ import { format } from "date-fns"
 import prisma from "@/lib/prisma"
 import { productPath } from "@/lib/routes"
 import { hasAnalyticsIngestionCoverage } from "@/lib/server/analytics/ingestion/coverage"
-import { getAvailableSiteAnalyticsReportingWindow } from "@/lib/server/analytics/reportingWindow"
+import {
+  getAvailableAnalyticsReportingWindow,
+  getAvailableSiteAnalyticsReportingWindow,
+} from "@/lib/server/analytics/reportingWindow"
 import type {
   AnalyticsDateRange,
   AnalyticsProvider,
@@ -856,24 +859,62 @@ async function getProductTrafficMapFromDb(args: {
 }
 
 async function getHomepageTrafficFromDb(): Promise<HomepageTraffic | null> {
-  const reportingWindow = await getAvailableSiteAnalyticsReportingWindow()
-  const snapshot = await getSiteAnalyticsSnapshotFromDb({
-    dateRange: {
-      startDate: reportingWindow.startDate,
-      endDate: reportingWindow.endDate,
+  const reportingWindow = await getAvailableAnalyticsReportingWindow({
+    jobs: ["site_traffic_daily"],
+  })
+  const bounds = resolveRangeBounds({
+    startDate: reportingWindow.startDate,
+    endDate: reportingWindow.endDate,
+  })
+  if (!bounds) return null
+
+  const hasSiteDaily = await hasAnalyticsIngestionCoverage(
+    "site_traffic_daily",
+    bounds,
+  )
+  if (!hasSiteDaily) return null
+
+  const dailyRows = await prisma.siteTrafficDaily.findMany({
+    where: {
+      source: "cloudflare",
+      date: { gte: bounds.start, lte: bounds.end },
+    },
+    orderBy: { date: "asc" },
+    select: {
+      date: true,
+      pageViews: true,
+      uniqueVisitors: true,
     },
   })
-  if (!snapshot) return null
+
+  const dailyByDate = new Map<string, { pageViews: number; visitors: number }>()
+  for (const row of dailyRows) {
+    const key = dateKey(row.date)
+    const current = dailyByDate.get(key) ?? { pageViews: 0, visitors: 0 }
+    dailyByDate.set(key, {
+      pageViews: current.pageViews + row.pageViews,
+      visitors: current.visitors + row.uniqueVisitors,
+    })
+  }
+
+  const trafficSeries = Array.from({ length: bounds.days }, (_, index) => {
+    const date = addUtcDays(bounds.start, index)
+    const totals = dailyByDate.get(dateKey(date)) ?? {
+      pageViews: 0,
+      visitors: 0,
+    }
+    return {
+      date: date.toISOString(),
+      pageViews: totals.pageViews,
+      visitors: totals.visitors,
+    }
+  })
 
   return {
     windowDays: reportingWindow.days,
-    pageViews: snapshot.pageViews,
-    visitors: snapshot.uniqueVisitors,
-    trafficSeries: snapshot.timeseries.map((point) => ({
-      date: point.date,
-      pageViews: point.pageViews,
-      visitors: point.uniqueVisitors,
-    })),
+    pageViews: trafficSeries.reduce((sum, point) => sum + point.pageViews, 0),
+    visitors: trafficSeries.reduce((sum, point) => sum + point.visitors, 0),
+    trafficSeries,
   }
 }
 

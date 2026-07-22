@@ -4,14 +4,12 @@ import {
   BarChart3,
   BookOpen,
   Compass,
-  Eye,
   Megaphone,
   MousePointerClick,
   Rocket,
   Search,
   TrendingUp,
   Trophy,
-  Users,
   Wrench,
 } from "lucide-react"
 
@@ -22,11 +20,11 @@ import {
 } from "@/actions/public/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
-import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import {
   HomepageDropsInfiniteList,
   HomepageVoteStateProvider,
 } from "@/components/templates/public/homepage/homepage-client"
+import { VisitorSparkline } from "@/components/templates/public/homepage/VisitorSparkline"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
@@ -262,60 +260,6 @@ function ProductLogo({
   )
 }
 
-function VisitorSparkline({
-  series,
-  label,
-}: {
-  series: Array<{ visitors: number }> | null | undefined
-  label: string
-}) {
-  const recentValues = (series ?? [])
-    .slice(-ANALYTICS_REPORTING_WINDOW_DAYS)
-    .map((point) => Math.max(0, point.visitors))
-  const values = [
-    ...Array(
-      Math.max(0, ANALYTICS_REPORTING_WINDOW_DAYS - recentValues.length),
-    ).fill(0),
-    ...recentValues,
-  ] as number[]
-  const width = 320
-  const height = 44
-  const peakValue = Math.max(0, ...values)
-  const maxValue = Math.max(1, peakValue)
-  const linePoints = values
-    .map((value, index) => {
-      const x = (index / Math.max(1, values.length - 1)) * width
-      const y =
-        peakValue === 0
-          ? height / 2
-          : height - 3 - (value / maxValue) * (height - 8)
-      return `${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(" ")
-  const areaPoints = `0,${height} ${linePoints} ${width},${height}`
-
-  return (
-    <svg
-      aria-label={`Daily visitors over ${label.toLowerCase()}`}
-      className="h-8 w-full overflow-visible"
-      preserveAspectRatio="none"
-      role="img"
-      viewBox={`0 0 ${width} ${height}`}
-    >
-      <polygon points={areaPoints} fill="#0051d5" opacity="0.08" />
-      <polyline
-        points={linePoints}
-        fill="none"
-        stroke="#0051d5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  )
-}
-
 function HomepageHero() {
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff] text-[#0b1c30]">
@@ -446,6 +390,7 @@ async function getCachedHomepageDataSections() {
       totalProducts: null,
       totalCreators: null,
       totalUpvotes: null,
+      totalScore: null,
       topScore: null,
       analyticsWindowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
       pageViews: 0,
@@ -519,22 +464,14 @@ async function HomepageDataSections() {
     {
       label: "Products",
       value: homepageStats.totalProducts,
-      icon: Rocket,
     },
     {
       label: "Builders",
       value: homepageStats.totalCreators,
-      icon: Users,
     },
     {
-      label: "Visitors",
-      value: homepageStats.visitors,
-      icon: Eye,
-    },
-    {
-      label: "Upvotes",
-      value: homepageStats.totalUpvotes,
-      icon: MousePointerClick,
+      label: "Total score",
+      value: homepageStats.totalScore,
     },
   ] as const
 
@@ -570,69 +507,86 @@ async function HomepageDataSections() {
         <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
           <article
             className={cn(
-              "relative flex min-w-0 flex-col justify-center p-5",
-              launchIsSponsored ? "bg-[#FFF7ED]" : "bg-white",
+              "relative min-w-0 overflow-hidden",
+              launchIsSponsored ? "bg-[#FFF7ED]" : "bg-[#F8FAFC]",
             )}
           >
             {launch ? (
-              <div className="flex items-start justify-between gap-6">
-                <div className="flex min-w-0 items-start justify-between gap-6">
-                  <div className="flex min-w-0 items-start gap-5">
-                    <Link
-                      href={
-                        launch.slug ? productPath(launch.slug) : BROWSE_PATH
-                      }
-                      aria-label={`View ${launch.name}`}
-                      className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
-                    >
-                      <ProductLogo product={launch} className="size-16" />
-                    </Link>
-                    <div className="min-w-0">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
-                          Launch of the Day
+              <>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-[#D7DEE8]/70 bg-white/30"
+                >
+                  <span
+                    className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.22em] text-[#64748B]"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                    }}
+                  >
+                    {launchIsSponsored ? "Sponsored" : "Featured"}
+                  </span>
+                </div>
+
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute left-16 right-0 top-1/2 -translate-y-1/2 overflow-hidden whitespace-nowrap text-[72px] font-black leading-none tracking-[-0.06em]"
+                  style={{ color: "rgba(11, 28, 48, 0.035)" }}
+                >
+                  {launch.name}
+                </div>
+
+                <div className="relative z-[1] flex min-h-[214px] items-center justify-between gap-8 py-7 pl-[84px] pr-8">
+                  <div className="min-w-0 max-w-[430px]">
+                    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-bold uppercase tracking-[0.11em]">
+                      <span className="text-[#9A3412]">Launch of the Day</span>
+                      {launchIsEditorPick ? (
+                        <span className="text-[#0051d5]">
+                          Editor&apos;s Pick
                         </span>
-                        {launchIsSponsored || launchIsEditorPick ? (
-                          <span className="rounded-full border border-[#F97316]/40 bg-[#FDEADF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#A33105]">
-                            {launchIsSponsored ? "Sponsored" : "Editor's Pick"}
-                          </span>
-                        ) : null}
-                      </div>
-                      <h3 className="text-2xl font-semibold leading-tight text-black">
-                        <Link
-                          href={
-                            launch.slug ? productPath(launch.slug) : BROWSE_PATH
-                          }
-                          className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
-                        >
-                          {launch.name}
-                        </Link>
-                      </h3>
-                      <p className="mt-1 max-w-lg text-sm leading-6 text-[#43474c]">
-                        {launch.tagline}
-                      </p>
-                      <ProductCategoryPills
-                        categories={launch.categories}
-                        className="mt-3 gap-1.5"
-                        pillClassName="rounded-none border-0 bg-transparent p-0 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
-                        linkClassName="hover:text-[#0051d5]"
-                      />
+                      ) : null}
+                      {launchSignalLabel ? (
+                        <span className="inline-flex items-center gap-1 text-[#166534]">
+                          <TrendingUp className="size-3" aria-hidden />
+                          {launchSignalLabel} momentum
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <h3 className="text-[27px] font-semibold leading-[1.16] tracking-[-0.025em] text-black">
+                      <Link
+                        href={
+                          launch.slug ? productPath(launch.slug) : BROWSE_PATH
+                        }
+                        className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
+                      >
+                        <span className="sr-only">{launch.name}: </span>
+                        {launch.tagline || launch.name}
+                      </Link>
+                    </h3>
+
+                    <div className="mt-6 flex items-center gap-3">
+                      <span className="w-7 border-t border-black" aria-hidden />
+                      <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-[#43474c]">
+                        {launch.name}
+                      </span>
                     </div>
                   </div>
-                  {launchSignalLabel ? (
-                    <div className="hidden flex-col items-end sm:flex">
-                      <div className="flex items-center gap-1.5 rounded bg-[#16a34a]/5 px-2 py-1">
-                        <TrendingUp className="size-[18px] text-[#166534]" />
-                        <span className="text-xs font-semibold uppercase tracking-[0.05em] text-[#166534]">
-                          {launchSignalLabel}
-                        </span>
-                      </div>
-                    </div>
-                  ) : null}
+
+                  <Link
+                    href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
+                    aria-label={`View ${launch.name}`}
+                    className="shrink-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0051d5]"
+                  >
+                    <ProductLogo
+                      product={launch}
+                      className="size-24 rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.16)]"
+                    />
+                  </Link>
                 </div>
-              </div>
+              </>
             ) : (
-              <div className="flex min-h-48 flex-col justify-center">
+              <div className="flex min-h-[214px] flex-col justify-center p-6">
                 <span className="mb-3 w-fit text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
                   Launch of the Day
                 </span>
@@ -663,62 +617,33 @@ async function HomepageDataSections() {
             )}
           </article>
 
-          <Link
-            href={LEADERBOARD_PATH}
-            aria-label="View the Shipyard leaderboard and platform activity"
-            className="group border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 transition-colors hover:bg-[#F1F4FF] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0051d5] lg:border-l lg:border-t-0"
-          >
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#0051d5]">
-                  Shipyard at a glance
-                </span>
-                <h3 className="mt-1 text-base font-semibold text-black">
-                  Platform activity
-                </h3>
-              </div>
-              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#0051d5]">
-                View leaderboard
-                <ArrowRight
-                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden
-                />
-              </span>
+          <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 lg:border-l lg:border-t-0">
+            <div className="flex items-center justify-between gap-8 border-b border-[#D7DEE8] pb-3">
+              {platformMetrics.map((metric) => (
+                <div
+                  key={metric.label}
+                  className="flex min-w-0 items-baseline gap-2"
+                >
+                  <span className="text-lg font-bold leading-none text-black">
+                    {formatPlatformMetric(metric.value)}
+                  </span>
+                  <span className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+                    {metric.label}
+                  </span>
+                </div>
+              ))}
             </div>
 
-            <div className="mt-3 grid grid-cols-4 divide-x divide-[#D7DEE8] border-y border-[#D7DEE8] py-2">
-              {platformMetrics.map((metric) => {
-                const Icon = metric.icon
-
-                return (
-                  <div key={metric.label} className="min-w-0 px-3 first:pl-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
-                        {metric.label}
-                      </span>
-                      <Icon
-                        className="size-4 shrink-0 text-[#0051d5]"
-                        aria-hidden
-                      />
-                    </div>
-                    <div className="mt-2 text-xl font-bold leading-none text-black">
-                      {formatPlatformMetric(metric.value)}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="mt-2">
+            <div className="mt-3">
               <VisitorSparkline
                 series={homepageStats.trafficSeries}
                 label={trafficWindowLabel}
               />
-              <p className="text-[9px] leading-4 text-[#64748B]">
-                Visitors · {trafficWindowLabel} · Powered by Cloudflare
+              <p className="text-right text-[9px] leading-4 text-[#64748B]">
+                Powered by Cloudflare
               </p>
             </div>
-          </Link>
+          </div>
         </div>
       </section>
 
