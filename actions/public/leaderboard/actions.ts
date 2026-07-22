@@ -23,6 +23,7 @@ import {
 } from "@/lib/products/selects"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import type { Prisma } from "@/lib/vendor/prisma/client"
+import { getAnalyticsReportingWindow } from "@/lib/analytics/reportingWindow"
 
 const buildCategorySlugFilter = (
   categorySlug: string,
@@ -406,6 +407,7 @@ export async function getLeaderboardStats() {
   )
 
   const analyticsProvider = getAnalyticsProvider("cache")
+  const reportingWindow = getAnalyticsReportingWindow()
   const [totalProducts, totalCreators, upvoteAgg, topProduct, homepageTraffic] =
     await Promise.all([
       prisma.product.count({}),
@@ -417,7 +419,12 @@ export async function getLeaderboardStats() {
         orderBy: { upvotes: "desc" },
         select: { upvotes: true },
       }),
-      analyticsProvider.getHomepageTraffic(),
+      analyticsProvider.getSiteAnalyticsSnapshot({
+        dateRange: {
+          startDate: reportingWindow.startDate,
+          endDate: reportingWindow.endDate,
+        },
+      }),
     ])
 
   return {
@@ -425,10 +432,14 @@ export async function getLeaderboardStats() {
     totalCreators,
     totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
     topScore: topProduct?.upvotes ?? 0,
-    analyticsWindowDays: homepageTraffic.windowDays,
+    analyticsWindowDays: reportingWindow.days,
     pageViews: homepageTraffic.pageViews,
-    visitors: homepageTraffic.visitors,
-    trafficSeries: homepageTraffic.trafficSeries,
+    visitors: homepageTraffic.uniqueVisitors,
+    trafficSeries: homepageTraffic.timeseries.map((point) => ({
+      date: point.date,
+      pageViews: point.pageViews,
+      visitors: point.uniqueVisitors,
+    })),
   }
 }
 

@@ -1,12 +1,18 @@
 import Link from "next/link"
 import {
+  ArrowRight,
   BarChart3,
+  BookOpen,
+  Compass,
+  Eye,
   Megaphone,
   MousePointerClick,
   Rocket,
   Search,
   TrendingUp,
   Trophy,
+  Users,
+  Wrench,
 } from "lucide-react"
 
 import {
@@ -19,20 +25,21 @@ import { Button } from "@/components/atoms/button"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import {
   HomepageDropsInfiniteList,
-  HomepageUpvoteButton,
   HomepageVoteStateProvider,
 } from "@/components/templates/public/homepage/homepage-client"
 import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
-import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
+  GUIDES_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
+  TOOLS_PATH,
+  guidePath,
   productPath,
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
@@ -41,14 +48,21 @@ import { siteConfig } from "@/lib/siteConfig"
 import { cn } from "@/lib/utils"
 import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { ProductCategorySummary } from "@/lib/products/categories"
-import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
+import {
+  ANALYTICS_REPORTING_WINDOW_DAYS,
+  formatAnalyticsReportingWindowLabel,
+} from "@/lib/analytics/reportingWindow"
 
-const HOMEPAGE_TITLE = "Submit Your Product to a Launch Directory"
+const HOMEPAGE_TITLE = "Product Launch Platform and Startup Directory"
 const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
+const compactNumberFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+})
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description: `Submit your app, SaaS, AI tool, API, or startup to ${BRAND_NAME}'s product launch directory. Start free, then add promotion and a direct website link.`,
+  description: `Discover new apps, SaaS products, and startup tools, or submit your product to ${BRAND_NAME}'s independent product launch directory. Get a free listing, weekly rankings, founder guides, and practical visibility insights.`,
   canonical: HOME_PATH,
 })
 
@@ -74,19 +88,79 @@ type DisplayDrop = {
 
 const HOMEPAGE_VALUE_POINTS = [
   {
-    icon: Search,
-    title: "Launch into an active feed",
-    body: "Your product appears beside real launches, votes, and builder interest instead of sitting on a static directory page.",
+    icon: Compass,
+    title: "Get discovered in context",
+    body: "Appear beside active launches, useful categories, real votes, and products people are already exploring.",
   },
   {
     icon: MousePointerClick,
-    title: "Learn what earns attention",
+    title: "Learn what earns a click",
     body: "Product visits, votes, rankings, and traffic signals help you understand which positioning is landing with builders.",
   },
   {
     icon: Trophy,
-    title: "Keep momentum visible",
+    title: "Turn launch day into a run",
     body: "Daily showcases and leaderboards give strong launches a place to keep earning discovery after the first spike.",
+  },
+  {
+    icon: BookOpen,
+    title: "Use the founder playbook",
+    body: "Plain-English launch guides and free tools help you prepare the page, message, and follow-up before you promote.",
+  },
+] as const
+
+const HOMEPAGE_EXPLORE_LINKS = [
+  {
+    icon: Compass,
+    label: "Discover",
+    title: "Browse new products",
+    body: "Fresh launches, useful categories, and independent tools.",
+    href: BROWSE_PATH,
+  },
+  {
+    icon: Rocket,
+    label: "Launch",
+    title: "Submit your product",
+    body: "Start with a free public listing and join the live feed.",
+    href: MEMBER_PRODUCTS_ADD_PATH,
+    prefetch: false,
+  },
+  {
+    icon: BookOpen,
+    label: "Learn",
+    title: "Follow founder guides",
+    body: "Plan launch day, directory outreach, and durable discovery.",
+    href: GUIDES_PATH,
+  },
+  {
+    icon: Wrench,
+    label: "Improve",
+    title: "Use free launch tools",
+    body: "Polish search previews, social cards, and launch assets.",
+    href: TOOLS_PATH,
+  },
+] as const
+
+const HOMEPAGE_ANSWER_BLOCKS = [
+  {
+    title: "What Shipyard is",
+    body: `${BRAND_NAME} combines a live product launch directory with rankings, founder guides, free tools, and visibility insights for apps, SaaS products, APIs, and startups.`,
+  },
+  {
+    title: "Who it is for",
+    body: "Shipyard is for founders launching products, buyers discovering useful software, and builders learning how other products earn attention.",
+  },
+  {
+    title: "How discovery works",
+    body: "Launch highlights use public signals including recency, votes, product visits, ranking context, editorial picks, and clearly labelled sponsored eligibility.",
+  },
+  {
+    title: "How fresh it is",
+    body: "Launch data updates as products are published, voted on, promoted, ranked, or refreshed in the public discovery feed.",
+  },
+  {
+    title: "Do-follow links and Domain Rating",
+    body: `A standard editorial link is often called a do-follow link. Paid ${BRAND_NAME} placements use a sponsored link instead. A listing can still introduce a new site to visitors, earn brand mentions, and support authority over time, but no product directory can guarantee a Domain Rating or search ranking boost.`,
   },
 ] as const
 
@@ -111,6 +185,11 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
 function formatPercent(value: number) {
   const sign = value > 0 ? "+" : ""
   return `${sign}${value.toFixed(0)}%`
+}
+
+function formatPlatformMetric(value?: number | null) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—"
+  return compactNumberFormatter.format(Math.max(0, value))
 }
 
 function toDisplayDrop(
@@ -144,6 +223,10 @@ function initials(name: string) {
     .join("")
 }
 
+function isPlaceholderLogo(logo: string) {
+  return /(?:placehold(?:er)?\.(?:com|co)|[-_/]600x400(?:[._/-]|$))/i.test(logo)
+}
+
 function ProductLogo({
   product,
   className,
@@ -151,6 +234,9 @@ function ProductLogo({
   product: DisplayDrop
   className?: string
 }) {
+  const logo = product.logo?.trim()
+  const shouldRenderLogo = Boolean(logo && !isPlaceholderLogo(logo))
+
   return (
     <div
       className={cn(
@@ -158,10 +244,10 @@ function ProductLogo({
         className,
       )}
     >
-      {product.logo ? (
+      {shouldRenderLogo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={product.logo}
+          src={logo}
           alt={`${product.name} logo`}
           width={80}
           height={80}
@@ -176,50 +262,149 @@ function ProductLogo({
   )
 }
 
+function VisitorSparkline({
+  series,
+  label,
+}: {
+  series: Array<{ visitors: number }> | null | undefined
+  label: string
+}) {
+  const recentValues = (series ?? [])
+    .slice(-ANALYTICS_REPORTING_WINDOW_DAYS)
+    .map((point) => Math.max(0, point.visitors))
+  const values = [
+    ...Array(
+      Math.max(0, ANALYTICS_REPORTING_WINDOW_DAYS - recentValues.length),
+    ).fill(0),
+    ...recentValues,
+  ] as number[]
+  const width = 320
+  const height = 44
+  const peakValue = Math.max(0, ...values)
+  const maxValue = Math.max(1, peakValue)
+  const linePoints = values
+    .map((value, index) => {
+      const x = (index / Math.max(1, values.length - 1)) * width
+      const y =
+        peakValue === 0
+          ? height / 2
+          : height - 3 - (value / maxValue) * (height - 8)
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(" ")
+  const areaPoints = `0,${height} ${linePoints} ${width},${height}`
+
+  return (
+    <svg
+      aria-label={`Daily visitors over ${label.toLowerCase()}`}
+      className="h-8 w-full overflow-visible"
+      preserveAspectRatio="none"
+      role="img"
+      viewBox={`0 0 ${width} ${height}`}
+    >
+      <polygon points={areaPoints} fill="#0051d5" opacity="0.08" />
+      <polyline
+        points={linePoints}
+        fill="none"
+        stroke="#0051d5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  )
+}
+
 function HomepageHero() {
   return (
-    <section className="border-b border-[#E2E8F0] bg-[#f8f9ff]">
-      <div className="mx-auto max-w-[1200px] px-4 py-10 text-center sm:px-6 md:py-14">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#16a34a]/10 px-4 py-1.5 text-[#166534]">
-          <Rocket className="size-[18px] fill-current" aria-hidden />
-          <span className="text-xs font-semibold uppercase tracking-wider">
+    <section className="border-b border-[#E2E8F0] bg-[#f8f9ff] text-[#0b1c30]">
+      <div className="mx-auto flex min-h-[540px] max-w-[1200px] flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="mb-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748B]">
+          <span className="text-[#0b1c30]">
             <PublicBuilderCountMessage />
           </span>
+          <span className="h-3 w-px bg-[#CBD5E1]" aria-hidden />
+          <span>Launches, rankings, guides, and growth tools</span>
         </div>
-        <h1 className="mx-auto mb-5 max-w-4xl text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
-          Submit your product. Get discovered beyond launch day.
+
+        <h1 className="max-w-[940px] text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
+          Launch your product. Discover what&apos;s next.
         </h1>
-        <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-[#43474c]">
-          {BRAND_NAME} is a product launch directory for apps, SaaS tools, APIs,
-          AI products, and startup projects. Publish a free listing, earn votes
-          and product visits, then upgrade for more reach, deeper insights, and
-          a direct website link when the timing is right.
+
+        <p className="mt-6 max-w-[760px] text-base leading-7 text-[#43474c]">
+          Shipyard is an independent platform for product launches and
+          discovery, with founder playbooks, free tools, public rankings, and
+          practical signals that help good products keep moving.
         </p>
-        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+
+        <Link
+          href={guidePath("product-launch-checklist")}
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#0051d5] underline decoration-[#0051d5]/30 underline-offset-4 hover:text-[#0048bf]"
+        >
+          See how to prepare a launch
+          <ArrowRight className="size-4" aria-hidden />
+        </Link>
+
+        <form
+          action={BROWSE_PATH}
+          className="mt-9 flex w-full max-w-[720px] items-center rounded-xl border border-[#c4c6cd] bg-white p-1.5 shadow-sm focus-within:border-[#0051d5] focus-within:ring-2 focus-within:ring-[#0051d5]/10"
+          method="get"
+        >
+          <Search className="ml-3 size-5 shrink-0 text-[#64748B]" aria-hidden />
+          <label className="sr-only" htmlFor="homepage-product-search">
+            Search products, categories, and tools
+          </label>
+          <input
+            className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-[#0b1c30] outline-none placeholder:text-[#74777d]"
+            id="homepage-product-search"
+            name="q"
+            placeholder="Search products, categories, and tools"
+            type="search"
+          />
+          <Button
+            className="h-10 rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white shadow-none hover:bg-black/90"
+            type="submit"
+          >
+            Search
+          </Button>
+        </form>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Button
             asChild
-            className="h-14 w-full rounded-xl border-0 bg-black px-10 text-base font-semibold text-white shadow-lg shadow-black/10 hover:scale-[0.98] hover:bg-black sm:w-auto"
+            className="h-12 rounded-lg border-0 bg-black px-7 text-sm font-semibold text-white shadow-none hover:bg-black/90"
+          >
+            <Link href={BROWSE_PATH}>Browse products</Link>
+          </Button>
+          <Button
+            asChild
+            className="h-12 rounded-lg border border-[#c4c6cd] bg-white px-7 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC]"
           >
             <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-              Submit Your Product
+              Submit your product
             </Link>
           </Button>
-          <Button
-            asChild
-            className="h-14 w-full rounded-xl border border-[#c4c6cd] bg-white px-10 text-base font-semibold text-black shadow-none hover:bg-[#F8FAFC] sm:w-auto"
-          >
-            <Link href={BROWSE_PATH}>Browse Today&apos;s Drops</Link>
-          </Button>
         </div>
-        <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-          <span>Free to submit</span>
-          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
-          <span>Votes and measured visits</span>
-          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
-          <span>Optional visibility boosts</span>
-          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
-          <span>Direct website link on paid plans</span>
-        </div>
+
+        <nav
+          aria-label="Explore Shipyard"
+          className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-[#E2E8F0] pt-5 text-xs text-[#43474c]"
+        >
+          {HOMEPAGE_EXPLORE_LINKS.map((item, index) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              prefetch={"prefetch" in item ? item.prefetch : undefined}
+              className="inline-flex items-center gap-2 font-medium hover:text-black"
+            >
+              {index > 0 ? (
+                <span className="mr-4 hidden size-1 rounded-full bg-[#CBD5E1] sm:inline-block" />
+              ) : null}
+              {item.title}
+            </Link>
+          ))}
+        </nav>
       </div>
     </section>
   )
@@ -227,7 +412,7 @@ function HomepageHero() {
 
 export default function HomePage() {
   return (
-    <div className="relative isolate bg-[#F8FAFC] pb-16 text-[#0b1c30]">
+    <div className="relative isolate bg-[#F8FAFC] pb-20 text-[#0b1c30]">
       <CoreStructuredData
         scriptKeyPrefix="home"
         webPage={{ path: HOME_PATH, name: siteConfig.tagline }}
@@ -237,31 +422,6 @@ export default function HomePage() {
       />
 
       <HomepageHero />
-      <AnswerBlocks
-        className="mx-auto mt-12 w-full max-w-[1200px] px-4 md:px-6"
-        blocks={[
-          {
-            title: "What this page lists",
-            body: `${BRAND_NAME} highlights current product launches, the launch of the day, public discovery stats, and recent products from the Shipyard launch directory.`,
-          },
-          {
-            title: "Who it is for",
-            body: "The homepage is for builders launching products, buyers browsing new software, and researchers looking for active apps, SaaS tools, APIs, AI products, and startup projects.",
-          },
-          {
-            title: "How rankings work",
-            body: "Homepage highlights use public Shipyard launch signals such as votes, ranking context, launch activity, sponsored eligibility, and recent product metadata.",
-          },
-          {
-            title: "Freshness policy",
-            body: "Homepage launch data revalidates frequently and updates as products are published, voted on, promoted, ranked, or refreshed in the public launch feed.",
-          },
-          {
-            title: "Do listings link to my website?",
-            body: `Yes. Every listing helps people reach your product, and eligible paid plans include a direct website link from the public ${BRAND_NAME} product page. Because it is part of a paid placement, Shipyard labels the direct link as sponsored for Google rather than promising a Domain Rating or ranking boost.`,
-          },
-        ]}
-      />
       <HomepageDataSections />
     </div>
   )
@@ -283,6 +443,10 @@ async function getCachedHomepageDataSections() {
   const [launchOfDay, homepageStats] = await Promise.all([
     getHomepageLaunchOfDay().catch(() => null),
     getLeaderboardStats().catch(() => ({
+      totalProducts: null,
+      totalCreators: null,
+      totalUpvotes: null,
+      topScore: null,
       analyticsWindowDays: ANALYTICS_REPORTING_WINDOW_DAYS,
       pageViews: 0,
       visitors: 0,
@@ -345,33 +509,87 @@ async function HomepageDataSections() {
   const launchIsSponsored = Boolean(launch?.isSponsored)
   const launchIsEditorPick =
     !launchIsSponsored && launch?.variant === "promoted"
+  const trafficWindowDays = Math.max(
+    1,
+    homepageStats.analyticsWindowDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
+  )
+  const trafficWindowLabel =
+    formatAnalyticsReportingWindowLabel(trafficWindowDays)
+  const platformMetrics = [
+    {
+      label: "Products",
+      value: homepageStats.totalProducts,
+      icon: Rocket,
+    },
+    {
+      label: "Builders",
+      value: homepageStats.totalCreators,
+      icon: Users,
+    },
+    {
+      label: "Visitors",
+      value: homepageStats.visitors,
+      icon: Eye,
+    },
+    {
+      label: "Upvotes",
+      value: homepageStats.totalUpvotes,
+      icon: MousePointerClick,
+    },
+  ] as const
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
       <section
-        className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6"
+        className="mx-auto max-w-[1200px] px-4 pb-8 pt-12 sm:px-6"
+        id="launch-board"
         style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
       >
-        <div className="grid grid-cols-12 gap-6">
+        <div className="mb-5 flex items-end justify-between gap-6 border-b border-[#E2E8F0] pb-5">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+              Live from the Shipyard
+            </span>
+            <h2 className="mt-2 text-[32px] font-bold leading-10 tracking-tight text-black">
+              Featured launch
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
+              One standout product from the launches earning attention on
+              Shipyard today.
+            </p>
+          </div>
+          <Link
+            href={BROWSE_PATH}
+            className="hidden shrink-0 items-center gap-2 text-sm font-semibold text-[#0051d5] hover:text-[#0048bf] lg:inline-flex"
+          >
+            Browse all launches
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        </div>
+
+        <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
           <article
             className={cn(
-              "relative col-span-12 flex h-full flex-col justify-between overflow-hidden rounded-xl border p-5 shadow-sm lg:col-span-8",
-              launchIsSponsored
-                ? "border-[#F59E0B]/45 bg-[#FFF7ED]"
-                : "border-[#E2E8F0] bg-white",
+              "relative flex min-w-0 flex-col justify-center p-5",
+              launchIsSponsored ? "bg-[#FFF7ED]" : "bg-white",
             )}
           >
             {launch ? (
-              <>
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div className="flex min-w-0 items-start gap-4">
-                    <ProductLogo product={launch} className="size-16" />
+              <div className="flex items-start justify-between gap-6">
+                <div className="flex min-w-0 items-start justify-between gap-6">
+                  <div className="flex min-w-0 items-start gap-5">
+                    <Link
+                      href={
+                        launch.slug ? productPath(launch.slug) : BROWSE_PATH
+                      }
+                      aria-label={`View ${launch.name}`}
+                      className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
+                    >
+                      <ProductLogo product={launch} className="size-16" />
+                    </Link>
                     <div className="min-w-0">
-                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <h2 className="text-2xl font-semibold leading-none">
-                          {launch.name}
-                        </h2>
-                        <span className="rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
                           Launch of the Day
                         </span>
                         {launchIsSponsored || launchIsEditorPick ? (
@@ -380,14 +598,24 @@ async function HomepageDataSections() {
                           </span>
                         ) : null}
                       </div>
-                      <p className="max-w-lg text-sm leading-snug text-[#43474c]">
+                      <h3 className="text-2xl font-semibold leading-tight text-black">
+                        <Link
+                          href={
+                            launch.slug ? productPath(launch.slug) : BROWSE_PATH
+                          }
+                          className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
+                        >
+                          {launch.name}
+                        </Link>
+                      </h3>
+                      <p className="mt-1 max-w-lg text-sm leading-6 text-[#43474c]">
                         {launch.tagline}
                       </p>
                       <ProductCategoryPills
                         categories={launch.categories}
-                        className="mt-2 gap-1.5"
-                        pillClassName="rounded border-0 bg-[#F8FAFC] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
-                        linkClassName="hover:bg-[#0051d5]/10"
+                        className="mt-3 gap-1.5"
+                        pillClassName="rounded-none border-0 bg-transparent p-0 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#43474c]"
+                        linkClassName="hover:text-[#0051d5]"
                       />
                     </div>
                   </div>
@@ -402,39 +630,15 @@ async function HomepageDataSections() {
                     </div>
                   ) : null}
                 </div>
-
-                <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-[#E2E8F0]/50 pt-4">
-                  <HomepageUpvoteButton
-                    productId={launch.id}
-                    productSlug={launch.slug}
-                    initialCount={launch.score}
-                    initialUpvoted={launch.isVoted}
-                    fullLabel
-                    hideZeroCount
-                    className="px-6"
-                  />
-                  <Button
-                    asChild
-                    className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
-                  >
-                    <Link
-                      href={
-                        launch.slug ? productPath(launch.slug) : BROWSE_PATH
-                      }
-                    >
-                      View Product
-                    </Link>
-                  </Button>
-                </div>
-              </>
+              </div>
             ) : (
-              <div className="flex min-h-44 flex-col justify-center">
-                <span className="mb-3 w-fit rounded-full bg-[#F97316]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#9A3412]">
+              <div className="flex min-h-48 flex-col justify-center">
+                <span className="mb-3 w-fit text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
                   Launch of the Day
                 </span>
-                <h2 className="text-2xl font-semibold leading-tight text-black">
+                <h3 className="text-2xl font-semibold leading-tight text-black">
                   No launch is live yet.
-                </h2>
+                </h3>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-[#43474c]">
                   Real products will appear here as soon as launches are
                   published.
@@ -459,32 +663,85 @@ async function HomepageDataSections() {
             )}
           </article>
 
-          <div className="col-span-12 lg:col-span-4">
-            <LazyTrafficStatsPanel
-              initialStats={homepageStats}
-              className="h-full"
-            />
-          </div>
+          <Link
+            href={LEADERBOARD_PATH}
+            aria-label="View the Shipyard leaderboard and platform activity"
+            className="group border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 transition-colors hover:bg-[#F1F4FF] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0051d5] lg:border-l lg:border-t-0"
+          >
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#0051d5]">
+                  Shipyard at a glance
+                </span>
+                <h3 className="mt-1 text-base font-semibold text-black">
+                  Platform activity
+                </h3>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#0051d5]">
+                View leaderboard
+                <ArrowRight
+                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden
+                />
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-4 divide-x divide-[#D7DEE8] border-y border-[#D7DEE8] py-2">
+              {platformMetrics.map((metric) => {
+                const Icon = metric.icon
+
+                return (
+                  <div key={metric.label} className="min-w-0 px-3 first:pl-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#43474c]">
+                        {metric.label}
+                      </span>
+                      <Icon
+                        className="size-4 shrink-0 text-[#0051d5]"
+                        aria-hidden
+                      />
+                    </div>
+                    <div className="mt-2 text-xl font-bold leading-none text-black">
+                      {formatPlatformMetric(metric.value)}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="mt-2">
+              <VisitorSparkline
+                series={homepageStats.trafficSeries}
+                label={trafficWindowLabel}
+              />
+              <p className="text-[9px] leading-4 text-[#64748B]">
+                Visitors · {trafficWindowLabel} · Powered by Cloudflare
+              </p>
+            </div>
+          </Link>
         </div>
       </section>
 
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <section
-          className="my-12"
+          className="my-14"
           id="drops"
           style={{ contentVisibility: "auto", containIntrinsicSize: "960px" }}
         >
-          <div className="mb-8 flex items-end justify-between gap-4">
+          <div className="mb-8 flex items-end justify-between gap-6 border-b border-[#E2E8F0] pb-6">
             <div>
-              <h3 className="text-[32px] font-bold leading-10 tracking-tight text-black">
-                Latest Launches
-              </h3>
-              <p className="text-sm leading-5 text-[#43474c]">
-                Fresh products from today, yesterday, and recent launch windows
-                earning builder attention.
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+                Product discovery, in public
+              </span>
+              <h2 className="mt-2 text-[32px] font-bold leading-10 tracking-tight text-black">
+                The live launch board
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
+                Explore new apps, SaaS products, AI tools, APIs, and independent
+                projects as they arrive—not months after the moment has passed.
               </p>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               <Button
                 asChild
                 className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
@@ -509,8 +766,17 @@ async function HomepageDataSections() {
             excludedProductId={launch?.id}
             excludedSlug={launch?.slug}
             referenceDateIso={referenceDateIso}
-            afterTodaySlot={<HomepageWhyExistsSection />}
-            afterYesterdaySlot={<HomepageVisibilityOptionsSection />}
+            afterFirstSectionSlot={<HomepageWhyExistsSection />}
+            afterSecondSectionSlot={
+              <div className="space-y-8">
+                <HomepageVisibilityOptionsSection />
+                <AnswerBlocks
+                  heading="Shipyard, explained"
+                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] p-8"
+                  blocks={[...HOMEPAGE_ANSWER_BLOCKS]}
+                />
+              </div>
+            }
           />
         </section>
       </div>
@@ -521,54 +787,60 @@ async function HomepageDataSections() {
 function HomepageWhyExistsSection() {
   return (
     <section className="overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm">
-      <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="p-6 sm:p-8 lg:p-10">
+      <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="border-b border-[#E2E8F0] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
-            Why this exists
+            Beyond the listing
           </span>
           <h3 className="mt-3 max-w-xl text-2xl font-bold leading-8 tracking-tight text-black sm:text-3xl sm:leading-10">
-            Most makers do not need another quiet listing page.
+            Shipyard is built for the whole launch journey.
           </h3>
           <div className="mt-5 max-w-xl space-y-4 text-sm leading-6 text-[#43474c]">
             <p>
-              We built {BRAND_NAME} for the messy part after you ship: getting
-              enough useful attention to know what is working. The feed, votes,
-              product visits, rankings, and analytics are here to help a launch
-              turn into a clearer next move.
+              A permanent product page matters, but founders also need a better
+              way to prepare, launch, learn, and stay visible after the first
+              announcement fades.
             </p>
             <p>
-              Start free. If a launch is ready for more visibility, paid plans
-              add reach around the same surfaces builders are already using and
-              a direct website link from the public product page.
+              That is why the product feed now sits alongside useful rankings,
+              plain-English guides, free launch tools, and signals that help
+              turn attention into a clearer next move.
             </p>
           </div>
+          <Link
+            href={guidePath("submit-product-to-directories")}
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#0051d5] hover:text-[#0048bf]"
+          >
+            Read the directory launch guide
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
         </div>
 
-        <div className="border-t border-[#E2E8F0] bg-[#F8FAFC] p-6 sm:p-8 lg:border-l lg:border-t-0">
-          <div className="divide-y divide-[#D7DEE8]">
-            {HOMEPAGE_VALUE_POINTS.map((point) => {
-              const Icon = point.icon
+        <div className="grid bg-[#F8FAFC] md:grid-cols-2">
+          {HOMEPAGE_VALUE_POINTS.map((point, index) => {
+            const Icon = point.icon
 
-              return (
-                <article
-                  key={point.title}
-                  className="flex gap-4 py-5 first:pt-0 last:pb-0"
-                >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#0051d5] shadow-sm ring-1 ring-[#E2E8F0]">
-                    <Icon className="size-5" aria-hidden />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold leading-5 text-black">
-                      {point.title}
-                    </h4>
-                    <p className="mt-1.5 text-sm leading-6 text-[#43474c]">
-                      {point.body}
-                    </p>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
+            return (
+              <article
+                key={point.title}
+                className={cn(
+                  "min-h-[190px] p-6 sm:p-8",
+                  index % 2 === 0 && "md:border-r md:border-[#E2E8F0]",
+                  index < 2 && "md:border-b md:border-[#E2E8F0]",
+                )}
+              >
+                <div className="flex size-10 items-center justify-center rounded-lg bg-white text-[#0051d5] shadow-sm ring-1 ring-[#E2E8F0]">
+                  <Icon className="size-5" aria-hidden />
+                </div>
+                <h4 className="mt-5 text-sm font-bold leading-5 text-black">
+                  {point.title}
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-[#43474c]">
+                  {point.body}
+                </p>
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -581,10 +853,10 @@ function HomepageVisibilityOptionsSection() {
       <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
         <div className="bg-[#061D31] p-6 text-white sm:p-8 lg:p-10">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9FE6B8]">
-            Visibility options
+            Keep the launch moving
           </span>
           <h3 className="mt-3 max-w-lg text-2xl font-bold leading-8 tracking-tight sm:text-3xl sm:leading-10">
-            Upgrade when extra reach has a job to do.
+            Add reach when your product is ready for it.
           </h3>
           <p className="mt-4 max-w-lg text-sm leading-6 text-[#D0E4FF]">
             Paid plans should feel like launch acceleration, not a toll booth:
@@ -603,8 +875,8 @@ function HomepageVisibilityOptionsSection() {
               asChild
               className="h-11 rounded-lg border border-white/20 bg-transparent px-5 text-sm font-semibold text-white shadow-none hover:bg-white/10"
             >
-              <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-                Submit first
+              <Link href={guidePath("product-launch-checklist")}>
+                Read the launch checklist
               </Link>
             </Button>
           </div>

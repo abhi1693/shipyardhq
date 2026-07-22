@@ -677,8 +677,8 @@ export function HomepageDropsInfiniteList({
   excludedProductId,
   excludedSlug,
   referenceDateIso,
-  afterTodaySlot,
-  afterYesterdaySlot,
+  afterFirstSectionSlot,
+  afterSecondSectionSlot,
 }: {
   initialItems: HomepageDropListItem[]
   initialHasMore: boolean
@@ -688,8 +688,8 @@ export function HomepageDropsInfiniteList({
   excludedProductId?: string
   excludedSlug?: string
   referenceDateIso: string
-  afterTodaySlot?: ReactNode
-  afterYesterdaySlot?: ReactNode
+  afterFirstSectionSlot?: ReactNode
+  afterSecondSectionSlot?: ReactNode
 }) {
   const initialUniqueItems = useMemo(
     () => uniqueDropItems(initialItems),
@@ -811,7 +811,7 @@ export function HomepageDropsInfiniteList({
 
   return (
     <div className="space-y-3">
-      {visibleSections.map((section) => {
+      {visibleSections.map((section, sectionIndex) => {
         const lastSponsoredIndex = section.items.reduce(
           (lastIndex, product, index) =>
             product.isSponsored ? index : lastIndex,
@@ -823,10 +823,13 @@ export function HomepageDropsInfiniteList({
           <Fragment key={section.key}>
             <section className="space-y-3">
               <div className="flex items-center gap-3">
-                <h4 className="shrink-0 text-lg font-semibold text-black">
+                <h3 className="shrink-0 text-lg font-semibold text-black">
                   {section.title}
-                </h4>
+                </h3>
                 <span className="h-px flex-1 bg-[#E2E8F0]" aria-hidden />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#74777d]">
+                  {section.items.length} launches
+                </span>
               </div>
               <div className="space-y-3">
                 {section.items.length > 0 ? (
@@ -845,11 +848,12 @@ export function HomepageDropsInfiniteList({
                 )}
               </div>
             </section>
-            {section.key === "yesterday" && afterYesterdaySlot ? (
-              <div className="py-3">{afterYesterdaySlot}</div>
+            {sectionIndex === 0 && afterFirstSectionSlot ? (
+              <div className="py-5">{afterFirstSectionSlot}</div>
             ) : null}
-            {section.key === "today" && afterTodaySlot ? (
-              <div className="py-3">{afterTodaySlot}</div>
+            {sectionIndex === Math.min(1, visibleSections.length - 1) &&
+            afterSecondSectionSlot ? (
+              <div className="py-5">{afterSecondSectionSlot}</div>
             ) : null}
           </Fragment>
         )
