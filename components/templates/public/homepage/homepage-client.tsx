@@ -553,7 +553,7 @@ function DropProductLogo({
   return (
     <div
       className={cn(
-        "flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-black shadow-sm",
+        "flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-black shadow-sm sm:size-14",
         sponsored
           ? "border border-white/20 bg-white/10 text-white"
           : "bg-[#e5eeff] text-[#061d31]",
@@ -592,7 +592,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           : "border-[#E2E8F0] bg-white hover:shadow-sm",
       )}
     >
-      <CardContent className="flex items-center gap-4 p-5 sm:gap-6">
+      <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap sm:gap-6 sm:p-5">
         {sponsored || editorPick ? (
           <div
             className={cn(
@@ -607,7 +607,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           </div>
         ) : null}
         <DropProductLogo product={product} sponsored={sponsored} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-[1_1_calc(100%-60px)] sm:flex-1">
           <div className="mb-1 flex min-w-0 items-center gap-2">
             <Link
               href={href}
@@ -643,10 +643,10 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
         </div>
         <div
           className={cn(
-            "pl-4 sm:pl-6",
+            "ml-[60px] flex w-[calc(100%-60px)] justify-end border-t pt-3 sm:ml-0 sm:w-auto sm:border-t-0 sm:pt-0 sm:pl-6",
             sponsored
-              ? "border-l border-white/10"
-              : "border-l border-[#E2E8F0]",
+              ? "border-white/10 sm:border-l"
+              : "border-[#E2E8F0] sm:border-l",
           )}
         >
           <HomepageUpvoteButton

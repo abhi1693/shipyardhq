@@ -263,12 +263,12 @@ function ProductLogo({
 function HomepageHero() {
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff] text-[#0b1c30]">
-      <div className="mx-auto flex min-h-[540px] max-w-[1200px] flex-col items-center justify-center px-6 py-16 text-center">
-        <div className="mb-6 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#64748B]">
+      <div className="mx-auto flex min-h-[540px] max-w-[1200px] flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16">
+        <div className="mb-6 flex flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748B] sm:flex-row sm:gap-3 sm:text-[11px]">
           <span className="text-[#0b1c30]">
             <PublicBuilderCountMessage />
           </span>
-          <span className="h-3 w-px bg-[#CBD5E1]" aria-hidden />
+          <span className="hidden h-3 w-px bg-[#CBD5E1] sm:block" aria-hidden />
           <span>Launches, rankings, guides, and growth tools</span>
         </div>
 
@@ -292,38 +292,43 @@ function HomepageHero() {
 
         <form
           action={BROWSE_PATH}
-          className="mt-9 flex w-full max-w-[720px] items-center rounded-xl border border-[#c4c6cd] bg-white p-1.5 shadow-sm focus-within:border-[#0051d5] focus-within:ring-2 focus-within:ring-[#0051d5]/10"
+          className="mt-9 flex w-full max-w-[720px] flex-col gap-2 rounded-xl border border-[#c4c6cd] bg-white p-1.5 shadow-sm focus-within:border-[#0051d5] focus-within:ring-2 focus-within:ring-[#0051d5]/10 sm:flex-row sm:items-center sm:gap-0"
           method="get"
         >
-          <Search className="ml-3 size-5 shrink-0 text-[#64748B]" aria-hidden />
-          <label className="sr-only" htmlFor="homepage-product-search">
-            Search products, categories, and tools
-          </label>
-          <input
-            className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-[#0b1c30] outline-none placeholder:text-[#74777d]"
-            id="homepage-product-search"
-            name="q"
-            placeholder="Search products, categories, and tools"
-            type="search"
-          />
+          <div className="flex min-w-0 flex-1 items-center">
+            <Search
+              className="ml-3 size-5 shrink-0 text-[#64748B]"
+              aria-hidden
+            />
+            <label className="sr-only" htmlFor="homepage-product-search">
+              Search products, categories, and tools
+            </label>
+            <input
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-[#0b1c30] outline-none placeholder:text-[#74777d]"
+              id="homepage-product-search"
+              name="q"
+              placeholder="Search products, categories, and tools"
+              type="search"
+            />
+          </div>
           <Button
-            className="h-10 rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white shadow-none hover:bg-black/90"
+            className="h-11 w-full rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white shadow-none hover:bg-black/90 sm:h-10 sm:w-auto"
             type="submit"
           >
             Search
           </Button>
         </form>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-6 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center">
           <Button
             asChild
-            className="h-12 rounded-lg border-0 bg-black px-7 text-sm font-semibold text-white shadow-none hover:bg-black/90"
+            className="h-12 w-full rounded-lg border-0 bg-black px-7 text-sm font-semibold text-white shadow-none hover:bg-black/90 sm:w-auto"
           >
             <Link href={BROWSE_PATH}>Browse products</Link>
           </Button>
           <Button
             asChild
-            className="h-12 rounded-lg border border-[#c4c6cd] bg-white px-7 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC]"
+            className="h-12 w-full rounded-lg border border-[#c4c6cd] bg-white px-7 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC] sm:w-auto"
           >
             <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
               Submit your product
@@ -333,14 +338,14 @@ function HomepageHero() {
 
         <nav
           aria-label="Explore Shipyard"
-          className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-[#E2E8F0] pt-5 text-xs text-[#43474c]"
+          className="mt-9 grid w-full max-w-sm grid-cols-2 gap-x-4 gap-y-3 border-t border-[#E2E8F0] pt-5 text-xs text-[#43474c] sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-6 sm:gap-y-2"
         >
           {HOMEPAGE_EXPLORE_LINKS.map((item, index) => (
             <Link
               key={item.label}
               href={item.href}
               prefetch={"prefetch" in item ? item.prefetch : undefined}
-              className="inline-flex items-center gap-2 font-medium hover:text-black"
+              className="inline-flex items-center justify-center gap-2 font-medium hover:text-black"
             >
               {index > 0 ? (
                 <span className="mr-4 hidden size-1 rounded-full bg-[#CBD5E1] sm:inline-block" />
@@ -487,7 +492,7 @@ async function HomepageDataSections() {
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
               Live from the Shipyard
             </span>
-            <h2 className="mt-2 text-[32px] font-bold leading-10 tracking-tight text-black">
+            <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
               Featured launch
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
@@ -536,7 +541,7 @@ async function HomepageDataSections() {
                   {launch.name}
                 </div>
 
-                <div className="relative z-[1] flex min-h-[214px] items-center justify-between gap-8 py-7 pl-[84px] pr-8">
+                <div className="relative z-[1] flex min-h-[214px] flex-col items-start gap-5 py-6 pl-[68px] pr-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:py-7 sm:pl-[84px] sm:pr-8">
                   <div className="min-w-0 max-w-[430px]">
                     <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-bold uppercase tracking-[0.11em]">
                       <span className="text-[#9A3412]">Launch of the Day</span>
@@ -553,7 +558,7 @@ async function HomepageDataSections() {
                       ) : null}
                     </div>
 
-                    <h3 className="text-[27px] font-semibold leading-[1.16] tracking-[-0.025em] text-black">
+                    <h3 className="text-[23px] font-semibold leading-[1.18] tracking-[-0.025em] text-black sm:text-[27px] sm:leading-[1.16]">
                       <Link
                         href={
                           launch.slug ? productPath(launch.slug) : BROWSE_PATH
@@ -580,7 +585,7 @@ async function HomepageDataSections() {
                   >
                     <ProductLogo
                       product={launch}
-                      className="size-24 rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.16)]"
+                      className="size-20 rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.16)] sm:size-24"
                     />
                   </Link>
                 </div>
@@ -618,11 +623,11 @@ async function HomepageDataSections() {
           </article>
 
           <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 lg:border-l lg:border-t-0">
-            <div className="flex items-center justify-between gap-8 border-b border-[#D7DEE8] pb-3">
+            <div className="grid grid-cols-3 gap-3 border-b border-[#D7DEE8] pb-3 sm:gap-8">
               {platformMetrics.map((metric) => (
                 <div
                   key={metric.label}
-                  className="flex min-w-0 items-baseline gap-2"
+                  className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-baseline sm:gap-2"
                 >
                   <span className="text-lg font-bold leading-none text-black">
                     {formatPlatformMetric(metric.value)}
@@ -653,12 +658,12 @@ async function HomepageDataSections() {
           id="drops"
           style={{ contentVisibility: "auto", containIntrinsicSize: "960px" }}
         >
-          <div className="mb-8 flex items-end justify-between gap-6 border-b border-[#E2E8F0] pb-6">
+          <div className="mb-8 flex flex-col items-start gap-5 border-b border-[#E2E8F0] pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div>
               <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
                 Product discovery, in public
               </span>
-              <h2 className="mt-2 text-[32px] font-bold leading-10 tracking-tight text-black">
+              <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
                 The live launch board
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
@@ -666,16 +671,16 @@ async function HomepageDataSections() {
                 projects as they arrive—not months after the moment has passed.
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex w-full gap-2 sm:w-auto">
               <Button
                 asChild
-                className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
+                className="h-10 flex-1 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC] sm:flex-none"
               >
                 <Link href={BROWSE_PATH}>Newest</Link>
               </Button>
               <Button
                 asChild
-                className="h-10 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
+                className="h-10 flex-1 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90 sm:flex-none"
               >
                 <Link href={LEADERBOARD_PATH}>Trending</Link>
               </Button>
@@ -697,7 +702,7 @@ async function HomepageDataSections() {
                 <HomepageVisibilityOptionsSection />
                 <AnswerBlocks
                   heading="Shipyard, explained"
-                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] p-8"
+                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] p-5 sm:p-8"
                   blocks={[...HOMEPAGE_ANSWER_BLOCKS]}
                 />
               </div>
