@@ -85,6 +85,10 @@ export const pricingModelPath = (slug: string) => `${PRICING_PATH}/${slug}`
 export const PRODUCT_TYPES_PATH = "/product-types" as const
 export const productTypePath = (slug: string) => `${PRODUCT_TYPES_PATH}/${slug}`
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
+export const ABOUT_PATH = "/about" as const
+export const EDITORIAL_POLICY_PATH = "/editorial-policy" as const
+export const GUIDES_PATH = "/guides" as const
+export const guidePath = (slug: string) => `${GUIDES_PATH}/${slug}`
 export const ANALYTICS_PATH = "/analytics" as const
 export const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const

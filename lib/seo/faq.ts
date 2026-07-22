@@ -33,7 +33,7 @@ export type BuildFaqStructuredDataOptions = {
 const sanitizeAnswer = (value: string) => value.trim()
 
 export function buildFaqStructuredData(
-  entries: FaqEntryInput[],
+  entries: readonly FaqEntryInput[],
   options: BuildFaqStructuredDataOptions = {},
 ): FaqStructuredData {
   const siteUrl = resolveSiteUrl()

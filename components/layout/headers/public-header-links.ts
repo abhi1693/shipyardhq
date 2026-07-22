@@ -1,5 +1,6 @@
 import {
   BROWSE_PATH,
+  GUIDES_PATH,
   LEADERBOARD_PATH,
   PRICING_PATH,
   TOOLS_PATH,
@@ -7,6 +8,7 @@ import {
 
 export const publicHeaderLinks = [
   { label: "Explore", href: BROWSE_PATH },
+  { label: "Guides", href: GUIDES_PATH },
   { label: "Free Tools", href: TOOLS_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
   { label: "Pricing", href: PRICING_PATH },

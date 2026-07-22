@@ -21,8 +21,7 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   platformValueFromMaybe,
-  pseoCanonicalForTotal,
-  pseoRobotsForTotal,
+  PSEO_INTERSECTION_ROBOTS,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 
@@ -70,18 +69,14 @@ export async function generateMetadata(props: {
     title,
     description,
     section: "Categories",
-    canonical: pseoCanonicalForTotal(
-      categoryPlatformPath(slug, platformMeta.slug),
-      categoryPath(slug),
-      total,
-    ),
+    canonical: categoryPlatformPath(slug, platformMeta.slug),
     openGraph: { title, description },
     twitter: { title, description },
   })
 
   return {
     ...metadata,
-    robots: pseoRobotsForTotal(total),
+    robots: PSEO_INTERSECTION_ROBOTS,
     keywords: [
       `${lowerCategoryTools} for ${platformMeta.label.toLowerCase()}`,
       `${category.name.toLowerCase()} ${platformMeta.label.toLowerCase()} apps`,

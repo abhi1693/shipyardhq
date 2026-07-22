@@ -26,6 +26,7 @@ export interface TaxonomySponsorProduct {
 interface TaxonomyDetailPageProps {
   title: string
   description: string
+  intro?: string
   icon: ReactNode
   primaryCta: TaxonomyDetailCta
   secondaryCta: TaxonomyDetailCta
@@ -63,6 +64,7 @@ function shouldPrefetchCta(href: string) {
 export function TaxonomyDetailPage({
   title,
   description,
+  intro,
   icon,
   primaryCta,
   secondaryCta,
@@ -147,6 +149,14 @@ export function TaxonomyDetailPage({
               : "space-y-12 lg:col-span-12"
           }
         >
+          {intro ? (
+            <section className="rounded-xl border border-[#e2e8f0] bg-white p-6">
+              <h2 className="text-xl font-bold text-[#0b1c30]">
+                Directory overview
+              </h2>
+              <p className="mt-3 text-base leading-7 text-[#43474c]">{intro}</p>
+            </section>
+          ) : null}
           <AnswerBlocks
             blocks={[
               {

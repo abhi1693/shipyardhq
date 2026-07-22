@@ -238,6 +238,7 @@ export default function HomePage() {
 
       <HomepageHero />
       <AnswerBlocks
+        className="mx-auto mt-12 w-full max-w-[1200px] px-4 md:px-6"
         blocks={[
           {
             title: "What this page lists",

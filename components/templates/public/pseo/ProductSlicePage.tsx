@@ -305,6 +305,7 @@ function buildLinkGroups({
 export function ProductSlicePage({
   title,
   description,
+  intro,
   pagePath,
   scriptKeyPrefix,
   breadcrumbs,
@@ -534,6 +535,7 @@ export function ProductSlicePage({
     <TaxonomyDetailPage
       title={title}
       description={description}
+      intro={intro}
       icon={<Compass className="h-10 w-10 text-[#c0ff00]" aria-hidden />}
       primaryCta={{
         href: MEMBER_PRODUCTS_ADD_PATH,

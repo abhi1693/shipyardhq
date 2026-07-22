@@ -1,15 +1,10 @@
 import type { Metadata } from "next"
 
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/seo/indexing"
+
 export type BrowseSearchParamValue = string | string[] | undefined
 
-export const FILTERED_BROWSE_ROBOTS: Metadata["robots"] = {
-  index: false,
-  follow: true,
-  googleBot: {
-    index: false,
-    follow: true,
-  },
-}
+export const FILTERED_BROWSE_ROBOTS: Metadata["robots"] = NOINDEX_FOLLOW_ROBOTS
 
 export function hasBrowseSearchParams(params: object) {
   return Object.values(params as Record<string, BrowseSearchParamValue>).some(

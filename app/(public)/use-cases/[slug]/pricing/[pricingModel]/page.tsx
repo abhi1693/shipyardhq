@@ -21,8 +21,7 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   pricingValueFromMaybe,
-  pseoCanonicalForTotal,
-  pseoRobotsForTotal,
+  PSEO_INTERSECTION_ROBOTS,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 import { buildUseCasePricingMatrixCopy } from "@/lib/pseo/matrix-copy"
@@ -68,11 +67,7 @@ export async function generateMetadata({
     pricingLabel: pricing.label,
     total,
   })
-  const canonical = pseoCanonicalForTotal(
-    usecasePricingPath(slug, pricing.slug),
-    usecasePath(slug),
-    total,
-  )
+  const canonical = usecasePricingPath(slug, pricing.slug)
 
   return {
     ...buildPageMetadata({
@@ -83,7 +78,7 @@ export async function generateMetadata({
       openGraph: { title, description },
       twitter: { title, description },
     }),
-    robots: pseoRobotsForTotal(total),
+    robots: PSEO_INTERSECTION_ROBOTS,
   }
 }
 

@@ -22,8 +22,7 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   productTypeValueFromMaybe,
-  pseoCanonicalForTotal,
-  pseoRobotsForTotal,
+  PSEO_INTERSECTION_ROBOTS,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 import { buildCategoryProductTypeMatrixCopy } from "@/lib/pseo/matrix-copy"
@@ -69,11 +68,7 @@ export async function generateMetadata({
     productTypeDescription: productTypeMeta.description,
     total,
   })
-  const canonical = pseoCanonicalForTotal(
-    categoryProductTypePath(slug, productTypeMeta.slug),
-    categoryPath(slug),
-    total,
-  )
+  const canonical = categoryProductTypePath(slug, productTypeMeta.slug)
 
   return {
     ...buildPageMetadata({
@@ -84,7 +79,7 @@ export async function generateMetadata({
       openGraph: { title, description },
       twitter: { title, description },
     }),
-    robots: pseoRobotsForTotal(total),
+    robots: PSEO_INTERSECTION_ROBOTS,
     keywords: [
       `${category.name.toLowerCase()} ${productTypeMeta.label.toLowerCase()} products`,
       `${lowerCategoryNounPhrase(category.name, "tools")} ${productTypeMeta.label.toLowerCase()}`,

@@ -6,6 +6,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import type { Metadata } from "next"
 import { buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH } from "@/lib/routes"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/seo/indexing"
 
 const PAGE_TITLE = "Makers — Shipyard"
 
@@ -23,7 +24,10 @@ const baseMetadata = buildPageMetadata({
   },
 })
 
-export const metadata: Metadata = baseMetadata
+export const metadata: Metadata = {
+  ...baseMetadata,
+  robots: NOINDEX_FOLLOW_ROBOTS,
+}
 
 export default function UsersIndexPage() {
   return (

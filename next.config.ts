@@ -138,6 +138,11 @@ const nextConfig: NextConfig = {
   htmlLimitedBots,
   staticPageGenerationTimeout: 600,
   experimental: {
+    // Static generation imports Prisma in each worker. Keep build concurrency
+    // below the shared pooler's client ceiling instead of bypassing PgBouncer.
+    cpus: 2,
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationMinPagesPerWorker: 100,
     sri: {
       algorithm: "sha256",
     },

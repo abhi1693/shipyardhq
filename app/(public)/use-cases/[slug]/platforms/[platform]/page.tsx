@@ -21,8 +21,7 @@ import {
   getProductSlicePayload,
   parsePseoSearchParams,
   platformValueFromMaybe,
-  pseoCanonicalForTotal,
-  pseoRobotsForTotal,
+  PSEO_INTERSECTION_ROBOTS,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 import { buildUseCasePlatformMatrixCopy } from "@/lib/pseo/matrix-copy"
@@ -68,11 +67,7 @@ export async function generateMetadata({
     platformLabel: platformMeta.label,
     total,
   })
-  const canonical = pseoCanonicalForTotal(
-    usecasePlatformPath(slug, platformMeta.slug),
-    usecasePath(slug),
-    total,
-  )
+  const canonical = usecasePlatformPath(slug, platformMeta.slug)
 
   return {
     ...buildPageMetadata({
@@ -83,7 +78,7 @@ export async function generateMetadata({
       openGraph: { title, description },
       twitter: { title, description },
     }),
-    robots: pseoRobotsForTotal(total),
+    robots: PSEO_INTERSECTION_ROBOTS,
   }
 }
 

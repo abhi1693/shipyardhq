@@ -5,6 +5,7 @@ import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   MIN_INDEXABLE_PRODUCTS,
+  NOINDEX_FOLLOW_ROBOTS,
   canonicalForInventoryCount,
   robotsForInventoryCount,
 } from "@/lib/seo/indexing"
@@ -19,6 +20,7 @@ import { productTypeValueFromSlug } from "@/lib/product-types/models"
 import { buildFaqStructuredData, type FaqEntryInput } from "@/lib/seo/faq"
 
 export const PSEO_MIN_INDEXABLE_PRODUCTS = MIN_INDEXABLE_PRODUCTS
+export const PSEO_INTERSECTION_ROBOTS = NOINDEX_FOLLOW_ROBOTS
 export const PSEO_PRODUCT_SLICE_PAGE_SIZE = 12
 
 export type PseoSort = "new" | "trending" | "votes" | "az"

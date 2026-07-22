@@ -1,8 +1,10 @@
 import type { DualmarkNextConfig } from "@dualmark/nextjs"
 import { slugToTitle, type LlmsTxtSection } from "@dualmark/core"
 
+import { GUIDES, type GuideDefinition } from "@/lib/guides/catalog"
 import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
 import {
+  ABOUT_PATH,
   ANALYTICS_PATH,
   ALTERNATIVES_PATH,
   alternativePath,
@@ -13,7 +15,9 @@ import {
   categoryPricingPath,
   categoryProductTypePath,
   dailyLeaderboardPath,
+  EDITORIAL_POLICY_PATH,
   editorPickCategoryPath,
+  GUIDES_PATH,
   HOME_PATH,
   LEADERBOARD_GUIDE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -38,6 +42,7 @@ import {
   verifiedCategoryPath,
   weeklyLeaderboardPath,
   WHY_SHIPYARD_PATH,
+  guidePath,
 } from "@/lib/routes"
 import { resolveSiteUrl, siteConfig } from "@/lib/siteConfig"
 import { FREE_SEO_TOOLS, freeToolPath } from "@/lib/tools/catalog"
@@ -136,6 +141,41 @@ function freeToolMarkdownPage(tool: FreeToolDefinition) {
           `### ${entry.question}`,
           "",
           entry.answer,
+          "",
+        ]),
+        `Canonical: ${absoluteUrl(path)}`,
+      ].join("\n"),
+  }
+}
+
+function guideMarkdownPage(guide: GuideDefinition) {
+  const path = guidePath(guide.slug)
+
+  return {
+    pattern: path,
+    render: () =>
+      [
+        `# ${guide.title}`,
+        "",
+        guide.lede,
+        "",
+        "## The short answer",
+        "",
+        guide.directAnswer,
+        "",
+        ...guide.sections.flatMap((section) => [
+          `## ${section.title}`,
+          "",
+          ...section.paragraphs.flatMap((paragraph) => [paragraph, ""]),
+          ...(section.bullets?.map((bullet) => `- ${bullet}`) ?? []),
+          "",
+        ]),
+        "## Frequently asked questions",
+        "",
+        ...guide.faqs.flatMap((faq) => [
+          `### ${faq.question}`,
+          "",
+          faq.answer,
           "",
         ]),
         `Canonical: ${absoluteUrl(path)}`,
@@ -612,6 +652,11 @@ export const dualmarkConfig = {
       "Free browser-based SEO tools for startup and product launches.",
     ),
     ...FREE_SEO_TOOLS.map(freeToolMarkdownPage),
+    staticPage(
+      GUIDES_PATH,
+      "Practical product launch, directory submission, and startup SEO guides.",
+    ),
+    ...GUIDES.map(guideMarkdownPage),
     staticPage(CATEGORIES_PATH, "Explore product launch categories."),
     staticPage(
       "/analytics",
@@ -631,6 +676,11 @@ export const dualmarkConfig = {
     staticPage("/leaderboard/about", "How Shipyard leaderboard rankings work."),
     staticPage("/leaderboard/monthly", "Monthly product launch rankings."),
     staticPage("/why-shipyard", "Shipyard positioning and product overview."),
+    staticPage(ABOUT_PATH, "About Shipyard HQ and its publishing model."),
+    staticPage(
+      EDITORIAL_POLICY_PATH,
+      "Shipyard editorial, listing, advertising, and link standards.",
+    ),
     staticPage("/legal/privacy-policy", "Shipyard privacy policy."),
     staticPage("/legal/terms", "Shipyard terms."),
     staticPage("/auth/suspended", "Account suspended notice."),

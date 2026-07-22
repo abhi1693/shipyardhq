@@ -24,6 +24,7 @@ import { keywordToSlug, legacyKeywordToSlug } from "@/lib/tags"
 import {
   canonicalForInventoryCount,
   MIN_INDEXABLE_PRODUCTS,
+  NOINDEX_FOLLOW_ROBOTS,
   robotsForInventoryCount,
 } from "@/lib/seo/indexing"
 import {
@@ -383,11 +384,11 @@ describe("crawler directives", () => {
     })
   })
 
-  it("only indexes pSEO and tag pages with at least five products", () => {
-    expect(MIN_INDEXABLE_PRODUCTS).toBe(5)
-    expect(TAG_MIN_INDEXABLE_PRODUCTS).toBe(5)
+  it("only indexes primary pSEO and tag pages with at least ten products", () => {
+    expect(MIN_INDEXABLE_PRODUCTS).toBe(10)
+    expect(TAG_MIN_INDEXABLE_PRODUCTS).toBe(10)
 
-    expect(robotsForInventoryCount(4)).toMatchObject({
+    expect(robotsForInventoryCount(9)).toMatchObject({
       index: false,
       follow: true,
       googleBot: {
@@ -395,25 +396,25 @@ describe("crawler directives", () => {
         follow: true,
       },
     })
-    expect(robotsForInventoryCount(5)).toBeUndefined()
+    expect(robotsForInventoryCount(10)).toBeUndefined()
     expect(
       canonicalForInventoryCount({
         canonical: "/categories/analytics/pricing/free",
         parent: "/categories/analytics",
-        productCount: 4,
+        productCount: 9,
       }),
     ).toBe("/categories/analytics")
     expect(
       canonicalForInventoryCount({
         canonical: "/categories/analytics/pricing/free",
         parent: "/categories/analytics",
-        productCount: 5,
+        productCount: 10,
       }),
     ).toBe("/categories/analytics/pricing/free")
 
-    expect(isTagIndexable(4)).toBe(false)
-    expect(isTagIndexable(5)).toBe(true)
-    expect(tagRobotsForProductCount(4)).toMatchObject({
+    expect(isTagIndexable(9)).toBe(false)
+    expect(isTagIndexable(10)).toBe(true)
+    expect(tagRobotsForProductCount(9)).toMatchObject({
       index: false,
       follow: true,
       googleBot: {
@@ -421,7 +422,11 @@ describe("crawler directives", () => {
         follow: true,
       },
     })
-    expect(tagRobotsForProductCount(5)).toBeUndefined()
+    expect(tagRobotsForProductCount(10)).toBeUndefined()
+    expect(NOINDEX_FOLLOW_ROBOTS).toMatchObject({
+      index: false,
+      follow: true,
+    })
   })
 })
 

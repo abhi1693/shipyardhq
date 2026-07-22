@@ -4,8 +4,11 @@ import { Globe2, Rss, Users } from "lucide-react"
 import { CurrentYear } from "@/components/layout/footers/current-year"
 import { BRAND_NAME } from "@/lib/brand"
 import {
+  ABOUT_PATH,
   ANALYTICS_PATH,
   BROWSE_PATH,
+  EDITORIAL_POLICY_PATH,
+  GUIDES_PATH,
   LEADERBOARD_PATH,
   LEGAL_PRIVACY_PATH,
   LEGAL_TERMS_PATH,
@@ -31,6 +34,7 @@ const footerColumns = [
     title: "Community",
     links: [
       { label: "Browse Products", href: BROWSE_PATH },
+      { label: "Founder Guides", href: GUIDES_PATH },
       { label: "Free SEO Tools", href: TOOLS_PATH },
       { label: "Leaderboard", href: LEADERBOARD_PATH },
       { label: "Makers", href: USERS_PATH },
@@ -41,6 +45,8 @@ const footerColumns = [
     links: [
       { label: "Terms of Service", href: LEGAL_TERMS_PATH },
       { label: "Privacy Policy", href: LEGAL_PRIVACY_PATH },
+      { label: "About Shipyard", href: ABOUT_PATH },
+      { label: "Editorial Standards", href: EDITORIAL_POLICY_PATH },
       { label: "Cookie Policy", href: LEGAL_PRIVACY_PATH },
       { label: "Contact", href: `${LEGAL_PRIVACY_PATH}#contact` },
     ],

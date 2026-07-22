@@ -5,8 +5,12 @@
 @import "./_public-common.css";
 
 @source "./analytics/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./about/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./editorial-policy/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./guides/**/*.{js,ts,jsx,tsx,mdx}";
 @source "./legal/**/*.{js,ts,jsx,tsx,mdx}";
 @source "./why-shipyard/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../components/templates/public/guides/**/*.{js,ts,jsx,tsx,mdx}";
 @source "../../components/molecules/Analytics*.tsx";
 @source "../../components/molecules/PricingFeature.tsx";
 @source "../../components/organisms/PricingTable.tsx";

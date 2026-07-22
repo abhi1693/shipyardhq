@@ -20,8 +20,7 @@ import {
 import {
   getProductSlicePayload,
   parsePseoSearchParams,
-  pseoCanonicalForTotal,
-  pseoRobotsForTotal,
+  PSEO_INTERSECTION_ROBOTS,
   type PseoSearchParams,
 } from "@/lib/pseo/product-slices"
 import { buildUseCaseCategoryMatrixCopy } from "@/lib/pseo/matrix-copy"
@@ -74,11 +73,7 @@ export async function generateMetadata({
     categoryName: category.name,
     total,
   })
-  const canonical = pseoCanonicalForTotal(
-    usecaseCategoryPath(slug, categorySlug),
-    usecasePath(slug),
-    total,
-  )
+  const canonical = usecaseCategoryPath(slug, categorySlug)
 
   return {
     ...buildPageMetadata({
@@ -89,7 +84,7 @@ export async function generateMetadata({
       openGraph: { title, description },
       twitter: { title, description },
     }),
-    robots: pseoRobotsForTotal(total),
+    robots: PSEO_INTERSECTION_ROBOTS,
   }
 }
 

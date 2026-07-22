@@ -13,6 +13,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildProfilePageJsonLd } from "@/lib/seo/profile-page"
 import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
 import { HOME_PATH, USERS_PATH, userPath } from "@/lib/routes"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/seo/indexing"
 
 export async function generateStaticParams() {
   const users = await getPublicUsersWithCounts()
@@ -44,21 +45,24 @@ export async function generateMetadata(
       fallbackDescription,
     ) ?? fallbackDescription
 
-  return buildPageMetadata({
-    title: fullName,
-    section: "Profile",
-    description,
-    canonical: relativeUrl,
-    openGraph: {
-      url: relativeUrl,
-      type: "profile",
+  return {
+    ...buildPageMetadata({
+      title: fullName,
+      section: "Profile",
       description,
-    },
-    twitter: {
-      card: "summary",
-      description,
-    },
-  })
+      canonical: relativeUrl,
+      openGraph: {
+        url: relativeUrl,
+        type: "profile",
+        description,
+      },
+      twitter: {
+        card: "summary",
+        description,
+      },
+    }),
+    robots: NOINDEX_FOLLOW_ROBOTS,
+  }
 }
 
 export default function MakerProfilePage(

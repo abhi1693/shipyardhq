@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useRef, type CSSProperties } from "react"
+import { usePathname } from "next/navigation"
 
+import { isAdsensePublisherContentPath } from "@/lib/adsense/placement"
 import { cn } from "@/lib/utils"
 
 declare global {
@@ -42,7 +44,9 @@ export function GoogleAdsenseUnit({
   fullWidthResponsive,
   style,
 }: GoogleAdsenseUnitProps) {
+  const pathname = usePathname()
   const adRef = useRef<HTMLModElement | null>(null)
+  const isPublisherContentPage = isAdsensePublisherContentPath(pathname)
   const isDisplay = variant === "display"
   const normalizedSlot = (
     slot ?? (isDisplay ? ADSENSE_DISPLAY_SLOT : ADSENSE_IN_FEED_SLOT)
@@ -72,7 +76,7 @@ export function GoogleAdsenseUnit({
   )
 
   useEffect(() => {
-    if (!ADSENSE_CLIENT || !normalizedSlot) return
+    if (!isPublisherContentPage || !ADSENSE_CLIENT || !normalizedSlot) return
     const adElement = adRef.current
     if (!adElement) return
     if (
@@ -104,9 +108,9 @@ export function GoogleAdsenseUnit({
     } catch {
       // Ad blockers and local previews can throw here; the page should continue.
     }
-  }, [adIdentity, normalizedSlot])
+  }, [adIdentity, isPublisherContentPage, normalizedSlot])
 
-  if (!ADSENSE_CLIENT || !normalizedSlot) {
+  if (!isPublisherContentPage || !ADSENSE_CLIENT || !normalizedSlot) {
     return null
   }
 
