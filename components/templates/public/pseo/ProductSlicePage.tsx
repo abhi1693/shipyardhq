@@ -3,6 +3,7 @@ import { Compass } from "lucide-react"
 
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { DirectoryFilterControls } from "@/components/molecules/DirectoryFilterControls"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
 import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
@@ -31,7 +32,6 @@ import { pricingModelSlugFromValue } from "@/lib/pricing/models"
 import { resolveProductCategories } from "@/lib/products/categories"
 import { productTypeSlugFromValue } from "@/lib/product-types/models"
 import { buildQuery } from "@/lib/urlParams"
-import { cn } from "@/lib/utils"
 import {
   buildPseoSearchParams,
   buildDirectoryFaq,
@@ -385,39 +385,24 @@ export function ProductSlicePage({
     ? `${BROWSE_PATH}?${browseParams.toString()}`
     : BROWSE_PATH
   const filterControls = (
-    <div className="rounded-lg border border-[#e2e8f0] bg-white p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        {pseoSortOptions.map((option) => (
-          <Link
-            key={option.value}
-            href={buildPath({ sort: option.value })}
-            className={cn(
-              "rounded-lg border px-3 py-2 text-sm font-semibold transition",
-              option.value === parsed.sort
-                ? "border-[#0051d5] bg-[#0051d5] text-white"
-                : "border-[#e2e8f0] bg-white text-[#0b1c30] hover:bg-[#f8fafc]",
-            )}
-          >
-            {option.label}
-          </Link>
-        ))}
-        {parsed.verified ? (
-          <Link
-            href={buildPath({ verified: null })}
-            className="ml-auto rounded-lg border border-[#e2e8f0] px-3 py-2 text-sm font-semibold text-[#0b1c30] transition hover:bg-[#f8fafc]"
-          >
-            Show all makers
-          </Link>
-        ) : (
-          <Link
-            href={buildPath({ verified: "true" })}
-            className="ml-auto rounded-lg border border-[#e2e8f0] px-3 py-2 text-sm font-semibold text-[#0b1c30] transition hover:bg-[#f8fafc]"
-          >
-            Verified only
-          </Link>
-        )}
-      </div>
-    </div>
+    <DirectoryFilterControls
+      options={pseoSortOptions.map((option) => ({
+        ...option,
+        href: buildPath({ sort: option.value }),
+        active: option.value === parsed.sort,
+      }))}
+      secondary={
+        parsed.verified
+          ? {
+              href: buildPath({ verified: null }),
+              label: "Show all makers",
+            }
+          : {
+              href: buildPath({ verified: "true" }),
+              label: "Verified only",
+            }
+      }
+    />
   )
   const feed = (
     <div className="space-y-6">

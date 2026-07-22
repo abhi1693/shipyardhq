@@ -287,11 +287,14 @@ describe("breadcrumb structured data", () => {
 })
 
 describe("crawler directives", () => {
-  it("blocks redirect tracking paths from robots.txt", () => {
+  it("blocks private, tracking, and faceted browse paths from robots.txt", () => {
     const rules = robots().rules
     const publicRule = Array.isArray(rules) ? rules[0] : rules
 
     expect(publicRule.disallow).toContain("/r/")
+    expect(publicRule.disallow).toContain("/browse?")
+    expect(publicRule.disallow).toContain("/*?*sort=")
+    expect(publicRule.disallow).toContain("/*?*verified=")
     expect(publicRule.disallow).not.toContain("/_next/static/")
   })
 

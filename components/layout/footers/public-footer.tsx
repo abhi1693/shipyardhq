@@ -23,7 +23,7 @@ const footerColumns = [
     links: [
       { label: "Ship a Product", href: MEMBER_PRODUCTS_ADD_PATH },
       { label: "Pricing", href: PRICING_PATH },
-      { label: "Why Shipyard", href: WHY_SHIPYARD_PATH },
+      { label: "Product Hunt Alternative", href: WHY_SHIPYARD_PATH },
       { label: "Analytics", href: ANALYTICS_PATH },
     ],
   },

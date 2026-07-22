@@ -19,9 +19,9 @@ const FEATURES = [
   {
     key: "backlink",
     name: "Backlink",
-    displayName: "Do-follow product backlink",
+    displayName: "Direct product website link",
     description:
-      "Adds a direct crawlable link from the Shipyard product page to the product website.",
+      "Adds a direct sponsored link from the Shipyard product page to the product website.",
   },
   {
     key: "product.sitemap",

@@ -6,8 +6,6 @@ import {
   IconChecklist,
   IconClockHour4,
   IconCurrencyDollarOff,
-  IconLinkOff,
-  IconSparkles,
   IconUsersGroup,
 } from "@tabler/icons-react"
 
@@ -34,49 +32,49 @@ type FeatureCard = {
 
 const HERO_FEATURES: FeatureCard[] = [
   {
+    icon: IconCurrencyDollarOff,
+    title: "Start with a free listing",
+    description:
+      "Publish an app, SaaS tool, API, AI product, or startup without paying for a standard listing.",
+  },
+  {
+    icon: IconAnchor,
+    title: "Add a direct website link",
+    description:
+      "Eligible paid plans give interested visitors a direct path from your permanent Shipyard product page to your website.",
+  },
+  {
     icon: IconChartArrows,
-    title: "Momentum is filtered, not gamed",
+    title: "Measure discovery",
     description:
-      "Discovery filters and quality checks keep default feeds focused on launches with clear value, not whoever spams the feed.",
-  },
-  {
-    icon: IconChecklist,
-    title: "Launch tooling built in",
-    description:
-      "Checklists, asset templates, and automated reminders keep your team aligned before, during, and after launch day.",
-  },
-  {
-    icon: IconUsersGroup,
-    title: "Community that converts",
-    description:
-      "Shipyard's audience is a focused community of builders, investors, and operators actively looking for new products to champion.",
+      "Track product visits, votes, rankings, traffic trends, and crawler attention from the same launch dashboard.",
   },
 ]
 
 const CORE_REASONS: FeatureCard[] = [
   {
-    icon: IconAnchor,
-    title: "Signal-first discovery",
+    icon: IconUsersGroup,
+    title: "Multiple discovery paths",
     description:
-      "Quality filters and contextual tagging keep your product in front of the right audience, not lost in a sea of noise.",
+      "Eligible launches can appear in the homepage feed, Browse, leaderboards, categories, use cases, platforms, and product-type directories.",
+  },
+  {
+    icon: IconChecklist,
+    title: "Search-readable listing data",
+    description:
+      "Canonical metadata, structured data, XML sitemaps, and readable product details give each approved listing a consistent search footprint.",
   },
   {
     icon: IconChartArrows,
-    title: "Analytics you can act on",
+    title: "Analytics beside the listing",
     description:
-      "Pair real-time analytics with audience context so you know which message, channel, or offer to ship next.",
+      "See how people and crawlers reach your product without separating launch placement from its performance data.",
   },
   {
-    icon: IconUsersGroup,
-    title: "Launch specialists on call",
+    icon: IconAnchor,
+    title: "A clear path to your product",
     description:
-      "Dedicated launch specialists help you refine messaging, prep assets, and unlock promotions when you are ready to scale visibility.",
-  },
-  {
-    icon: IconSparkles,
-    title: "Promotion on your terms",
-    description:
-      "Upgrade placements instantly with sponsored placements and leaderboard boosts without rebuilding your listing.",
+      "A paid direct website link helps turn directory discovery into qualified product visits without making unrealistic SEO promises.",
   },
 ]
 
@@ -92,22 +90,22 @@ type MakerSwitchReason = {
 
 const MAKER_SWITCH_REASONS: MakerSwitchReason[] = [
   {
-    icon: IconClockHour4,
-    title: "Launch on your schedule",
-    description:
-      "Other directories left us waiting months for a slot or forced a paid fast pass. Shipyard lets you launch the moment you're ready with no queue and no artificial windows.",
-  },
-  {
     icon: IconCurrencyDollarOff,
-    title: "No paywalls to get noticed",
+    title: "Free is a real starting point",
     description:
-      "Pay-to-play queues bury smaller teams. Shipyard keeps placement merit-based, so you upgrade only when you want extra reach, not to be seen at all.",
+      "A free launch includes a public product page, standard directory discovery, starter analytics, and sitemap eligibility.",
   },
   {
-    icon: IconLinkOff,
-    title: "Analytics without extra tooling",
+    icon: IconClockHour4,
+    title: "Discovery can outlive launch day",
     description:
-      "We built {link} so your launch intelligence lives beside your listing: traffic, AI crawler attention, and discovery trends without another dashboard.",
+      "Product, category, use-case, alternative, and leaderboard pages give a listing more than one route back into discovery.",
+  },
+  {
+    icon: IconChartArrows,
+    title: "Measure before you promote",
+    description:
+      "Use {link} to review visits, traffic composition, and discovery trends before deciding whether additional placement is worthwhile.",
     highlight: {
       label: "Shipyard Analytics",
       href: ANALYTICS_PATH,
@@ -117,58 +115,58 @@ const MAKER_SWITCH_REASONS: MakerSwitchReason[] = [
 
 const COMPARISON_POINTS = [
   {
-    feature: "Discovery quality",
+    feature: "Standard listing",
     shipyard:
-      "Quality filters, daily showcases, and audience segmentation surface launches buyers trust.",
+      "A free public product page plus standard directory and launch-feed eligibility.",
     others:
-      "Open-submission feeds, limited context, and high noise floors that bury emerging teams.",
+      "Launch access, review rules, and free-listing benefits vary by platform.",
   },
   {
-    feature: "Launch preparation",
+    feature: "Discovery window",
     shipyard:
-      "Structured playbooks, reminder sequences, and collaborative workspaces keep teams in sync.",
+      "Listings remain connected to product, category, use-case, alternative, and leaderboard pages.",
     others:
-      "DIY planning across docs and chats with no support if a step slips.",
+      "A leaderboard-first launch can concentrate most attention into a short ranking window.",
   },
   {
-    feature: "Growth intelligence",
+    feature: "Search footprint",
     shipyard:
-      "Real-time analytics with campaign and referral context so you can see who showed up, what converted, and what to tweak next.",
+      "Canonical product data, structured markup, sitemap inclusion, related directory links, and a direct website link on eligible paid plans.",
     others:
-      "Basic view counters with no context on who showed up, why they bounced, or what to do about it.",
+      "Search visibility depends on each platform's product-page and indexing model.",
   },
   {
-    feature: "Post-launch momentum",
+    feature: "Measurement",
     shipyard:
-      "Ongoing community spotlights and syndication keep traction compounding.",
+      "Product visits, votes, rankings, traffic trends, and crawler attention live beside the launch.",
     others:
-      "After launch day your listing sinks down-page with little ongoing amplification.",
+      "Available analytics and attribution differ across launch platforms.",
   },
 ]
 
 const MOMENTUM_STEPS = [
   {
-    title: "Launch smarter",
+    title: "Publish the listing",
     detail:
-      "Plug into checklists, video templates, and positioning prompts so every asset you publish earns attention.",
+      "Add a clear name, tagline, description, website, categories, pricing, logo, screenshots, and maker details.",
   },
   {
-    title: "Convert faster",
+    title: "Earn discovery signals",
     detail:
-      "Analytics feedback loops help you iterate copy, pricing, and onboarding in hours, not weeks.",
+      "Use the public product page, launch feed, votes, rankings, and directory placement to learn what attracts attention.",
   },
   {
-    title: "Scale further",
+    title: "Promote with evidence",
     detail:
-      "Analytics highlights when to amplify reach, unlock premium placements the moment momentum spikes, and keep the spotlight on your product.",
+      "Review traffic and product interest first, then add featured placement only when extra reach supports a real launch goal.",
   },
 ]
 
-const PAGE_TITLE = "Why Shipyard"
+const PAGE_TITLE = "Product Hunt Alternative for Startup Launches"
 
 export const metadata = buildPageMetadata({
   title: PAGE_TITLE,
-  description: `Launch your app, SaaS tool, API, or startup product on ${BRAND_NAME} with focused discovery, rankings, analytics, and promotion tools.`,
+  description: `${BRAND_NAME} is a Product Hunt alternative where founders submit products free, keep a permanent directory page, and add paid promotion when ready.`,
   canonical: WHY_SHIPYARD_PATH,
 })
 
@@ -189,15 +187,19 @@ export default function WhyShipyardPage() {
       <div className="bg-[#f8fafc] text-[#0b1c30]">
         <section className="mx-auto max-w-[1200px] px-4 py-20 text-center md:px-6 md:py-24">
           <span className="inline-flex rounded-full bg-[#0051d5]/10 px-4 py-1 text-xs font-semibold uppercase text-[#0051d5]">
-            Why Shipyard
+            Product Hunt alternative
           </span>
           <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-bold leading-tight text-black md:text-6xl">
-            List where launches become lasting momentum.
+            A Product Hunt alternative built for lasting discovery.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-[#43474c] md:text-lg">
-            Shipyard is a launch platform for enduring growth: focused
-            discovery, guided preparation, and analytics that keep your team
-            focused on what moves the needle.
+            Submit your product for free, keep a permanent directory page,
+            appear across relevant discovery surfaces, and upgrade for more
+            reach and a direct website link when your launch is ready.
+            <span className="mt-3 block text-sm">
+              {BRAND_NAME} is independent and is not affiliated with Product
+              Hunt.
+            </span>
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="rounded-lg px-8">
@@ -224,8 +226,8 @@ export default function WhyShipyardPage() {
 
         <section className="mx-auto max-w-[1200px] px-4 py-20 md:px-6">
           <SectionHeader
-            title="Designed to outpace every other listing platform"
-            description="Every Shipyard workflow points toward traction: get discovered by the right audience, understand what resonates, and amplify momentum when it matters most."
+            title="What founders get from the Shipyard directory"
+            description="Shipyard combines a public product listing, multiple directory paths, launch signals, and analytics without requiring a paid standard submission."
           />
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
             {CORE_REASONS.map((reason) => (
@@ -235,10 +237,43 @@ export default function WhyShipyardPage() {
         </section>
 
         <section className="mx-auto max-w-[1200px] px-4 py-20 md:px-6">
+          <div className="rounded-xl border border-[#e2e8f0] bg-white px-6 py-12 shadow-sm md:px-12 md:py-16">
+            <div className="max-w-3xl">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+                From discovery to your website
+              </span>
+              <h2 className="mt-4 text-3xl font-bold leading-tight text-black md:text-4xl">
+                Turn your Shipyard listing into qualified product visits
+              </h2>
+              <div className="mt-6 space-y-4 text-base leading-7 text-[#43474c]">
+                <p>
+                  Eligible paid plans include a direct link from your public
+                  Shipyard product page to your website. People who discover
+                  your launch can move from the directory to your product in one
+                  click.
+                </p>
+                <p>
+                  Because the link comes with a paid placement, Shipyard marks
+                  it as sponsored for Google. It is designed to bring relevant
+                  visitors to your product, not promise a Domain Rating or
+                  search ranking boost.
+                </p>
+              </div>
+              <Link
+                href={PRICING_PATH}
+                className="mt-7 inline-flex text-sm font-semibold text-[#0051d5] underline-offset-4 hover:underline"
+              >
+                Compare plans with direct website links
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-[1200px] px-4 py-20 md:px-6">
           <div className="rounded-xl bg-black px-6 py-12 text-white md:px-12 md:py-16">
             <SectionHeader
-              title="Why makers switch to Shipyard"
-              description="These are the roadblocks we hit on other launch platforms, and the reasons Shipyard keeps the path to launch clear."
+              title="Why use Shipyard alongside Product Hunt"
+              description="Product Hunt can still be part of a launch. Shipyard adds an ongoing directory page, broader browse paths, and product-level measurement."
               inverted
             />
             <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -251,8 +286,8 @@ export default function WhyShipyardPage() {
 
         <section className="mx-auto max-w-[1200px] px-4 py-20 md:px-6">
           <SectionHeader
-            title="How Shipyard stacks up"
-            description="From the first teaser to the post-launch surge, Shipyard delivers the guidance, audience, and tooling other directories skip."
+            title="Shipyard compared with a launch-day-only model"
+            description="The useful difference is not a bigger claim. It is whether the listing stays discoverable, measurable, and free to start after launch day."
           />
           <div className="mt-12 overflow-x-auto rounded-xl border border-[#e2e8f0] bg-white shadow-sm">
             <table className="w-full min-w-[760px] border-collapse">
@@ -260,7 +295,7 @@ export default function WhyShipyardPage() {
                 <tr className="bg-[#f8fafc]">
                   <TableHead>Focus</TableHead>
                   <TableHead className="text-[#0051d5]">Shipyard</TableHead>
-                  <TableHead>Other directories</TableHead>
+                  <TableHead>Single-day launch model</TableHead>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e2e8f0]">
@@ -284,8 +319,8 @@ export default function WhyShipyardPage() {
 
         <section className="mx-auto max-w-[1200px] px-4 py-20 md:px-6">
           <SectionHeader
-            title="A launch loop that keeps compounding"
-            description="The Shipyard flywheel gives you clarity at every stage: before launch, while the spotlight shines, and long after the initial wave."
+            title="A practical path from free listing to paid reach"
+            description="Publish complete product data, observe real discovery signals, and only then decide whether extra placement is worth buying."
           />
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
             {MOMENTUM_STEPS.map((step, index) => (
@@ -300,11 +335,11 @@ export default function WhyShipyardPage() {
               Keep momentum
             </span>
             <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-bold leading-tight text-black md:text-5xl">
-              Ready to plan your next launch?
+              Ready to submit your product?
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#43474c] md:text-lg">
-              Publish once, keep momentum rolling, and promote on your terms
-              from first launch to repeat features.
+              Start with a free public listing. Add paid visibility later only
+              if the product and timing are ready.
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
               <Button asChild size="lg" className="rounded-lg px-10">

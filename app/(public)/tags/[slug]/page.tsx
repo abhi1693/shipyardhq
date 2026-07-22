@@ -42,6 +42,10 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 export async function generateStaticParams() {
   const tags = await getKeywordTagSummaries()
 
+  if (tags.length === 0) {
+    return [{ slug: "build-validation" }]
+  }
+
   return tags.map((tag) => ({
     slug: tag.slug,
   }))

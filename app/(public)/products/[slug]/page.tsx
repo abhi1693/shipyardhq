@@ -481,7 +481,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
     : null
-  const hasDofollowBacklink = Boolean(
+  const hasDirectWebsiteLink = Boolean(
     normalizedWebsiteUrl &&
     hasPlanFeature(sidebarProduct.plan, BACKLINK_PLAN_FEATURE_KEY),
   )
@@ -626,8 +626,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         name: "Verified status",
         value: isVerified ? "Verified" : "Not verified",
       },
-      ...(hasDofollowBacklink
-        ? [{ name: "Do-follow backlink", value: "Enabled" }]
+      ...(hasDirectWebsiteLink
+        ? [{ name: "Direct website link", value: "Enabled" }]
         : []),
       ...(hasAiSearchReadyProfile
         ? [{ name: "AI-search ready profile", value: "Enabled" }]
@@ -720,11 +720,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? ensureUrlHasSchema(product.metadata.videoUrl.trim())
     : null
   const websiteHref = normalizedWebsiteUrl
-    ? hasDofollowBacklink
+    ? hasDirectWebsiteLink
       ? normalizedWebsiteUrl
       : `/r/${product.slug}`
     : null
-  const websiteRel = hasDofollowBacklink ? "noopener" : "noopener noreferrer"
+  const websiteRel = hasDirectWebsiteLink
+    ? "noopener sponsored"
+    : "noopener noreferrer"
   const videoHref = normalizedVideoUrl
   const leaderboardPoints =
     typeof leaderboardScore?.score === "number" ? leaderboardScore.score : 0

@@ -5,7 +5,6 @@ import {
   MousePointerClick,
   Rocket,
   Search,
-  Sparkles,
   TrendingUp,
   Trophy,
 } from "lucide-react"
@@ -44,12 +43,12 @@ import { HOMEPAGE_INITIAL_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import type { ProductCategorySummary } from "@/lib/products/categories"
 import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
 
-const HOMEPAGE_TITLE = `${BRAND_NAME} - Launch Products Builders Discover`
+const HOMEPAGE_TITLE = "Submit Your Product to a Launch Directory"
 const PRICING_PLANS_PATH = `${PRICING_PATH}#plans` as const
 
 export const metadata = buildPageMetadata({
   title: HOMEPAGE_TITLE,
-  description: `${BRAND_NAME} helps founders launch apps, SaaS tools, APIs, and startup projects with focused discovery, rankings, promotion, and analytics.`,
+  description: `Submit your app, SaaS, AI tool, API, or startup to ${BRAND_NAME}'s product launch directory. Start free, then add promotion and a direct website link.`,
   canonical: HOME_PATH,
 })
 
@@ -98,9 +97,9 @@ const HOMEPAGE_VISIBILITY_OPTIONS = [
     body: "Publish your product, join the launch feed, and collect early signals before deciding whether extra reach makes sense.",
   },
   {
-    icon: Sparkles,
-    title: "Add reach when timing matters",
-    body: "Featured and priority placements help launch-ready products stay visible during the window you care about most.",
+    icon: TrendingUp,
+    title: "Send buyers straight to your product",
+    body: "Paid plans add a direct website link from your public product page, giving interested visitors a clear path from discovery to your site.",
   },
   {
     icon: BarChart3,
@@ -188,12 +187,13 @@ function HomepageHero() {
           </span>
         </div>
         <h1 className="mx-auto mb-5 max-w-4xl text-[38px] font-bold leading-[1.08] tracking-tight text-black md:text-[58px]">
-          Launch your product where builders are already browsing.
+          Submit your product. Get discovered beyond launch day.
         </h1>
         <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-[#43474c]">
-          {BRAND_NAME} is a live launch board for apps, SaaS tools, APIs, and
-          startup projects. Submit your product, earn votes and product visits,
-          then add more reach only when the launch is ready for it.
+          {BRAND_NAME} is a product launch directory for apps, SaaS tools, APIs,
+          AI products, and startup projects. Publish a free listing, earn votes
+          and product visits, then upgrade for more reach, deeper insights, and
+          a direct website link when the timing is right.
         </p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
@@ -217,6 +217,8 @@ function HomepageHero() {
           <span>Votes and measured visits</span>
           <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
           <span>Optional visibility boosts</span>
+          <span className="hidden h-1 w-1 rounded-full bg-[#CBD5E1] sm:block" />
+          <span>Direct website link on paid plans</span>
         </div>
       </div>
     </section>
@@ -252,6 +254,10 @@ export default function HomePage() {
           {
             title: "Freshness policy",
             body: "Homepage launch data revalidates frequently and updates as products are published, voted on, promoted, ranked, or refreshed in the public launch feed.",
+          },
+          {
+            title: "Do listings link to my website?",
+            body: `Yes. Every listing helps people reach your product, and eligible paid plans include a direct website link from the public ${BRAND_NAME} product page. Because it is part of a paid placement, Shipyard labels the direct link as sponsored for Google rather than promising a Domain Rating or ranking boost.`,
           },
         ]}
       />
@@ -531,7 +537,8 @@ function HomepageWhyExistsSection() {
             </p>
             <p>
               Start free. If a launch is ready for more visibility, paid plans
-              add reach around the same surfaces builders are already using.
+              add reach around the same surfaces builders are already using and
+              a direct website link from the public product page.
             </p>
           </div>
         </div>
@@ -581,7 +588,8 @@ function HomepageVisibilityOptionsSection() {
           <p className="mt-4 max-w-lg text-sm leading-6 text-[#D0E4FF]">
             Paid plans should feel like launch acceleration, not a toll booth:
             use them when you want a longer visibility window, stronger
-            placement, or deeper analytics for a product that is ready.
+            placement, a direct product backlink, or deeper analytics for a
+            product that is ready.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button

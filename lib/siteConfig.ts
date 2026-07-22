@@ -40,7 +40,7 @@ export const siteSeoKeywords = [
 
 export const siteConfig = {
   name: BRAND_NAME,
-  tagline: "Launch products builders can discover, rank, and trust.",
+  tagline: "Product launch directory for apps, SaaS, and startups.",
   description: `${BRAND_NAME} helps founders launch apps, SaaS tools, APIs, and startup projects with focused discovery, rankings, promotion, and traction analytics.`,
   keywords: [...siteSeoKeywords],
   url: SITE_URL,

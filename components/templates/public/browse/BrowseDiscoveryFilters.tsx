@@ -132,6 +132,7 @@ function FilterOptionSection({
   activeValue,
   paramName,
   filterHref,
+  navigate,
   searchPlaceholder,
   getUpdates,
 }: {
@@ -140,6 +141,7 @@ function FilterOptionSection({
   activeValue?: string
   paramName: string
   filterHref: FilterHrefBuilder
+  navigate: (href: string) => void
   searchPlaceholder: string
   getUpdates?: (
     item: FilterOption,
@@ -185,16 +187,17 @@ function FilterOptionSection({
       >
         {filteredOptions.map((item) => {
           const active = activeValue === item.value
+          const href = filterHref({
+            [paramName]: active ? undefined : item.value,
+            ...getUpdates?.(item, active),
+          })
           return (
-            <Link
+            <button
               key={item.value}
-              scroll={false}
-              rel="nofollow"
-              href={filterHref({
-                [paramName]: active ? undefined : item.value,
-                ...getUpdates?.(item, active),
-              })}
-              className="flex items-center justify-between gap-3 rounded-md px-1 py-1.5 transition hover:bg-[#f8fafc]"
+              type="button"
+              aria-pressed={active}
+              onClick={() => navigate(href)}
+              className="flex w-full items-center justify-between gap-3 rounded-md px-1 py-1.5 text-left transition hover:bg-[#f8fafc]"
             >
               <span className="flex min-w-0 items-center gap-3">
                 <span
@@ -216,7 +219,7 @@ function FilterOptionSection({
                   {item.label}
                 </span>
               </span>
-            </Link>
+            </button>
           )
         })}
       </div>
@@ -406,14 +409,13 @@ function PriceRangeSelector({
 
         {active && !disabled ? (
           <div className="mt-2 flex justify-end">
-            <Link
-              scroll={false}
-              rel="nofollow"
-              href={clearHref}
+            <button
+              type="button"
+              onClick={() => router.replace(clearHref, { scroll: false })}
               className="text-xs font-bold text-[#0051d5] underline-offset-4 hover:underline"
             >
               Clear
-            </Link>
+            </button>
           </div>
         ) : null}
         {disabled ? (
@@ -432,6 +434,7 @@ export function BrowseDiscoveryFilters({
   current,
   hasActiveFilters,
 }: BrowseDiscoveryFiltersProps) {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [categoryQuery, setCategoryQuery] = useState("")
   const [useCaseQuery, setUseCaseQuery] = useState("")
@@ -455,6 +458,7 @@ export function BrowseDiscoveryFilters({
   const filterHref = (
     updates: Record<string, string | undefined | null | false>,
   ) => buildQuery(BROWSE_PATH, qs, { ...updates, page: undefined })
+  const navigate = (href: string) => router.push(href, { scroll: false })
 
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
@@ -500,15 +504,19 @@ export function BrowseDiscoveryFilters({
                 const active = current.category === item.slug
                 const count = item._count?.products ?? 0
                 return (
-                  <Link
+                  <button
                     key={item.slug}
-                    scroll={false}
-                    rel="nofollow"
-                    href={filterHref({
-                      category: active ? undefined : item.slug,
-                      useCase: undefined,
-                    })}
-                    className="flex items-center justify-between gap-3 rounded-md px-1 py-1.5 transition hover:bg-[#f8fafc]"
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      navigate(
+                        filterHref({
+                          category: active ? undefined : item.slug,
+                          useCase: undefined,
+                        }),
+                      )
+                    }
+                    className="flex w-full items-center justify-between gap-3 rounded-md px-1 py-1.5 text-left transition hover:bg-[#f8fafc]"
                   >
                     <span className="flex min-w-0 items-center gap-3">
                       <span
@@ -533,7 +541,7 @@ export function BrowseDiscoveryFilters({
                     <span className="shrink-0 text-[10px] font-bold text-[#43474c]">
                       {count.toLocaleString("en-US")}
                     </span>
-                  </Link>
+                  </button>
                 )
               })}
             </div>
@@ -571,15 +579,19 @@ export function BrowseDiscoveryFilters({
               {filteredUseCases.map((item) => {
                 const active = current.useCase === item.slug
                 return (
-                  <Link
+                  <button
                     key={item.slug}
-                    scroll={false}
-                    rel="nofollow"
-                    href={filterHref({
-                      useCase: active ? undefined : item.slug,
-                      category: undefined,
-                    })}
-                    className="flex items-center justify-between gap-3 rounded-md px-1 py-1.5 transition hover:bg-[#f8fafc]"
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      navigate(
+                        filterHref({
+                          useCase: active ? undefined : item.slug,
+                          category: undefined,
+                        }),
+                      )
+                    }
+                    className="flex w-full items-center justify-between gap-3 rounded-md px-1 py-1.5 text-left transition hover:bg-[#f8fafc]"
                   >
                     <span className="flex min-w-0 items-center gap-3">
                       <span
@@ -604,7 +616,7 @@ export function BrowseDiscoveryFilters({
                     <span className="shrink-0 text-[10px] font-bold text-[#43474c]">
                       {item.productCount.toLocaleString("en-US")}
                     </span>
-                  </Link>
+                  </button>
                 )
               })}
             </div>
@@ -618,6 +630,7 @@ export function BrowseDiscoveryFilters({
             activeValue={current.productType}
             paramName="productType"
             filterHref={filterHref}
+            navigate={navigate}
             searchPlaceholder="Search product types..."
           />
 
@@ -629,6 +642,7 @@ export function BrowseDiscoveryFilters({
             activeValue={current.pricingModel}
             paramName="pricingModel"
             filterHref={filterHref}
+            navigate={navigate}
             searchPlaceholder="Search pricing..."
             getUpdates={(item, active) =>
               item.value === "free" && !active
@@ -655,6 +669,7 @@ export function BrowseDiscoveryFilters({
             activeValue={current.platform}
             paramName="platform"
             filterHref={filterHref}
+            navigate={navigate}
             searchPlaceholder="Search platforms..."
           />
 
@@ -666,20 +681,22 @@ export function BrowseDiscoveryFilters({
               {sortOptions.map(({ value, label, Icon }) => {
                 const active = current.sort === value
                 return (
-                  <Link
+                  <button
                     key={value}
-                    scroll={false}
-                    rel="nofollow"
-                    href={filterHref({ sort: active ? undefined : value })}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      navigate(filterHref({ sort: active ? undefined : value }))
+                    }
                     className={
                       active
-                        ? "flex items-center gap-3 rounded-md bg-[#10b981]/10 p-2 text-sm font-bold text-[#047857]"
-                        : "flex items-center gap-3 rounded-md p-2 text-sm font-medium text-[#43474c] transition hover:bg-[#f8fafc] hover:text-[#061d31]"
+                        ? "flex w-full items-center gap-3 rounded-md bg-[#10b981]/10 p-2 text-left text-sm font-bold text-[#047857]"
+                        : "flex w-full items-center gap-3 rounded-md p-2 text-left text-sm font-medium text-[#43474c] transition hover:bg-[#f8fafc] hover:text-[#061d31]"
                     }
                   >
                     <Icon className="h-4 w-4" aria-hidden />
                     {label}
-                  </Link>
+                  </button>
                 )
               })}
             </div>
@@ -693,6 +710,7 @@ export function BrowseDiscoveryFilters({
             activeValue={current.badge}
             paramName="badge"
             filterHref={filterHref}
+            navigate={navigate}
             searchPlaceholder="Search badges..."
           />
 
