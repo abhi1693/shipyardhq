@@ -5,6 +5,10 @@ import { stableUnitInterval } from "@/lib/stable-random"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
+import {
+  buildCatalogQueryCacheKey,
+  cacheCatalogQuery,
+} from "@/lib/server/catalog-query-cache"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import {
   buildActivePlacementPlanFilter,
@@ -114,37 +118,43 @@ export async function getTopCategories(limit = 12) {
   "use cache"
   applyCache([TAGS.categories], DEFAULT_TTL.slow)
 
-  const categories = await prisma.category.findMany({
-    orderBy: {
-      productAssignments: {
-        _count: "desc",
-      },
-    },
-    take: limit,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      icon: true,
-      _count: {
-        select: {
-          productAssignments: true,
+  return cacheCatalogQuery({
+    key: buildCatalogQueryCacheKey("top-categories", { limit }),
+    ttlSeconds: DEFAULT_TTL.slow,
+    loader: async () => {
+      const categories = await prisma.category.findMany({
+        orderBy: {
+          productAssignments: {
+            _count: "desc",
+          },
         },
-      },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          icon: true,
+          _count: {
+            select: {
+              productAssignments: true,
+            },
+          },
+        },
+      })
+
+      return categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        _count: {
+          products: category._count.productAssignments,
+        },
+      }))
     },
   })
-
-  return categories.map((category) => ({
-    id: category.id,
-    name: category.name,
-    slug: category.slug,
-    description: category.description,
-    icon: category.icon,
-    _count: {
-      products: category._count.productAssignments,
-    },
-  }))
 }
 
 // Get featured products filtered by category slug

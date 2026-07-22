@@ -11,6 +11,10 @@ import {
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
+import {
+  buildCatalogQueryCacheKey,
+  cacheCatalogQuery,
+} from "@/lib/server/catalog-query-cache"
 import { hasEditorPickBadge } from "@/lib/products/badges"
 import {
   buildPublicDiscoveryProductWhere,
@@ -122,39 +126,46 @@ export async function getCategoriesWithCounts() {
   "use cache"
   applyCache([TAGS.categories], DEFAULT_TTL.slow)
 
-  const categories = await prisma.category.findMany({
-    where: {
-      productAssignments: {
-        some: {
-          product: {
-            ...publicDiscoveryProductWhere,
-          },
-        },
-      },
-    },
-    orderBy: { name: "asc" },
-    include: {
-      _count: {
-        select: {
+  return cacheCatalogQuery({
+    key: buildCatalogQueryCacheKey("public-categories-with-counts"),
+    ttlSeconds: DEFAULT_TTL.slow,
+    loader: async () => {
+      const categories = await prisma.category.findMany({
+        where: {
           productAssignments: {
-            where: {
+            some: {
               product: {
                 ...publicDiscoveryProductWhere,
               },
             },
           },
         },
-      },
+        orderBy: { name: "asc" },
+        include: {
+          _count: {
+            select: {
+              productAssignments: {
+                where: {
+                  product: {
+                    ...publicDiscoveryProductWhere,
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return categories.map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        icon: cat.icon,
+        count: cat._count.productAssignments,
+      }))
     },
   })
-  return categories.map((cat) => ({
-    id: cat.id,
-    name: cat.name,
-    slug: cat.slug,
-    description: cat.description,
-    icon: cat.icon,
-    count: cat._count.productAssignments,
-  }))
 }
 
 export type CategoryHighlight = {
@@ -174,19 +185,24 @@ export async function getCategoryHighlights(
     return [] satisfies CategoryHighlight[]
   }
 
-  const rows = await prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
-      SELECT c."id", c."name", c."slug"
-      FROM "Category" c
-      INNER JOIN "ProductCategory" pc ON pc."categoryId" = c."id"
-      INNER JOIN "Product" p ON p."id" = pc."productId"
-      WHERE p."status" = 'published'
-        ${buildPublicDiscoverySqlFilter("p")}
-      GROUP BY c."id", c."name", c."slug"
-      ORDER BY COUNT(DISTINCT p."id") DESC, c."name" ASC
-      LIMIT ${safeLimit}
-    `)
-
-  return rows
+  return cacheCatalogQuery({
+    key: buildCatalogQueryCacheKey("category-highlights", {
+      limit: safeLimit,
+    }),
+    ttlSeconds: DEFAULT_TTL.slow,
+    loader: () =>
+      prisma.$queryRaw<CategoryHighlight[]>(Prisma.sql`
+        SELECT c."id", c."name", c."slug"
+        FROM "Category" c
+        INNER JOIN "ProductCategory" pc ON pc."categoryId" = c."id"
+        INNER JOIN "Product" p ON p."id" = pc."productId"
+        WHERE p."status" = 'published'
+          ${buildPublicDiscoverySqlFilter("p")}
+        GROUP BY c."id", c."name", c."slug"
+        ORDER BY COUNT(DISTINCT p."id") DESC, c."name" ASC
+        LIMIT ${safeLimit}
+      `),
+  })
 }
 
 export async function getCategoryMeta(slug: string) {

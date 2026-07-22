@@ -13,6 +13,10 @@ import {
   getPriorityPlacementPlanIds,
 } from "@/lib/products/priority-plans"
 import { getCurrentScoreMap } from "@/lib/products/leaderboard-scores"
+import {
+  buildCatalogQueryCacheKey,
+  cacheCatalogQuery,
+} from "@/lib/server/catalog-query-cache"
 
 const useCaseProductSelect = productCardSelect satisfies Prisma.ProductSelect
 
@@ -111,28 +115,32 @@ export async function getPublicUseCasesWithCounts(): Promise<UseCaseSummary[]> {
   "use cache"
   applyCache([TAGS.useCases], DEFAULT_TTL.slow)
 
-  const useCases = await prisma.useCase.findMany({
-    orderBy: { label: "asc" },
-    select: {
-      id: true,
-      label: true,
-      slug: true,
-      updatedAt: true,
+  return cacheCatalogQuery({
+    key: buildCatalogQueryCacheKey("public-use-cases-with-counts"),
+    ttlSeconds: DEFAULT_TTL.slow,
+    loader: async () => {
+      const useCases = await prisma.useCase.findMany({
+        orderBy: { label: "asc" },
+        select: {
+          id: true,
+          label: true,
+          slug: true,
+          updatedAt: true,
+        },
+      })
+
+      if (useCases.length === 0) return []
+
+      const productCountsByUseCase = await getPublishedProductCountsByUseCase()
+      return useCases.map((useCase) => ({
+        id: useCase.id,
+        slug: useCase.slug,
+        label: useCase.label,
+        updatedAt: useCase.updatedAt,
+        productCount: productCountsByUseCase.get(useCase.id) ?? 0,
+      }))
     },
   })
-
-  if (useCases.length === 0) return []
-
-  const productCountsByUseCase = await getPublishedProductCountsByUseCase()
-  const results = useCases.map((useCase) => ({
-    id: useCase.id,
-    slug: useCase.slug,
-    label: useCase.label,
-    updatedAt: useCase.updatedAt,
-    productCount: productCountsByUseCase.get(useCase.id) ?? 0,
-  }))
-
-  return results
 }
 
 export async function getUseCaseHighlights(
@@ -146,20 +154,25 @@ export async function getUseCaseHighlights(
     return [] satisfies UseCaseHighlight[]
   }
 
-  const rows = await prisma.$queryRaw<UseCaseHighlight[]>(Prisma.sql`
-      SELECT uc."id", uc."label", uc."slug"
-      FROM "UseCase" uc
-      INNER JOIN "UseCaseCategory" ucc ON ucc."useCaseId" = uc."id"
-      INNER JOIN "ProductCategory" pc ON pc."categoryId" = ucc."categoryId"
-      INNER JOIN "Product" p ON p."id" = pc."productId"
-      WHERE p."status" = 'published'
-      ${buildPublicDiscoverySqlFilter("p")}
-      GROUP BY uc."id", uc."label", uc."slug"
-      ORDER BY COUNT(DISTINCT p."id") DESC, uc."label" ASC
-      LIMIT ${safeLimit}
-    `)
-
-  return rows
+  return cacheCatalogQuery({
+    key: buildCatalogQueryCacheKey("use-case-highlights", {
+      limit: safeLimit,
+    }),
+    ttlSeconds: DEFAULT_TTL.slow,
+    loader: () =>
+      prisma.$queryRaw<UseCaseHighlight[]>(Prisma.sql`
+        SELECT uc."id", uc."label", uc."slug"
+        FROM "UseCase" uc
+        INNER JOIN "UseCaseCategory" ucc ON ucc."useCaseId" = uc."id"
+        INNER JOIN "ProductCategory" pc ON pc."categoryId" = ucc."categoryId"
+        INNER JOIN "Product" p ON p."id" = pc."productId"
+        WHERE p."status" = 'published'
+        ${buildPublicDiscoverySqlFilter("p")}
+        GROUP BY uc."id", uc."label", uc."slug"
+        ORDER BY COUNT(DISTINCT p."id") DESC, uc."label" ASC
+        LIMIT ${safeLimit}
+      `),
+  })
 }
 
 export async function getPublicUseCaseMeta(slug: string) {
