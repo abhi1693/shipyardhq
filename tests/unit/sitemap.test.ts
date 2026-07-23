@@ -1,4 +1,28 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+const sitemapDataMocks = vi.hoisted(() => ({
+  getProductSitemapStats: vi.fn().mockResolvedValue({
+    total: 50_001,
+    lastUpdated: new Date("2026-07-22T00:00:00.000Z"),
+  }),
+  getAlternativeSitemapStats: vi.fn().mockResolvedValue({
+    total: 1,
+    lastUpdated: new Date("2026-07-21T00:00:00.000Z"),
+  }),
+  getKeywordTagSitemapStats: vi.fn().mockResolvedValue({
+    total: 50_001,
+    lastUpdated: new Date("2026-07-20T00:00:00.000Z"),
+  }),
+}))
+
+vi.mock("@/lib/server/sitemap-data", () => ({
+  getProductSitemapStats: sitemapDataMocks.getProductSitemapStats,
+  getAlternativeSitemapStats: sitemapDataMocks.getAlternativeSitemapStats,
+}))
+
+vi.mock("@/actions/public/tags/actions", () => ({
+  getKeywordTagSitemapStats: sitemapDataMocks.getKeywordTagSitemapStats,
+}))
 
 import { GET as getToolsSitemap } from "@/app/(sitemaps)/sitemap-tools.xml/route"
 import { GET as getSitemapIndex } from "@/app/(sitemaps)/sitemap.xml/route"
@@ -6,6 +30,7 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
   escapeXml,
   getSitemapShardCount,
+  getSitemapShardEntries,
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
   sitemapIndexXml,
@@ -27,6 +52,26 @@ describe("sitemap utilities", () => {
     expect(getSitemapShardCount(1)).toBe(1)
     expect(getSitemapShardCount(50000)).toBe(1)
     expect(getSitemapShardCount(50001)).toBe(2)
+  })
+
+  it("builds canonical leaf sitemap shard entries", () => {
+    expect(
+      getSitemapShardEntries({
+        base: "https://example.com/",
+        route: "/sitemap-products/",
+        total: 50_001,
+        lastmod: "2026-07-22T00:00:00.000Z",
+      }),
+    ).toEqual([
+      {
+        loc: "https://example.com/sitemap-products/1.xml",
+        lastmod: "2026-07-22T00:00:00.000Z",
+      },
+      {
+        loc: "https://example.com/sitemap-products/2.xml",
+        lastmod: "2026-07-22T00:00:00.000Z",
+      },
+    ])
   })
 
   it("validates shard indexes and ranges", () => {
@@ -86,5 +131,22 @@ describe("sitemap utilities", () => {
     for (const tool of FREE_SEO_TOOLS) {
       expect(toolsXml).toContain(`<loc>${base}${freeToolPath(tool.slug)}</loc>`)
     }
+  })
+
+  it("lists leaf shards instead of nesting sitemap indexes", async () => {
+    const indexXml = await (await getSitemapIndex()).text()
+    const base = resolveSiteUrl()
+
+    expect(indexXml).toContain(`<loc>${base}/sitemap-products/1.xml</loc>`)
+    expect(indexXml).toContain(`<loc>${base}/sitemap-products/2.xml</loc>`)
+    expect(indexXml).toContain(`<loc>${base}/sitemap-alternatives/1.xml</loc>`)
+    expect(indexXml).toContain(`<loc>${base}/sitemap-tags/1.xml</loc>`)
+    expect(indexXml).toContain(`<loc>${base}/sitemap-tags/2.xml</loc>`)
+
+    expect(indexXml).not.toContain(`<loc>${base}/sitemap-products.xml</loc>`)
+    expect(indexXml).not.toContain(
+      `<loc>${base}/sitemap-alternatives.xml</loc>`,
+    )
+    expect(indexXml).not.toContain(`<loc>${base}/sitemap-tags.xml</loc>`)
   })
 })

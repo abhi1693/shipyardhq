@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma"
+import { getAlternativeSitemapStats } from "@/lib/server/sitemap-data"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
-  getSitemapShardCount,
+  getSitemapShardEntries,
   sitemapIndexXml,
   sitemapResponse,
 } from "@/lib/sitemap"
@@ -9,23 +9,16 @@ import {
 export async function GET() {
   const base = resolveSiteUrl()
 
-  const [count, latest] = await Promise.all([
-    prisma.alternativeProduct.count(),
-    prisma.alternativeProduct.findFirst({
-      orderBy: { updatedAt: "desc" },
-      select: { updatedAt: true },
-    }),
-  ])
-
-  const chunks = getSitemapShardCount(count)
-  const lastmod = latest?.updatedAt?.toISOString()
+  const { total, lastUpdated } = await getAlternativeSitemapStats()
 
   return sitemapResponse(
     sitemapIndexXml(
-      Array.from({ length: chunks }, (_, index) => ({
-        loc: `${base}/sitemap-alternatives/${index + 1}.xml`,
-        lastmod,
-      })),
+      getSitemapShardEntries({
+        base,
+        route: "sitemap-alternatives",
+        total,
+        lastmod: lastUpdated,
+      }),
     ),
   )
 }

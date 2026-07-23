@@ -41,6 +41,26 @@ export function getSitemapShardCount(total: number) {
   return Math.ceil(total / SITEMAP_CHUNK_SIZE)
 }
 
+export function getSitemapShardEntries({
+  base,
+  route,
+  total,
+  lastmod,
+}: {
+  base: string
+  route: string
+  total: number
+  lastmod?: SitemapDate | null
+}): SitemapIndexEntry[] {
+  const normalizedBase = base.replace(/\/+$/, "")
+  const normalizedRoute = route.replace(/^\/+|\/+$/g, "")
+
+  return Array.from({ length: getSitemapShardCount(total) }, (_, index) => ({
+    loc: `${normalizedBase}/${normalizedRoute}/${index + 1}.xml`,
+    lastmod,
+  }))
+}
+
 export function parseSitemapShardIndex(value: string) {
   const page = Number(value)
   if (!Number.isInteger(page) || page < 1) return null

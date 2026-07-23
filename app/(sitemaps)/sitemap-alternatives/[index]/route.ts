@@ -1,6 +1,9 @@
 import { connection, type NextRequest } from "next/server"
 
-import prisma from "@/lib/prisma"
+import {
+  getAlternativeSitemapChunk,
+  getAlternativeSitemapStats,
+} from "@/lib/server/sitemap-data"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
   isSitemapShardOutOfRange,
@@ -26,18 +29,16 @@ export async function GET(
     return new Response("Invalid index", { status: 400 })
   }
 
-  const count = await prisma.alternativeProduct.count()
-  if (isSitemapShardOutOfRange(page, count)) {
+  const { total } = await getAlternativeSitemapStats()
+  if (isSitemapShardOutOfRange(page, total)) {
     return new Response("Sitemap shard not found", { status: 404 })
   }
 
   const skip = (page - 1) * SITEMAP_CHUNK_SIZE
-  const alternatives = await prisma.alternativeProduct.findMany({
-    orderBy: { updatedAt: "desc" },
-    select: { slug: true, updatedAt: true, createdAt: true },
+  const alternatives = await getAlternativeSitemapChunk(
     skip,
-    take: SITEMAP_CHUNK_SIZE,
-  })
+    SITEMAP_CHUNK_SIZE,
+  )
 
   const entries: SitemapUrlEntry[] = alternatives.map(
     (alternative: (typeof alternatives)[number]): SitemapUrlEntry => {

@@ -1,7 +1,7 @@
 import { getKeywordTagSitemapStats } from "@/actions/public/tags/actions"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
-  getSitemapShardCount,
+  getSitemapShardEntries,
   sitemapIndexXml,
   sitemapResponse,
 } from "@/lib/sitemap"
@@ -17,15 +17,16 @@ export async function GET() {
 
   const { total, lastUpdated } = await getKeywordTagSitemapStats()
 
-  const chunks = getSitemapShardCount(total)
-  const lastmod = coerceDate(lastUpdated)?.toISOString()
+  const lastmod = coerceDate(lastUpdated)
 
   return sitemapResponse(
     sitemapIndexXml(
-      Array.from({ length: chunks }, (_, index) => ({
-        loc: `${base}/sitemap-tags/${index + 1}.xml`,
+      getSitemapShardEntries({
+        base,
+        route: "sitemap-tags",
+        total,
         lastmod,
-      })),
+      }),
     ),
   )
 }

@@ -1,9 +1,10 @@
 import { connection, type NextRequest } from "next/server"
 
-import prisma from "@/lib/prisma"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  getProductSitemapChunk,
+  getProductSitemapStats,
+} from "@/lib/server/sitemap-data"
 import { resolveSiteUrl } from "@/lib/siteConfig"
-import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import {
   isSitemapShardOutOfRange,
   parseSitemapShardIndex,
@@ -13,10 +14,6 @@ import {
   type SitemapUrlEntry,
   urlsetXml,
 } from "@/lib/sitemap"
-
-type ProductSitemapEntry = Prisma.ProductGetPayload<{
-  select: { id: true; slug: true; updatedAt: true; publishedAt: true }
-}>
 
 export async function GET(
   _req: NextRequest,
@@ -31,38 +28,26 @@ export async function GET(
     return new Response("Invalid index", { status: 400 })
   }
 
-  const count = await prisma.product.count({
-    where: buildPublicDiscoveryProductWhere(),
-  })
-  if (isSitemapShardOutOfRange(page, count)) {
+  const { total } = await getProductSitemapStats()
+  if (isSitemapShardOutOfRange(page, total)) {
     return new Response("Sitemap shard not found", { status: 404 })
   }
 
   const skip = (page - 1) * SITEMAP_CHUNK_SIZE
-  const products = await prisma.product.findMany({
-    where: buildPublicDiscoveryProductWhere(),
-    select: { id: true, slug: true, updatedAt: true, publishedAt: true },
-    orderBy: { updatedAt: "desc" },
-    skip,
-    take: SITEMAP_CHUNK_SIZE,
+  const products = await getProductSitemapChunk(skip, SITEMAP_CHUNK_SIZE)
+
+  const entries: SitemapUrlEntry[] = products.map((p): SitemapUrlEntry => {
+    const last = p.updatedAt || p.publishedAt
+    const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000)
+    const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
+
+    return {
+      loc: `${base}/products/${p.slug}`,
+      lastmod: new Date(last),
+      changefreq: sitemapChangefreqForAge(days),
+      priority,
+    }
   })
-
-  const entries: SitemapUrlEntry[] = products.map(
-    (p: ProductSitemapEntry): SitemapUrlEntry => {
-      const last = p.updatedAt || p.publishedAt
-      const days = Math.floor(
-        (Date.now() - new Date(last).getTime()) / 86400000,
-      )
-      const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
-
-      return {
-        loc: `${base}/products/${p.slug}`,
-        lastmod: new Date(last),
-        changefreq: sitemapChangefreqForAge(days),
-        priority,
-      }
-    },
-  )
 
   return sitemapResponse(urlsetXml(entries))
 }

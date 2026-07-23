@@ -1,5 +1,3 @@
-import prisma from "@/lib/prisma"
-import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { GUIDE_SLUGS } from "@/lib/guides/catalog"
 import {
   ALTERNATIVES_PATH,
@@ -27,8 +25,8 @@ import {
 import { PLATFORM_SLUGS } from "@/lib/platforms/config"
 import { PRICING_MODEL_SLUGS } from "@/lib/pricing/models"
 import { PRODUCT_TYPE_SLUGS } from "@/lib/product-types/models"
-import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import { PSEO_MIN_INDEXABLE_PRODUCTS } from "@/lib/pseo/product-slices"
+import { getMainSitemapData } from "@/lib/server/sitemap-data"
 import { resolveSiteUrl } from "@/lib/siteConfig"
 import {
   sitemapChangefreqForAge,
@@ -70,23 +68,7 @@ export async function GET() {
   const base = resolveSiteUrl()
   const now = new Date()
 
-  const [categories, useCases] = await Promise.all([
-    prisma.category.findMany({
-      select: {
-        slug: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            productAssignments: {
-              where: { product: buildPublicDiscoveryProductWhere() },
-            },
-          },
-        },
-      },
-      orderBy: { updatedAt: "desc" },
-    }),
-    getPublicUseCasesWithCounts(),
-  ])
+  const { categories, useCases } = await getMainSitemapData()
 
   const entries: SitemapUrlEntry[] = [
     ...STATIC_ENTRIES.map(({ path, changefreq, priority }) => ({
