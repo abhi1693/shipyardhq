@@ -23,6 +23,7 @@ export type BreadcrumbListStructuredData = {
     item: {
       "@type": string
       "@id": string
+      name: string
     }
   }>
 }
@@ -94,6 +95,7 @@ export function buildBreadcrumbListStructuredData(
       item: {
         "@type": itemType,
         "@id": entry.item,
+        name: entry.name,
       },
     })),
   }

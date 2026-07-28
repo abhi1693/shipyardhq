@@ -9,6 +9,7 @@ import { dualmarkConfig, DUALMARK_INTERNAL_NAMESPACE } from "@/lib/dualmark"
 import { parseManagedMediaImageUrl } from "@/lib/images/managed-media"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 import {
+  hasSeoQueryNoindexParams,
   isMemberPath,
   resolveSitemapChunkRewritePath,
   shouldRunClerkMiddleware,
@@ -180,6 +181,11 @@ function appendVary(response: NextResponse, value: string) {
 function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
   if (!isPublicDocumentRequest(req)) {
     return response
+  }
+
+  const url = new URL(req.url)
+  if (hasSeoQueryNoindexParams(url.searchParams)) {
+    appendHeaderValue(response, "X-Robots-Tag", "noindex, follow")
   }
 
   response.headers.set("Cache-Control", PUBLIC_DOCUMENT_CACHE_CONTROL)

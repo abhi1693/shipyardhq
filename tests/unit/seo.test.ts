@@ -8,7 +8,10 @@ import {
   hasBrowseSearchParams,
   isPlainUseCaseBrowseState,
 } from "@/lib/browse/seo"
-import { buildProductStructuredData } from "@/lib/seo/product"
+import {
+  buildProductStructuredData,
+  resolveProductOfferFromPricing,
+} from "@/lib/seo/product"
 import { buildBreadcrumbListStructuredData } from "@/lib/seo/breadcrumbs"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildWebPageStructuredData } from "@/lib/seo/webpage"
@@ -67,7 +70,7 @@ describe("toAbsoluteUrlFromSite", () => {
 })
 
 describe("buildProductListItem", () => {
-  it("adds an offer for free products so Product snippets are valid", () => {
+  it("uses neutral Thing markup in directory lists to avoid Product snippet errors", () => {
     const listItem = buildProductListItem({
       siteUrl: "https://shipyard.example",
       position: 1,
@@ -81,20 +84,14 @@ describe("buildProductListItem", () => {
     })
 
     expect(listItem.item).toMatchObject({
-      "@type": "Product",
-      "@id": "https://shipyard.example/products/free-tool#product",
+      "@type": "Thing",
+      "@id": "https://shipyard.example/products/free-tool#thing",
       image: "https://shipyard.example/logo.png",
-      offers: {
-        "@type": "Offer",
-        url: "https://shipyard.example/products/free-tool",
-        price: "0",
-        priceCurrency: "USD",
-        availability: "https://schema.org/OnlineOnly",
-      },
     })
+    expect(listItem.item).not.toHaveProperty("offers")
   })
 
-  it("uses concrete starting prices when present", () => {
+  it("does not emit Product or Offer markup from list item prices", () => {
     const listItem = buildProductListItem({
       siteUrl: "https://shipyard.example",
       position: 1,
@@ -110,16 +107,13 @@ describe("buildProductListItem", () => {
     })
 
     expect(listItem.item).toMatchObject({
-      "@type": "Product",
+      "@type": "Thing",
       image: "https://cdn.example/logo.png",
-      offers: {
-        price: "12.99",
-        priceCurrency: "EUR",
-      },
     })
+    expect(listItem.item).not.toHaveProperty("offers")
   })
 
-  it("does not emit invalid Product markup when no offer price exists", () => {
+  it("keeps custom-priced list items as plain directory entities", () => {
     const listItem = buildProductListItem({
       siteUrl: "https://shipyard.example",
       position: 1,
@@ -141,6 +135,28 @@ describe("buildProductListItem", () => {
 })
 
 describe("product detail structured data", () => {
+  it("resolves Product offers from existing pricing metadata only", () => {
+    expect(
+      resolveProductOfferFromPricing({
+        pricingModel: "free",
+        currencyCode: "usd",
+      }),
+    ).toEqual({ price: "0", priceCurrency: "USD" })
+    expect(
+      resolveProductOfferFromPricing({
+        pricingModel: "subscription",
+        startingPriceCents: 1299,
+        currencyCode: "eur",
+      }),
+    ).toEqual({ price: "12.99", priceCurrency: "EUR" })
+    expect(
+      resolveProductOfferFromPricing({
+        pricingModel: "custom",
+        currencyCode: "USD",
+      }),
+    ).toBeUndefined()
+  })
+
   it("emits richer product entity data without reviews or ratings by default", () => {
     const structuredData = buildProductStructuredData({
       path: "/products/embed-bot",
@@ -292,18 +308,22 @@ describe("breadcrumb structured data", () => {
         {
           position: 1,
           name: "Home",
-          item: { "@id": "http://localhost:3000/" },
+          item: { "@id": "http://localhost:3000/", name: "Home" },
         },
         {
           position: 2,
           name: "Leaderboard",
-          item: { "@id": "http://localhost:3000/leaderboard" },
+          item: {
+            "@id": "http://localhost:3000/leaderboard",
+            name: "Leaderboard",
+          },
         },
         {
           position: 3,
           name: "Best of July 2026",
           item: {
             "@id": "http://localhost:3000/leaderboard/monthly/2026/7",
+            name: "Best of July 2026",
           },
         },
       ],
@@ -312,14 +332,14 @@ describe("breadcrumb structured data", () => {
 })
 
 describe("crawler directives", () => {
-  it("blocks private, tracking, and faceted browse paths from robots.txt", () => {
+  it("blocks private and tracking paths without hiding canonical query signals", () => {
     const rules = robots().rules
     const publicRule = Array.isArray(rules) ? rules[0] : rules
 
     expect(publicRule.disallow).toContain("/r/")
-    expect(publicRule.disallow).toContain("/browse?")
-    expect(publicRule.disallow).toContain("/*?*sort=")
-    expect(publicRule.disallow).toContain("/*?*verified=")
+    expect(publicRule.disallow).not.toContain("/browse?")
+    expect(publicRule.disallow).not.toContain("/*?*sort=")
+    expect(publicRule.disallow).not.toContain("/*?*verified=")
     expect(publicRule.disallow).not.toContain("/_next/static/")
   })
 

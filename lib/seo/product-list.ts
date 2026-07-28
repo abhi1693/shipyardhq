@@ -20,26 +20,8 @@ type BuildProductListItemOptions = {
   categoryName?: string | null
 }
 
-const FREE_PRICING_MODELS = new Set(["free", "freemium"])
-
 const normalizeSiteUrl = (siteUrl: string) =>
   siteUrl.trim().replace(/\/$/, "") || "https://shipyardhq.dev"
-
-const normalizeCurrency = (value?: string | null) => {
-  const normalized = value?.trim().toUpperCase()
-  return normalized && /^[A-Z]{3}$/.test(normalized) ? normalized : "USD"
-}
-
-const resolveOfferPrice = (product: ProductListProduct) => {
-  const cents = product.startingPriceCents
-  if (typeof cents === "number" && Number.isFinite(cents) && cents >= 0) {
-    return (cents / 100).toFixed(2)
-  }
-
-  return product.pricingModel && FREE_PRICING_MODELS.has(product.pricingModel)
-    ? "0"
-    : undefined
-}
 
 export function buildProductListItem({
   product,
@@ -57,19 +39,9 @@ export function buildProductListItem({
       ? product.category
       : (product.category?.name ?? undefined)
   const category = categoryName ?? productCategory
-  const price = resolveOfferPrice(product)
-  const offers = price
-    ? {
-        "@type": "Offer",
-        url,
-        price,
-        priceCurrency: normalizeCurrency(product.currencyCode),
-        availability: "https://schema.org/OnlineOnly",
-      }
-    : undefined
   const item: Record<string, unknown> = {
-    "@type": offers ? "Product" : "Thing",
-    "@id": `${url}${offers ? "#product" : "#thing"}`,
+    "@type": "Thing",
+    "@id": `${url}#thing`,
     name: product.name,
     url,
   }
@@ -77,7 +49,6 @@ export function buildProductListItem({
   if (product.tagline) item.description = product.tagline
   if (image) item.image = image
   if (category) item.category = category
-  if (offers) item.offers = offers
 
   return {
     "@type": "ListItem",

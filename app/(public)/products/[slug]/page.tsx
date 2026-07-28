@@ -82,7 +82,10 @@ import { keywordToSlug } from "@/lib/tags"
 import { formatTagLabel } from "@/app/(public)/tags/_utils"
 import { buildWebApplicationStructuredData } from "@/lib/seo/web-application"
 import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-application"
-import { buildProductStructuredData } from "@/lib/seo/product"
+import {
+  buildProductStructuredData,
+  resolveProductOfferFromPricing,
+} from "@/lib/seo/product"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
 import {
@@ -474,14 +477,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const pricingModelSlug = pricingModelSlugFromValue(
     sidebarProduct?.pricingModel,
   )
-  const offer =
-    typeof sidebarProduct.startingPriceCents === "number" &&
-    Number.isFinite(sidebarProduct.startingPriceCents)
-      ? {
-          price: (sidebarProduct.startingPriceCents / 100).toFixed(2),
-          priceCurrency: sidebarProduct.currencyCode || "USD",
-        }
-      : undefined
+  const offer = resolveProductOfferFromPricing({
+    pricingModel: sidebarProduct.pricingModel,
+    startingPriceCents: sidebarProduct.startingPriceCents,
+    currencyCode: sidebarProduct.currencyCode,
+  })
   const platformValues = (sidebarProduct.platforms ?? []) as string[]
   const normalizedWebsiteUrl = product.websiteUrl?.trim()
     ? ensureUrlHasSchema(product.websiteUrl.trim())
@@ -495,9 +495,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ["ios", "android"].includes(platform),
   )
 
+  const webApplicationStructuredDataId = new URL(
+    `${canonicalPath}#webapplication`,
+    siteConfig.url,
+  ).toString()
+  const mobileApplicationStructuredDataId = new URL(
+    `${canonicalPath}#mobileapplication`,
+    siteConfig.url,
+  ).toString()
+
   const webApplicationStructuredData = hasWebPlatform
     ? buildWebApplicationStructuredData({
         path: canonicalPath,
+        id: webApplicationStructuredDataId,
         name: product.name,
         description: productMetaDescription,
         datePublished: schemaPublishedDateIso,
@@ -516,6 +526,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const mobileApplicationStructuredData = mobileOperatingSystems.length
     ? buildMobileApplicationStructuredData({
         path: canonicalPath,
+        id: mobileApplicationStructuredDataId,
         name: product.name,
         description: productMetaDescription,
         datePublished: schemaPublishedDateIso,
@@ -592,67 +603,87 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
       }
     : undefined
-  const productStructuredData = buildProductStructuredData({
-    path: canonicalPath,
-    id: productStructuredDataId,
-    name: product.name,
-    description: productMetaDescription,
-    image: productImageSources,
-    logo: product.logo ?? undefined,
-    category: categoryLabel ?? undefined,
-    keywords: productKeywords,
-    releaseDate: schemaPublishedDateIso,
-    datePublished: schemaPublishedDateIso,
-    dateModified: updatedDateIso,
-    mainEntityOfPage: productWebPageId,
-    creator: makerEntity,
-    manufacturer: makerEntity,
-    brand: makerEntity,
-    sameAs: normalizedWebsiteUrl ? [normalizedWebsiteUrl] : undefined,
-    isSimilarTo: productAlternatives,
-    additionalProperty: [
-      ...(makerName ? [{ name: "Maker", value: makerName }] : []),
-      ...(categoryLabel ? [{ name: "Category", value: categoryLabel }] : []),
-      ...(pricingModelLabel
-        ? [{ name: "Pricing model", value: pricingModelLabel }]
-        : []),
-      ...(platformFactLabels.length
-        ? [
-            {
-              name: "Supported platforms",
-              value: platformFactLabels.join(", "),
-            },
-          ]
-        : []),
-      ...(schemaPublishedDateIso
-        ? [{ name: "Launch date", value: schemaPublishedDateIso }]
-        : []),
-      {
-        name: "Verified status",
-        value: isVerified ? "Verified" : "Not verified",
-      },
-      ...(hasDirectWebsiteLink
-        ? [{ name: "Direct website link", value: "Enabled" }]
-        : []),
-      ...(hasAiSearchReadyProfile
-        ? [{ name: "AI-search ready profile", value: "Enabled" }]
-        : []),
-      ...(productAlternatives.length
-        ? [
-            {
-              name: "Alternatives",
-              value: productAlternatives
-                .map((alternative) => alternative.name)
-                .join(", "),
-            },
-          ]
-        : []),
-      ...(productKeywords.length
-        ? [{ name: "Tags", value: productKeywords.join(", ") }]
-        : []),
-    ],
-    offers: offer,
-  })
+  const productStructuredData = offer
+    ? buildProductStructuredData({
+        path: canonicalPath,
+        id: productStructuredDataId,
+        name: product.name,
+        description: productMetaDescription,
+        image: productImageSources,
+        logo: product.logo ?? undefined,
+        category: categoryLabel ?? undefined,
+        keywords: productKeywords,
+        releaseDate: schemaPublishedDateIso,
+        datePublished: schemaPublishedDateIso,
+        dateModified: updatedDateIso,
+        mainEntityOfPage: productWebPageId,
+        creator: makerEntity,
+        manufacturer: makerEntity,
+        brand: makerEntity,
+        sameAs: normalizedWebsiteUrl ? [normalizedWebsiteUrl] : undefined,
+        isSimilarTo: productAlternatives,
+        additionalProperty: [
+          ...(makerName ? [{ name: "Maker", value: makerName }] : []),
+          ...(categoryLabel
+            ? [{ name: "Category", value: categoryLabel }]
+            : []),
+          ...(pricingModelLabel
+            ? [{ name: "Pricing model", value: pricingModelLabel }]
+            : []),
+          ...(platformFactLabels.length
+            ? [
+                {
+                  name: "Supported platforms",
+                  value: platformFactLabels.join(", "),
+                },
+              ]
+            : []),
+          ...(schemaPublishedDateIso
+            ? [{ name: "Launch date", value: schemaPublishedDateIso }]
+            : []),
+          {
+            name: "Verified status",
+            value: isVerified ? "Verified" : "Not verified",
+          },
+          ...(hasDirectWebsiteLink
+            ? [{ name: "Direct website link", value: "Enabled" }]
+            : []),
+          ...(hasAiSearchReadyProfile
+            ? [{ name: "AI-search ready profile", value: "Enabled" }]
+            : []),
+          ...(productAlternatives.length
+            ? [
+                {
+                  name: "Alternatives",
+                  value: productAlternatives
+                    .map((alternative) => alternative.name)
+                    .join(", "),
+                },
+              ]
+            : []),
+          ...(productKeywords.length
+            ? [{ name: "Tags", value: productKeywords.join(", ") }]
+            : []),
+        ],
+        offers: offer,
+      })
+    : null
+  const pageMainEntity = productStructuredData
+    ? {
+        type: "Product",
+        id: productStructuredDataId,
+      }
+    : webApplicationStructuredData
+      ? {
+          type: "WebApplication",
+          id: webApplicationStructuredDataId,
+        }
+      : mobileApplicationStructuredData
+        ? {
+            type: "MobileApplication",
+            id: mobileApplicationStructuredDataId,
+          }
+        : undefined
 
   const primaryUseCaseSlug =
     sidebarProduct.category?.useCases?.[0]?.useCase?.slug ?? null
@@ -1259,20 +1290,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           datePublished: schemaPublishedDateIso,
           dateModified: updatedDateIso,
           primaryImageOfPage: product.bannerImage ?? product.logo ?? undefined,
-          mainEntity: {
-            type: "Product",
-            id: productStructuredDataId,
-          },
+          mainEntity: pageMainEntity,
         }}
         breadcrumbs={{
           items: productBreadcrumbs,
           options: { pageUrl: canonicalPath },
         }}
       />
-      <JsonLdScript
-        data={productStructuredData}
-        scriptKey={`product-${product.slug}-product`}
-      />
+      {productStructuredData ? (
+        <JsonLdScript
+          data={productStructuredData}
+          scriptKey={`product-${product.slug}-product`}
+        />
+      ) : null}
       {webApplicationStructuredData ? (
         <JsonLdScript
           data={webApplicationStructuredData}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  hasSeoQueryNoindexParams,
   resolveSitemapChunkRewritePath,
   shouldRunClerkMiddleware,
 } from "@/lib/proxy-routing"
@@ -33,5 +34,19 @@ describe("proxy routing", () => {
       "/sitemap-tags/4",
     )
     expect(resolveSitemapChunkRewritePath("/sitemap.xml")).toBeNull()
+  })
+
+  it("identifies SEO query variants that should stay crawlable but noindex", () => {
+    expect(
+      hasSeoQueryNoindexParams(new URLSearchParams("page=1&sort=az")),
+    ).toBe(true)
+    expect(hasSeoQueryNoindexParams(new URLSearchParams("q=crm"))).toBe(true)
+    expect(
+      hasSeoQueryNoindexParams(new URLSearchParams("verified=true")),
+    ).toBe(true)
+    expect(hasSeoQueryNoindexParams(new URLSearchParams("utm_source=x"))).toBe(
+      false,
+    )
+    expect(hasSeoQueryNoindexParams(new URLSearchParams("sort="))).toBe(false)
   })
 })

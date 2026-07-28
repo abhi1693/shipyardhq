@@ -13,6 +13,12 @@ export type ProductOffer = {
   priceCurrency?: string
 }
 
+export type ProductOfferPricingSource = {
+  pricingModel?: string | null
+  startingPriceCents?: number | null
+  currencyCode?: string | null
+}
+
 export type ProductFact = {
   name: string
   value: string | number | boolean
@@ -114,6 +120,43 @@ export type BuildProductStructuredDataOptions = {
   offers?: ProductOffer
 }
 
+const ZERO_PRICE_PRICING_MODELS = new Set(["free", "freemium"])
+
+const normalizeOfferCurrency = (value?: string | null) => {
+  const normalized = value?.trim().toUpperCase()
+  return normalized && /^[A-Z]{3}$/.test(normalized) ? normalized : "USD"
+}
+
+export function resolveProductOfferFromPricing({
+  pricingModel,
+  startingPriceCents,
+  currencyCode,
+}: ProductOfferPricingSource): ProductOffer | undefined {
+  if (
+    typeof startingPriceCents === "number" &&
+    Number.isFinite(startingPriceCents) &&
+    startingPriceCents >= 0
+  ) {
+    return {
+      price: (startingPriceCents / 100).toFixed(2),
+      priceCurrency: normalizeOfferCurrency(currencyCode),
+    }
+  }
+
+  const normalizedPricingModel = pricingModel?.trim().toLowerCase()
+  if (
+    normalizedPricingModel &&
+    ZERO_PRICE_PRICING_MODELS.has(normalizedPricingModel)
+  ) {
+    return {
+      price: "0",
+      priceCurrency: normalizeOfferCurrency(currencyCode),
+    }
+  }
+
+  return undefined
+}
+
 const normalizePath = (value: string) => {
   const trimmed = value.trim()
   if (!trimmed) return ""
@@ -175,7 +218,9 @@ const normalizeOffer = (
 ): ProductStructuredData["offers"] => {
   if (!offer) return undefined
   const price = offer.price
-  const priceCurrency = offer.priceCurrency?.trim()
+  const priceCurrency = offer.priceCurrency
+    ? normalizeOfferCurrency(offer.priceCurrency)
+    : undefined
   if (price === undefined || price === null || price === "") return undefined
   const priceString =
     typeof price === "number" ? price.toString() : String(price).trim()

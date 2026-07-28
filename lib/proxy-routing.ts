@@ -9,6 +9,8 @@ const CLERK_HANDLED_PATH_PREFIXES = [
   "/trpc",
 ] as const
 
+const SEO_QUERY_NOINDEX_PARAMS = ["page", "q", "sort", "verified"] as const
+
 function matchesPathPrefix(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`)
 }
@@ -45,4 +47,10 @@ export function resolveSitemapChunkRewritePath(pathname: string) {
   }
 
   return null
+}
+
+export function hasSeoQueryNoindexParams(searchParams: URLSearchParams) {
+  return SEO_QUERY_NOINDEX_PARAMS.some((key) =>
+    searchParams.getAll(key).some((value) => value.trim().length > 0),
+  )
 }

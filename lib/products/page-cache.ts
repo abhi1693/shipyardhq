@@ -3,6 +3,7 @@ import {
   getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
 import { productPath } from "@/lib/routes"
+import { resolveProductOfferFromPricing } from "@/lib/seo/product"
 import { ensureUrlHasSchema } from "@/lib/utils"
 
 export type PublicProduct = NonNullable<
@@ -113,11 +114,18 @@ export function buildProductStructuredData(product: PublicProduct) {
     ),
   )
 
-  const offers = {
-    "@type": "Offer",
-    price: ((product.startingPriceCents ?? 0) / 100).toFixed(2),
-    priceCurrency: product.currencyCode || "USD",
-  }
+  const offer = resolveProductOfferFromPricing({
+    pricingModel: product.pricingModel,
+    startingPriceCents: product.startingPriceCents,
+    currencyCode: product.currencyCode,
+  })
+  const offers = offer
+    ? {
+        "@type": "Offer",
+        price: offer.price,
+        priceCurrency: offer.priceCurrency,
+      }
+    : undefined
 
   const structuredData: Record<string, unknown> = {
     "@context": "https://schema.org",
