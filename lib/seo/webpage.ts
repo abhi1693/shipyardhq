@@ -16,8 +16,8 @@ export type WebPageStructuredData = {
     url: string
   }
   mainEntity?: {
-    "@type": string
     "@id": string
+    "@type"?: string
   }
 }
 
@@ -92,10 +92,11 @@ export function buildWebPageStructuredData(
     ? toAbsoluteUrlFromSite(options.primaryImageOfPage, siteUrl)
     : undefined
   const mainEntityId = options.mainEntity?.id.trim()
+  const mainEntityType = options.mainEntity?.type?.trim()
   const mainEntity = mainEntityId
     ? {
-        "@type": options.mainEntity?.type?.trim() || "Thing",
         "@id": mainEntityId,
+        ...(mainEntityType ? { "@type": mainEntityType } : {}),
       }
     : undefined
 

@@ -288,6 +288,26 @@ describe("product detail structured data", () => {
       },
     })
   })
+
+  it("can link WebPage schema by entity id without creating a partial typed node", () => {
+    const structuredData = buildWebPageStructuredData({
+      path: "/products/embed-bot",
+      id: "http://localhost:3000/products/embed-bot#webpage",
+      name: "Embed-Bot",
+      mainEntity: {
+        id: "http://localhost:3000/products/embed-bot#product",
+      },
+    })
+
+    expect(structuredData).toMatchObject({
+      "@type": "WebPage",
+      "@id": "http://localhost:3000/products/embed-bot#webpage",
+      mainEntity: {
+        "@id": "http://localhost:3000/products/embed-bot#product",
+      },
+    })
+    expect(structuredData.mainEntity).not.toHaveProperty("@type")
+  })
 })
 
 describe("breadcrumb structured data", () => {

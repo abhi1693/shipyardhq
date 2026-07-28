@@ -670,17 +670,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     : null
   const pageMainEntity = productStructuredData
     ? {
-        type: "Product",
         id: productStructuredDataId,
       }
     : webApplicationStructuredData
       ? {
-          type: "WebApplication",
           id: webApplicationStructuredDataId,
         }
       : mobileApplicationStructuredData
         ? {
-            type: "MobileApplication",
             id: mobileApplicationStructuredDataId,
           }
         : undefined
