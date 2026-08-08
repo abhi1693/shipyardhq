@@ -4,7 +4,7 @@ import { ExternalLink, ImageIcon } from "lucide-react"
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
-import { productPath } from "@/lib/routes"
+import { productCardPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 function ProductImage({ item }: { item: HomepageFeedItem }) {
@@ -28,7 +28,8 @@ function ProductImage({ item }: { item: HomepageFeedItem }) {
 }
 
 function ProductCard({ item }: { item: HomepageFeedItem }) {
-  const href = productPath(item.slug)
+  const href = productCardPath(item.slug, { sponsored: item.isSponsored })
+  const redirectsToWebsite = item.isSponsored
   const pricingLabel = item.pricingModel
     ? item.pricingModel
         .replace(/_/g, " ")
@@ -39,6 +40,9 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
     <article className="group overflow-hidden rounded-lg border border-[#e2e8f0] bg-white transition hover:shadow-xl">
       <Link
         href={href}
+        prefetch={redirectsToWebsite ? false : undefined}
+        target={redirectsToWebsite ? "_blank" : undefined}
+        rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
         className="relative block h-48 overflow-hidden bg-[#e5eeff]"
       >
         <ProductImage item={item} />
@@ -52,6 +56,11 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
         <div className="mb-2 flex items-start justify-between gap-4">
           <Link
             href={href}
+            prefetch={redirectsToWebsite ? false : undefined}
+            target={redirectsToWebsite ? "_blank" : undefined}
+            rel={
+              redirectsToWebsite ? "noopener noreferrer sponsored" : undefined
+            }
             className="min-w-0 text-2xl font-semibold tracking-tight text-black transition group-hover:text-[#0051d5]"
           >
             {item.name}
@@ -79,6 +88,11 @@ function ProductCard({ item }: { item: HomepageFeedItem }) {
           </div>
           <Link
             href={href}
+            prefetch={redirectsToWebsite ? false : undefined}
+            target={redirectsToWebsite ? "_blank" : undefined}
+            rel={
+              redirectsToWebsite ? "noopener noreferrer sponsored" : undefined
+            }
             className="inline-flex items-center gap-1 text-sm font-semibold text-[#0051d5] hover:underline"
           >
             View Project

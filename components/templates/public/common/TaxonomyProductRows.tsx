@@ -8,7 +8,7 @@ import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import { productPath } from "@/lib/routes"
+import { productCardPath } from "@/lib/routes"
 import { toProductCardItem } from "@/lib/products/card-item"
 
 export type TaxonomyProductSection = {
@@ -161,7 +161,8 @@ function ProductLogo({ product }: { product: HomepageFeedItem }) {
 }
 
 export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
-  const href = productPath(product.slug)
+  const href = productCardPath(product.slug, { sponsored: product.isSponsored })
+  const redirectsToWebsite = product.isSponsored
   const momentum = product.scoreCount
     ? Math.max(1, Math.round(product.scoreCount / 10))
     : null
@@ -170,6 +171,9 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
     <article className="group flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
       <Link
         href={href}
+        prefetch={redirectsToWebsite ? false : undefined}
+        target={redirectsToWebsite ? "_blank" : undefined}
+        rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
         className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#eff4ff]"
       >
         <ProductLogo product={product} />
@@ -177,6 +181,9 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
       <div className="min-w-0 flex-1">
         <Link
           href={href}
+          prefetch={redirectsToWebsite ? false : undefined}
+          target={redirectsToWebsite ? "_blank" : undefined}
+          rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
           className="block truncate text-lg font-semibold text-black transition group-hover:text-[#0051d5]"
         >
           {product.name}
@@ -205,6 +212,9 @@ export function TaxonomyProductRow({ product }: { product: HomepageFeedItem }) {
       </div>
       <Link
         href={href}
+        prefetch={redirectsToWebsite ? false : undefined}
+        target={redirectsToWebsite ? "_blank" : undefined}
+        rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
         className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-[#eff6ff] text-[#0051d5] transition hover:bg-[#0051d5] hover:text-white active:scale-95"
         aria-label={`View ${product.name}`}
       >

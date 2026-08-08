@@ -20,7 +20,7 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 import type { ProductCardVariant } from "@/types/product-card"
 import { buildProductInterestBadges } from "@/lib/products/interest"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
-import { productPath } from "@/lib/routes"
+import { productCardPath } from "@/lib/routes"
 
 const LOGO_SIZE = 60
 
@@ -270,15 +270,15 @@ export function ProductFeedCard({
     </article>
   )
 
-  const redirectHref =
-    cardVariant === "sponsored" ? `/r/sponsored/${item.slug}` : undefined
+  const redirectsToWebsite = cardVariant === "sponsored" || item.isSponsored
+  const href = productCardPath(item.slug, { sponsored: redirectsToWebsite })
 
   return (
     <Link
-      href={redirectHref ?? productPath(item.slug)}
-      prefetch={redirectHref ? false : undefined}
-      target={redirectHref ? "_blank" : undefined}
-      rel={redirectHref ? "noopener noreferrer" : undefined}
+      href={href}
+      prefetch={redirectsToWebsite ? false : undefined}
+      target={redirectsToWebsite ? "_blank" : undefined}
+      rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
       className={cardClasses}
       data-testid="homepage-feed-card"
     >

@@ -35,7 +35,7 @@ import {
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   currentMonthlyLeaderboardPath,
-  productPath,
+  productCardPath,
 } from "@/lib/routes"
 import { getProductInterestSignalsMap } from "@/lib/server/analytics/productInterest"
 import { buildProductListItem } from "@/lib/seo/product-list"
@@ -138,6 +138,8 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
   })
   const badgeLabels = item.badges?.slice(0, 2) ?? []
   const isTopRank = item.rank === 1
+  const href = productCardPath(item.slug, { sponsored: item.sponsored })
+  const redirectsToWebsite = Boolean(item.sponsored)
 
   return (
     <Card
@@ -154,7 +156,10 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
       ) : null}
       <CardContent className="flex gap-6 p-6">
         <Link
-          href={productPath(item.slug)}
+          href={href}
+          prefetch={redirectsToWebsite ? false : undefined}
+          target={redirectsToWebsite ? "_blank" : undefined}
+          rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
           className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#F8FAFC]"
         >
           <ProductLogoImage
@@ -171,7 +176,14 @@ function LeaderboardProductCard({ item }: { item: LeaderboardListItem }) {
             <div className="min-w-0">
               <h3 className="flex flex-wrap items-center gap-2 text-[18px] font-semibold leading-6 text-black">
                 <Link
-                  href={productPath(item.slug)}
+                  href={href}
+                  prefetch={redirectsToWebsite ? false : undefined}
+                  target={redirectsToWebsite ? "_blank" : undefined}
+                  rel={
+                    redirectsToWebsite
+                      ? "noopener noreferrer sponsored"
+                      : undefined
+                  }
                   className="min-w-0 truncate underline-offset-4 hover:underline"
                 >
                   {item.name}

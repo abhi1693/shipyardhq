@@ -10,7 +10,7 @@ import type {
   ProductCardItem,
 } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
-import { productPath } from "@/lib/routes"
+import { productCardPath } from "@/lib/routes"
 
 function ProductLogo({ product }: { product: ProductCardItem }) {
   if (!product.logo) {
@@ -33,7 +33,9 @@ function ProductLogo({ product }: { product: ProductCardItem }) {
 }
 
 export function BrowseProductRow({ product }: { product: ProductCardItem }) {
-  const href = productPath(product.slug)
+  const isSponsored = Boolean(product.sponsored ?? product.isSponsored)
+  const href = productCardPath(product.slug, { sponsored: isSponsored })
+  const redirectsToWebsite = isSponsored
   const score =
     typeof product.scoreCount === "number" &&
     Number.isFinite(product.scoreCount)
@@ -45,6 +47,9 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
     <article className="group flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white p-4 transition hover:-translate-y-0.5 hover:border-[#10b981] hover:shadow-lg">
       <Link
         href={href}
+        prefetch={redirectsToWebsite ? false : undefined}
+        target={redirectsToWebsite ? "_blank" : undefined}
+        rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
         className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[#eff4ff]"
       >
         <ProductLogo product={product} />
@@ -53,6 +58,11 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <Link
             href={href}
+            prefetch={redirectsToWebsite ? false : undefined}
+            target={redirectsToWebsite ? "_blank" : undefined}
+            rel={
+              redirectsToWebsite ? "noopener noreferrer sponsored" : undefined
+            }
             className="truncate text-lg font-semibold text-[#061d31] transition group-hover:text-[#0051d5]"
           >
             {product.name}
@@ -63,7 +73,7 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
               Verified
             </span>
           ) : null}
-          {product.isSponsored || product.sponsored ? (
+          {isSponsored ? (
             <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#9a3412]">
               <Sparkles className="h-3 w-3" aria-hidden />
               Sponsored
@@ -89,6 +99,9 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
       </div>
       <Link
         href={href}
+        prefetch={redirectsToWebsite ? false : undefined}
+        target={redirectsToWebsite ? "_blank" : undefined}
+        rel={redirectsToWebsite ? "noopener noreferrer sponsored" : undefined}
         className="flex shrink-0 cursor-pointer flex-col items-center gap-1 rounded-lg bg-[#f8fafc] px-4 py-2 text-[#43474c] transition group-hover:bg-[#eff6ff] group-hover:text-[#0051d5] active:scale-95"
         aria-label={
           score !== null

@@ -4,7 +4,7 @@ import { ArrowUp, ImageIcon, TrendingUp } from "lucide-react"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
-import { productPath } from "@/lib/routes"
+import { productCardPath } from "@/lib/routes"
 
 interface BrowseRisingStarsProps {
   products: ProductCardBase[]
@@ -66,10 +66,15 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
           : null}
         {risingProducts.map((product) => {
           const score = Number(product.scoreCount)
+          const isSponsored = Boolean(product.sponsored)
+          const href = productCardPath(product.slug, { sponsored: isSponsored })
           return (
             <Link
               key={product.id}
-              href={productPath(product.slug)}
+              href={href}
+              prefetch={isSponsored ? false : undefined}
+              target={isSponsored ? "_blank" : undefined}
+              rel={isSponsored ? "noopener noreferrer sponsored" : undefined}
               className="group min-w-0 rounded-lg border border-[#e2e8f0] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#10b981] hover:shadow-lg"
             >
               <div className="mb-4 flex items-start justify-between gap-4">

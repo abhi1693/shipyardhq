@@ -40,7 +40,7 @@ import {
   TOOLS_PATH,
   WHY_SHIPYARD_PATH,
   guidePath,
-  productPath,
+  productCardPath,
 } from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
@@ -448,6 +448,10 @@ async function HomepageDataSections() {
   const launchIsSponsored = Boolean(launch?.isSponsored)
   const launchIsEditorPick =
     !launchIsSponsored && launch?.variant === "promoted"
+  const launchHref = launch?.slug
+    ? productCardPath(launch.slug, { sponsored: launchIsSponsored })
+    : BROWSE_PATH
+  const launchRedirectsToWebsite = Boolean(launch?.slug && launchIsSponsored)
   const trafficWindowDays = Math.max(
     1,
     homepageStats.analyticsWindowDays ?? ANALYTICS_REPORTING_WINDOW_DAYS,
@@ -549,8 +553,13 @@ async function HomepageDataSections() {
 
                     <h3 className="text-[23px] font-semibold leading-[1.18] tracking-[-0.025em] text-black sm:text-[27px] sm:leading-[1.16]">
                       <Link
-                        href={
-                          launch.slug ? productPath(launch.slug) : BROWSE_PATH
+                        href={launchHref}
+                        prefetch={launchRedirectsToWebsite ? false : undefined}
+                        target={launchRedirectsToWebsite ? "_blank" : undefined}
+                        rel={
+                          launchRedirectsToWebsite
+                            ? "noopener noreferrer sponsored"
+                            : undefined
                         }
                         className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
                       >
@@ -568,7 +577,14 @@ async function HomepageDataSections() {
                   </div>
 
                   <Link
-                    href={launch.slug ? productPath(launch.slug) : BROWSE_PATH}
+                    href={launchHref}
+                    prefetch={launchRedirectsToWebsite ? false : undefined}
+                    target={launchRedirectsToWebsite ? "_blank" : undefined}
+                    rel={
+                      launchRedirectsToWebsite
+                        ? "noopener noreferrer sponsored"
+                        : undefined
+                    }
                     aria-label={`View ${launch.name}`}
                     className="shrink-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0051d5]"
                   >

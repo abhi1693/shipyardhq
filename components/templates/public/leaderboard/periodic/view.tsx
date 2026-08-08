@@ -28,7 +28,7 @@ import {
   USE_CASES_PATH,
   alternativePath,
   categoryPath,
-  productPath,
+  productCardPath,
   usecasePath,
 } from "@/lib/routes"
 import {
@@ -123,6 +123,20 @@ function getAdBoundaryIndex(items: LeaderboardCardItem[]) {
   )
 
   return lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
+}
+
+function getLeaderboardCardHref(item: LeaderboardCardItem) {
+  return productCardPath(item.slug, { sponsored: item.sponsored })
+}
+
+function getSponsoredRedirectLinkProps(sponsored?: boolean | null) {
+  return sponsored
+    ? {
+        prefetch: false as const,
+        target: "_blank" as const,
+        rel: "noopener noreferrer sponsored",
+      }
+    : {}
 }
 
 type MonthArchiveEntry = {
@@ -273,6 +287,8 @@ function FeaturedArchiveCard({
   rank: number
 }) {
   const isTop = rank === 1
+  const href = getLeaderboardCardHref(item)
+  const redirectLinkProps = getSponsoredRedirectLinkProps(item.sponsored)
 
   return (
     <Card
@@ -288,13 +304,17 @@ function FeaturedArchiveCard({
           </div>
         ) : null}
         <div className="flex items-start gap-4 md:gap-5">
-          <Link href={productPath(item.slug)} className="shrink-0">
+          <Link href={href} {...redirectLinkProps} className="shrink-0">
             <ArchiveLogo item={item} />
           </Link>
           <div className="min-w-0 flex-1 pr-0 md:pr-4">
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <h3 className="text-[18px] font-semibold leading-6 text-black">
-                <Link href={productPath(item.slug)} className="hover:underline">
+                <Link
+                  href={href}
+                  {...redirectLinkProps}
+                  className="hover:underline"
+                >
                   {item.name}
                 </Link>
               </h3>
@@ -327,6 +347,9 @@ function CompactArchiveRow({
   item: LeaderboardCardItem
   rank: number
 }) {
+  const href = getLeaderboardCardHref(item)
+  const redirectLinkProps = getSponsoredRedirectLinkProps(item.sponsored)
+
   return (
     <Card className="rounded-xl border-[#E2E8F0] bg-white p-0 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
       <CardContent className="flex items-center justify-between gap-4 p-4">
@@ -334,12 +357,16 @@ function CompactArchiveRow({
           <span className="w-7 shrink-0 text-[12px] font-semibold leading-4 text-[#43474c]">
             #{rank}
           </span>
-          <Link href={productPath(item.slug)} className="shrink-0">
+          <Link href={href} {...redirectLinkProps} className="shrink-0">
             <ArchiveLogo item={item} size="small" />
           </Link>
           <div className="min-w-0">
             <h3 className="truncate text-[18px] font-semibold leading-6 text-black">
-              <Link href={productPath(item.slug)} className="hover:underline">
+              <Link
+                href={href}
+                {...redirectLinkProps}
+                className="hover:underline"
+              >
                 {item.name}
               </Link>
             </h3>
@@ -812,6 +839,8 @@ function WeeklyLeaderboardCard({
   rank: number
 }) {
   const isTop = rank === 1
+  const href = getLeaderboardCardHref(item)
+  const redirectLinkProps = getSponsoredRedirectLinkProps(item.sponsored)
 
   return (
     <article
@@ -821,7 +850,7 @@ function WeeklyLeaderboardCard({
       )}
     >
       <div className="flex gap-4 md:gap-6">
-        <Link href={productPath(item.slug)} className="shrink-0">
+        <Link href={href} {...redirectLinkProps} className="shrink-0">
           <ArchiveLogo item={item} />
         </Link>
         <div className="min-w-0 flex-1 space-y-1">
@@ -830,7 +859,8 @@ function WeeklyLeaderboardCard({
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-[18px] font-semibold leading-6 text-black">
                   <Link
-                    href={productPath(item.slug)}
+                    href={href}
+                    {...redirectLinkProps}
                     className="hover:underline"
                   >
                     {item.name}
@@ -875,6 +905,8 @@ function WeeklyCompactRow({
   const isNewLaunch =
     item.createdAt &&
     nowMs - new Date(item.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000
+  const href = getLeaderboardCardHref(item)
+  const redirectLinkProps = getSponsoredRedirectLinkProps(item.sponsored)
 
   return (
     <article
@@ -886,13 +918,17 @@ function WeeklyCompactRow({
       )}
     >
       <div className="flex min-w-0 items-center gap-4">
-        <Link href={productPath(item.slug)} className="shrink-0">
+        <Link href={href} {...redirectLinkProps} className="shrink-0">
           <ArchiveLogo item={item} size="small" />
         </Link>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="truncate text-[12px] font-semibold leading-4 text-black md:text-[14px] md:leading-5">
-              <Link href={productPath(item.slug)} className="hover:underline">
+              <Link
+                href={href}
+                {...redirectLinkProps}
+                className="hover:underline"
+              >
                 {item.name}
               </Link>
             </h3>
@@ -1053,16 +1089,22 @@ function DailyProductCard({
   const isNewLaunch =
     item.createdAt &&
     nowMs - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
+  const href = getLeaderboardCardHref(item)
+  const redirectLinkProps = getSponsoredRedirectLinkProps(item.sponsored)
 
   return (
     <article className="flex items-start gap-6 rounded-xl border border-[#E2E8F0] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-      <Link href={productPath(item.slug)} className="shrink-0">
+      <Link href={href} {...redirectLinkProps} className="shrink-0">
         <ArchiveLogo item={item} />
       </Link>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
           <h3 className="truncate text-[18px] font-semibold leading-6 text-black">
-            <Link href={productPath(item.slug)} className="hover:underline">
+            <Link
+              href={href}
+              {...redirectLinkProps}
+              className="hover:underline"
+            >
               {item.name}
             </Link>
           </h3>

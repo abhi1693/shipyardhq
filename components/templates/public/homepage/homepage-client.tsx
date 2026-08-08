@@ -25,7 +25,7 @@ import type {
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCategorySummary } from "@/lib/products/categories"
 import type { HomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
-import { BROWSE_PATH, productPath } from "@/lib/routes"
+import { BROWSE_PATH, productCardPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const formatter = new Intl.NumberFormat("en-US")
@@ -581,7 +581,10 @@ function DropProductLogo({
 function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
   const sponsored = Boolean(product.isSponsored)
   const editorPick = !sponsored && product.variant === "promoted"
-  const href = product.slug ? productPath(product.slug) : BROWSE_PATH
+  const href = product.slug
+    ? productCardPath(product.slug, { sponsored })
+    : BROWSE_PATH
+  const redirectsToWebsite = Boolean(product.slug && sponsored)
 
   return (
     <Card
@@ -611,6 +614,11 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           <div className="mb-1 flex min-w-0 items-center gap-2">
             <Link
               href={href}
+              prefetch={redirectsToWebsite ? false : undefined}
+              target={redirectsToWebsite ? "_blank" : undefined}
+              rel={
+                redirectsToWebsite ? "noopener noreferrer sponsored" : undefined
+              }
               className="truncate text-lg font-semibold leading-6 hover:underline"
             >
               {product.name}
@@ -641,14 +649,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
             }
           />
         </div>
-        <div
-          className={cn(
-            "ml-[60px] flex w-[calc(100%-60px)] justify-end border-t pt-3 sm:ml-0 sm:w-auto sm:border-t-0 sm:pt-0 sm:pl-6",
-            sponsored
-              ? "border-white/10 sm:border-l"
-              : "border-[#E2E8F0] sm:border-l",
-          )}
-        >
+        <div className="ml-[60px] flex w-[calc(100%-60px)] justify-end pt-3 sm:ml-0 sm:w-auto sm:pt-0 sm:pl-6">
           <HomepageUpvoteButton
             productId={product.id}
             productSlug={product.slug}

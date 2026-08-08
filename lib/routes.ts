@@ -129,6 +129,14 @@ export const usecasePlatformPath = (useCaseSlug: string, platform: string) =>
 export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`
 export const toolPath = (slug: string) => `${TOOLS_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
+export const productWebsiteRedirectPath = (slug: string) => `/r/${slug}`
+export const sponsoredProductRedirectPath = (slug: string) =>
+  `/r/sponsored/${slug}`
+export const productCardPath = (
+  slug: string,
+  options?: { sponsored?: boolean | null },
+) =>
+  options?.sponsored ? sponsoredProductRedirectPath(slug) : productPath(slug)
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 
 export const verifiedCategoryPath = (categorySlug: string) =>
