@@ -113,7 +113,7 @@
     "next-seo": "^7.2.0",
     "openai": "^6.45.0",
     "pg": "^8.22.0",
-    "prisma": "^7.8.0",
+    "prisma": "^7.9.1",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-hook-form": "^7.80.0",
