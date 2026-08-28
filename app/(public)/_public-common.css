@@ -32,3 +32,11 @@
 @source "../../components/atoms/product-logo-image.tsx";
 @source "../../components/atoms/resilient-image.tsx";
 @source "../../components/templates/public/common/AnswerBlocks.tsx";
+
+[data-public-layout]:has([data-homepage]) {
+  padding-bottom: 0;
+}
+
+[data-public-layout]:has([data-homepage]) > [data-partner-spotlight] {
+  display: none;
+}

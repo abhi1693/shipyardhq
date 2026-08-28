@@ -50,6 +50,7 @@ const FEATURE_COPY: Record<string, string[]> = {
   partnerSpotlight: [
     "Partner Spotlight eligibility in the sitewide bar and product, leaderboard & directory sponsor panels",
   ],
+  homepageLaunch: ["Launch of the Day homepage slot eligibility"],
 }
 
 const FREE_PLACEMENT_ITEMS: PricingOfferItem[] = [

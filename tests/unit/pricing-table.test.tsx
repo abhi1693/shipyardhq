@@ -14,6 +14,7 @@ const ALL_FEATURE_KEYS = [
   "analytics.advanced",
   "backlink",
   "featured",
+  "homepageLaunch",
   "partnerSpotlight",
   "priorityPlacement",
   "product.aiSearchReady",
@@ -82,6 +83,7 @@ const featuredFeatures = [
 const proFeatures = [
   ...featuredFeatures,
   "analytics.advanced",
+  "homepageLaunch",
   "partnerSpotlight",
   "product.aiSearchReady",
 ]

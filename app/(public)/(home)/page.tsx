@@ -349,7 +349,10 @@ function HomepageHero() {
 
 export default function HomePage() {
   return (
-    <div className="relative isolate bg-[#F8FAFC] pb-20 text-[#0b1c30]">
+    <div
+      data-homepage
+      className="relative isolate bg-[#F8FAFC] pb-20 text-[#0b1c30]"
+    >
       <CoreStructuredData
         scriptKeyPrefix="home"
         webPage={{ path: HOME_PATH, name: siteConfig.tagline }}
@@ -427,7 +430,7 @@ async function HomepageDataSections() {
         score: launchOfDay.score,
         upvoteGrowthPercent: launchOfDay.upvoteGrowthPercent,
       }
-    : (feedProducts[0] ?? null)
+    : null
   const feedDrops = feedProducts.filter(
     (product) => !launch?.slug || product.slug !== launch.slug,
   )
@@ -446,8 +449,6 @@ async function HomepageDataSections() {
     ? formatPercent(launchGrowth)
     : null
   const launchIsSponsored = Boolean(launch?.isSponsored)
-  const launchIsEditorPick =
-    !launchIsSponsored && launch?.variant === "promoted"
   const launchHref = launch?.slug
     ? productCardPath(launch.slug, { sponsored: launchIsSponsored })
     : BROWSE_PATH
@@ -486,11 +487,11 @@ async function HomepageDataSections() {
               Live from the Shipyard
             </span>
             <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
-              Featured launch
+              Sponsored launch
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
-              One standout product from the launches earning attention on
-              Shipyard today.
+              One active Pro product gets Shipyard&apos;s highest-visibility
+              homepage launch slot.
             </p>
           </div>
           <Link
@@ -522,7 +523,7 @@ async function HomepageDataSections() {
                       transform: "rotate(180deg)",
                     }}
                   >
-                    {launchIsSponsored ? "Sponsored" : "Featured"}
+                    Sponsored
                   </span>
                 </div>
 
@@ -538,11 +539,6 @@ async function HomepageDataSections() {
                   <div className="min-w-0 max-w-[430px]">
                     <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-bold uppercase tracking-[0.11em]">
                       <span className="text-[#9A3412]">Launch of the Day</span>
-                      {launchIsEditorPick ? (
-                        <span className="text-[#0051d5]">
-                          Editor&apos;s Pick
-                        </span>
-                      ) : null}
                       {launchSignalLabel ? (
                         <span className="inline-flex items-center gap-1 text-[#166534]">
                           <TrendingUp className="size-3" aria-hidden />
@@ -598,29 +594,29 @@ async function HomepageDataSections() {
             ) : (
               <div className="flex min-h-[214px] flex-col justify-center p-6">
                 <span className="mb-3 w-fit text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
-                  Launch of the Day
+                  Paid slot available
                 </span>
                 <h3 className="text-2xl font-semibold leading-tight text-black">
-                  No launch is live yet.
+                  Put your launch in this slot.
                 </h3>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-[#43474c]">
-                  Real products will appear here as soon as launches are
-                  published.
+                  This paid Launch of the Day placement is included only with an
+                  active Pro plan.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3 border-t border-[#E2E8F0]/50 pt-4">
                   <Button
                     asChild
                     className="h-10 rounded-lg border-0 bg-black px-6 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
                   >
-                    <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-                      Submit Product
-                    </Link>
+                    <Link href={PRICING_PLANS_PATH}>View Pro pricing</Link>
                   </Button>
                   <Button
                     asChild
                     className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
                   >
-                    <Link href={BROWSE_PATH}>Browse Products</Link>
+                    <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                      Submit Product
+                    </Link>
                   </Button>
                 </div>
               </div>

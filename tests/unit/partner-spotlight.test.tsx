@@ -38,7 +38,7 @@ describe("PartnerSpotlight", () => {
     })
   }
 
-  it("exposes its fixed placement for route-level collision handling", () => {
+  it("exposes its fixed placement for route-level visibility handling", () => {
     renderSpotlight()
 
     expect(container?.firstElementChild).toHaveAttribute(

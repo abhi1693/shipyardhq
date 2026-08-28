@@ -16,14 +16,14 @@ One-time pricing is selected by default. The recurring control is labeled “Kee
 
 ## Production catalog
 
-| Slug                 | Type             |  Price |  Window | Enabled feature keys                                                                                   |
-| -------------------- | ---------------- | -----: | ------: | ------------------------------------------------------------------------------------------------------ |
-| `free`               | One-time/default |     $0 |   1 day | `analytics.basic`, `product.sitemap`                                                                   |
-| `spotlight`          | One-time         |  $4.99 |  7 days | `analytics.basic`, `backlink`, `featured`, `product.sitemap`, `sponsoredProducts`                      |
-| `featured`           | One-time         |  $9.99 | 14 days | `analytics.basic`, `backlink`, `featured`, `priorityPlacement`, `product.sitemap`, `sponsoredProducts` |
-| `featured-recurring` | Every 14 days    |  $8.99 | 14 days | Same as `featured`                                                                                     |
-| `pro`                | One-time         | $24.99 | 30 days | All Featured keys plus `analytics.advanced`, `partnerSpotlight`, `product.aiSearchReady`               |
-| `pro-recurring`      | Monthly          | $24.99 | 30 days | Same as `pro`                                                                                          |
+| Slug                 | Type             |  Price |  Window | Enabled feature keys                                                                                       |
+| -------------------- | ---------------- | -----: | ------: | ---------------------------------------------------------------------------------------------------------- |
+| `free`               | One-time/default |     $0 |   1 day | `analytics.basic`, `product.sitemap`                                                                       |
+| `spotlight`          | One-time         |  $4.99 |  7 days | `analytics.basic`, `backlink`, `featured`, `product.sitemap`, `sponsoredProducts`                          |
+| `featured`           | One-time         |  $9.99 | 14 days | `analytics.basic`, `backlink`, `featured`, `priorityPlacement`, `product.sitemap`, `sponsoredProducts`     |
+| `featured-recurring` | Every 14 days    |  $8.99 | 14 days | Same as `featured`                                                                                         |
+| `pro`                | One-time         | $24.99 | 30 days | All Featured keys plus `analytics.advanced`, `homepageLaunch`, `partnerSpotlight`, `product.aiSearchReady` |
+| `pro-recurring`      | Monthly          | $24.99 | 30 days | Same as `pro`                                                                                              |
 
 `product.aiSearchReady` has an explicit disabled assignment on both Featured plans in production.
 

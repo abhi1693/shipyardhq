@@ -93,6 +93,7 @@ const pro = buildPlan({
     "analytics.advanced",
     "product.aiSearchReady",
     "partnerSpotlight",
+    "homepageLaunch",
   ],
 })
 const proRecurring = buildPlan({
@@ -208,6 +209,7 @@ describe("pricing offer packaging", () => {
       expect.arrayContaining([
         "AI crawler, device, browser & location insights",
         "AI-search ready badge + dedicated Markdown profile",
+        "Launch of the Day homepage slot eligibility",
       ]),
     )
   })

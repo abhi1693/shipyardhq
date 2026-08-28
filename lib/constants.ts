@@ -93,6 +93,7 @@ export const PLAN_FEATURE_KEYS = [
   "priorityPlacement",
   "sponsoredProducts",
   "partnerSpotlight",
+  "homepageLaunch",
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]

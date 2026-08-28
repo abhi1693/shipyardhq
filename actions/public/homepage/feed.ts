@@ -38,6 +38,7 @@ import { revalidateHomepage } from "@/lib/cache/revalidate"
 import { buildPublicDiscoveryProductWhere } from "@/lib/products/public-discovery"
 import {
   buildActivePlacementPlanFilter,
+  getHomepageLaunchPlanIds,
   getSponsoredPlacementPlanIds,
   hasActivePlacementGrant,
 } from "@/lib/products/priority-plans"
@@ -1218,6 +1219,15 @@ export async function getHomepageFeedPage(
 
 async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
   const now = new Date()
+  const homepageLaunchPlanIds = await getHomepageLaunchPlanIds()
+  if (!homepageLaunchPlanIds.length) return null
+
+  const eligibleHomepageLaunchWhere: Prisma.ProductWhereInput = {
+    AND: [
+      buildBaseWhere(),
+      buildActivePlacementPlanFilter(homepageLaunchPlanIds, now),
+    ],
+  }
   const startToday = startOfUtcDayDate(now)
   const startTomorrow = addUtcDaysDate(startToday, 1)
   const launchedTodayWhere: Prisma.ProductWhereInput = {
@@ -1235,7 +1245,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
         where: {
           runId: run.id,
           product: {
-            AND: [buildBaseWhere(), launchedTodayWhere],
+            AND: [eligibleHomepageLaunchWhere, launchedTodayWhere],
           },
         },
         orderBy: [
@@ -1258,7 +1268,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
       ? await prisma.productLeaderboardScore.findFirst({
           where: {
             runId: run.id,
-            product: buildBaseWhere(),
+            product: eligibleHomepageLaunchWhere,
           },
           orderBy: [
             { score: "desc" },
@@ -1279,7 +1289,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
     ? null
     : await prisma.product.findFirst({
         where: {
-          AND: [buildBaseWhere(), launchedTodayWhere],
+          AND: [eligibleHomepageLaunchWhere, launchedTodayWhere],
         },
         orderBy: [
           { analytics: { upvotes: "desc" } },
@@ -1292,7 +1302,7 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
     selectedScore || todayFallbackProduct
       ? null
       : await prisma.product.findFirst({
-          where: buildBaseWhere(),
+          where: eligibleHomepageLaunchWhere,
           orderBy: [
             { analytics: { upvotes: "desc" } },
             { publishedAt: { sort: "desc", nulls: "last" } },
@@ -1351,6 +1361,8 @@ async function getLaunchOfDayImpl(): Promise<HomepageLaunchOfDay | null> {
 
   return {
     ...item,
+    isSponsored: true,
+    variant: "sponsored",
     rank: selectedScore?.rank ?? null,
     score: selectedScore?.score ?? item.scoreCount ?? null,
     upvoteGrowthPercent: calculatePercentChange(

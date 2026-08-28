@@ -18,6 +18,7 @@ export type {
 export const PRIORITY_FEATURE_KEY = "priorityPlacement" as const
 export const SPONSORED_PRODUCTS_FEATURE_KEY = "sponsoredProducts" as const
 export const PARTNER_SPOTLIGHT_FEATURE_KEY = "partnerSpotlight" as const
+export const HOMEPAGE_LAUNCH_FEATURE_KEY = "homepageLaunch" as const
 
 export const SPONSORED_PLACEMENT_FEATURE_KEYS = [
   PRIORITY_FEATURE_KEY,
@@ -90,6 +91,20 @@ export async function getPartnerSpotlightPlanIds() {
   )
 
   return getEnabledPlanIdsForFeatureKeys([PARTNER_SPOTLIGHT_FEATURE_KEY])
+}
+
+export async function getHomepageLaunchPlanIds() {
+  "use cache"
+  applyCache(
+    [
+      "products:homepage-launch-plan-ids",
+      TAGS.plans,
+      TAGS.planFeature(HOMEPAGE_LAUNCH_FEATURE_KEY),
+    ],
+    DEFAULT_TTL.slow,
+  )
+
+  return getEnabledPlanIdsForFeatureKeys([HOMEPAGE_LAUNCH_FEATURE_KEY])
 }
 
 export function buildPriorityPlanFilter(

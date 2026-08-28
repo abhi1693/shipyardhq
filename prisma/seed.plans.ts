@@ -130,6 +130,7 @@ const PLANS: PlanSeed[] = [
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
       { key: "partnerSpotlight" },
+      { key: "homepageLaunch" },
     ],
   },
   {
@@ -156,6 +157,7 @@ const PLANS: PlanSeed[] = [
       { key: "priorityPlacement" },
       { key: "sponsoredProducts" },
       { key: "partnerSpotlight" },
+      { key: "homepageLaunch" },
     ],
   },
 ]

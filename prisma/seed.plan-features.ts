@@ -68,6 +68,12 @@ const FEATURES = [
     displayName: "Partner spotlight placement",
     description: "Partner spotlight visibility",
   },
+  {
+    key: "homepageLaunch",
+    name: "Homepage Launch of the Day",
+    displayName: "Homepage Launch of the Day slot",
+    description: "Eligibility for the sponsored homepage launch slot",
+  },
 ]
 
 export async function seedPlanFeatures(prisma: PrismaClient) {
