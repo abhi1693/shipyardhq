@@ -28,6 +28,12 @@ Shipyard HQ is a launch intelligence network for independent builders. Makers ca
 - `scripts/` - manual utility scripts.
 - `tests/` - Vitest coverage.
 
+Public, auth, and member routes compile separate Tailwind stylesheets. Shared
+animation utilities live in `app/tailwind-animations.css`, imported through
+`app/tailwind-theme.css` by each entrypoint. Keep Tailwind `@utility` definitions
+there so state variants are generated. `app/globals.css` contains browser CSS
+and shared keyframes; it does not compile route utilities.
+
 ## Requirements
 
 - Node.js 22 or newer
