@@ -17,7 +17,6 @@ import { BadgeCheck, ChevronUp } from "lucide-react"
 import { Card, CardContent } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
-import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
@@ -813,13 +812,6 @@ export function HomepageDropsInfiniteList({
   return (
     <div className="space-y-3">
       {visibleSections.map((section, sectionIndex) => {
-        const lastSponsoredIndex = section.items.reduce(
-          (lastIndex, product, index) =>
-            product.isSponsored ? index : lastIndex,
-          -1,
-        )
-        const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
-
         return (
           <Fragment key={section.key}>
             <section className="space-y-3">
@@ -834,11 +826,8 @@ export function HomepageDropsInfiniteList({
               </div>
               <div className="space-y-3">
                 {section.items.length > 0 ? (
-                  section.items.map((product, index) => (
-                    <Fragment key={dropKey(product)}>
-                      <HomepageDropRow product={product} />
-                      {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
-                    </Fragment>
+                  section.items.map((product) => (
+                    <HomepageDropRow key={dropKey(product)} product={product} />
                   ))
                 ) : (
                   <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">

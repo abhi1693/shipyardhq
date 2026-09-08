@@ -66,6 +66,7 @@ export async function PlatformPageContent({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={pagePath}
       title={pageTitle}
       description={platformMeta.description}
       icon={<Globe2 className="h-10 w-10 text-[#c0ff00]" aria-hidden />}

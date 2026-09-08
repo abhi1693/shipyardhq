@@ -123,6 +123,7 @@ export async function UseCasePageContent({ params }: UseCasePageProps) {
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={path}
       title={useCase.label}
       description={description}
       icon={

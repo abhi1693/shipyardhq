@@ -143,7 +143,7 @@ export async function fetchPublicResource(
       headers: {
         Accept: accept,
         "User-Agent":
-          "ShipyardHQ-SEO-Audit/1.0 (+https://shipyardhq.com/tools)",
+          "ShipyardHQ-SEO-Audit/1.0 (+https://shipyardhq.dev/tools)",
       },
       cache: "no-store",
     })

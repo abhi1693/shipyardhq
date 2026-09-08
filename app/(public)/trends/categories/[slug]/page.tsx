@@ -110,7 +110,7 @@ async function TrendingToolsInCategoryPageContent({
 }: CategoryTrendsPageProps) {
   const { slug } = await params
   await connection()
-  const [category, taxonomySponsors] = await Promise.all([
+  const [category, taxonomySponsors, trafficStats] = await Promise.all([
     prisma.category.findUnique({
       where: { slug },
       select: {
@@ -121,6 +121,9 @@ async function TrendingToolsInCategoryPageContent({
       },
     }),
     getTaxonomySponsorProducts(),
+    // Resolve this before revealing the page so the stats do not create a
+    // nested resumed segment with a conflicting React stream identifier.
+    TaxonomyTrafficStatsSidebar(),
   ])
 
   if (!category) notFound()
@@ -231,6 +234,7 @@ async function TrendingToolsInCategoryPageContent({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={`/trends/categories/${category.slug}`}
       title={`Trending tools in ${category.name}`}
       description={buildTrendingCategoryDescription(
         category.name,
@@ -263,7 +267,7 @@ async function TrendingToolsInCategoryPageContent({
       feedTestId="trending-category-feed-section"
       structuredData={structuredData}
       sponsorProducts={taxonomySponsors}
-      trafficStats={<TaxonomyTrafficStatsSidebar />}
+      trafficStats={trafficStats}
     />
   )
 }

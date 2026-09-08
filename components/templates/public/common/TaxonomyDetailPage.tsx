@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { type ReactNode } from "react"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 
-import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
-import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
+import { cn } from "@/lib/utils"
 
 export interface TaxonomyDetailStat {
   label: string
@@ -40,6 +40,7 @@ interface TaxonomyDetailPageProps {
   sponsorProduct?: TaxonomySponsorProduct | null
   secondarySponsor?: TaxonomySponsorProduct | null
   trafficStats?: ReactNode
+  carbonPathname: string
 }
 
 const compactFormatter = new Intl.NumberFormat("en-US", {
@@ -78,20 +79,31 @@ export function TaxonomyDetailPage({
   sponsorProduct,
   secondarySponsor,
   trafficStats,
+  carbonPathname,
 }: TaxonomyDetailPageProps) {
   const sponsorProducts = (
     sponsorProductsProp?.length
       ? sponsorProductsProp
       : [sponsorProduct, secondarySponsor]
   ).filter((product): product is TaxonomySponsorProduct => Boolean(product))
-  const hasSidebar = Boolean(trafficStats || sponsorProducts.length)
+  const hasSidebarContent = Boolean(trafficStats || sponsorProducts.length)
 
   return (
     <main className="bg-[#f8fafc] text-[#0b1c30]">
       {structuredData}
 
-      <section className="bg-[#061d31] px-4 py-16 text-white md:px-6">
-        <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 text-center">
+      <section
+        className={cn(
+          "bg-[#061d31] px-4 py-16 text-white md:px-6",
+          hasSidebarContent ? "xl:py-10" : "xl:py-8",
+        )}
+      >
+        <div
+          className={cn(
+            "mx-auto flex max-w-[1200px] flex-col items-center gap-6 text-center",
+            !hasSidebarContent && "xl:gap-4",
+          )}
+        >
           <div className="rounded-lg border border-white/10 bg-white/10 p-3 text-[#c0ff00]">
             {icon}
           </div>
@@ -126,7 +138,12 @@ export function TaxonomyDetailPage({
               {tertiaryCta.label}
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-8 border-t border-white/10 pt-8">
+          <div
+            className={cn(
+              "mt-4 flex flex-wrap justify-center gap-8 border-t border-white/10 pt-8",
+              !hasSidebarContent && "xl:mt-2 xl:pt-6",
+            )}
+          >
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl font-bold text-[#c0ff00]">
@@ -144,9 +161,9 @@ export function TaxonomyDetailPage({
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
         <div
           className={
-            hasSidebar
+            hasSidebarContent
               ? "space-y-12 lg:col-span-8"
-              : "space-y-12 lg:col-span-12"
+              : "space-y-12 lg:col-span-12 xl:col-span-8"
           }
         >
           {intro ? (
@@ -157,38 +174,22 @@ export function TaxonomyDetailPage({
               <p className="mt-3 text-base leading-7 text-[#43474c]">{intro}</p>
             </section>
           ) : null}
-          <AnswerBlocks
-            blocks={[
-              {
-                title: "What this page lists",
-                body: `This page lists Shipyard product launches and directory entries related to ${title}. Each item links to a public product or filtered directory page with launch metadata.`,
-              },
-              {
-                title: "Who it is for",
-                body: `This page is for founders, operators, buyers, and researchers comparing ${title} products, alternatives, categories, and launch activity on Shipyard.`,
-              },
-              {
-                title: "How ordering works",
-                body: "Product feeds emphasize published launch metadata, recent activity, public discovery signals, and eligible promoted placements. Leaderboard-oriented pages use ranking signals such as votes, launch activity, and archive period.",
-              },
-              {
-                title: "Freshness policy",
-                body: "Shipyard directory pages revalidate frequently and update when products are published, edited, verified, promoted, tagged, ranked, or mapped to categories and alternatives.",
-              },
-            ]}
-          />
           <section data-testid={feedTestId}>{feed}</section>
           {afterFeed}
         </div>
 
-        {hasSidebar ? (
-          <aside className="space-y-6 lg:col-span-4">
-            {trafficStats}
+        <aside
+          className={
+            hasSidebarContent
+              ? "space-y-6 lg:col-span-4"
+              : "hidden space-y-6 lg:col-span-4 xl:block"
+          }
+        >
+          <CarbonAd pathname={carbonPathname} format="responsive" />
+          {trafficStats}
 
-            <TaxonomySponsorsSidebar products={sponsorProducts} />
-            <GoogleAdsenseDisplayUnit />
-          </aside>
-        ) : null}
+          <TaxonomySponsorsSidebar products={sponsorProducts} />
+        </aside>
       </div>
     </main>
   )

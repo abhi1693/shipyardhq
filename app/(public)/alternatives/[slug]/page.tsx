@@ -259,6 +259,7 @@ async function AlternativeDetailPageContent({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={alternativePath(alternative.slug)}
       title={`Best ${alternative.name} alternatives`}
       description={description}
       icon={

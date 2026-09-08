@@ -6,7 +6,6 @@ import {
   TrafficSidebarStats,
   TrafficSidebarStatsSkeleton,
 } from "@/components/templates/public/common/TrafficSidebarStats"
-import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import MakersFeedClient from "@/components/templates/public/users/index/MakersFeedClient"
@@ -93,7 +92,6 @@ export async function UsersIndexPageContent() {
             </Suspense>
 
             <TaxonomySponsorsSidebar products={taxonomySponsors} />
-            <GoogleAdsenseDisplayUnit />
           </aside>
         </div>
       </div>

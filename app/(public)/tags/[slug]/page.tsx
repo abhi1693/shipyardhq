@@ -278,6 +278,7 @@ async function TagDetailPageContent({ params }: TagPageProps) {
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={pagePath}
       title={tagLabel}
       description={pageDescription}
       icon={<Hash className="h-10 w-10 text-[#c0ff00]" aria-hidden />}

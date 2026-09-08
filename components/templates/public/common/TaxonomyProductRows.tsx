@@ -5,7 +5,6 @@ import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
-import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { productCardPath } from "@/lib/routes"
@@ -259,10 +258,10 @@ export function TaxonomyProductSections({
                 <Fragment key={product.id}>
                   <TaxonomyProductRow product={product} />
                   {index === adBoundaryIndex
-                    ? (renderAfterSponsoredProduct?.({
+                    ? renderAfterSponsoredProduct?.({
                         product,
                         section,
-                      }) ?? <GoogleAdsenseUnit />)
+                      })
                     : null}
                 </Fragment>
               ))}

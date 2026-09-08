@@ -20,7 +20,7 @@ export function MetaTagGeneratorTool() {
   const [description, setDescription] = useState(
     "Discover useful SaaS, AI, developer, and productivity products, then launch your own product to an audience looking for what is new.",
   )
-  const [canonical, setCanonical] = useState("https://shipyardhq.com/")
+  const [canonical, setCanonical] = useState("https://shipyardhq.dev/")
   const [author, setAuthor] = useState("Shipyard")
   const [language, setLanguage] = useState("en")
   const [index, setIndex] = useState(true)

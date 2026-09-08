@@ -50,8 +50,8 @@ type Values = Record<string, string>
 const DEFAULTS: Values = {
   name: "Shipyard",
   description: "A place to discover and launch outstanding products.",
-  url: "https://shipyardhq.com/",
-  image: "https://shipyardhq.com/opengraph-image.png",
+  url: "https://shipyardhq.dev/",
+  image: "https://shipyardhq.dev/opengraph-image.png",
   secondary: "",
   tertiary: "",
   items:

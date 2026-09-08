@@ -2,18 +2,10 @@
 
 import Link from "next/link"
 import { Flame } from "lucide-react"
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { addDays, startOfDay } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
-import { GoogleAdsenseUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
@@ -346,47 +338,6 @@ export function ProductFeedList({
     return remainingItems.slice(0, remainingPage * REMAINING_PAGE_SIZE)
   }, [remainingItems, remainingPage, showRemaining, view])
 
-  const sectionFallbackAdRowKey = useMemo(() => {
-    if (view !== "new") return null
-
-    const hasPromotedRows = sections.some((section) => {
-      if (section.kind === "promoted") return section.items.length > 0
-      return section.rows.some((row) => row.kind === "promoted")
-    })
-
-    if (hasPromotedRows) return null
-
-    for (const section of sections) {
-      if (section.kind === "promoted") continue
-      const firstProductRow = section.rows.find((row) => row.kind === "product")
-      if (firstProductRow) return firstProductRow.key
-    }
-
-    return null
-  }, [sections, view])
-
-  const fallbackAdBoundaryIndex = useMemo(() => {
-    if (view === "new" || sortedItems.length === 0) return -1
-
-    const lastSponsoredIndex = sortedItems.reduce(
-      (lastIndex, item, index) => (item.isSponsored ? index : lastIndex),
-      -1,
-    )
-
-    return lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
-  }, [sortedItems, view])
-
-  const remainingAdBoundaryIndex = useMemo(() => {
-    if (view !== "new" || visibleRemainingItems.length === 0) return -1
-
-    const lastSponsoredIndex = visibleRemainingItems.reduce(
-      (lastIndex, item, index) => (item.isSponsored ? index : lastIndex),
-      -1,
-    )
-
-    return lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
-  }, [view, visibleRemainingItems])
-
   const hasMoreRemaining =
     showRemaining &&
     view === "new" &&
@@ -465,11 +416,8 @@ export function ProductFeedList({
   const fallbackList =
     view !== "new" && sortedItems.length > 0 ? (
       <div className="space-y-4">
-        {sortedItems.map((item, index) => (
-          <Fragment key={`feed-${item.id}`}>
-            <ProductFeedCard item={item} />
-            {index === fallbackAdBoundaryIndex ? <GoogleAdsenseUnit /> : null}
-          </Fragment>
+        {sortedItems.map((item) => (
+          <ProductFeedCard key={`feed-${item.id}`} item={item} />
         ))}
       </div>
     ) : null
@@ -489,13 +437,8 @@ export function ProductFeedList({
           </div>
         ) : null}
         <div className="space-y-4">
-          {visibleRemainingItems.map((item, index) => (
-            <Fragment key={`remaining-${item.id}`}>
-              <ProductFeedCard item={item} />
-              {index === remainingAdBoundaryIndex ? (
-                <GoogleAdsenseUnit />
-              ) : null}
-            </Fragment>
+          {visibleRemainingItems.map((item) => (
+            <ProductFeedCard key={`remaining-${item.id}`} item={item} />
           ))}
         </div>
         {hasMoreRemaining ? (
@@ -541,7 +484,6 @@ export function ProductFeedList({
           />
         ))}
       </div>
-      <GoogleAdsenseUnit />
       {options.showDivider ? (
         <span
           aria-hidden="true"
@@ -585,14 +527,7 @@ export function ProductFeedList({
                   {section.rows.length > 0 ? (
                     section.rows.map((row) => {
                       if (row.kind === "product") {
-                        return (
-                          <Fragment key={row.key}>
-                            <ProductFeedCard item={row.item} />
-                            {row.key === sectionFallbackAdRowKey ? (
-                              <GoogleAdsenseUnit />
-                            ) : null}
-                          </Fragment>
-                        )
+                        return <ProductFeedCard key={row.key} item={row.item} />
                       }
                       return renderPromotedGroup(row.key, row.items)
                     })

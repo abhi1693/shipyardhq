@@ -162,7 +162,7 @@ function ScanError({ message }: { message: string }) {
 }
 
 export function SeoAuditTool() {
-  const [url, setUrl] = useState("https://shipyardhq.com/")
+  const [url, setUrl] = useState("https://shipyardhq.dev/")
   const { results, error, loading, scan } = useAuditScan()
   const result = results[0]
   return (
@@ -231,7 +231,7 @@ function parseUrls(value: string, max: number) {
 
 export function BulkSeoAuditTool() {
   const [raw, setRaw] = useState(
-    "https://shipyardhq.com/\nhttps://shipyardhq.com/tools",
+    "https://shipyardhq.dev/\nhttps://shipyardhq.dev/tools",
   )
   const urls = parseUrls(raw, 10)
   const { results, error, loading, scan } = useAuditScan()
@@ -308,7 +308,7 @@ export function BulkSeoAuditTool() {
 
 export function SeoComparisonTool() {
   const [raw, setRaw] = useState(
-    "https://shipyardhq.com/\nhttps://shipyardhq.com/tools",
+    "https://shipyardhq.dev/\nhttps://shipyardhq.dev/tools",
   )
   const urls = parseUrls(raw, 5)
   const { results, error, loading, scan } = useAuditScan()

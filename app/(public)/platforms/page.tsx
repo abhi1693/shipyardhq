@@ -73,6 +73,7 @@ export default async function PlatformsPage() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname="/platforms"
       title="Discover products by platform"
       description="Find launches by the surfaces they ship on, from web and mobile to desktop apps and browser extensions."
       searchPlaceholder={`Search ${items.length.toLocaleString()} platforms...`}

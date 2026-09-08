@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import {
   ArrowRight,
   BarChart3,
@@ -26,7 +27,6 @@ import {
   HomepageVoteStateProvider,
 } from "@/components/templates/public/homepage/homepage-client"
 import { VisitorSparkline } from "@/components/templates/public/homepage/VisitorSparkline"
-import { AnswerBlocks } from "@/components/templates/public/common/AnswerBlocks"
 import { PublicBuilderCountMessage } from "@/components/templates/public/common/PublicBuilderCountMessage"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -138,29 +138,6 @@ const HOMEPAGE_EXPLORE_LINKS = [
     title: "Use free launch tools",
     body: "Polish search previews, social cards, and launch assets.",
     href: TOOLS_PATH,
-  },
-] as const
-
-const HOMEPAGE_ANSWER_BLOCKS = [
-  {
-    title: "What Shipyard is",
-    body: `${BRAND_NAME} is a product discovery and launch platform where people explore new software and founders can measure the path from a listing view to a website click.`,
-  },
-  {
-    title: "Who it is for",
-    body: "Shipyard is for founders launching products, buyers discovering useful software, and builders learning how other products earn attention.",
-  },
-  {
-    title: "How discovery works",
-    body: "Launch highlights use public signals including recency, votes, product visits, ranking context, editorial picks, and clearly labelled sponsored eligibility.",
-  },
-  {
-    title: "How fresh it is",
-    body: "Launch data updates as products are published, voted on, promoted, ranked, or refreshed in the public discovery feed.",
-  },
-  {
-    title: "From discovery to website traffic",
-    body: `${BRAND_NAME} tracks aggregate website clicks so founders can see whether product-page attention turns into outbound visits. Links can also support brand discovery and citations, but traffic and buyer interest are the primary outcome—not a promised Domain Rating or search-ranking boost.`,
   },
 ] as const
 
@@ -323,6 +300,8 @@ function HomepageHero() {
             </Link>
           </Button>
         </div>
+
+        <CarbonAd pathname="/" format="responsive" className="mt-6" />
 
         <nav
           aria-label="Explore Shipyard"
@@ -698,16 +677,7 @@ async function HomepageDataSections() {
             excludedSlug={launch?.slug}
             referenceDateIso={referenceDateIso}
             afterFirstSectionSlot={<HomepageWhyExistsSection />}
-            afterSecondSectionSlot={
-              <div className="space-y-8">
-                <HomepageVisibilityOptionsSection />
-                <AnswerBlocks
-                  heading="Shipyard, explained"
-                  className="rounded-2xl border border-[#D7DEE8] bg-[#f8f9ff] px-5 py-4 sm:px-8"
-                  blocks={[...HOMEPAGE_ANSWER_BLOCKS]}
-                />
-              </div>
-            }
+            afterSecondSectionSlot={<HomepageVisibilityOptionsSection />}
           />
         </section>
       </div>

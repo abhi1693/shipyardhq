@@ -57,6 +57,7 @@ async function CategoriesPageContent() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname={CATEGORIES_PATH}
       title="Discover categories built for every launch"
       description="Browse the launch lanes where founders, operators, and builder-fans discover products by market and workflow."
       searchPlaceholder={`Search ${categoryCount.toLocaleString()} categories...`}

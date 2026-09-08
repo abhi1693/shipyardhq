@@ -533,6 +533,7 @@ export function ProductSlicePage({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={pagePath}
       title={title}
       description={description}
       intro={intro}

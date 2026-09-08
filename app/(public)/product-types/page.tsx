@@ -74,6 +74,7 @@ export default async function ProductTypesPage() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname="/product-types"
       title="Discover products by type"
       description="Browse launches by the way they are packaged, delivered, and used by customers."
       searchPlaceholder={`Search ${items.length.toLocaleString()} product types...`}

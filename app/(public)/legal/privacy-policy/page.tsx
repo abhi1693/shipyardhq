@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
             subtitle={`Learn how ${BRAND_NAME} collects, uses, and protects your personal information.`}
           />
           <div className="mt-6 space-y-6">
-            <p className="text-muted-foreground">Last updated: Jul 22, 2026</p>
+            <p className="text-muted-foreground">Last updated: Sep 8, 2026</p>
 
             <p>
               {BRAND_NAME} builds tools that help independent founders and
@@ -103,10 +103,12 @@ export default function PrivacyPolicyPage() {
                   </li>
                   <li>
                     <strong>Advertising signals:</strong> When display
-                    advertising is enabled on eligible guide pages, Google and
-                    its advertising partners may process cookie identifiers,
-                    device information, approximate location, ad interactions,
-                    and page context to deliver, limit, and measure ads.
+                    advertising is enabled, Carbon Ads (BuySellAds) on discovery
+                    pages, or Google and its advertising partners on eligible
+                    guides, may process IP addresses, cookie identifiers,
+                    browser and device information, approximate location, ad
+                    interactions, and page context to deliver, limit, and
+                    measure ads.
                   </li>
                 </ul>
               </div>
@@ -196,8 +198,8 @@ export default function PrivacyPolicyPage() {
                 processing, file storage, and payments. Key providers include
                 our infrastructure providers (hosting and file storage), Clerk
                 (identity management), OpenAI (AI features), Dodo Payments
-                (billing), and Google AdSense (advertising on eligible
-                publisher-authored pages).
+                (billing), Carbon Ads / BuySellAds (discovery-page advertising),
+                and Google AdSense (advertising on eligible guides).
               </li>
               <li>
                 <strong>Teams and community:</strong> Content you publish—such
@@ -222,6 +224,24 @@ export default function PrivacyPolicyPage() {
               Advertising, Cookies, and Your Choices
             </h2>
             <div className="space-y-4">
+              <p>
+                {BRAND_NAME} uses Carbon Ads, operated by BuySellAds, on the
+                homepage, browse, taxonomy directory, product, and leaderboard
+                pages. Carbon loads directly in your browser and may use cookies
+                and measurement pixels to deliver ads, limit repetition, and
+                measure impressions and interactions. Read the{" "}
+                <a
+                  href="https://www.buysellads.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  BuySellAds privacy policy
+                </a>{" "}
+                for details. Carbon and Google AdSense do not run together on
+                the same page. Our own sponsored launch placements are separate
+                from these ad networks.
+              </p>
               <p>
                 {BRAND_NAME} may use Google AdSense to show display ads on
                 substantial publisher-authored guide pages. We do not place

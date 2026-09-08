@@ -25,7 +25,7 @@ const PLAN_ID = "plan_pro"
 
 function request(query: string = `productId=${PRODUCT_ID}&planId=${PLAN_ID}`) {
   return new Request(
-    `https://shipyardhq.com/api/billing/plan-grants/status?${query}`,
+    `https://shipyardhq.dev/api/billing/plan-grants/status?${query}`,
   )
 }
 

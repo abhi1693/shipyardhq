@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, type CSSProperties } from "react"
 import { usePathname } from "next/navigation"
 
 import { isAdsensePublisherContentPath } from "@/lib/adsense/placement"
+import { claimAdDocument } from "@/lib/ads/document"
 import { cn } from "@/lib/utils"
 
 declare global {
@@ -77,6 +78,7 @@ export function GoogleAdsenseUnit({
 
   useEffect(() => {
     if (!isPublisherContentPage || !ADSENSE_CLIENT || !normalizedSlot) return
+    if (!claimAdDocument("adsense")) return
     const adElement = adRef.current
     if (!adElement) return
     if (

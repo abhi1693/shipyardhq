@@ -69,6 +69,7 @@ export async function ProductTypePageContent({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={pagePath}
       title={pageTitle}
       description={productTypeMeta.description}
       icon={<Boxes className="h-10 w-10 text-[#c0ff00]" aria-hidden />}

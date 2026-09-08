@@ -355,7 +355,7 @@ export default async function ViewUserProductPage({
   const trafficTrendPositive = viewsDelta >= 0
   const trafficBars = trafficSummary?.viewsOverTime.slice(-8) ?? []
   const trafficBarMax = Math.max(1, ...trafficBars.map((point) => point.views))
-  const publicUrl = `shipyardhq.com${publicPath}`
+  const publicUrl = `shipyardhq.dev${publicPath}`
   const verificationStatus = product.verification?.isVerified
     ? "Verified"
     : product.verification

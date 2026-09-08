@@ -55,7 +55,7 @@ const PRODUCT_ID = "product_1"
 const PLAN_ID = "plan_pro"
 
 function returnRequest(query: string) {
-  return new Request(`https://shipyardhq.com/api/billing/dodo/return?${query}`)
+  return new Request(`https://shipyardhq.dev/api/billing/dodo/return?${query}`)
 }
 
 describe("Dodo billing return route", () => {

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
+import { Suspense } from "react"
+import { AdDocumentBoundary } from "@/components/molecules/AdDocumentBoundary"
 import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
 import { LazyToaster } from "@/components/atoms/lazy-toaster"
 import "./globals.css"
@@ -68,6 +70,9 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
+        <Suspense fallback={null}>
+          <AdDocumentBoundary />
+        </Suspense>
         <FaroRum />
         <LazyToaster position="top-right" />
         {children}

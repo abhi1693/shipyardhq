@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Fragment } from "react"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 
 import { getFeaturedAlternatives } from "@/actions/public/alternatives/actions"
 import { getCategoryHighlights } from "@/actions/public/categories/actions"
@@ -9,10 +9,6 @@ import { getUseCaseHighlights } from "@/actions/public/use-cases/actions"
 import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
-import {
-  GoogleAdsenseDisplayUnit,
-  GoogleAdsenseUnit,
-} from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { mapProductCardRecordToBase } from "@/lib/products/selects"
@@ -114,15 +110,6 @@ type LeaderboardCardItem = ReturnType<typeof mapProductCardRecordToBase> & {
   interest?: null
   badges?: string[]
   leaderboardRank?: number
-}
-
-function getAdBoundaryIndex(items: LeaderboardCardItem[]) {
-  const lastSponsoredIndex = items.reduce(
-    (lastIndex, item, index) => (item.sponsored ? index : lastIndex),
-    -1,
-  )
-
-  return lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
 }
 
 function getLeaderboardCardHref(item: LeaderboardCardItem) {
@@ -1401,7 +1388,6 @@ export async function PeriodicLeaderboardView({
       getFeaturedAlternatives({ take: 3 }),
     ])
     const rankedItems = items.slice(0, 100)
-    const adBoundaryIndex = getAdBoundaryIndex(rankedItems)
 
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
@@ -1431,14 +1417,12 @@ export async function PeriodicLeaderboardView({
             {hasProducts ? (
               <div className="space-y-3">
                 {rankedItems.map((item, index) => (
-                  <Fragment key={item.id}>
-                    <DailyProductCard
-                      item={item}
-                      rank={item.leaderboardRank ?? index + 1}
-                      nowMs={now.getTime()}
-                    />
-                    {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
-                  </Fragment>
+                  <DailyProductCard
+                    key={item.id}
+                    item={item}
+                    rank={item.leaderboardRank ?? index + 1}
+                    nowMs={now.getTime()}
+                  />
                 ))}
               </div>
             ) : (
@@ -1470,6 +1454,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="space-y-6 lg:col-span-4">
+            <CarbonAd pathname={pagePath} format="responsive" />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}
@@ -1477,7 +1462,6 @@ export async function PeriodicLeaderboardView({
               useCases={useCases}
               alternatives={alternatives}
             />
-            <GoogleAdsenseDisplayUnit />
           </aside>
         </div>
       </main>
@@ -1494,7 +1478,6 @@ export async function PeriodicLeaderboardView({
     const rankedItems = items.slice(0, 100)
     const featuredItems = rankedItems.slice(0, 3)
     const compactItems = rankedItems.slice(3)
-    const adBoundaryIndex = getAdBoundaryIndex(rankedItems)
 
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
@@ -1525,31 +1508,25 @@ export async function PeriodicLeaderboardView({
               <>
                 <div className="space-y-3">
                   {featuredItems.map((item, index) => (
-                    <Fragment key={item.id}>
-                      <WeeklyLeaderboardCard
-                        item={item}
-                        rank={item.leaderboardRank ?? index + 1}
-                      />
-                      {index === adBoundaryIndex ? <GoogleAdsenseUnit /> : null}
-                    </Fragment>
+                    <WeeklyLeaderboardCard
+                      key={item.id}
+                      item={item}
+                      rank={item.leaderboardRank ?? index + 1}
+                    />
                   ))}
                 </div>
                 {compactItems.length ? (
                   <div className="space-y-1">
                     {compactItems.map((item, index) => (
-                      <Fragment key={item.id}>
-                        <WeeklyCompactRow
-                          item={item}
-                          nowMs={now.getTime()}
-                          rank={
-                            item.leaderboardRank ??
-                            featuredItems.length + index + 1
-                          }
-                        />
-                        {featuredItems.length + index === adBoundaryIndex ? (
-                          <GoogleAdsenseUnit />
-                        ) : null}
-                      </Fragment>
+                      <WeeklyCompactRow
+                        key={item.id}
+                        item={item}
+                        nowMs={now.getTime()}
+                        rank={
+                          item.leaderboardRank ??
+                          featuredItems.length + index + 1
+                        }
+                      />
                     ))}
                   </div>
                 ) : null}
@@ -1583,6 +1560,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="space-y-6 lg:col-span-4">
+            <CarbonAd pathname={pagePath} format="responsive" />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}
@@ -1590,7 +1568,6 @@ export async function PeriodicLeaderboardView({
               useCases={useCases}
               alternatives={alternatives}
             />
-            <GoogleAdsenseDisplayUnit />
           </aside>
         </div>
       </main>
@@ -1654,7 +1631,6 @@ export async function PeriodicLeaderboardView({
                     />
                   ))}
                   <InlinePartnerSpotlight product={partnerProduct} />
-                  <GoogleAdsenseUnit />
                   {afterPartner.map((item, index) => (
                     <CompactArchiveRow
                       key={item.id}
@@ -1702,6 +1678,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">
+            <CarbonAd pathname={pagePath} format="responsive" />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}
@@ -1709,7 +1686,6 @@ export async function PeriodicLeaderboardView({
               useCases={useCases}
               alternatives={alternatives}
             />
-            <GoogleAdsenseDisplayUnit />
           </aside>
         </div>
       </main>

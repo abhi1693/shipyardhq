@@ -69,6 +69,7 @@ export async function PricingModelPageContent({
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={pagePath}
       title={pageTitle}
       description={pricingModelMeta.description}
       icon={

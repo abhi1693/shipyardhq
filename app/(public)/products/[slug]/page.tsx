@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { type ComponentType, type ComponentPropsWithoutRef } from "react"
 import { preload } from "react-dom"
 import { notFound } from "next/navigation"
@@ -24,7 +25,6 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
-import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import ProductDescriptionCard from "@/components/molecules/ProductDescriptionCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { ProductWebsiteLink } from "@/components/molecules/ProductWebsiteLink"
@@ -1516,6 +1516,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
+            <CarbonAd
+              pathname={`/products/${product.slug}`}
+              format="responsive"
+            />
             {hasMeaningfulLeaderboardMetrics ? (
               <section
                 className={cn(
@@ -1545,7 +1549,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             ) : null}
             {productDetailsCard}
             {sponsoredProductCard}
-            <GoogleAdsenseDisplayUnit />
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 You may also like

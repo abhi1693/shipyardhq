@@ -87,6 +87,7 @@ export default async function TagsIndexPage() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname="/tags"
       title="Discover every keyword powering launches"
       description="Track the trends, technologies, and niches defining the next generation of high-performance products."
       searchPlaceholder={`Search ${totalTags.toLocaleString()}+ tags...`}

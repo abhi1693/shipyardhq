@@ -6,10 +6,10 @@ describe("resolveAppBaseUrl", () => {
   it("returns only the configured public origin", () => {
     expect(
       resolveAppBaseUrl(
-        "https://shipyardhq.com/member/products?billing=success",
+        "https://shipyardhq.dev/member/products?billing=success",
         "production",
       ),
-    ).toBe("https://shipyardhq.com")
+    ).toBe("https://shipyardhq.dev")
   })
 
   it.each(["http://0.0.0.0:3000", "https://0.0.0.0:3000", "http://[::]:3000"])(

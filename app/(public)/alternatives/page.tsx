@@ -98,6 +98,7 @@ export default async function AlternativesPage() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname="/alternatives"
       title="Discover alternatives for every launch stack"
       description="Browse the SaaS tools founders compare, replace, and benchmark while mapping the right products for their next launch."
       searchPlaceholder={`Search ${alternativeCount.toLocaleString()} alternatives...`}

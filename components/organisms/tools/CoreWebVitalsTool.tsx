@@ -97,7 +97,7 @@ function FieldVital({
 }
 
 export function CoreWebVitalsTool() {
-  const [url, setUrl] = useState("https://shipyardhq.com/")
+  const [url, setUrl] = useState("https://shipyardhq.dev/")
   const [strategy, setStrategy] = useState<"mobile" | "desktop">("mobile")
   const [result, setResult] = useState<PageSpeedResult | null>(null)
   const [error, setError] = useState("")

@@ -143,7 +143,7 @@ export function SerpPreviewTool() {
   const [description, setDescription] = useState(
     "Discover new SaaS, AI tools, apps, and developer products. Launch your own product, meet early users, and learn what gets their attention.",
   )
-  const [pageUrl, setPageUrl] = useState("https://shipyardhq.com/products")
+  const [pageUrl, setPageUrl] = useState("https://shipyardhq.dev/products")
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">(
     "desktop",
   )

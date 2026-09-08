@@ -42,6 +42,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
 
   return (
     <TaxonomyDetailPage
+      carbonPathname={`/categories/${categorySlug}`}
       title={category.name}
       description={categoryDescription(category.name, category.description)}
       icon={

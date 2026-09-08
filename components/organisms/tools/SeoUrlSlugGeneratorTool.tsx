@@ -168,7 +168,7 @@ export function SeoUrlSlugGeneratorTool() {
     "The Complete Guide to Launching Your SaaS Product in 2026",
   )
   const [focusKeyword, setFocusKeyword] = useState("launch saas product")
-  const [baseUrl, setBaseUrl] = useState("https://shipyardhq.com/guides")
+  const [baseUrl, setBaseUrl] = useState("https://shipyardhq.dev/guides")
   const [separator, setSeparator] = useState("-")
   const [removeStopWords, setRemoveStopWords] = useState(true)
   const [removeDates, setRemoveDates] = useState(true)

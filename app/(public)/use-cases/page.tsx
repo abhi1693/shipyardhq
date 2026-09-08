@@ -43,6 +43,7 @@ export default async function UseCasesPage() {
 
   return (
     <TaxonomyIndexPage
+      carbonPathname="/use-cases"
       title="Discover use cases built for every launch"
       description="Explore product collections organized around the jobs founders, operators, and teams need to get done."
       searchPlaceholder={`Search ${useCaseCount.toLocaleString()} use cases...`}

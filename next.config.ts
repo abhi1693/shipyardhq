@@ -26,6 +26,14 @@ const googleAdsConnectHosts = [
   "https://ep2.adtrafficquality.google",
   "https://*.adtrafficquality.google",
 ] as const
+const carbonScriptHosts = [
+  "https://cdn.carbonads.com",
+  "https://cdn4.buysellads.net",
+] as const
+const carbonConnectHosts = [
+  "https://srv.carbonads.net",
+  "https://srv.buysellads.com",
+] as const
 const cloudflareInsightsHosts = [
   "https://static.cloudflareinsights.com",
   "https://cloudflareinsights.com",
@@ -85,6 +93,7 @@ function buildContentSecurityPolicy() {
       ...googleAnalyticsHosts,
       ...googleAdsHosts,
       ...googleAdsConnectHosts,
+      ...carbonScriptHosts,
       ...cloudflareInsightsHosts,
       ...clerkScriptHosts,
     ],
@@ -94,6 +103,7 @@ function buildContentSecurityPolicy() {
       ...devConnectSources,
       ...googleAnalyticsHosts,
       ...googleAdsConnectHosts,
+      ...carbonConnectHosts,
       ...cloudflareInsightsHosts,
       ...clerkConnectHosts,
       ...(faroCollectorOrigin ? [faroCollectorOrigin] : []),

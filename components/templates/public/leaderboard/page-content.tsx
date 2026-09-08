@@ -1,11 +1,10 @@
 import Link from "next/link"
-import { Fragment } from "react"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import {
   Archive,
   ArrowRight,
   BadgeCheck,
   BookOpen,
-  CreditCard,
   Trophy,
   Zap,
 } from "lucide-react"
@@ -15,16 +14,11 @@ import { Button } from "@/components/atoms/button"
 import { Card, CardContent } from "@/components/atoms/card"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
-import {
-  GoogleAdsenseDisplayUnit,
-  GoogleAdsenseUnit,
-} from "@/components/molecules/GoogleAdsenseUnit"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { LazyTrafficStatsPanel } from "@/components/templates/public/common/LazyTrafficStatsPanel"
 import { LeaderboardUpvoteButton } from "@/components/templates/public/leaderboard/leaderboard-upvote-button"
 import { PromotedShips } from "@/components/templates/public/leaderboard/promoted-ships"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
-import { DODO_AFFILIATE_URL } from "@/lib/marketing/affiliates"
 import { getLeaderboardPagePayload } from "@/lib/leaderboard/cache"
 import { getPriorityPlacementPlanIds } from "@/lib/products/priority-plans"
 import { buildProductInterestBadges } from "@/lib/products/interest"
@@ -265,48 +259,6 @@ function EmptyLeaderboard() {
   )
 }
 
-function DodoPaymentsCard() {
-  return (
-    <Card className="group relative overflow-hidden rounded-xl border-0 bg-black p-0 text-white shadow-none">
-      <CreditCard
-        className="pointer-events-none absolute -bottom-4 -right-4 size-36 text-white/20 transition-transform duration-500 group-hover:scale-110"
-        aria-hidden
-      />
-      <CardContent className="relative z-10 p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-[#C0FF00]">
-            <Zap className="size-5 text-black" aria-hidden />
-          </div>
-          <span className="text-[12px] font-semibold uppercase tracking-widest text-[#d9ff3f]">
-            Dodo Payments
-          </span>
-        </div>
-        <h2 className="mb-2 text-[18px] font-semibold leading-6">
-          Take payments with the provider Shipyard uses
-        </h2>
-        <p className="mb-6 text-[14px] leading-5 text-white/80">
-          We process Shipyard billing via Dodo Payments. If you&apos;re shipping
-          a SaaS, it&apos;s a great starting point with global compliance
-          built-in.
-        </p>
-        <Button
-          asChild
-          className="h-12 w-full rounded-lg bg-white text-[12px] font-semibold uppercase tracking-[0.05em] text-black hover:bg-[#C0FF00]"
-        >
-          <a
-            href={DODO_AFFILIATE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Get started
-            <ArrowRight className="size-4" aria-hidden />
-          </a>
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
-
 export async function LeaderboardPageContent({
   searchParams,
 }: {
@@ -396,11 +348,8 @@ export async function LeaderboardPageContent({
             <h2 className="sr-only">Ranked products</h2>
             {leaderboardItems.length > 0 ? (
               <>
-                {leaderboardItems.slice(0, 10).map((item, index) => (
-                  <Fragment key={item.id}>
-                    <LeaderboardProductCard item={item} />
-                    {index === 0 ? <GoogleAdsenseUnit /> : null}
-                  </Fragment>
+                {leaderboardItems.slice(0, 10).map((item) => (
+                  <LeaderboardProductCard key={item.id} item={item} />
                 ))}
                 <div className="flex justify-center pt-8">
                   <Link
@@ -417,10 +366,9 @@ export async function LeaderboardPageContent({
             )}
           </section>
           <aside className="space-y-6 lg:col-span-4">
+            <CarbonAd pathname={LEADERBOARD_PATH} format="responsive" />
             <LazyTrafficStatsPanel initialStats={stats} />
             <PromotedShips products={partnerSpotlightProducts} />
-            <GoogleAdsenseDisplayUnit />
-            <DodoPaymentsCard />
           </aside>
         </div>
       </div>
