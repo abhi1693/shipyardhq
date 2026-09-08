@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 
 import Providers from "@/components/layout/providers"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { syncUserFromClerk } from "@/lib/server/syncUserFromClerk"
 import {
   HOME_PATH,
   MEMBER_BASE_PATH,
@@ -59,12 +59,8 @@ export default function MemberOnboardingLayout({
 async function MemberOnboardingGate({ children }: { children: ReactNode }) {
   await connection()
 
-  const { userId } = await auth()
+  const { userId } = await auth.protect()
   const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
-
-  if (!userId) {
-    redirect(signInPath)
-  }
 
   try {
     const clerkUser = await getClerkUserByIdCached(userId)

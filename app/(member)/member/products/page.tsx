@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+
 import { Suspense } from "react"
 
 import { MemberProductsPageContent } from "@/components/templates/member/products/page-content"
@@ -8,7 +10,9 @@ export const metadata = buildPageMetadata({
   description: "Manage your products, chart growth, and track performance.",
 })
 
-export default function MemberProductsPage() {
+export default async function MemberProductsPage() {
+  await auth.protect()
+
   return (
     <Suspense fallback={null}>
       <MemberProductsPageContent />

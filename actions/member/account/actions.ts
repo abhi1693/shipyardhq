@@ -2,7 +2,7 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server"
 
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCache } from "@/lib/server/homepage/feed"
 import { deleteBlobPrefix } from "@/lib/blob"
 import {
   revalidateCategories,

@@ -1,20 +1,9 @@
-"use client"
+import { auth } from "@clerk/nextjs/server"
 
-import { useUser } from "@clerk/nextjs"
-import { useSearchParams } from "next/navigation"
-import { OnboardingForm } from "./form"
+import OnboardingClient from "./client"
 
-export default function OnboardingPage() {
-  const { user } = useUser()
-  const searchParams = useSearchParams()
-  const redirectTo = searchParams?.get("redirectTo") ?? undefined
-  const redirectSource = searchParams?.get("source") ?? undefined
+export default async function OnboardingPage() {
+  await auth.protect()
 
-  return (
-    <OnboardingForm
-      firstName={user?.firstName}
-      redirectTo={redirectTo}
-      redirectSource={redirectSource}
-    />
-  )
+  return <OnboardingClient />
 }

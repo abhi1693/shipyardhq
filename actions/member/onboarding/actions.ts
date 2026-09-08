@@ -7,7 +7,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
   invalidateActiveUserCache,
 } from "@/lib/server/userStatus"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { syncUserFromClerk } from "@/lib/server/syncUserFromClerk"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { revalidateUser } from "@/lib/cache/revalidate"
 

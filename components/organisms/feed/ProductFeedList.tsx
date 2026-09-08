@@ -5,7 +5,7 @@ import { Flame } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { addDays, startOfDay } from "date-fns"
 
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import ProductFeedCard from "@/components/molecules/ProductFeedCard"
 import type { HomepageFeedView } from "@/lib/homepage/feed-views"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"

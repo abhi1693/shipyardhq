@@ -1,4 +1,4 @@
-"use server"
+import "server-only"
 
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -10,8 +10,6 @@ import {
 } from "@/lib/server/catalog-query-cache"
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
-  "use server"
-
   try {
     return await cacheCatalogQuery({
       key: buildCatalogQueryCacheKey("categories", args),
@@ -106,8 +104,6 @@ export async function getUseCasesWithCounts() {
 export async function getAlternativeProducts(
   args: Prisma.AlternativeProductFindManyArgs = {},
 ) {
-  "use server"
-
   try {
     const query: Prisma.AlternativeProductFindManyArgs = {
       orderBy: { createdAt: "desc" },

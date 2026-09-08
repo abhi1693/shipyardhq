@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import type { ProductInterestSignals } from "@/types/product-interest"
 import {
   mapProductCardRecordToBase,

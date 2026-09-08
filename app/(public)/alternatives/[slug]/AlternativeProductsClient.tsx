@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import type { AlternativeDetailProduct } from "@/actions/public/alternatives/actions"
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
 import {

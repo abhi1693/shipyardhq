@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import { getUserProductsPage } from "@/actions/public/users/server-actions"
 import { UserProductGrid } from "./UserProductFeed"
 

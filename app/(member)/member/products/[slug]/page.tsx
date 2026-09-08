@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+
 import { notFound, redirect } from "next/navigation"
 import { formatDate } from "@/lib/ui/formatters"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
@@ -81,6 +83,8 @@ export default async function ViewUserProductPage({
   params: Promise<{ slug: string }>
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
+  await auth.protect()
+
   const { slug } = await params
   const sp = (await searchParams) || {}
   const celebrateValue = sp["celebrate"]

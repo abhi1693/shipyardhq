@@ -17,10 +17,11 @@ import {
   getHomepageFeedPage,
   getHomepageLaunchOfDay,
   type HomepageFeedItem,
-} from "@/actions/public/homepage/feed"
+} from "@/lib/server/homepage/feed"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import {
   HomepageDropsInfiniteList,
   HomepageVoteStateProvider,
@@ -630,6 +631,7 @@ async function HomepageDataSections() {
       </section>
 
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+        <CarbonAd pathname={HOME_PATH} variant="banner" className="mx-auto" />
         <section
           className="my-14"
           id="drops"

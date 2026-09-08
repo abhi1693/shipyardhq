@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
@@ -18,6 +20,8 @@ export default async function DeleteMemberProductPage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  await auth.protect()
+
   const { slug } = await params
 
   if (!slug) {

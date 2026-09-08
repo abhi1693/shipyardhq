@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+
 import { redirect } from "next/navigation"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
@@ -65,6 +67,8 @@ export default async function ProductUpgradePage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  await auth.protect()
+
   const { slug } = await params
 
   if (!slug) {

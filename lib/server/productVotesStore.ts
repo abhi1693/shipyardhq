@@ -10,7 +10,7 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
-import { invalidateHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { invalidateHomepageFeedCache } from "@/lib/server/homepage/feed"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 import { invalidateLeaderboardRangeAnalyticsCache } from "@/lib/server/analytics/leaderboardRange"
 

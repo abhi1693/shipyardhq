@@ -30,7 +30,7 @@ import {
   categoryPath,
 } from "@/lib/routes"
 import { buildProductListItem } from "@/lib/seo/product-list"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"

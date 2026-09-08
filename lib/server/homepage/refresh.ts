@@ -1,4 +1,4 @@
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCache } from "@/lib/server/homepage/feed"
 import { getAppBaseUrl } from "@/lib/app-url"
 
 export type HomepageRefreshResult = Awaited<

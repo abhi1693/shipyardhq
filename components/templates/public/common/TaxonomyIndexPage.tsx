@@ -376,13 +376,13 @@ export function TaxonomyIndexPage({
         </div>
 
         <aside className="space-y-6 lg:col-span-4">
-          <CarbonAd pathname={carbonPathname} />
           <PulsePanel
             title={pulseTitle}
             stats={stats}
             topItems={sortedItems}
             totalProducts={totalProductCount}
           />
+          <CarbonAd pathname={carbonPathname} />
 
           {quickLinks.length > 0 ? (
             <section className="rounded-xl border border-[#e2e8f0] bg-white p-5">

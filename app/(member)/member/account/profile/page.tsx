@@ -9,7 +9,7 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function Page() {
-  const { userId } = await auth()
+  const { userId } = await auth.protect()
   const profile = userId ? await getActiveUserByClerkId(userId) : null
 
   return (

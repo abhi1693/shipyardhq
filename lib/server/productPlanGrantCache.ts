@@ -1,4 +1,4 @@
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCache } from "@/lib/server/homepage/feed"
 import { invalidateHistoricalPeriodicLeaderboardCache } from "@/actions/public/leaderboard/actions"
 import { revalidateProduct } from "@/lib/cache/revalidate"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"

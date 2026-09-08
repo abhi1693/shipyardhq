@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCache } from "@/lib/server/homepage/feed"
 
 function getRefreshSecret() {
   return process.env.CRON_SECRET?.trim() || null

@@ -1,4 +1,4 @@
-"use server"
+import "server-only"
 
 import { type User as ClerkUser } from "@clerk/backend"
 import prisma from "@/lib/prisma"

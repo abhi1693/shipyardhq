@@ -9,8 +9,6 @@ import type {
 } from "@/components/molecules/ProductCard"
 import { toProductCardItem } from "@/lib/products/card-item"
 import { productCardPath } from "@/lib/routes"
-import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
-import { feedAdIndex } from "@/lib/ads/feed"
 
 function ProductLogo({ product }: { product: ProductCardItem }) {
   if (!product.logo) {
@@ -122,22 +120,16 @@ export function BrowseProductRow({ product }: { product: ProductCardItem }) {
 
 export function BrowseProductRows({
   products,
-  precedingProducts = [],
 }: {
   products: ProductCardBase[]
-  precedingProducts?: ProductCardBase[]
 }) {
   const items = products.map((product) => toProductCardItem(product))
-  const adIndex = feedAdIndex(items, { before: precedingProducts })
 
   return (
     <div className="space-y-3" data-product-feed-section="fresh-finds">
-      {items.flatMap((item, index) => [
-        <BrowseProductRow key={item.id} product={item} />,
-        index === adIndex ? (
-          <CarbonFeedAd key="carbon-fresh-finds" section="browse-fresh-finds" />
-        ) : null,
-      ])}
+      {items.map((item) => (
+        <BrowseProductRow key={item.id} product={item} />
+      ))}
     </div>
   )
 }

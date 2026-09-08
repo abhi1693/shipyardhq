@@ -1,9 +1,8 @@
+import { auth } from "@clerk/nextjs/server"
+
 import { notFound, redirect } from "next/navigation"
 
-import {
-  getAlternativeProducts,
-  getCategories,
-} from "@/actions/catalog/actions"
+import { getAlternativeProducts, getCategories } from "@/lib/server/catalog"
 import { getProductDraftForCurrentUser } from "@/actions/product-drafts/actions"
 import ProductDraftStepForm from "@/components/pages/products/ProductDraftStepForm"
 import {
@@ -17,6 +16,8 @@ export default async function MemberProductDraftStepPage({
 }: {
   params: Promise<{ draftId: string; step: string }>
 }) {
+  await auth.protect()
+
   const { draftId, step: rawStep } = await params
   if (!isProductDraftStep(rawStep)) {
     redirect(productDraftStepPath("member", draftId, "configuration"))

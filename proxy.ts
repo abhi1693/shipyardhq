@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { clerkMiddleware } from "@clerk/nextjs/server"
 import { createDualmarkMiddleware } from "@dualmark/nextjs"
 import {
   NextResponse,
@@ -15,7 +15,6 @@ import {
   shouldRunClerkMiddleware,
 } from "@/lib/proxy-routing"
 
-const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 const PUBLIC_FILE_EXTENSION = /\.[^/]+$/
 const PRODUCT_PAGE_PATH_PATTERN = /^\/products\/([^/]+)\/?$/
 const PUBLIC_DOCUMENT_CACHE_CONTROL =
@@ -202,14 +201,8 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
   return response
 }
 
-const handleClerkMiddleware = clerkMiddleware(async (auth, req) => {
-  const memberPathRequested = isMemberRoute(req)
-  if (memberPathRequested) {
-    await auth.protect()
-  }
-
-  return NextResponse.next()
-})
+// Resource-level checks in member pages and actions enforce authentication.
+const handleClerkMiddleware = clerkMiddleware()
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   const mediaImageRedirect = await redirectMediaImageOptimizationRequest(req)

@@ -1,5 +1,4 @@
-export const CARBON_ZONE = "CWBI4KJN"
-export const CARBON_PLACEMENT = "placement:shipyardhqdev"
-// Attribution belongs to the template, independent of the campaign asset set.
-export const CARBON_ATTRIBUTION_URL =
-  "https://www.carbonads.net/?utm_source=shipyardhqdev&utm_medium=ad_via_link&utm_campaign=in_unit&utm_term=carbon"
+// CWBI4KJN serves both image/text and rich creatives. Carbon's hosted renderer
+// selects the compatible responsive format and preserves all creative assets.
+export const CARBON_SCRIPT_URL =
+  "https://cdn.carbonads.com/carbon.js?serve=CWBI4KJN&placement=shipyardhqdev&format=responsive"

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
-import { getHomepageViewerUpvotedProductIds } from "@/actions/public/homepage/feed"
+import { getHomepageViewerUpvotedProductIds } from "@/lib/server/homepage/feed"
 
 const MAX_PRODUCT_IDS = 80
 

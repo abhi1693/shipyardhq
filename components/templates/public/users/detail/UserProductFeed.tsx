@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ExternalLink, ImageIcon } from "lucide-react"
 
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productCardPath } from "@/lib/routes"

@@ -1,7 +1,7 @@
 import { pluralize } from "@/lib/pluralize"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
-import { getUseCasesWithCounts, getCategories } from "@/actions/catalog/actions"
+import { getUseCasesWithCounts, getCategories } from "@/lib/server/catalog"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"

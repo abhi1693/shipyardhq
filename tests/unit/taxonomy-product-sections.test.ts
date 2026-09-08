@@ -18,6 +18,8 @@ describe("taxonomy launch dates", () => {
         id,
         slug: id,
         name: id,
+        logo: "",
+        tagline: "A useful product",
         publishedAt,
         createdAt: publishedAt,
       } as ProductCardBase),

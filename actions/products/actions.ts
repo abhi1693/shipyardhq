@@ -25,7 +25,7 @@ import {
 } from "@/lib/server/userStatus"
 import { getRootDomain } from "@/lib/domain"
 import { productForEditWizardSelect } from "@/types/product-wizard"
-import { refreshHomepageFeedCache } from "@/actions/public/homepage/feed"
+import { refreshHomepageFeedCache } from "@/lib/server/homepage/feed"
 import { invalidateSearchSuggestionsCache } from "@/lib/server/search/suggestions-cache"
 import { invalidateProductAnalyticsRecordCache } from "@/lib/server/analytics/productAnalytics"
 import { resolveTxtRecords } from "@/lib/server/dns"
@@ -107,10 +107,14 @@ async function generateUniqueSlug(base: string): Promise<string> {
 }
 
 export async function getProductById(id: string) {
+  const { userId } = await auth.protect()
+  const currentUser = await getActiveUserByClerkId(userId)
+  if (!currentUser) return null
+
   try {
     const now = new Date()
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { id, userId: currentUser.id },
       include: {
         category: true,
         user: true,
@@ -172,9 +176,13 @@ export async function getProductById(id: string) {
 }
 
 export async function getProductForEditWizard(id: string) {
+  const { userId } = await auth.protect()
+  const currentUser = await getActiveUserByClerkId(userId)
+  if (!currentUser) return null
+
   try {
     return await prisma.product.findUnique({
-      where: { id },
+      where: { id, userId: currentUser.id },
       select: productForEditWizardSelect,
     })
   } catch (error) {

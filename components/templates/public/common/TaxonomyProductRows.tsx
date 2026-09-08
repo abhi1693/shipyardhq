@@ -1,10 +1,8 @@
 import { Fragment, type ReactNode } from "react"
-import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
-import { feedAdIndex } from "@/lib/ads/feed"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
@@ -252,15 +250,7 @@ export function TaxonomyProductSections({
 }) {
   return (
     <div className="space-y-12">
-      {sections.map((section, sectionIndex) => {
-        const adIndex = feedAdIndex(section.products, {
-          before: sections
-            .slice(0, sectionIndex)
-            .flatMap((entry) => entry.products),
-          after: sections
-            .slice(sectionIndex + 1)
-            .flatMap((entry) => entry.products),
-        })
+      {sections.map((section) => {
         const lastSponsoredIndex = section.products.reduce(
           (lastIndex, current, currentIndex) =>
             current.isSponsored ? currentIndex : lastIndex,
@@ -283,7 +273,7 @@ export function TaxonomyProductSections({
               </span>
             </div>
             <div className="space-y-3">
-              {section.products.flatMap((product, index) => [
+              {section.products.map((product, index) => (
                 <Fragment key={product.id}>
                   <TaxonomyProductRow product={product} />
                   {index === adBoundaryIndex
@@ -292,14 +282,8 @@ export function TaxonomyProductSections({
                         section,
                       })
                     : null}
-                </Fragment>,
-                index === adIndex ? (
-                  <CarbonFeedAd
-                    key={`ad-${section.key}`}
-                    section={`taxonomy-${section.key}`}
-                  />
-                ) : null,
-              ])}
+                </Fragment>
+              ))}
             </div>
           </section>
         )

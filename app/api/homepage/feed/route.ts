@@ -5,7 +5,7 @@ import {
   getHomepageFeedPage,
   getHomepageViewerUpvotedProductIds,
   type HomepageFeedPageResult,
-} from "@/actions/public/homepage/feed"
+} from "@/lib/server/homepage/feed"
 import { HOMEPAGE_FEED_PAGE_SIZE } from "@/lib/homepage/feed-constants"
 import { DEFAULT_HOMEPAGE_FEED_VIEW } from "@/lib/homepage/feed-views"
 import { isHomepageLaunchPeriod } from "@/lib/homepage/launch-periods"

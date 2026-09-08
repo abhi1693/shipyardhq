@@ -11,7 +11,7 @@ import { canOpenDodoBillingPortalByEmail } from "@/lib/dodoCustomerPortal"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { syncUserFromClerk } from "@/lib/server/syncUserFromClerk"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
@@ -61,12 +61,8 @@ export default function MemberLayout({
 async function MemberGate({ children }: { children: React.ReactNode }) {
   await connection()
 
-  const { userId } = await auth()
+  const { userId } = await auth.protect()
   const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
-
-  if (!userId) {
-    redirect(signInPath)
-  }
 
   try {
     const clerkUser = await getClerkUserByIdCached(userId)

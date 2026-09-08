@@ -14,10 +14,7 @@ import { getPricingModelMeta } from "@/lib/pricing/models"
 import { getProductTypeMeta } from "@/lib/product-types/models"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { BrowseHeroSearch } from "@/components/templates/public/browse/BrowseHeroSearch"
-import {
-  BrowseRisingStars,
-  selectRisingProducts,
-} from "@/components/templates/public/browse/BrowseRisingStars"
+import { BrowseRisingStars } from "@/components/templates/public/browse/BrowseRisingStars"
 import { BrowseDiscoveryFilters } from "@/components/templates/public/browse/BrowseDiscoveryFilters"
 import { BrowseProductRowsClient } from "@/components/templates/public/browse/BrowseProductRowsClient"
 import { buildProductListItem } from "@/lib/seo/product-list"
@@ -181,7 +178,6 @@ export async function BrowsePageContent({
               <div className="space-y-6">
                 <BrowseProductRowsClient
                   initialProducts={products}
-                  precedingProducts={selectRisingProducts(products)}
                   initialHasMore={hasMore}
                   initialPage={2}
                   pageSize={BROWSE_INITIAL_PAGE_SIZE}

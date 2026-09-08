@@ -1,5 +1,5 @@
 import { toggleVoteState } from "@/lib/server/productVotesStore"
-import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { syncUserFromClerk } from "@/lib/server/syncUserFromClerk"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   getActiveUserByClerkId,

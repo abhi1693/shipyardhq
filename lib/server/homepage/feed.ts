@@ -1,5 +1,4 @@
-"use server"
-
+// Internal queries shared by routes and the worker; never expose as Server Actions.
 import prisma from "@/lib/prisma"
 import {
   getAnalyticsReportingWindow,

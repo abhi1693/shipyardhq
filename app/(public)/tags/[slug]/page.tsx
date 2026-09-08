@@ -10,7 +10,7 @@ import {
   getKeywordTagProducts,
   getKeywordTagSummaries,
 } from "@/actions/public/tags/actions"
-import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
+import type { HomepageFeedItem } from "@/lib/server/homepage/feed"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"

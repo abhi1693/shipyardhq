@@ -22,7 +22,6 @@ type BrowseRowsSearchParams = {
 
 interface BrowseProductRowsClientProps {
   initialProducts: ProductCardBase[]
-  precedingProducts?: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
   pageSize: number
@@ -41,7 +40,6 @@ function renderLoadingSkeleton(count: number) {
 
 export function BrowseProductRowsClient({
   initialProducts,
-  precedingProducts,
   initialHasMore,
   initialPage,
   pageSize,
@@ -151,12 +149,7 @@ export function BrowseProductRowsClient({
 
   return (
     <section className="space-y-6" data-testid="browse-product-rows-client">
-      {items.length ? (
-        <BrowseProductRows
-          products={items}
-          precedingProducts={precedingProducts}
-        />
-      ) : null}
+      {items.length ? <BrowseProductRows products={items} /> : null}
 
       {isLoading ? renderLoadingSkeleton(3) : null}
 

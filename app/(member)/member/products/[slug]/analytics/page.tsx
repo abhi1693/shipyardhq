@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server"
+
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import {
@@ -222,6 +224,8 @@ export default async function ProductAnalyticsPage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  await auth.protect()
+
   const { slug } = await params
   const { product: manageableProduct } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,

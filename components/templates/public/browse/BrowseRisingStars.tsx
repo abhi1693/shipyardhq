@@ -5,8 +5,6 @@ import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productCardPath } from "@/lib/routes"
-import { canPlaceFeedAdAfter } from "@/lib/ads/feed"
-import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
 
 interface BrowseRisingStarsProps {
   products: ProductCardBase[]
@@ -41,11 +39,6 @@ export function selectRisingProducts(products: ProductCardBase[]) {
 
 export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
   const risingProducts = selectRisingProducts(products)
-  const showAd = canPlaceFeedAdAfter(
-    risingProducts,
-    risingProducts.length - 1,
-    { after: products },
-  )
 
   return (
     <section
@@ -118,11 +111,6 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
           )
         })}
       </div>
-      {showAd ? (
-        <div className="mt-4">
-          <CarbonFeedAd section="browse-rising-stars" />
-        </div>
-      ) : null}
     </section>
   )
 }

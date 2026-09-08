@@ -185,10 +185,10 @@ export function TaxonomyDetailPage({
               : "hidden space-y-6 lg:col-span-4 xl:block"
           }
         >
+          {trafficStats}
           {sponsorProducts.length === 0 ? (
             <CarbonAd pathname={carbonPathname} />
           ) : null}
-          {trafficStats}
 
           <TaxonomySponsorsSidebar products={sponsorProducts} />
         </aside>

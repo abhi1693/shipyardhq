@@ -1,9 +1,8 @@
+import { auth } from "@clerk/nextjs/server"
+
 import { notFound, redirect } from "next/navigation"
 
-import {
-  getAlternativeProducts,
-  getCategories,
-} from "@/actions/catalog/actions"
+import { getAlternativeProducts, getCategories } from "@/lib/server/catalog"
 import { getProductForEditWizard } from "@/actions/products/actions"
 import {
   isProductDraftStep,
@@ -18,6 +17,8 @@ export default async function EditProductStepPage({
 }: {
   params: Promise<{ slug: string; step: string }>
 }) {
+  await auth.protect()
+
   const { slug, step: rawStep } = await params
   if (!isProductDraftStep(rawStep)) {
     redirect(`${memberProductPath(slug)}/edit/configuration`)

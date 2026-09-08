@@ -1,8 +1,5 @@
 "use client"
 
-import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
-import { feedAdIndex } from "@/lib/ads/feed"
-
 import {
   createContext,
   Fragment,
@@ -23,7 +20,7 @@ import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type {
   HomepageFeedItem,
   HomepageFeedPageResult,
-} from "@/actions/public/homepage/feed"
+} from "@/lib/server/homepage/feed"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import type { ProductCategorySummary } from "@/lib/products/categories"
 import type { HomepageLaunchPeriod } from "@/lib/homepage/launch-periods"
@@ -815,14 +812,6 @@ export function HomepageDropsInfiniteList({
   return (
     <div className="space-y-3">
       {visibleSections.map((section, sectionIndex) => {
-        const adIndex = feedAdIndex(section.items, {
-          before: visibleSections
-            .slice(0, sectionIndex)
-            .flatMap((entry) => entry.items),
-          after: visibleSections
-            .slice(sectionIndex + 1)
-            .flatMap((entry) => entry.items),
-        })
         return (
           <Fragment key={section.key}>
             <section
@@ -840,18 +829,9 @@ export function HomepageDropsInfiniteList({
               </div>
               <div className="space-y-3">
                 {section.items.length > 0 ? (
-                  section.items.flatMap((product, index) => [
-                    <HomepageDropRow
-                      key={dropKey(product)}
-                      product={product}
-                    />,
-                    index === adIndex ? (
-                      <CarbonFeedAd
-                        key={`ad-${section.key}`}
-                        section={`home-${section.key}`}
-                      />
-                    ) : null,
-                  ])
+                  section.items.map((product) => (
+                    <HomepageDropRow key={dropKey(product)} product={product} />
+                  ))
                 ) : (
                   <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
                     <CardContent className="p-4 text-sm text-[#475569]">
