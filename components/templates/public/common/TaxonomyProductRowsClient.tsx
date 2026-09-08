@@ -30,7 +30,6 @@ interface TaxonomyProductRowsClientProps {
   pageSize?: number
   referenceDateIso?: string | null
   searchParams: TaxonomyRowsSearchParams
-  initialContentRendered?: boolean
 }
 
 function LoadingRows({ count }: { count: number }) {
@@ -50,7 +49,6 @@ export function TaxonomyProductRowsClient({
   pageSize,
   referenceDateIso,
   searchParams,
-  initialContentRendered = false,
 }: TaxonomyProductRowsClientProps) {
   const [items, setItems] = useState<ProductCardBase[]>(initialProducts)
   const [page, setPage] = useState(initialPage)
@@ -149,7 +147,7 @@ export function TaxonomyProductRowsClient({
         resolvedReferenceDateIso,
       )
     : []
-  const shouldRenderEmptyState = !initialContentRendered && !items.length
+  const shouldRenderEmptyState = !items.length
 
   return (
     <section className="space-y-6" data-testid="taxonomy-load-more">
@@ -170,7 +168,7 @@ export function TaxonomyProductRowsClient({
           className="h-1 w-full"
           data-testid="browse-infinite-scroll-trigger"
         />
-      ) : sections.length || initialContentRendered ? (
+      ) : sections.length ? (
         <p className="py-4 text-center text-sm text-[#43474c]">
           You&apos;ve reached the end of this directory.
         </p>

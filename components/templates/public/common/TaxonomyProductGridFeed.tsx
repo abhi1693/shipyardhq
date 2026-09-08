@@ -2,12 +2,6 @@ import Link from "next/link"
 
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { TaxonomyProductRowsClient } from "@/components/templates/public/common/TaxonomyProductRowsClient"
-import {
-  buildTaxonomyProductSections,
-  mapProductCardBaseToTaxonomyFeedItem,
-  resolveTaxonomyReferenceDateIso,
-  TaxonomyProductSections,
-} from "@/components/templates/public/common/TaxonomyProductRows"
 import { BROWSE_PATH } from "@/lib/routes"
 
 type ProductGridSearchParams = {
@@ -42,17 +36,6 @@ export function TaxonomyProductGridFeed({
   emptyTitle,
   emptyDescription = "Check back soon or explore everything in browse.",
 }: TaxonomyProductGridFeedProps) {
-  const resolvedReferenceDateIso =
-    referenceDateIso ?? resolveTaxonomyReferenceDateIso(products)
-  const initialSections = resolvedReferenceDateIso
-    ? buildTaxonomyProductSections(
-        products.map((product) =>
-          mapProductCardBaseToTaxonomyFeedItem(product),
-        ),
-        resolvedReferenceDateIso,
-      )
-    : []
-
   return (
     <>
       {products.length === 0 ? (
@@ -71,24 +54,14 @@ export function TaxonomyProductGridFeed({
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
-          <TaxonomyProductSections sections={initialSections} />
-          {hasMore ? (
-            <TaxonomyProductRowsClient
-              initialProducts={[]}
-              initialHasMore={hasMore}
-              initialPage={initialPage}
-              pageSize={pageSize}
-              referenceDateIso={resolvedReferenceDateIso}
-              searchParams={searchParams}
-              initialContentRendered
-            />
-          ) : (
-            <p className="py-4 text-center text-sm text-[#43474c]">
-              You&apos;ve reached the end of this directory.
-            </p>
-          )}
-        </div>
+        <TaxonomyProductRowsClient
+          initialProducts={products}
+          initialHasMore={hasMore}
+          initialPage={initialPage}
+          pageSize={pageSize}
+          referenceDateIso={referenceDateIso}
+          searchParams={searchParams}
+        />
       )}
     </>
   )

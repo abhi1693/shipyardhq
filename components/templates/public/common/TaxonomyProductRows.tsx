@@ -1,4 +1,6 @@
 import { Fragment, type ReactNode } from "react"
+import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
+import { feedAdIndex } from "@/lib/ads/feed"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
 import { format, isSameDay, startOfWeek, subDays } from "date-fns"
@@ -235,7 +237,15 @@ export function TaxonomyProductSections({
 }) {
   return (
     <div className="space-y-12">
-      {sections.map((section) => {
+      {sections.map((section, sectionIndex) => {
+        const adIndex = feedAdIndex(section.products, {
+          before: sections
+            .slice(0, sectionIndex)
+            .flatMap((entry) => entry.products),
+          after: sections
+            .slice(sectionIndex + 1)
+            .flatMap((entry) => entry.products),
+        })
         const lastSponsoredIndex = section.products.reduce(
           (lastIndex, current, currentIndex) =>
             current.isSponsored ? currentIndex : lastIndex,
@@ -244,7 +254,11 @@ export function TaxonomyProductSections({
         const adBoundaryIndex = lastSponsoredIndex >= 0 ? lastSponsoredIndex : 0
 
         return (
-          <section key={section.key} className="space-y-3">
+          <section
+            key={section.key}
+            className="space-y-3"
+            data-product-feed-section={section.key}
+          >
             <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-4">
               <h2 className="text-2xl font-semibold tracking-tight text-black">
                 {section.title}
@@ -254,7 +268,7 @@ export function TaxonomyProductSections({
               </span>
             </div>
             <div className="space-y-3">
-              {section.products.map((product, index) => (
+              {section.products.flatMap((product, index) => [
                 <Fragment key={product.id}>
                   <TaxonomyProductRow product={product} />
                   {index === adBoundaryIndex
@@ -263,8 +277,14 @@ export function TaxonomyProductSections({
                         section,
                       })
                     : null}
-                </Fragment>
-              ))}
+                </Fragment>,
+                index === adIndex ? (
+                  <CarbonFeedAd
+                    key={`ad-${section.key}`}
+                    section={`taxonomy-${section.key}`}
+                  />
+                ) : null,
+              ])}
             </div>
           </section>
         )

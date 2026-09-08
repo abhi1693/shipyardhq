@@ -1454,7 +1454,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="space-y-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} format="responsive" />
+            <CarbonAd pathname={pagePath} />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}
@@ -1560,7 +1560,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="space-y-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} format="responsive" />
+            <CarbonAd pathname={pagePath} />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}
@@ -1678,7 +1678,7 @@ export async function PeriodicLeaderboardView({
           </section>
 
           <aside className="flex flex-col gap-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} format="responsive" />
+            <CarbonAd pathname={pagePath} />
             <PeriodicArchiveSidebar
               groups={groupedArchive}
               buildSidebarPath={buildSidebarPath}

@@ -1,5 +1,8 @@
 "use client"
 
+import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
+import { feedAdIndex } from "@/lib/ads/feed"
+
 import {
   createContext,
   Fragment,
@@ -812,9 +815,20 @@ export function HomepageDropsInfiniteList({
   return (
     <div className="space-y-3">
       {visibleSections.map((section, sectionIndex) => {
+        const adIndex = feedAdIndex(section.items, {
+          before: visibleSections
+            .slice(0, sectionIndex)
+            .flatMap((entry) => entry.items),
+          after: visibleSections
+            .slice(sectionIndex + 1)
+            .flatMap((entry) => entry.items),
+        })
         return (
           <Fragment key={section.key}>
-            <section className="space-y-3">
+            <section
+              className="space-y-3"
+              data-product-feed-section={section.key}
+            >
               <div className="flex items-center gap-3">
                 <h3 className="shrink-0 text-lg font-semibold text-black">
                   {section.title}
@@ -826,9 +840,18 @@ export function HomepageDropsInfiniteList({
               </div>
               <div className="space-y-3">
                 {section.items.length > 0 ? (
-                  section.items.map((product) => (
-                    <HomepageDropRow key={dropKey(product)} product={product} />
-                  ))
+                  section.items.flatMap((product, index) => [
+                    <HomepageDropRow
+                      key={dropKey(product)}
+                      product={product}
+                    />,
+                    index === adIndex ? (
+                      <CarbonFeedAd
+                        key={`ad-${section.key}`}
+                        section={`home-${section.key}`}
+                      />
+                    ) : null,
+                  ])
                 ) : (
                   <Card className="rounded-xl border-dashed border-[#D8E0EA] bg-white/60 py-0 shadow-none">
                     <CardContent className="p-4 text-sm text-[#475569]">

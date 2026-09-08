@@ -376,7 +376,7 @@ export function TaxonomyIndexPage({
         </div>
 
         <aside className="space-y-6 lg:col-span-4">
-          <CarbonAd pathname={carbonPathname} format="responsive" />
+          <CarbonAd pathname={carbonPathname} />
           <PulsePanel
             title={pulseTitle}
             stats={stats}

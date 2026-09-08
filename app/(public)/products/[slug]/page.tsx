@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { type ComponentType, type ComponentPropsWithoutRef } from "react"
 import { preload } from "react-dom"
 import { notFound } from "next/navigation"
@@ -37,7 +36,7 @@ import {
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import {
-  DetailSponsoredProductCard,
+  DetailPromotionSlot,
   ProductUpvoteBadgeServer,
   SimilarProductsServer,
 } from "@/components/templates/public/products/detail/server-components"
@@ -1062,7 +1061,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     (total, group) => total + group.links.length,
     0,
   )
-  const sponsoredProductCard = await DetailSponsoredProductCard({
+  const productPromotionSlot = await DetailPromotionSlot({
     currentProductSlug: product.slug,
   })
   const similarProductsContent =
@@ -1516,10 +1515,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
-            <CarbonAd
-              pathname={`/products/${product.slug}`}
-              format="responsive"
-            />
             {hasMeaningfulLeaderboardMetrics ? (
               <section
                 className={cn(
@@ -1548,7 +1543,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </section>
             ) : null}
             {productDetailsCard}
-            {sponsoredProductCard}
+            {productPromotionSlot}
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 You may also like

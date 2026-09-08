@@ -22,6 +22,7 @@
 @source "../../components/layout/public/**/*.{js,ts,jsx,tsx}";
 @source "../../components/molecules/BrandWordmark.tsx";
 @source "../../components/molecules/CarbonAd.tsx";
+@source "../../components/molecules/CarbonFeedAd.tsx";
 @source "../../components/molecules/PageHeader.tsx";
 @source "../../components/molecules/ProductCategoryPills.tsx";
 @source "../../components/molecules/SponsorPromo.tsx";
@@ -41,7 +42,181 @@
   display: none;
 }
 
-/* Keep both Responsive creative variants side by side in the 320px sidebar. */
-[data-carbon-placement] #carbon-responsive {
-  --carbon-max-char: 12ch;
+[data-carbon-placement] .shipyard-carbon-card {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #43474c;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+[data-carbon-placement] .shipyard-carbon-creative {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+[data-carbon-placement] .shipyard-carbon-image {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+[data-carbon-placement] .shipyard-carbon-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+[data-carbon-placement] .shipyard-carbon-company {
+  color: #0b1c30;
+  font-weight: 600;
+}
+
+[data-carbon-placement] .shipyard-carbon-cta {
+  color: #0051d5;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+[data-carbon-placement] .shipyard-carbon-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding: 6px 14px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+[data-carbon-placement] .shipyard-carbon-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+[data-carbon-placement] .shipyard-carbon-footer a:hover,
+[data-carbon-placement] .shipyard-carbon-creative:hover .shipyard-carbon-cta {
+  color: #0051d5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+[data-carbon-placement] a:focus-visible {
+  outline: 2px solid #0051d5;
+  outline-offset: -3px;
+}
+
+/* Feed placements follow the proportions of the surrounding product rows. */
+[data-carbon-template="feed"] .shipyard-carbon-card {
+  display: flex;
+  align-items: center;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-creative {
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+}
+
+/* Each asset keeps its intended proportions. Carbon's 130x100 creative is
+   different from a Native Network icon or a transparent 250x100 logo. */
+[data-carbon-creative="image-text"] .shipyard-carbon-image {
+  width: 130px;
+  height: 100px;
+}
+
+[data-carbon-template="feed"]
+  [data-carbon-creative="image-text"]
+  .shipyard-carbon-image {
+  width: 104px;
+  height: 80px;
+}
+
+[data-carbon-creative="rich"] .shipyard-carbon-image {
+  width: 100px;
+  height: 100px;
+}
+
+[data-carbon-template="feed"]
+  [data-carbon-creative="rich"]
+  .shipyard-carbon-image {
+  width: 64px;
+  height: 64px;
+}
+
+[data-carbon-creative="native-icon"] .shipyard-carbon-image {
+  box-sizing: content-box;
+  width: 40px;
+  height: 40px;
+  padding: 12px;
+}
+
+[data-carbon-creative="logo-text"] .shipyard-carbon-image {
+  box-sizing: content-box;
+  width: 125px;
+  height: 50px;
+  padding: 12px 8px;
+}
+
+[data-carbon-placement] .shipyard-carbon-logo {
+  box-sizing: content-box;
+  width: 100px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: contain;
+  padding: 4px 8px;
+}
+
+[data-carbon-placement] .shipyard-carbon-brand,
+[data-carbon-placement] .shipyard-carbon-brand-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-brand {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-brand-copy {
+  gap: 2px;
+}
+
+[data-carbon-placement] .shipyard-carbon-tagline {
+  font-size: 12px;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-company {
+  font-size: 16px;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-footer {
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  border: 0;
+  padding: 20px;
+}
+
+[data-carbon-template="feed"] .shipyard-carbon-footer .shipyard-carbon-cta {
+  color: #0051d5;
 }

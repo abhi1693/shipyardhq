@@ -185,7 +185,9 @@ export function TaxonomyDetailPage({
               : "hidden space-y-6 lg:col-span-4 xl:block"
           }
         >
-          <CarbonAd pathname={carbonPathname} format="responsive" />
+          {sponsorProducts.length === 0 ? (
+            <CarbonAd pathname={carbonPathname} />
+          ) : null}
           {trafficStats}
 
           <TaxonomySponsorsSidebar products={sponsorProducts} />

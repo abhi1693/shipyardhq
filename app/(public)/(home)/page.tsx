@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
 import {
   ArrowRight,
   BarChart3,
@@ -300,8 +299,6 @@ function HomepageHero() {
             </Link>
           </Button>
         </div>
-
-        <CarbonAd pathname="/" format="responsive" className="mt-6" />
 
         <nav
           aria-label="Explore Shipyard"

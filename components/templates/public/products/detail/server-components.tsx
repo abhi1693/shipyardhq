@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { Rocket } from "lucide-react"
 
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
@@ -164,7 +165,7 @@ export async function SimilarProductsServer({
   )
 }
 
-export async function DetailSponsoredProductCard({
+export async function DetailPromotionSlot({
   currentProductSlug,
 }: {
   currentProductSlug: string
@@ -175,7 +176,7 @@ export async function DetailSponsoredProductCard({
     products[0] ??
     null
 
-  if (!product) return null
+  if (!product) return <CarbonAd pathname={`/products/${currentProductSlug}`} />
   const tagline = product.tagline?.trim()
 
   return (

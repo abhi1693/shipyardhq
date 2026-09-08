@@ -4,9 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { getProductFeedPage } from "@/actions/public/products/feedPage"
 import ProductFeedCardSkeleton from "@/components/molecules/ProductFeedCard.skeleton"
-import type { ProductCardItem } from "@/components/molecules/ProductCard"
-import { BrowseProductRow } from "@/components/templates/public/browse/BrowseProductRows"
-import { toProductCardItem } from "@/lib/products/card-item"
+import type { ProductCardBase } from "@/components/molecules/ProductCard"
+import { BrowseProductRows } from "@/components/templates/public/browse/BrowseProductRows"
 
 type BrowseRowsSearchParams = {
   useCase?: string
@@ -22,6 +21,8 @@ type BrowseRowsSearchParams = {
 }
 
 interface BrowseProductRowsClientProps {
+  initialProducts: ProductCardBase[]
+  precedingProducts?: ProductCardBase[]
   initialHasMore: boolean
   initialPage: number
   pageSize: number
@@ -39,13 +40,15 @@ function renderLoadingSkeleton(count: number) {
 }
 
 export function BrowseProductRowsClient({
+  initialProducts,
+  precedingProducts,
   initialHasMore,
   initialPage,
   pageSize,
   searchParams,
 }: BrowseProductRowsClientProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null)
-  const [items, setItems] = useState<ProductCardItem[]>([])
+  const [items, setItems] = useState<ProductCardBase[]>(initialProducts)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(initialPage)
   const [isLoading, setIsLoading] = useState(false)
@@ -92,7 +95,7 @@ export function BrowseProductRowsClient({
       })
 
       return {
-        items: result.items.map((item) => toProductCardItem(item)),
+        items: result.items,
         hasMore: result.hasMore,
       }
     },
@@ -100,10 +103,10 @@ export function BrowseProductRowsClient({
   )
 
   useEffect(() => {
-    setItems([])
+    setItems(initialProducts)
     setHasMore(initialHasMore)
     setPage(initialPage)
-  }, [initialHasMore, initialPage, resetKey])
+  }, [initialHasMore, initialPage, initialProducts, resetKey])
 
   const loadMore = useCallback(async () => {
     if (!hasMore || isLoading) return
@@ -149,11 +152,10 @@ export function BrowseProductRowsClient({
   return (
     <section className="space-y-6" data-testid="browse-product-rows-client">
       {items.length ? (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <BrowseProductRow key={item.id} product={item} />
-          ))}
-        </div>
+        <BrowseProductRows
+          products={items}
+          precedingProducts={precedingProducts}
+        />
       ) : null}
 
       {isLoading ? renderLoadingSkeleton(3) : null}

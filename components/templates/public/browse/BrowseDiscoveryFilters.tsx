@@ -462,7 +462,7 @@ export function BrowseDiscoveryFilters({
 
   return (
     <aside className="space-y-6 lg:sticky lg:top-24">
-      <CarbonAd pathname={BROWSE_PATH} format="responsive" />
+      <CarbonAd pathname={BROWSE_PATH} />
       <section className="rounded-lg border border-[#e2e8f0] bg-white p-6">
         <div className="mb-6 flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-[#43474c]">

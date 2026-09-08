@@ -5,6 +5,8 @@ import { ProductLogoImage } from "@/components/atoms/product-logo-image"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
 import { ProductCategoryPills } from "@/components/molecules/ProductCategoryPills"
 import { productCardPath } from "@/lib/routes"
+import { canPlaceFeedAdAfter } from "@/lib/ads/feed"
+import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
 
 interface BrowseRisingStarsProps {
   products: ProductCardBase[]
@@ -26,8 +28,8 @@ function ProductLogo({ product }: { product: ProductCardBase }) {
   )
 }
 
-export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
-  const risingProducts = products
+export function selectRisingProducts(products: ProductCardBase[]) {
+  return products
     .filter(
       (product) =>
         typeof product.scoreCount === "number" &&
@@ -35,9 +37,21 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
     )
     .sort((a, b) => Number(b.scoreCount) - Number(a.scoreCount))
     .slice(0, 3)
+}
+
+export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
+  const risingProducts = selectRisingProducts(products)
+  const showAd = canPlaceFeedAdAfter(
+    risingProducts,
+    risingProducts.length - 1,
+    { after: products },
+  )
 
   return (
-    <section className="overflow-hidden">
+    <section
+      className="overflow-hidden"
+      data-product-feed-section="rising-stars"
+    >
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#10b981]/10 text-[#047857]">
@@ -104,6 +118,11 @@ export function BrowseRisingStars({ products }: BrowseRisingStarsProps) {
           )
         })}
       </div>
+      {showAd ? (
+        <div className="mt-4">
+          <CarbonFeedAd section="browse-rising-stars" />
+        </div>
+      ) : null}
     </section>
   )
 }
