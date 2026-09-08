@@ -7,6 +7,12 @@ native sidebar and feed layouts with spacing around sponsored products. The
 release has no database schema changes; rollback uses the 1.5.20 application
 image and matching build artifact through Fleet.
 
+Release 1.5.22 keeps taxonomy launch grouping and date labels in UTC. Live
+monitoring of 1.5.21 found that browsers in Asia/Kolkata moved late UTC launches
+into a different day, causing a hydration mismatch and regrouping products.
+UTC boundaries keep the initial server markup, pagination sections, and ad
+spacing stable in every visitor timezone.
+
 `CarbonAd` renders a compact sidebar card. `CarbonFeedAd` renders a horizontal
 row between products. Both use the direct browser
 [Ad Serving API](https://docs.buysellads.com/ad-serving-api) to select a template

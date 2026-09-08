@@ -3,7 +3,6 @@ import { CarbonFeedAd } from "@/components/molecules/CarbonFeedAd"
 import { feedAdIndex } from "@/lib/ads/feed"
 import Link from "next/link"
 import { ArrowUp, ImageIcon, Sparkles, TrendingUp } from "lucide-react"
-import { format, isSameDay, startOfWeek, subDays } from "date-fns"
 
 import type { HomepageFeedItem } from "@/actions/public/homepage/feed"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
@@ -49,6 +48,18 @@ function productDate(product: HomepageFeedItem) {
   const raw = product.publishedAt ?? product.createdAt
   const date = new Date(raw)
   return Number.isNaN(date.getTime()) ? new Date(0) : date
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000
+const taxonomyDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+})
+
+function utcDay(date: Date) {
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
 }
 
 export function mapProductCardBaseToTaxonomyFeedItem(
@@ -98,30 +109,34 @@ export function buildTaxonomyProductSections(
   const referenceDate = new Date(referenceDateIso)
   if (Number.isNaN(referenceDate.getTime())) return []
 
-  const previousDate = subDays(referenceDate, 1)
-  const weekStart = startOfWeek(referenceDate)
+  // These sections render on the server and hydrate in the visitor's browser.
+  // Keep both grouping and labels independent of either machine's timezone.
+  const referenceDay = utcDay(referenceDate)
+  const previousDay = referenceDay - DAY_MS
+  const weekStart = referenceDay - referenceDate.getUTCDay() * DAY_MS
 
   const sections = new Map<string, TaxonomyProductSection>()
 
   for (const product of products) {
     const date = productDate(product)
+    const day = utcDay(date)
     let key = "earlier"
     let title = "Recent launches"
 
-    if (isSameDay(date, referenceDate)) {
+    if (day === referenceDay) {
       key = "latest"
       title = "Latest launches"
-    } else if (isSameDay(date, previousDate)) {
+    } else if (day === previousDay) {
       key = "previous"
       title = "Previous launches"
-    } else if (date >= weekStart) {
+    } else if (day >= weekStart) {
       key = "week"
       title = "Published This Week"
     }
 
     const fallbackDateLabel = Number.isNaN(date.getTime())
       ? "Latest"
-      : format(date, "MMM d, yyyy")
+      : taxonomyDateFormatter.format(date)
 
     const current = sections.get(key)
     if (current) {
