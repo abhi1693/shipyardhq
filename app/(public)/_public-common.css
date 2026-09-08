@@ -40,3 +40,8 @@
 [data-public-layout]:has([data-homepage]) > [data-partner-spotlight] {
   display: none;
 }
+
+/* Keep both Responsive creative variants side by side in the 320px sidebar. */
+[data-carbon-placement] #carbon-responsive {
+  --carbon-max-char: 12ch;
+}

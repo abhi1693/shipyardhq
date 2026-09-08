@@ -60,7 +60,7 @@ export function BrowseHeroSearch({
 
   return (
     <section className="bg-[#061d31] text-white">
-      <div className="mx-auto w-full max-w-[1240px] px-4 py-12 md:px-6 md:py-16">
+      <div className="mx-auto w-full max-w-[1240px] px-4 py-12 md:px-6 md:py-16 xl:py-12">
         <div className="max-w-3xl">
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[#10b981]/15 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#10b981]">

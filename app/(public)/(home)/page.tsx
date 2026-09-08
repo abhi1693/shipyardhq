@@ -228,7 +228,7 @@ function ProductLogo({
 function HomepageHero() {
   return (
     <section className="border-b border-[#E2E8F0] bg-[#f8f9ff] text-[#0b1c30]">
-      <div className="mx-auto flex min-h-[540px] max-w-[1200px] flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16">
+      <div className="mx-auto flex min-h-[540px] max-w-[1200px] flex-col items-center justify-center px-4 py-12 text-center sm:px-6 sm:py-16 xl:pt-12">
         <div className="mb-6 flex flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#64748B] sm:flex-row sm:gap-3 sm:text-[11px]">
           <span className="text-[#0b1c30]">
             <PublicBuilderCountMessage />

@@ -109,3 +109,18 @@ PostgreSQL adapter on 7.10.0. Targeted overrides select patched Jaeger propagati
 DeepmergeTS, and MySQL2 dependencies without changing the application APIs. The
 lockfile refresh removes the remaining dependency-audit findings. There are no
 schema or migration changes.
+
+## Live placement follow-up
+
+The first live check confirmed Carbon serving on `/browse`, but partial creatives
+wrapped in its 320px sidebar and the fixed partner spotlight covered the lower
+edge of some ads. The Responsive text basis is now 12ch so the image and text
+remain adjacent, with every vendor element intact. Browse and taxonomy pages
+use smaller desktop vertical gaps to keep the complete creative above the
+partner bar. The homepage has a small desktop top-padding reduction for longer
+creatives; its partner bar is already disabled.
+
+Placement checks must cover both complete and partial creative payloads, wait
+for fonts, and use the top of any visible fixed partner bar as the usable fold.
+`/products/unshift` exists only in the local data used earlier; live product
+checks use a currently listed product such as `/products/getbankcsv`.

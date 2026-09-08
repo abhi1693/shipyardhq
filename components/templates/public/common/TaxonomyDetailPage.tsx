@@ -95,7 +95,7 @@ export function TaxonomyDetailPage({
       <section
         className={cn(
           "bg-[#061d31] px-4 py-16 text-white md:px-6",
-          hasSidebarContent ? "xl:py-10" : "xl:py-8",
+          hasSidebarContent ? "xl:py-6" : "xl:py-4",
         )}
       >
         <div
@@ -158,7 +158,7 @@ export function TaxonomyDetailPage({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12 xl:py-4">
         <div
           className={
             hasSidebarContent
