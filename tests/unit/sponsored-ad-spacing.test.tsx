@@ -231,27 +231,31 @@ describe("Single Carbon placement with sponsored products", () => {
   })
 
   it.each([true, false])(
-    "shows a product spotlight or Carbon, exclusively (sponsor=%s)",
+    "shows one Carbon ad after the optional product spotlight (sponsor=%s)",
     async (sponsored) => {
       history.replaceState(null, "", "/products/current")
       vi.mocked(getPartnerSpotlightProducts).mockResolvedValue(
         sponsored ? [product("paid", true)] : [],
       )
       await render(await DetailPromotionSlot({ currentProductSlug: "current" }))
+      const spotlight = container
+        .querySelector('a[href="/r/sponsored/paid"]')
+        ?.closest("section")
+      expect(Boolean(spotlight)).toBe(sponsored)
       expect(
-        Boolean(container.querySelector('a[href="/r/sponsored/paid"]')),
-      ).toBe(sponsored)
-      expect(Boolean(container.querySelector("[data-carbon-placement]"))).toBe(
-        !sponsored,
-      )
-      expect(container.querySelectorAll("script")).toHaveLength(
-        sponsored ? 0 : 1,
-      )
+        container.querySelectorAll("[data-carbon-placement]"),
+      ).toHaveLength(1)
+      expect(container.querySelectorAll("script")).toHaveLength(1)
+      if (sponsored) {
+        expect(spotlight?.nextElementSibling).toBe(
+          container.querySelector("[data-carbon-placement]"),
+        )
+      }
     },
   )
 
   it.each([true, false])(
-    "shows taxonomy sponsors or a sidebar ad, exclusively (sponsor=%s)",
+    "shows one Carbon ad after optional taxonomy sponsors (sponsor=%s)",
     async (sponsored) => {
       await render(
         <TaxonomyDetailPage
@@ -268,15 +272,19 @@ describe("Single Carbon placement with sponsored products", () => {
           sponsorProducts={sponsored ? [product("paid", true)] : []}
         />,
       )
+      const sponsors = container
+        .querySelector('aside a[href="/r/sponsored/paid"]')
+        ?.closest("section")
+      expect(Boolean(sponsors)).toBe(sponsored)
       expect(
-        Boolean(container.querySelector('aside a[href="/r/sponsored/paid"]')),
-      ).toBe(sponsored)
-      expect(
-        Boolean(container.querySelector("aside [data-carbon-placement]")),
-      ).toBe(!sponsored)
-      expect(container.querySelectorAll("script")).toHaveLength(
-        sponsored ? 0 : 1,
-      )
+        container.querySelectorAll("aside [data-carbon-placement]"),
+      ).toHaveLength(1)
+      expect(container.querySelectorAll("script")).toHaveLength(1)
+      if (sponsored) {
+        expect(sponsors?.nextElementSibling).toBe(
+          container.querySelector("aside [data-carbon-placement]"),
+        )
+      }
     },
   )
 })

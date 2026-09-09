@@ -30,3 +30,12 @@ export function isCarbonDiscoveryPath(pathname: string) {
     /^\/leaderboard\/(?:weekly|monthly)\/\d{4}\/\d{1,2}$/.test(path)
   )
 }
+
+export function isCarbonAdPath(pathname: string) {
+  const path = pathname.replace(/\/+$/, "") || "/"
+  return (
+    isCarbonDiscoveryPath(path) ||
+    path === "/member/overview" ||
+    /^\/member\/products\/(?!add$)[^/]+$/.test(path)
+  )
+}

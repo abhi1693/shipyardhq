@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server"
 import { notFound, redirect } from "next/navigation"
 import { formatDate } from "@/lib/ui/formatters"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { getProductById } from "@/actions/products/actions"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import CopyButton from "@/components/molecules/CopyButton"
@@ -566,6 +567,11 @@ export default async function ViewUserProductPage({
                   </div>
                 </div>
               </section>
+              <CarbonAd
+                pathname={memberProductPath(productSlug)}
+                variant="banner"
+                className="mx-auto"
+              />
             </div>
 
             <aside className="col-span-12 space-y-6 xl:col-span-4">

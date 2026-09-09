@@ -24,11 +24,6 @@ if is_web_command "$@"; then
   echo "Building Next.js app with runtime environment..."
   npm run build
 
-  rm -rf .next/standalone/public .next/standalone/.next/static
-  mkdir -p .next/standalone/.next
-  cp -R public .next/standalone/public
-  cp -R .next/static .next/standalone/.next/static
-
   echo "Starting Shipyard HQ..."
   exec node .next/standalone/server.js
 fi

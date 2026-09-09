@@ -21,7 +21,7 @@ import {
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { Button } from "@/components/atoms/button"
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
+import { HomepageDiscoveryLayout } from "@/components/templates/public/homepage/HomepageDiscoveryLayout"
 import {
   HomepageDropsInfiniteList,
   HomepageVoteStateProvider,
@@ -453,78 +453,113 @@ async function HomepageDataSections() {
 
   return (
     <HomepageVoteStateProvider productIds={homepageVoteProductIds}>
-      <section
-        className="mx-auto max-w-[1200px] px-4 pb-8 pt-12 sm:px-6"
-        id="launch-board"
-        style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
-      >
-        <div className="mb-5 flex items-end justify-between gap-6 border-b border-[#E2E8F0] pb-5">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
-              Live from the Shipyard
-            </span>
-            <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
-              Sponsored launch
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
-              One active Pro product gets Shipyard&apos;s highest-visibility
-              homepage launch slot.
-            </p>
-          </div>
-          <Link
-            href={BROWSE_PATH}
-            className="hidden shrink-0 items-center gap-2 text-sm font-semibold text-[#0051d5] hover:text-[#0048bf] lg:inline-flex"
+      <HomepageDiscoveryLayout
+        sponsoredLaunch={
+          <section
+            className="mx-auto max-w-[1200px] px-4 pb-8 pt-12 sm:px-6"
+            id="launch-board"
+            style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
           >
-            Browse all launches
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-        </div>
+            <div className="mb-5 flex items-end justify-between gap-6 border-b border-[#E2E8F0] pb-5">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+                  Live from the Shipyard
+                </span>
+                <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
+                  Sponsored launch
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
+                  One active Pro product gets Shipyard&apos;s highest-visibility
+                  homepage launch slot.
+                </p>
+              </div>
+              <Link
+                href={BROWSE_PATH}
+                className="hidden shrink-0 items-center gap-2 text-sm font-semibold text-[#0051d5] hover:text-[#0048bf] lg:inline-flex"
+              >
+                Browse all launches
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </div>
 
-        <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
-          <article
-            className={cn(
-              "relative min-w-0 overflow-hidden",
-              launchIsSponsored ? "bg-[#FFF7ED]" : "bg-[#F8FAFC]",
-            )}
-          >
-            {launch ? (
-              <>
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-[#D7DEE8]/70 bg-white/30"
-                >
-                  <span
-                    className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.22em] text-[#64748B]"
-                    style={{
-                      writingMode: "vertical-rl",
-                      transform: "rotate(180deg)",
-                    }}
-                  >
-                    Sponsored
-                  </span>
-                </div>
-
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-16 right-0 top-1/2 -translate-y-1/2 overflow-hidden whitespace-nowrap text-[72px] font-black leading-none tracking-[-0.06em]"
-                  style={{ color: "rgba(11, 28, 48, 0.035)" }}
-                >
-                  {launch.name}
-                </div>
-
-                <div className="relative z-[1] flex min-h-[214px] flex-col items-start gap-5 py-6 pl-[68px] pr-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:py-7 sm:pl-[84px] sm:pr-8">
-                  <div className="min-w-0 max-w-[430px]">
-                    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-bold uppercase tracking-[0.11em]">
-                      <span className="text-[#9A3412]">Launch of the Day</span>
-                      {launchSignalLabel ? (
-                        <span className="inline-flex items-center gap-1 text-[#166534]">
-                          <TrendingUp className="size-3" aria-hidden />
-                          {launchSignalLabel} momentum
-                        </span>
-                      ) : null}
+            <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
+              <article
+                className={cn(
+                  "relative min-w-0 overflow-hidden",
+                  launchIsSponsored ? "bg-[#FFF7ED]" : "bg-[#F8FAFC]",
+                )}
+              >
+                {launch ? (
+                  <>
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-[#D7DEE8]/70 bg-white/30"
+                    >
+                      <span
+                        className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.22em] text-[#64748B]"
+                        style={{
+                          writingMode: "vertical-rl",
+                          transform: "rotate(180deg)",
+                        }}
+                      >
+                        Sponsored
+                      </span>
                     </div>
 
-                    <h3 className="text-[23px] font-semibold leading-[1.18] tracking-[-0.025em] text-black sm:text-[27px] sm:leading-[1.16]">
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute left-16 right-0 top-1/2 -translate-y-1/2 overflow-hidden whitespace-nowrap text-[72px] font-black leading-none tracking-[-0.06em]"
+                      style={{ color: "rgba(11, 28, 48, 0.035)" }}
+                    >
+                      {launch.name}
+                    </div>
+
+                    <div className="relative z-[1] flex min-h-[214px] flex-col items-start gap-5 py-6 pl-[68px] pr-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:py-7 sm:pl-[84px] sm:pr-8">
+                      <div className="min-w-0 max-w-[430px]">
+                        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-bold uppercase tracking-[0.11em]">
+                          <span className="text-[#9A3412]">
+                            Launch of the Day
+                          </span>
+                          {launchSignalLabel ? (
+                            <span className="inline-flex items-center gap-1 text-[#166534]">
+                              <TrendingUp className="size-3" aria-hidden />
+                              {launchSignalLabel} momentum
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <h3 className="text-[23px] font-semibold leading-[1.18] tracking-[-0.025em] text-black sm:text-[27px] sm:leading-[1.16]">
+                          <Link
+                            href={launchHref}
+                            prefetch={
+                              launchRedirectsToWebsite ? false : undefined
+                            }
+                            target={
+                              launchRedirectsToWebsite ? "_blank" : undefined
+                            }
+                            rel={
+                              launchRedirectsToWebsite
+                                ? "noopener noreferrer sponsored"
+                                : undefined
+                            }
+                            className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
+                          >
+                            <span className="sr-only">{launch.name}: </span>
+                            {launch.tagline || launch.name}
+                          </Link>
+                        </h3>
+
+                        <div className="mt-6 flex items-center gap-3">
+                          <span
+                            className="w-7 border-t border-black"
+                            aria-hidden
+                          />
+                          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-[#43474c]">
+                            {launch.name}
+                          </span>
+                        </div>
+                      </div>
+
                       <Link
                         href={launchHref}
                         prefetch={launchRedirectsToWebsite ? false : undefined}
@@ -534,152 +569,130 @@ async function HomepageDataSections() {
                             ? "noopener noreferrer sponsored"
                             : undefined
                         }
-                        className="hover:text-[#0051d5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0051d5]"
+                        aria-label={`View ${launch.name}`}
+                        className="shrink-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0051d5]"
                       >
-                        <span className="sr-only">{launch.name}: </span>
-                        {launch.tagline || launch.name}
+                        <ProductLogo
+                          product={launch}
+                          className="size-20 rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.16)] sm:size-24"
+                        />
                       </Link>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex min-h-[214px] flex-col justify-center p-6">
+                    <span className="mb-3 w-fit text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
+                      Paid slot available
+                    </span>
+                    <h3 className="text-2xl font-semibold leading-tight text-black">
+                      Put your launch in this slot.
                     </h3>
-
-                    <div className="mt-6 flex items-center gap-3">
-                      <span className="w-7 border-t border-black" aria-hidden />
-                      <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-[#43474c]">
-                        {launch.name}
-                      </span>
+                    <p className="mt-2 max-w-lg text-sm leading-6 text-[#43474c]">
+                      This paid Launch of the Day placement is included only
+                      with an active Pro plan.
+                    </p>
+                    <div className="mt-6 flex flex-wrap gap-3 border-t border-[#E2E8F0]/50 pt-4">
+                      <Button
+                        asChild
+                        className="h-10 rounded-lg border-0 bg-black px-6 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
+                      >
+                        <Link href={PRICING_PLANS_PATH}>View Pro pricing</Link>
+                      </Button>
+                      <Button
+                        asChild
+                        className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
+                      >
+                        <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+                          Submit Product
+                        </Link>
+                      </Button>
                     </div>
                   </div>
+                )}
+              </article>
 
-                  <Link
-                    href={launchHref}
-                    prefetch={launchRedirectsToWebsite ? false : undefined}
-                    target={launchRedirectsToWebsite ? "_blank" : undefined}
-                    rel={
-                      launchRedirectsToWebsite
-                        ? "noopener noreferrer sponsored"
-                        : undefined
-                    }
-                    aria-label={`View ${launch.name}`}
-                    className="shrink-0 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0051d5]"
-                  >
-                    <ProductLogo
-                      product={launch}
-                      className="size-20 rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.16)] sm:size-24"
-                    />
-                  </Link>
+              <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 lg:border-l lg:border-t-0">
+                <div className="grid grid-cols-3 gap-3 border-b border-[#D7DEE8] pb-3 sm:gap-8">
+                  {platformMetrics.map((metric) => (
+                    <div
+                      key={metric.label}
+                      className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-baseline sm:gap-2"
+                    >
+                      <span className="text-lg font-bold leading-none text-black">
+                        {formatPlatformMetric(metric.value)}
+                      </span>
+                      <span className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+                        {metric.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              </>
-            ) : (
-              <div className="flex min-h-[214px] flex-col justify-center p-6">
-                <span className="mb-3 w-fit text-[10px] font-bold uppercase tracking-[0.1em] text-[#9A3412]">
-                  Paid slot available
-                </span>
-                <h3 className="text-2xl font-semibold leading-tight text-black">
-                  Put your launch in this slot.
-                </h3>
-                <p className="mt-2 max-w-lg text-sm leading-6 text-[#43474c]">
-                  This paid Launch of the Day placement is included only with an
-                  active Pro plan.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-[#E2E8F0]/50 pt-4">
-                  <Button
-                    asChild
-                    className="h-10 rounded-lg border-0 bg-black px-6 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90"
-                  >
-                    <Link href={PRICING_PLANS_PATH}>View Pro pricing</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    className="h-10 rounded-lg border border-[#c4c6cd] bg-white px-6 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC]"
-                  >
-                    <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-                      Submit Product
-                    </Link>
-                  </Button>
+
+                <div className="mt-3">
+                  <VisitorSparkline
+                    series={homepageStats.trafficSeries}
+                    label={trafficWindowLabel}
+                  />
+                  <p className="text-right text-[9px] leading-4 text-[#64748B]">
+                    Powered by Cloudflare
+                  </p>
                 </div>
               </div>
-            )}
-          </article>
-
-          <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 lg:border-l lg:border-t-0">
-            <div className="grid grid-cols-3 gap-3 border-b border-[#D7DEE8] pb-3 sm:gap-8">
-              {platformMetrics.map((metric) => (
-                <div
-                  key={metric.label}
-                  className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-baseline sm:gap-2"
+            </div>
+          </section>
+        }
+      >
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <section
+            className="my-14"
+            id="drops"
+            style={{ contentVisibility: "auto", containIntrinsicSize: "960px" }}
+          >
+            <div className="mb-8 flex flex-col items-start gap-5 border-b border-[#E2E8F0] pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
+                  Product discovery, in public
+                </span>
+                <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
+                  The live launch board
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
+                  Explore new apps, SaaS products, AI tools, APIs, and
+                  independent projects as they arrive—not months after the
+                  moment has passed.
+                </p>
+              </div>
+              <div className="flex w-full gap-2 sm:w-auto">
+                <Button
+                  asChild
+                  className="h-10 flex-1 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC] sm:flex-none"
                 >
-                  <span className="text-lg font-bold leading-none text-black">
-                    {formatPlatformMetric(metric.value)}
-                  </span>
-                  <span className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-                    {metric.label}
-                  </span>
-                </div>
-              ))}
+                  <Link href={BROWSE_PATH}>Newest</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="h-10 flex-1 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90 sm:flex-none"
+                >
+                  <Link href={LEADERBOARD_PATH}>Trending</Link>
+                </Button>
+              </div>
             </div>
 
-            <div className="mt-3">
-              <VisitorSparkline
-                series={homepageStats.trafficSeries}
-                label={trafficWindowLabel}
-              />
-              <p className="text-right text-[9px] leading-4 text-[#64748B]">
-                Powered by Cloudflare
-              </p>
-            </div>
-          </div>
+            <HomepageDropsInfiniteList
+              initialItems={drops}
+              initialHasMore={feedPage.hasMore}
+              initialNextPage={feedPage.nextPage}
+              pageSize={feedPage.pageSize}
+              launchPeriod={feedPage.launchPeriod ?? null}
+              excludedProductId={launch?.id}
+              excludedSlug={launch?.slug}
+              referenceDateIso={referenceDateIso}
+              afterFirstSectionSlot={<HomepageWhyExistsSection />}
+              afterSecondSectionSlot={<HomepageVisibilityOptionsSection />}
+            />
+          </section>
         </div>
-      </section>
-
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-        <CarbonAd pathname={HOME_PATH} variant="banner" className="mx-auto" />
-        <section
-          className="my-14"
-          id="drops"
-          style={{ contentVisibility: "auto", containIntrinsicSize: "960px" }}
-        >
-          <div className="mb-8 flex flex-col items-start gap-5 border-b border-[#E2E8F0] pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
-                Product discovery, in public
-              </span>
-              <h2 className="mt-2 text-[28px] font-bold leading-9 tracking-tight text-black sm:text-[32px] sm:leading-10">
-                The live launch board
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#43474c]">
-                Explore new apps, SaaS products, AI tools, APIs, and independent
-                projects as they arrive—not months after the moment has passed.
-              </p>
-            </div>
-            <div className="flex w-full gap-2 sm:w-auto">
-              <Button
-                asChild
-                className="h-10 flex-1 rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold uppercase tracking-[0.05em] text-black shadow-none hover:bg-[#F8FAFC] sm:flex-none"
-              >
-                <Link href={BROWSE_PATH}>Newest</Link>
-              </Button>
-              <Button
-                asChild
-                className="h-10 flex-1 rounded-lg border-0 bg-black px-4 text-xs font-semibold uppercase tracking-[0.05em] text-white hover:bg-black/90 sm:flex-none"
-              >
-                <Link href={LEADERBOARD_PATH}>Trending</Link>
-              </Button>
-            </div>
-          </div>
-
-          <HomepageDropsInfiniteList
-            initialItems={drops}
-            initialHasMore={feedPage.hasMore}
-            initialNextPage={feedPage.nextPage}
-            pageSize={feedPage.pageSize}
-            launchPeriod={feedPage.launchPeriod ?? null}
-            excludedProductId={launch?.id}
-            excludedSlug={launch?.slug}
-            referenceDateIso={referenceDateIso}
-            afterFirstSectionSlot={<HomepageWhyExistsSection />}
-            afterSecondSectionSlot={<HomepageVisibilityOptionsSection />}
-          />
-        </section>
-      </div>
+      </HomepageDiscoveryLayout>
     </HomepageVoteStateProvider>
   )
 }

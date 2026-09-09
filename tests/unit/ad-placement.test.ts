@@ -1,10 +1,44 @@
 import { describe, expect, it } from "vitest"
 
-import { isCarbonDiscoveryPath } from "@/lib/ads/placement"
+import { isCarbonAdPath, isCarbonDiscoveryPath } from "@/lib/ads/placement"
 import { isAdsensePublisherContentPath } from "@/lib/adsense/placement"
 import nextConfig from "../../next.config"
 
 describe("ad network placement", () => {
+  it.each([
+    "/member/overview",
+    "/member/overview/",
+    "/member/products/shipyard-hq",
+    "/member/products/example/",
+  ])(
+    "allows Carbon on member overview and product detail pages: %s without AdSense",
+    (path) => {
+      expect(isCarbonAdPath(path)).toBe(true)
+      expect(isAdsensePublisherContentPath(path)).toBe(false)
+    },
+  )
+
+  it.each([
+    "/member",
+    "/member/products",
+    "/member/products/add",
+    "/member/products/add/",
+    "/member/products/add/draft/configuration",
+    "/member/products/example/edit",
+    "/member/products/example/edit/content",
+    "/member/products/example/analytics",
+    "/member/products/example/upgrade",
+    "/member/products/example/delete",
+    "/member/account/profile",
+    "/member/overview/example",
+    "/member/onboarding",
+    "/membership",
+    "/login",
+    "/register",
+  ])("keeps Carbon off other member and authentication pages: %s", (path) => {
+    expect(isCarbonAdPath(path)).toBe(false)
+  })
+
   it.each([
     "/",
     "/browse",

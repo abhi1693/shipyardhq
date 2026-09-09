@@ -39,7 +39,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build && node scripts/prepare-faro-sourcemaps.mjs",
+    "build": "next build && node scripts/prepare-faro-sourcemaps.mjs && node scripts/prepare-standalone-assets.mjs",
     "analyze": "next experimental-analyze --output",
     "build:ci": "npm run build && npm run prisma:seed",
     "start": "next start",

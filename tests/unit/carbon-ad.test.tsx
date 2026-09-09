@@ -58,6 +58,23 @@ describe("Standard Carbon embed", () => {
     })
   }
 
+  it.each(["/member/overview", "/member/products/shipyard-hq"])(
+    "loads one responsive ad on %s",
+    async (pathname) => {
+      history.replaceState(null, "", pathname)
+      await render(<CarbonAd pathname={pathname} variant="banner" />)
+      expect(container.querySelectorAll("script")).toHaveLength(1)
+      expect(container.firstElementChild).not.toHaveClass("hidden")
+    },
+  )
+
+  it("does not load an overview ad on another member page", async () => {
+    history.replaceState(null, "", "/member/products")
+    await render(<CarbonAd pathname="/member/overview" variant="banner" />)
+    expect(container.querySelector("script")).toBeNull()
+    expect(document.documentElement.dataset.carbonAdRequested).toBeUndefined()
+  })
+
   it("loads the hosted standard embed once in Strict Mode", async () => {
     const appended = vi.spyOn(HTMLElement.prototype, "appendChild")
     await render()

@@ -2,3 +2,5 @@
 // selects the compatible responsive format and preserves all creative assets.
 export const CARBON_SCRIPT_URL =
   "https://cdn.carbonads.com/carbon.js?serve=CWBI4KJN&placement=shipyardhqdev&format=responsive"
+
+export const CARBON_SERVING_ORIGIN = "https://srv.carbonads.net"

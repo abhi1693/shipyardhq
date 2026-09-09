@@ -19,11 +19,16 @@ import {
 import { getMemberTrafficOverview } from "@/actions/member/overview/actions"
 import { getPartnerSpotlightProducts } from "@/actions/public/products/featured"
 import ProductDraftStartButton from "@/components/pages/products/ProductDraftStartButton"
+import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { MemberAnalyticsCharts } from "@/components/templates/member/overview/analytics-charts"
 import prisma from "@/lib/prisma"
 import { isOptimizedImageSrc } from "@/lib/images/sources"
 import { cn } from "@/lib/utils"
-import { MEMBER_PRODUCTS_PATH, memberProductPath } from "@/lib/routes"
+import {
+  MEMBER_OVERVIEW_PATH,
+  MEMBER_PRODUCTS_PATH,
+  memberProductPath,
+} from "@/lib/routes"
 import { BRAND_NAME } from "@/lib/brand"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
@@ -173,6 +178,7 @@ async function MemberOverviewDashboard() {
 
         <aside className="col-span-12 space-y-6 lg:col-span-4">
           <LaunchFocusPanel products={snapshot.products} />
+          <CarbonAd pathname={MEMBER_OVERVIEW_PATH} variant="banner" />
           <PartnerSpotlightPanel />
         </aside>
       </div>

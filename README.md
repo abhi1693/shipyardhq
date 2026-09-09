@@ -162,7 +162,7 @@ Development seed overrides:
 ## npm Scripts
 
 - `npm run dev` - start the Next.js dev server.
-- `npm run build` - build the production app.
+- `npm run build` - build the production app and package standalone static assets.
 - `npm run build:ci` - build and run the main Prisma seed.
 - `npm start` - serve a built app.
 - `npm run worker` - start the Shipyard background worker.
@@ -241,6 +241,19 @@ The repository includes:
 - `.github/workflows/container.yml` for release-triggered container image builds.
 
 Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
+
+`npm run build` also copies `public` and `.next/static` into the standalone output,
+after moving browser source maps into the private Faro directory. This makes the
+standalone server ready to serve CSS, JavaScript, fonts, and public assets locally
+as well as in Docker:
+
+```bash
+npm run build
+node .next/standalone/server.js
+```
+
+Use `npm run build` for this workflow; bare `next build` does not run the asset
+packaging steps. Restart an existing server after rebuilding.
 
 The web container needs a writable `/app` directory at startup because it writes `.next` and generated Prisma client files. If a deployment uses `readOnlyRootFilesystem`, mount a writable volume for `/app` or keep the root filesystem writable for this image.
 

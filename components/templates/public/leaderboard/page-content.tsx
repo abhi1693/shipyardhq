@@ -367,10 +367,8 @@ export async function LeaderboardPageContent({
           </section>
           <aside className="space-y-6 lg:col-span-4">
             <LazyTrafficStatsPanel initialStats={stats} />
-            {partnerSpotlightProducts.length === 0 ? (
-              <CarbonAd pathname={LEADERBOARD_PATH} />
-            ) : null}
             <PromotedShips products={partnerSpotlightProducts} />
+            <CarbonAd pathname={LEADERBOARD_PATH} />
           </aside>
         </div>
       </div>

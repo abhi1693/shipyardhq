@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { preconnect, preload } from "react-dom"
 
-import { CARBON_SCRIPT_URL } from "@/lib/ads/config"
+import { CARBON_SCRIPT_URL, CARBON_SERVING_ORIGIN } from "@/lib/ads/config"
 import { claimAdDocument } from "@/lib/ads/document"
-import { isCarbonDiscoveryPath } from "@/lib/ads/placement"
+import { isCarbonAdPath } from "@/lib/ads/placement"
 import { cn } from "@/lib/utils"
 
 export function CarbonAd({
@@ -18,7 +19,7 @@ export function CarbonAd({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [duplicate, setDuplicate] = useState(false)
-  const eligible = isCarbonDiscoveryPath(pathname)
+  const eligible = isCarbonAdPath(pathname)
 
   useEffect(() => {
     const container = containerRef.current
@@ -27,10 +28,7 @@ export function CarbonAd({
     let script: HTMLScriptElement | undefined
     const load = () => {
       if (started || !container.getBoundingClientRect().width) return
-      if (
-        !isCarbonDiscoveryPath(location.pathname) ||
-        !claimAdDocument("carbon")
-      )
+      if (!isCarbonAdPath(location.pathname) || !claimAdDocument("carbon"))
         return
       started = true
       observer.disconnect()
@@ -64,6 +62,18 @@ export function CarbonAd({
   }, [eligible, pathname, variant])
 
   if (!eligible || duplicate) return null
+
+  // Fetch the runtime and warm its serving connection from the initial HTML.
+  // Execution stays in the client effect, after visibility and document checks.
+  if (typeof window === "undefined") {
+    preconnect(CARBON_SERVING_ORIGIN, { crossOrigin: "anonymous" })
+    preload(CARBON_SCRIPT_URL, {
+      as: "script",
+      fetchPriority: "low",
+      media: variant === "standard" ? "(min-width: 1280px)" : undefined,
+    })
+  }
+
   return (
     <div
       ref={containerRef}

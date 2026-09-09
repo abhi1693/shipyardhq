@@ -186,11 +186,8 @@ export function TaxonomyDetailPage({
           }
         >
           {trafficStats}
-          {sponsorProducts.length === 0 ? (
-            <CarbonAd pathname={carbonPathname} />
-          ) : null}
-
           <TaxonomySponsorsSidebar products={sponsorProducts} />
+          <CarbonAd pathname={carbonPathname} />
         </aside>
       </div>
     </main>
