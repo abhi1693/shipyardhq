@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 
 import { getFeaturedAlternatives } from "@/actions/public/alternatives/actions"
 import { getCategoryHighlights } from "@/actions/public/categories/actions"
@@ -1392,78 +1392,79 @@ export async function PeriodicLeaderboardView({
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-          <section className="space-y-6 lg:col-span-8">
-            <div className="space-y-3">
-              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
-                  {headerTitle}
-                </h1>
-                <ArchiveSegmentedNav
+        <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
+            <section className="space-y-6 lg:col-span-8">
+              <div className="space-y-3">
+                <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                  <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
+                    {headerTitle}
+                  </h1>
+                  <ArchiveSegmentedNav
+                    start={start}
+                    filters={filters}
+                    activePeriod="day"
+                  />
+                </div>
+                <DailyCalendarStrip
+                  dayLinks={dayLinks}
                   start={start}
                   filters={filters}
-                  activePeriod="day"
+                  todayUtc={todayUtc}
                 />
               </div>
-              <DailyCalendarStrip
-                dayLinks={dayLinks}
-                start={start}
-                filters={filters}
-                todayUtc={todayUtc}
+              <h2 className="sr-only">Ranked products</h2>
+
+              {hasProducts ? (
+                <div className="space-y-3">
+                  {rankedItems.map((item, index) => (
+                    <DailyProductCard
+                      key={item.id}
+                      item={item}
+                      rank={item.leaderboardRank ?? index + 1}
+                      nowMs={now.getTime()}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
+                  <Rocket className="size-8 text-[#0051d5]" aria-hidden />
+                  <div className="space-y-1">
+                    <p className="text-[18px] font-semibold leading-6 text-black">
+                      No ranked products yet.
+                    </p>
+                    <p className="text-[14px] leading-5 text-[#43474c]">
+                      As soon as products earn points in this window, they will
+                      appear here.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button asChild className="rounded-lg bg-black text-white">
+                      <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="rounded-lg border-[#E2E8F0] bg-white text-black"
+                    >
+                      <Link href={BROWSE_PATH}>Browse products</Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <aside className="space-y-6 lg:col-span-4">
+              <PeriodicArchiveSidebar
+                groups={groupedArchive}
+                buildSidebarPath={buildSidebarPath}
+                categories={categories}
+                useCases={useCases}
+                alternatives={alternatives}
               />
-            </div>
-            <h2 className="sr-only">Ranked products</h2>
-
-            {hasProducts ? (
-              <div className="space-y-3">
-                {rankedItems.map((item, index) => (
-                  <DailyProductCard
-                    key={item.id}
-                    item={item}
-                    rank={item.leaderboardRank ?? index + 1}
-                    nowMs={now.getTime()}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
-                <Rocket className="size-8 text-[#0051d5]" aria-hidden />
-                <div className="space-y-1">
-                  <p className="text-[18px] font-semibold leading-6 text-black">
-                    No ranked products yet.
-                  </p>
-                  <p className="text-[14px] leading-5 text-[#43474c]">
-                    As soon as products earn points in this window, they will
-                    appear here.
-                  </p>
-                </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Button asChild className="rounded-lg bg-black text-white">
-                    <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-lg border-[#E2E8F0] bg-white text-black"
-                  >
-                    <Link href={BROWSE_PATH}>Browse products</Link>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </section>
-
-          <aside className="space-y-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} />
-            <PeriodicArchiveSidebar
-              groups={groupedArchive}
-              buildSidebarPath={buildSidebarPath}
-              categories={categories}
-              useCases={useCases}
-              alternatives={alternatives}
-            />
-          </aside>
-        </div>
+            </aside>
+          </div>
+        </PublicAdLayout>
       </main>
     )
   }
@@ -1482,94 +1483,95 @@ export async function PeriodicLeaderboardView({
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-          <section className="space-y-6 lg:col-span-8">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div className="space-y-1">
-                <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
-                  {headerTitle}
-                </h1>
-                <WeeklyRangeNav
-                  weeks={weeklyFilters}
+        <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
+            <section className="space-y-6 lg:col-span-8">
+              <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                <div className="space-y-1">
+                  <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
+                    {headerTitle}
+                  </h1>
+                  <WeeklyRangeNav
+                    weeks={weeklyFilters}
+                    start={start}
+                    filters={filters}
+                    todayUtc={todayUtc}
+                  />
+                </div>
+                <ArchiveSegmentedNav
                   start={start}
                   filters={filters}
-                  todayUtc={todayUtc}
+                  activePeriod="week"
                 />
               </div>
-              <ArchiveSegmentedNav
-                start={start}
-                filters={filters}
-                activePeriod="week"
-              />
-            </div>
-            <h2 className="sr-only">Ranked products</h2>
+              <h2 className="sr-only">Ranked products</h2>
 
-            {hasProducts ? (
-              <>
-                <div className="space-y-3">
-                  {featuredItems.map((item, index) => (
-                    <WeeklyLeaderboardCard
-                      key={item.id}
-                      item={item}
-                      rank={item.leaderboardRank ?? index + 1}
-                    />
-                  ))}
-                </div>
-                {compactItems.length ? (
-                  <div className="space-y-1">
-                    {compactItems.map((item, index) => (
-                      <WeeklyCompactRow
+              {hasProducts ? (
+                <>
+                  <div className="space-y-3">
+                    {featuredItems.map((item, index) => (
+                      <WeeklyLeaderboardCard
                         key={item.id}
                         item={item}
-                        nowMs={now.getTime()}
-                        rank={
-                          item.leaderboardRank ??
-                          featuredItems.length + index + 1
-                        }
+                        rank={item.leaderboardRank ?? index + 1}
                       />
                     ))}
                   </div>
-                ) : null}
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
-                <Rocket className="size-8 text-[#0051d5]" aria-hidden />
-                <div className="space-y-1">
-                  <p className="text-[18px] font-semibold leading-6 text-black">
-                    No ranked products yet.
-                  </p>
-                  <p className="text-[14px] leading-5 text-[#43474c]">
-                    As soon as products earn points in this window, they will
-                    appear here.
-                  </p>
+                  {compactItems.length ? (
+                    <div className="space-y-1">
+                      {compactItems.map((item, index) => (
+                        <WeeklyCompactRow
+                          key={item.id}
+                          item={item}
+                          nowMs={now.getTime()}
+                          rank={
+                            item.leaderboardRank ??
+                            featuredItems.length + index + 1
+                          }
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
+                  <Rocket className="size-8 text-[#0051d5]" aria-hidden />
+                  <div className="space-y-1">
+                    <p className="text-[18px] font-semibold leading-6 text-black">
+                      No ranked products yet.
+                    </p>
+                    <p className="text-[14px] leading-5 text-[#43474c]">
+                      As soon as products earn points in this window, they will
+                      appear here.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button asChild className="rounded-lg bg-black text-white">
+                      <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="rounded-lg border-[#E2E8F0] bg-white text-black"
+                    >
+                      <Link href={BROWSE_PATH}>Browse products</Link>
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Button asChild className="rounded-lg bg-black text-white">
-                    <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-lg border-[#E2E8F0] bg-white text-black"
-                  >
-                    <Link href={BROWSE_PATH}>Browse products</Link>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </section>
+              )}
+            </section>
 
-          <aside className="space-y-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} />
-            <PeriodicArchiveSidebar
-              groups={groupedArchive}
-              buildSidebarPath={buildSidebarPath}
-              categories={categories}
-              useCases={useCases}
-              alternatives={alternatives}
-            />
-          </aside>
-        </div>
+            <aside className="space-y-6 lg:col-span-4">
+              <PeriodicArchiveSidebar
+                groups={groupedArchive}
+                buildSidebarPath={buildSidebarPath}
+                categories={categories}
+                useCases={useCases}
+                alternatives={alternatives}
+              />
+            </aside>
+          </div>
+        </PublicAdLayout>
       </main>
     )
   }
@@ -1592,102 +1594,107 @@ export async function PeriodicLeaderboardView({
     return (
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-          <section className="lg:col-span-8">
-            <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <div>
-                <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
-                  {headerTitle}
-                </h1>
-                <p className="mt-1 text-[14px] leading-5 text-[#43474c]">
-                  Hand-picked by the community. Validated by data.
-                </p>
-              </div>
-              <ArchiveSegmentedNav
-                start={start}
-                filters={filters}
-                activePeriod="month"
-              />
-            </div>
-            <h2 className="sr-only">Ranked products</h2>
-
-            {hasProducts ? (
-              <div className="flex flex-col gap-4">
-                {featuredItems.map((item, index) => (
-                  <FeaturedArchiveCard
-                    key={item.id}
-                    item={item}
-                    rank={item.leaderboardRank ?? index + 1}
-                  />
-                ))}
-                <div className="grid grid-cols-1 gap-3">
-                  {beforePartner.map((item, index) => (
-                    <CompactArchiveRow
-                      key={item.id}
-                      item={item}
-                      rank={
-                        item.leaderboardRank ?? featuredItems.length + index + 1
-                      }
-                    />
-                  ))}
-                  <InlinePartnerSpotlight product={partnerProduct} />
-                  {afterPartner.map((item, index) => (
-                    <CompactArchiveRow
-                      key={item.id}
-                      item={item}
-                      rank={
-                        item.leaderboardRank ??
-                        featuredItems.length + beforePartner.length + index + 1
-                      }
-                    />
-                  ))}
+        <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
+            <section className="lg:col-span-8">
+              <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div>
+                  <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
+                    {headerTitle}
+                  </h1>
+                  <p className="mt-1 text-[14px] leading-5 text-[#43474c]">
+                    Hand-picked by the community. Validated by data.
+                  </p>
                 </div>
-                {items.length > rankedItems.length ? (
-                  <div className="mt-4 w-full rounded-xl border-2 border-dashed border-[#E2E8F0] px-4 py-4 text-center text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#43474c] transition-colors hover:bg-[#e5eeff]">
-                    Showing the top {rankedItems.length} rankings for{" "}
-                    {leaderboard.periodLabel}
+                <ArchiveSegmentedNav
+                  start={start}
+                  filters={filters}
+                  activePeriod="month"
+                />
+              </div>
+              <h2 className="sr-only">Ranked products</h2>
+
+              {hasProducts ? (
+                <div className="flex flex-col gap-4">
+                  {featuredItems.map((item, index) => (
+                    <FeaturedArchiveCard
+                      key={item.id}
+                      item={item}
+                      rank={item.leaderboardRank ?? index + 1}
+                    />
+                  ))}
+                  <div className="grid grid-cols-1 gap-3">
+                    {beforePartner.map((item, index) => (
+                      <CompactArchiveRow
+                        key={item.id}
+                        item={item}
+                        rank={
+                          item.leaderboardRank ??
+                          featuredItems.length + index + 1
+                        }
+                      />
+                    ))}
+                    <InlinePartnerSpotlight product={partnerProduct} />
+                    {afterPartner.map((item, index) => (
+                      <CompactArchiveRow
+                        key={item.id}
+                        item={item}
+                        rank={
+                          item.leaderboardRank ??
+                          featuredItems.length +
+                            beforePartner.length +
+                            index +
+                            1
+                        }
+                      />
+                    ))}
                   </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
-                <Rocket className="size-8 text-[#0051d5]" aria-hidden />
-                <div className="space-y-1">
-                  <p className="text-[18px] font-semibold leading-6 text-black">
-                    No ranked products yet.
-                  </p>
-                  <p className="text-[14px] leading-5 text-[#43474c]">
-                    As soon as products earn points in this window, they will
-                    appear here.
-                  </p>
+                  {items.length > rankedItems.length ? (
+                    <div className="mt-4 w-full rounded-xl border-2 border-dashed border-[#E2E8F0] px-4 py-4 text-center text-[12px] font-semibold uppercase leading-4 tracking-[0.05em] text-[#43474c] transition-colors hover:bg-[#e5eeff]">
+                      Showing the top {rankedItems.length} rankings for{" "}
+                      {leaderboard.periodLabel}
+                    </div>
+                  ) : null}
                 </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Button asChild className="rounded-lg bg-black text-white">
-                    <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-lg border-[#E2E8F0] bg-white text-black"
-                  >
-                    <Link href={BROWSE_PATH}>Browse products</Link>
-                  </Button>
+              ) : (
+                <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-[#E2E8F0] bg-white px-6 py-12 text-center text-[#43474c]">
+                  <Rocket className="size-8 text-[#0051d5]" aria-hidden />
+                  <div className="space-y-1">
+                    <p className="text-[18px] font-semibold leading-6 text-black">
+                      No ranked products yet.
+                    </p>
+                    <p className="text-[14px] leading-5 text-[#43474c]">
+                      As soon as products earn points in this window, they will
+                      appear here.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button asChild className="rounded-lg bg-black text-white">
+                      <Link href={LEADERBOARD_PATH}>View live leaderboard</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="rounded-lg border-[#E2E8F0] bg-white text-black"
+                    >
+                      <Link href={BROWSE_PATH}>Browse products</Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </section>
+              )}
+            </section>
 
-          <aside className="flex flex-col gap-6 lg:col-span-4">
-            <CarbonAd pathname={pagePath} />
-            <PeriodicArchiveSidebar
-              groups={groupedArchive}
-              buildSidebarPath={buildSidebarPath}
-              categories={categories}
-              useCases={useCases}
-              alternatives={alternatives}
-            />
-          </aside>
-        </div>
+            <aside className="flex flex-col gap-6 lg:col-span-4">
+              <PeriodicArchiveSidebar
+                groups={groupedArchive}
+                buildSidebarPath={buildSidebarPath}
+                categories={categories}
+                useCases={useCases}
+                alternatives={alternatives}
+              />
+            </aside>
+          </div>
+        </PublicAdLayout>
       </main>
     )
   }

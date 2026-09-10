@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 
 import { isCarbonAdPath, isCarbonDiscoveryPath } from "@/lib/ads/placement"
-import { isAdsensePublisherContentPath } from "@/lib/adsense/placement"
 import nextConfig from "../../next.config"
 
 describe("ad network placement", () => {
@@ -11,10 +10,9 @@ describe("ad network placement", () => {
     "/member/products/shipyard-hq",
     "/member/products/example/",
   ])(
-    "allows Carbon on member overview and product detail pages: %s without AdSense",
+    "allows Carbon on member overview and product detail pages: %s",
     (path) => {
       expect(isCarbonAdPath(path)).toBe(true)
-      expect(isAdsensePublisherContentPath(path)).toBe(false)
     },
   )
 
@@ -71,9 +69,8 @@ describe("ad network placement", () => {
     "/leaderboard/daily/2026/9/8",
     "/leaderboard/weekly/2026/36",
     "/leaderboard/monthly/2026/9",
-  ])("reserves %s for Carbon without allowing AdSense", (path) => {
+  ])("allows Carbon on %s", (path) => {
     expect(isCarbonDiscoveryPath(path)).toBe(true)
-    expect(isAdsensePublisherContentPath(path)).toBe(false)
   })
 
   it.each([

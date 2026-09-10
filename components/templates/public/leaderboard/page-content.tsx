@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import {
   Archive,
   ArrowRight,
@@ -338,40 +338,41 @@ export async function LeaderboardPageContent({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
       />
-      <div className="mx-auto max-w-[1200px] space-y-12">
-        <LeaderboardHero
-          categoryName={categoryName}
-          dailyArchivePath={getDailyArchivePath(now)}
-        />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <section className="space-y-3 lg:col-span-8">
-            <h2 className="sr-only">Ranked products</h2>
-            {leaderboardItems.length > 0 ? (
-              <>
-                {leaderboardItems.slice(0, 10).map((item) => (
-                  <LeaderboardProductCard key={item.id} item={item} />
-                ))}
-                <div className="flex justify-center pt-8">
-                  <Link
-                    href={monthlyArchivePath}
-                    className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.05em] text-[#0051d5] underline-offset-4 hover:underline"
-                  >
-                    View full monthly leaderboard
-                    <ArrowRight className="size-[18px]" aria-hidden />
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <EmptyLeaderboard />
-            )}
-          </section>
-          <aside className="space-y-6 lg:col-span-4">
-            <LazyTrafficStatsPanel initialStats={stats} />
-            <PromotedShips products={partnerSpotlightProducts} />
-            <CarbonAd pathname={LEADERBOARD_PATH} />
-          </aside>
+      <PublicAdLayout pathname={LEADERBOARD_PATH}>
+        <div className="mx-auto max-w-[1200px] space-y-12">
+          <LeaderboardHero
+            categoryName={categoryName}
+            dailyArchivePath={getDailyArchivePath(now)}
+          />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <section className="space-y-3 lg:col-span-8">
+              <h2 className="sr-only">Ranked products</h2>
+              {leaderboardItems.length > 0 ? (
+                <>
+                  {leaderboardItems.slice(0, 10).map((item) => (
+                    <LeaderboardProductCard key={item.id} item={item} />
+                  ))}
+                  <div className="flex justify-center pt-8">
+                    <Link
+                      href={monthlyArchivePath}
+                      className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.05em] text-[#0051d5] underline-offset-4 hover:underline"
+                    >
+                      View full monthly leaderboard
+                      <ArrowRight className="size-[18px]" aria-hidden />
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <EmptyLeaderboard />
+              )}
+            </section>
+            <aside className="space-y-6 lg:col-span-4">
+              <LazyTrafficStatsPanel initialStats={stats} />
+              <PromotedShips products={partnerSpotlightProducts} />
+            </aside>
+          </div>
         </div>
-      </div>
+      </PublicAdLayout>
     </main>
   )
 }

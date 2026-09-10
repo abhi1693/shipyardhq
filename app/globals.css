@@ -836,13 +836,3 @@ body {
       rotate(var(--tw-exit-rotate, 0));
   }
 }
-
-.shipyard-adsense-unit:has(.adsbygoogle[data-ad-status="unfilled"]) {
-  display: none;
-}
-
-.shipyard-adsense-unit .adsbygoogle[data-ad-status="unfilled"] {
-  display: none !important;
-  height: 0 !important;
-  min-height: 0 !important;
-}

@@ -198,8 +198,8 @@ export default function PrivacyPolicyPage() {
                 processing, file storage, and payments. Key providers include
                 our infrastructure providers (hosting and file storage), Clerk
                 (identity management), OpenAI (AI features), Dodo Payments
-                (billing), Carbon Ads / BuySellAds (discovery-page advertising),
-                and Google AdSense (advertising on eligible guides).
+                (billing), and Carbon Ads / BuySellAds (discovery-page
+                advertising).
               </li>
               <li>
                 <strong>Teams and community:</strong> Content you publish—such
@@ -238,48 +238,11 @@ export default function PrivacyPolicyPage() {
                 >
                   BuySellAds privacy policy
                 </a>{" "}
-                for details. Carbon and Google AdSense do not run together on
-                the same page. Our own sponsored launch placements are separate
-                from these ad networks.
+                for details. Our own sponsored launch placements are separate
+                from Carbon Ads.
               </p>
               <p>
-                {BRAND_NAME} may use Google AdSense to show display ads on
-                substantial publisher-authored guide pages. We do not place
-                these ads inside maker profiles, product-submitted descriptions,
-                directory feeds, or search results. Google may use cookies or
-                similar technologies to deliver and measure ads, subject to your
-                location, consent choices, and Google&apos;s settings.
-              </p>
-              <p>
-                You can learn how Google uses information from sites that use
-                its services in Google&apos;s{" "}
-                <a
-                  href="https://policies.google.com/technologies/partner-sites"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  partner sites notice
-                </a>
-                , review its{" "}
-                <a
-                  href="https://policies.google.com/technologies/ads"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  advertising policy explanation
-                </a>
-                , and manage advertising preferences in{" "}
-                <a
-                  href="https://adssettings.google.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  Google&apos;s ad settings
-                </a>
-                . You can also restrict cookies through your browser. Blocking
+                You can restrict cookies through your browser. Blocking
                 advertising cookies may change the ads you see but should not
                 prevent access to Shipyard&apos;s public content.
               </p>

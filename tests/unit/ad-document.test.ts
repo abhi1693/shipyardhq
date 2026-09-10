@@ -7,7 +7,6 @@ import {
 } from "@/lib/ads/document"
 
 afterEach(() => {
-  delete document.documentElement.dataset.adDocumentNetwork
   delete document.documentElement.dataset.adDocumentPath
   delete document.documentElement.dataset.adDocumentReloading
   document.body.replaceChildren()
@@ -15,22 +14,22 @@ afterEach(() => {
 })
 
 describe("ad document navigation", () => {
-  it("allows only one network to claim the current document", () => {
-    expect(claimAdDocument("carbon")).toBe(true)
-    expect(claimAdDocument("carbon")).toBe(true)
-    expect(claimAdDocument("adsense")).toBe(false)
+  it("keeps Carbon attached to the current document", () => {
+    expect(claimAdDocument()).toBe(true)
+    expect(claimAdDocument()).toBe(true)
+    expect(document.documentElement.dataset.adDocumentPath).toBe("/")
   })
 
-  it("requests one document reload for programmatic navigation and rejects the next network", () => {
+  it("requests one document reload before loading Carbon on another path", () => {
     // jsdom reports navigation as unimplemented; the real browser smoke check
     // verifies the document actually changes, including history navigation.
     vi.spyOn(console, "error").mockImplementation(() => {})
-    claimAdDocument("adsense")
+    claimAdDocument()
     history.pushState(null, "", "/browse")
-    expect(claimAdDocument("carbon")).toBe(false)
+    expect(claimAdDocument()).toBe(false)
     expect(document.documentElement.dataset.adDocumentReloading).toBe("true")
     expect(reloadAdDocumentIfNeeded()).toBe(true)
-    expect(document.documentElement.dataset.adDocumentNetwork).toBe("adsense")
+    expect(document.documentElement.dataset.adDocumentPath).toBe("/")
   })
 
   function click(href: string, options: MouseEventInit = {}, target?: string) {
@@ -52,7 +51,7 @@ describe("ad document navigation", () => {
 
   it("leaves same-path filters, anchors and external or new-tab links alone", () => {
     history.replaceState(null, "", "/browse")
-    claimAdDocument("carbon")
+    claimAdDocument()
     expect(click("/browse?q=tools").defaultPrevented).toBe(false)
     expect(click("/browse#results").defaultPrevented).toBe(false)
     expect(click("https://example.com").defaultPrevented).toBe(false)
@@ -65,13 +64,13 @@ describe("ad document navigation", () => {
   it("uses document navigation for ordinary links leaving an ad page", () => {
     vi.spyOn(console, "error").mockImplementation(() => {})
     history.replaceState(null, "", "/browse")
-    claimAdDocument("carbon")
+    claimAdDocument()
     expect(click("/guides/product-launch-checklist").defaultPrevented).toBe(
       true,
     )
   })
 
-  it("keeps client navigation when the document has not loaded an ad network", () => {
+  it("keeps client navigation when the document has not loaded Carbon", () => {
     expect(click("/browse").defaultPrevented).toBe(false)
     expect(reloadAdDocumentIfNeeded()).toBe(false)
   })

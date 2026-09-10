@@ -1,5 +1,3 @@
-type AdNetwork = "carbon" | "adsense"
-
 // Third-party ad scripts retain globals, callbacks and observers after unmount.
 // Give each ad-bearing pathname its own document, including history/router moves.
 export function reloadAdDocumentIfNeeded() {
@@ -14,13 +12,9 @@ export function reloadAdDocumentIfNeeded() {
   return true
 }
 
-export function claimAdDocument(network: AdNetwork) {
+export function claimAdDocument() {
   if (reloadAdDocumentIfNeeded()) return false
   const state = document.documentElement.dataset
-  if (state.adDocumentNetwork && state.adDocumentNetwork !== network) {
-    return false
-  }
-  state.adDocumentNetwork = network
   state.adDocumentPath = location.pathname
   return true
 }

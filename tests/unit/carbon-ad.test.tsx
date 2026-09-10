@@ -3,7 +3,6 @@ import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { CarbonAd } from "@/components/molecules/CarbonAd"
-import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { CARBON_SCRIPT_URL } from "@/lib/ads/config"
 
 vi.mock("next/navigation", () => ({ usePathname: () => location.pathname }))
@@ -40,12 +39,9 @@ describe("Standard Carbon embed", () => {
   afterEach(() => {
     act(() => root.unmount())
     container.remove()
-    document.getElementById("google-adsense-script")?.remove()
-    delete document.documentElement.dataset.adDocumentNetwork
     delete document.documentElement.dataset.adDocumentPath
     delete document.documentElement.dataset.adDocumentReloading
     delete document.documentElement.dataset.carbonAdRequested
-    delete window.adsbygoogle
     history.replaceState(null, "", "/")
     vi.useRealTimers()
     vi.unstubAllGlobals()
@@ -126,7 +122,7 @@ describe("Standard Carbon embed", () => {
     )
     await render()
     expect(container.querySelector("script")).toBeNull()
-    expect(document.documentElement.dataset.adDocumentNetwork).toBeUndefined()
+    expect(document.documentElement.dataset.adDocumentPath).toBeUndefined()
     vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue(
       new DOMRect(0, 0, 360, 155),
     )
@@ -135,7 +131,7 @@ describe("Standard Carbon embed", () => {
     expect(container.querySelectorAll("script")).toHaveLength(1)
   })
 
-  it("rejects guides, tools, stale discovery paths, and an AdSense document", async () => {
+  it("rejects guides, tools, and stale discovery paths", async () => {
     for (const path of [
       "/guides/product-launch-checklist",
       "/tools/seo-audit",
@@ -147,21 +143,7 @@ describe("Standard Carbon embed", () => {
     history.replaceState(null, "", "/guides/product-launch-checklist")
     await render()
     expect(container.querySelector("script")).toBeNull()
-    await render(null)
-    history.replaceState(null, "", "/browse")
-    document.documentElement.dataset.adDocumentNetwork = "adsense"
-    document.documentElement.dataset.adDocumentPath = "/browse"
-    await render()
-    expect(container.querySelector("script")).toBeNull()
     expect(document.documentElement.dataset.carbonAdRequested).toBeUndefined()
-  })
-
-  it("prevents AdSense from starting in a Carbon document", async () => {
-    await render()
-    history.replaceState(null, "", "/guides/product-launch-checklist")
-    act(() => root.render(<GoogleAdsenseDisplayUnit />))
-    expect(document.getElementById("google-adsense-script")).toBeNull()
-    expect(window.adsbygoogle).toBeUndefined()
   })
 
   it("preserves reserved space on blocked loads and never retries", async () => {
@@ -213,6 +195,6 @@ describe("Standard Carbon embed", () => {
       await vi.advanceTimersByTimeAsync(0)
     })
     expect(document.documentElement.dataset.carbonAdRequested).toBeUndefined()
-    expect(document.documentElement.dataset.adDocumentNetwork).toBeUndefined()
+    expect(document.documentElement.dataset.adDocumentPath).toBeUndefined()
   })
 })

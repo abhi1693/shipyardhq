@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { type ReactNode } from "react"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 
 import { TaxonomySponsorsSidebar } from "@/components/templates/public/common/TaxonomySponsorsSidebar"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
@@ -158,38 +158,37 @@ export function TaxonomyDetailPage({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12 xl:py-4">
-        <div
-          className={
-            hasSidebarContent
-              ? "space-y-12 lg:col-span-8"
-              : "space-y-12 lg:col-span-12 xl:col-span-8"
-          }
-        >
-          {intro ? (
-            <section className="rounded-xl border border-[#e2e8f0] bg-white p-6">
-              <h2 className="text-xl font-bold text-[#0b1c30]">
-                Directory overview
-              </h2>
-              <p className="mt-3 text-base leading-7 text-[#43474c]">{intro}</p>
-            </section>
-          ) : null}
-          <section data-testid={feedTestId}>{feed}</section>
-          {afterFeed}
-        </div>
+      <PublicAdLayout pathname={carbonPathname}>
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12 xl:py-4">
+          <div
+            className={
+              hasSidebarContent
+                ? "space-y-12 lg:col-span-8"
+                : "space-y-12 lg:col-span-12"
+            }
+          >
+            {intro ? (
+              <section className="rounded-xl border border-[#e2e8f0] bg-white p-6">
+                <h2 className="text-xl font-bold text-[#0b1c30]">
+                  Directory overview
+                </h2>
+                <p className="mt-3 text-base leading-7 text-[#43474c]">
+                  {intro}
+                </p>
+              </section>
+            ) : null}
+            <section data-testid={feedTestId}>{feed}</section>
+            {afterFeed}
+          </div>
 
-        <aside
-          className={
-            hasSidebarContent
-              ? "space-y-6 lg:col-span-4"
-              : "hidden space-y-6 lg:col-span-4 xl:block"
-          }
-        >
-          {trafficStats}
-          <TaxonomySponsorsSidebar products={sponsorProducts} />
-          <CarbonAd pathname={carbonPathname} />
-        </aside>
-      </div>
+          {hasSidebarContent ? (
+            <aside className="space-y-6 lg:col-span-4">
+              {trafficStats}
+              <TaxonomySponsorsSidebar products={sponsorProducts} />
+            </aside>
+          ) : null}
+        </div>
+      </PublicAdLayout>
     </main>
   )
 }

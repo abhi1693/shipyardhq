@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { Rocket } from "lucide-react"
 
 import { ProductLogoImage } from "@/components/atoms/product-logo-image"
@@ -176,47 +175,44 @@ export async function DetailPromotionSlot({
     products[0] ??
     null
 
-  if (!product) return <CarbonAd pathname={`/products/${currentProductSlug}`} />
+  if (!product) return null
   const tagline = product.tagline?.trim()
 
   return (
-    <>
-      <section className="relative overflow-hidden rounded-xl bg-[#061d31] p-6 text-white">
-        <div className="absolute right-2 top-2 rounded border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase">
-          Partner Spotlight
+    <section className="relative overflow-hidden rounded-xl bg-[#061d31] p-6 text-white">
+      <div className="absolute right-2 top-2 rounded border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase">
+        Partner Spotlight
+      </div>
+      <div className="relative z-10">
+        <div className="mb-3 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-[#c0ff00]">
+          {product.logo ? (
+            <ProductLogoImage
+              src={product.logo}
+              name={product.name}
+              width={36}
+              height={36}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Rocket className="h-5 w-5" aria-hidden fill="currentColor" />
+          )}
         </div>
-        <div className="relative z-10">
-          <div className="mb-3 flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 text-[#c0ff00]">
-            {product.logo ? (
-              <ProductLogoImage
-                src={product.logo}
-                name={product.name}
-                width={36}
-                height={36}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Rocket className="h-5 w-5" aria-hidden fill="currentColor" />
-            )}
-          </div>
-          <h2 className="mb-2 text-lg font-semibold">{product.name}</h2>
-          {tagline ? (
-            <p className="mb-4 text-sm text-[#b3c8e3]">{tagline}</p>
-          ) : null}
-          <a
-            href={`/r/sponsored/${product.slug}`}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            className="inline-flex w-full items-center justify-center rounded bg-white px-4 py-2 text-xs font-semibold uppercase text-[#061d31] transition hover:bg-[#c0ff00]"
-          >
-            Learn more
-          </a>
-        </div>
-        <div className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-[#346cef]/30 blur-3xl" />
-      </section>
-      <CarbonAd pathname={`/products/${currentProductSlug}`} />
-    </>
+        <h2 className="mb-2 text-lg font-semibold">{product.name}</h2>
+        {tagline ? (
+          <p className="mb-4 text-sm text-[#b3c8e3]">{tagline}</p>
+        ) : null}
+        <a
+          href={`/r/sponsored/${product.slug}`}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className="inline-flex w-full items-center justify-center rounded bg-white px-4 py-2 text-xs font-semibold uppercase text-[#061d31] transition hover:bg-[#c0ff00]"
+        >
+          Learn more
+        </a>
+      </div>
+      <div className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-[#346cef]/30 blur-3xl" />
+    </section>
   )
 }

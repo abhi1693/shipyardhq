@@ -12,20 +12,6 @@ const googleAnalyticsHosts = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
 ] as const
-const googleAdsHosts = [
-  "https://pagead2.googlesyndication.com",
-  "https://*.googlesyndication.com",
-  "https://googleads.g.doubleclick.net",
-  "https://*.doubleclick.net",
-  "https://www.google.com",
-  "https://www.gstatic.com",
-] as const
-const googleAdsConnectHosts = [
-  ...googleAdsHosts,
-  "https://ep1.adtrafficquality.google",
-  "https://ep2.adtrafficquality.google",
-  "https://*.adtrafficquality.google",
-] as const
 const carbonScriptHosts = [
   "https://cdn.carbonads.com",
   "https://cdn4.buysellads.net",
@@ -91,8 +77,6 @@ function buildContentSecurityPolicy() {
       "'unsafe-inline'",
       ...(isDev ? ["'unsafe-eval'"] : []),
       ...googleAnalyticsHosts,
-      ...googleAdsHosts,
-      ...googleAdsConnectHosts,
       ...carbonScriptHosts,
       ...cloudflareInsightsHosts,
       ...clerkScriptHosts,
@@ -102,7 +86,6 @@ function buildContentSecurityPolicy() {
       "'self'",
       ...devConnectSources,
       ...googleAnalyticsHosts,
-      ...googleAdsConnectHosts,
       ...carbonConnectHosts,
       ...cloudflareInsightsHosts,
       ...clerkConnectHosts,
@@ -112,13 +95,7 @@ function buildContentSecurityPolicy() {
     ["img-src", "'self'", "blob:", "data:", "https:"],
     ["font-src", "'self'", "data:"],
     ["media-src", "'self'", "blob:", "data:", "https:"],
-    [
-      "frame-src",
-      "'self'",
-      ...clerkFrameHosts,
-      ...googleAdsHosts,
-      ...googleAdsConnectHosts,
-    ],
+    ["frame-src", "'self'", ...clerkFrameHosts],
     ["worker-src", "'self'", "blob:"],
     ["manifest-src", "'self'"],
     ["object-src", "'none'"],

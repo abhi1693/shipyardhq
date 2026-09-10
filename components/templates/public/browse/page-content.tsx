@@ -1,3 +1,4 @@
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import Link from "next/link"
 import { ListFilter } from "lucide-react"
 
@@ -138,85 +139,90 @@ export async function BrowsePageContent({
         launchedCount={launchedCount}
       />
 
-      <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-10 px-4 py-12 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:py-6">
-        <div className="min-w-0 space-y-12">
-          <BrowseRisingStars products={products} />
+      <PublicAdLayout pathname={BROWSE_PATH}>
+        <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-10 px-4 py-12 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:py-6">
+          <div className="min-w-0 space-y-12">
+            <BrowseRisingStars products={products} />
 
-          <section>
-            <div className="mb-8 flex flex-col gap-4 border-b border-[#e2e8f0] pb-6 sm:flex-row sm:items-end sm:justify-between">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <ListFilter className="h-5 w-5 text-[#061d31]" aria-hidden />
-                  <h2 className="text-2xl font-bold tracking-tight text-[#061d31]">
-                    Fresh Finds
-                  </h2>
+            <section>
+              <div className="mb-8 flex flex-col gap-4 border-b border-[#e2e8f0] pb-6 sm:flex-row sm:items-end sm:justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <ListFilter
+                      className="h-5 w-5 text-[#061d31]"
+                      aria-hidden
+                    />
+                    <h2 className="text-2xl font-bold tracking-tight text-[#061d31]">
+                      Fresh Finds
+                    </h2>
+                  </div>
+                  <p className="text-sm text-[#43474c]">
+                    {filterSummary.join(" • ")}
+                  </p>
                 </div>
-                <p className="text-sm text-[#43474c]">
-                  {filterSummary.join(" • ")}
-                </p>
+                {hasActiveFilters ? (
+                  <Link
+                    href={BROWSE_PATH}
+                    className="text-sm font-bold text-[#0051d5] underline-offset-4 hover:underline"
+                  >
+                    Reset filters
+                  </Link>
+                ) : null}
               </div>
-              {hasActiveFilters ? (
-                <Link
-                  href={BROWSE_PATH}
-                  className="text-sm font-bold text-[#0051d5] underline-offset-4 hover:underline"
-                >
-                  Reset filters
-                </Link>
-              ) : null}
-            </div>
 
-            {products.length === 0 ? (
-              <div className="flex min-h-[640px] items-start justify-center rounded-lg border border-dashed border-[#c4c6cd] bg-white p-10 text-center">
-                <EmptyState
-                  title="No results in sight"
-                  description="Adjust filters or jump into another category to keep your search going."
-                  actionLabel="Reset filters"
-                  actionHref={BROWSE_PATH}
-                />
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <BrowseProductRowsClient
-                  initialProducts={products}
-                  initialHasMore={hasMore}
-                  initialPage={2}
-                  pageSize={BROWSE_INITIAL_PAGE_SIZE}
-                  searchParams={{
-                    useCase: normalizedFilters.useCase,
-                    category: normalizedFilters.category,
-                    sort: normalizedFilters.sort,
-                    q: normalizedFilters.query,
-                    platform: normalizedFilters.platform,
-                    pricingModel: normalizedFilters.pricingModel,
-                    productType: normalizedFilters.productType,
-                    minPrice: normalizedFilters.minPrice,
-                    maxPrice: normalizedFilters.maxPrice,
-                    badge: normalizedFilters.badge,
-                  }}
-                />
-              </div>
-            )}
-          </section>
+              {products.length === 0 ? (
+                <div className="flex min-h-[640px] items-start justify-center rounded-lg border border-dashed border-[#c4c6cd] bg-white p-10 text-center">
+                  <EmptyState
+                    title="No results in sight"
+                    description="Adjust filters or jump into another category to keep your search going."
+                    actionLabel="Reset filters"
+                    actionHref={BROWSE_PATH}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <BrowseProductRowsClient
+                    initialProducts={products}
+                    initialHasMore={hasMore}
+                    initialPage={2}
+                    pageSize={BROWSE_INITIAL_PAGE_SIZE}
+                    searchParams={{
+                      useCase: normalizedFilters.useCase,
+                      category: normalizedFilters.category,
+                      sort: normalizedFilters.sort,
+                      q: normalizedFilters.query,
+                      platform: normalizedFilters.platform,
+                      pricingModel: normalizedFilters.pricingModel,
+                      productType: normalizedFilters.productType,
+                      minPrice: normalizedFilters.minPrice,
+                      maxPrice: normalizedFilters.maxPrice,
+                      badge: normalizedFilters.badge,
+                    }}
+                  />
+                </div>
+              )}
+            </section>
+          </div>
+
+          <BrowseDiscoveryFilters
+            categories={categories}
+            useCases={useCases}
+            current={{
+              useCase: normalizedFilters.useCase,
+              category: normalizedFilters.category,
+              sort: normalizedFilters.sort,
+              query: normalizedFilters.query,
+              platform: normalizedFilters.platform,
+              pricingModel: normalizedFilters.pricingModel,
+              productType: normalizedFilters.productType,
+              minPrice: normalizedFilters.minPrice,
+              maxPrice: normalizedFilters.maxPrice,
+              badge: normalizedFilters.badge,
+            }}
+            hasActiveFilters={hasActiveFilters}
+          />
         </div>
-
-        <BrowseDiscoveryFilters
-          categories={categories}
-          useCases={useCases}
-          current={{
-            useCase: normalizedFilters.useCase,
-            category: normalizedFilters.category,
-            sort: normalizedFilters.sort,
-            query: normalizedFilters.query,
-            platform: normalizedFilters.platform,
-            pricingModel: normalizedFilters.pricingModel,
-            productType: normalizedFilters.productType,
-            minPrice: normalizedFilters.minPrice,
-            maxPrice: normalizedFilters.maxPrice,
-            badge: normalizedFilters.badge,
-          }}
-          hasActiveFilters={hasActiveFilters}
-        />
-      </div>
+      </PublicAdLayout>
     </main>
   )
 }

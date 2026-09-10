@@ -10,6 +10,7 @@ import { BrowseProductRowsClient } from "@/components/templates/public/browse/Br
 import { BrowseRisingStars } from "@/components/templates/public/browse/BrowseRisingStars"
 import { TaxonomyProductGridFeed } from "@/components/templates/public/common/TaxonomyProductGridFeed"
 import { TaxonomyDetailPage } from "@/components/templates/public/common/TaxonomyDetailPage"
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import { HomepageDropsInfiniteList } from "@/components/templates/public/homepage/homepage-client"
 import { DetailPromotionSlot } from "@/components/templates/public/products/detail/server-components"
 import type { ProductCardBase } from "@/components/molecules/ProductCard"
@@ -84,7 +85,6 @@ describe("Single Carbon placement with sponsored products", () => {
     act(() => root.unmount())
     container.remove()
     delete document.documentElement.dataset.carbonAdRequested
-    delete document.documentElement.dataset.adDocumentNetwork
     delete document.documentElement.dataset.adDocumentPath
     delete document.documentElement.dataset.adDocumentReloading
     vi.useRealTimers()
@@ -111,6 +111,49 @@ describe("Single Carbon placement with sponsored products", () => {
       await vi.advanceTimersByTimeAsync(0)
     })
   }
+
+  it.each([
+    "/",
+    "/browse",
+    "/categories",
+    "/categories/developer-tools",
+    "/products/current",
+    "/leaderboard",
+    "/leaderboard/daily/2026/9/10",
+    "/leaderboard/weekly/2026/37",
+    "/leaderboard/monthly/2026/9",
+  ])("keeps one responsive ad outside page content on %s", async (pathname) => {
+    history.replaceState(null, "", pathname)
+    const layout = (extraContent = false) => (
+      <PublicAdLayout
+        pathname={pathname}
+        beforeAd={<section data-before-ad>Introduction</section>}
+      >
+        <div data-page-content>
+          Products
+          {extraContent ? <div>Next page</div> : null}
+          <aside>Filters and statistics</aside>
+        </div>
+      </PublicAdLayout>
+    )
+    await render(layout())
+    const placement = container.querySelector("[data-carbon-placement]")!
+    const script = container.querySelector("script")
+    expect(script).not.toBeNull()
+    expect(placement).not.toHaveClass("hidden")
+    expect(
+      container.querySelector("[data-page-content] [data-carbon-placement]"),
+    ).toBeNull()
+    expect(
+      container.querySelector("[data-before-ad]")?.nextElementSibling,
+    ).toBe(container.querySelector("[data-public-ad-slot]"))
+    await render(layout(true))
+    expect(container.querySelectorAll("[data-carbon-placement]")).toHaveLength(
+      1,
+    )
+    expect(container.querySelector("[data-carbon-placement]")).toBe(placement)
+    expect(container.querySelector("script")).toBe(script)
+  })
 
   it("keeps Browse product sections free of additional Carbon ads", async () => {
     const products = [
@@ -231,13 +274,20 @@ describe("Single Carbon placement with sponsored products", () => {
   })
 
   it.each([true, false])(
-    "shows one Carbon ad after the optional product spotlight (sponsor=%s)",
+    "keeps one product-page Carbon ad outside the optional spotlight sidebar (sponsor=%s)",
     async (sponsored) => {
       history.replaceState(null, "", "/products/current")
       vi.mocked(getPartnerSpotlightProducts).mockResolvedValue(
         sponsored ? [product("paid", true)] : [],
       )
-      await render(await DetailPromotionSlot({ currentProductSlug: "current" }))
+      const spotlightContent = await DetailPromotionSlot({
+        currentProductSlug: "current",
+      })
+      await render(
+        <PublicAdLayout pathname="/products/current">
+          <aside data-product-sidebar>{spotlightContent}</aside>
+        </PublicAdLayout>,
+      )
       const spotlight = container
         .querySelector('a[href="/r/sponsored/paid"]')
         ?.closest("section")
@@ -246,16 +296,21 @@ describe("Single Carbon placement with sponsored products", () => {
         container.querySelectorAll("[data-carbon-placement]"),
       ).toHaveLength(1)
       expect(container.querySelectorAll("script")).toHaveLength(1)
-      if (sponsored) {
-        expect(spotlight?.nextElementSibling).toBe(
-          container.querySelector("[data-carbon-placement]"),
-        )
-      }
+      expect(
+        container.querySelector(
+          "[data-product-sidebar] [data-carbon-placement]",
+        ),
+      ).toBeNull()
+      expect(
+        container.querySelector(
+          "[data-public-ad-slot] [data-carbon-placement]",
+        ),
+      ).not.toBeNull()
     },
   )
 
   it.each([true, false])(
-    "shows one Carbon ad after optional taxonomy sponsors (sponsor=%s)",
+    "keeps one taxonomy Carbon ad outside the optional sponsors sidebar (sponsor=%s)",
     async (sponsored) => {
       await render(
         <TaxonomyDetailPage
@@ -280,11 +335,14 @@ describe("Single Carbon placement with sponsored products", () => {
         container.querySelectorAll("aside [data-carbon-placement]"),
       ).toHaveLength(1)
       expect(container.querySelectorAll("script")).toHaveLength(1)
-      if (sponsored) {
-        expect(sponsors?.nextElementSibling).toBe(
-          container.querySelector("aside [data-carbon-placement]"),
-        )
-      }
+      expect(
+        container.querySelector(
+          "[data-public-ad-slot] [data-carbon-placement]",
+        ),
+      ).not.toBeNull()
+      expect(
+        sponsors?.parentElement?.querySelector("[data-carbon-placement]"),
+      ).toBeFalsy()
     },
   )
 })

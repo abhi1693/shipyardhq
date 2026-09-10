@@ -28,8 +28,7 @@ export function CarbonAd({
     let script: HTMLScriptElement | undefined
     const load = () => {
       if (started || !container.getBoundingClientRect().width) return
-      if (!isCarbonAdPath(location.pathname) || !claimAdDocument("carbon"))
-        return
+      if (!isCarbonAdPath(location.pathname) || !claimAdDocument()) return
       started = true
       observer.disconnect()
       // Keep the claim for the document's lifetime, including no-fill, failure,

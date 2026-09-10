@@ -3,7 +3,6 @@ import { ArrowRight, CheckCircle2 } from "lucide-react"
 import { JsonLdScript } from "next-seo"
 
 import { Button } from "@/components/atoms/button"
-import { GoogleAdsenseDisplayUnit } from "@/components/molecules/GoogleAdsenseUnit"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import type { GuideDefinition } from "@/lib/guides/catalog"
 import { getGuide } from "@/lib/guides/catalog"
@@ -125,7 +124,7 @@ export function GuidePage({ guide }: { guide: GuideDefinition }) {
           </nav>
 
           <div className="mt-10 space-y-12">
-            {guide.sections.map((section, index) => (
+            {guide.sections.map((section) => (
               <div key={section.id}>
                 <section id={section.id} className="scroll-mt-24">
                   <h2 className="text-balance text-2xl font-bold text-black md:text-3xl">
@@ -153,10 +152,6 @@ export function GuidePage({ guide }: { guide: GuideDefinition }) {
                     </ul>
                   ) : null}
                 </section>
-
-                {index === 2 ? (
-                  <GoogleAdsenseDisplayUnit className="mt-12 min-h-24 rounded-xl border border-[#e2e8f0] bg-white p-3" />
-                ) : null}
               </div>
             ))}
           </div>

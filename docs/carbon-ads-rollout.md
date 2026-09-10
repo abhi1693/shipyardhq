@@ -32,33 +32,39 @@ and campaign color fields that this zone does not always return. A non-counting
 preview returned an image/text creative without those fields. Using the hosted
 renderer avoids broken images, blank sponsor labels, omitted assets, and a second
 fallback ad request. It also supports rich creatives when the zone returns them.
-The homepage unit uses a 300px right column on wide desktops (1536px and up),
-starting beside the sponsored launch section. Its wrapper stays 24px above the
-viewport bottom while scrolling through the launch feed, staying within that
-section and stopping before the footer. The right column aligns the wrapper at
-its end so bottom sticky positioning follows downward and upward scrolling. Sticky positioning is disabled below 480px viewport height. On
-narrower screens the same unit stays centered between the sponsored launch and
-the live launch board, using the vendor's 400px maximum width. CSS moves the
-single placement between layouts without remounting or requesting another ad.
-Other public sidebar placements remain desktop-only. Each visible slot
+Public Carbon pages share `PublicAdLayout`. Existing 1200px and 1240px content
+containers stay centered independently of the ad. At 1888px viewport width and
+up, a single 300px unit sits in the unused right margin, with at least 24px to
+the viewport edge. Its wrapper stays 24px above the viewport bottom while
+scrolling through the page content, or 88px above it when the fixed partner bar
+is present. It stops at the end of the content before the footer. Sticky
+positioning is disabled below 480px viewport height.
+
+On narrower screens, the same responsive unit appears centered before the page
+content, below the hero where present. The homepage keeps its sponsored launch,
+Carbon, live launch board order. The vendor retains its 400px maximum width.
+CSS moves the single placement without remounting or requesting another ad.
+Filters, statistics, product details, and partner spotlights remain in their
+existing sidebars; those sidebars no longer contain Carbon ads. Taxonomy pages
+without sidebar content use the full content width. Member placements keep their
+existing layout. Each visible slot
 reserves at least 155px, as in the supplied embed, during
 loading, no-fill, and blocked loads. The supplied 960px custom template would
 require compatible inventory from Carbon before use.
 
 ## Placements
 
-| Pages                                              | Location                                                                                                                            |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Homepage `/`                                       | One sticky right-column unit beside sponsored launch and the feed on wide screens; inline below sponsored launch on smaller screens |
-| `/browse`                                          | One unit above the sidebar filters                                                                                                  |
-| Taxonomy indexes, details and filtered directories | One unit after sidebar statistics and any sponsored products                                                                        |
-| `/products/[slug]`                                 | One Carbon unit after the optional partner spotlight, immediately above You may also like                                           |
-| `/leaderboard` and daily, weekly, monthly archives | After counters and any partner spotlight on the live leaderboard; one unit in archive sidebars                                      |
-| `/member/overview`                                 | One responsive unit directly below Launch Activity and above Partner Spotlight                                                      |
-| `/member/products/[slug]`                          | One responsive unit directly below Public Listing Preview                                                                           |
+| Pages                                              | Location                                                                                                             |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Homepage `/`                                       | One sticky right-margin unit beside sponsored launch and the feed; inline after sponsored launch on narrower screens |
+| `/browse`                                          | Shared right-margin unit outside the results and filters; inline below the hero on narrower screens                  |
+| Taxonomy indexes, details and filtered directories | Shared right-margin unit outside the directory and sidebar; inline below the hero on narrower screens                |
+| `/products/[slug]`                                 | Shared right-margin unit outside product content and the sidebar; inline before product content on narrower screens  |
+| `/leaderboard` and daily, weekly, monthly archives | Shared right-margin unit outside rankings and the sidebar; inline before page content on narrower screens            |
+| `/member/overview`                                 | One responsive unit directly below Launch Activity and above Partner Spotlight                                       |
+| `/member/products/[slug]`                          | One responsive unit directly below Public Listing Preview                                                            |
 
-Sidebar statistics precede the ad, so creative loading cannot push the counters
-down. Sidebar sponsors do not suppress Carbon; the single unit follows them.
+Carbon loading does not move sidebar content. Sidebar sponsors do not suppress the ad.
 Product feeds, date sections, Rising Stars, and paginated lists contain no
 Carbon placements. Sponsored product listings keep their existing links and
 tracking. Tools, public profiles, sign-in, onboarding, and the pricing sales page
@@ -67,24 +73,16 @@ lists, creation, edit, analytics, upgrade, and delete pages contain no Carbon
 placements. Member units sit inside the authenticated page content; the overview
 first-launch empty state has no Launch Activity or ad.
 
-The homepage placement is alongside sponsored launch and the feed on wide
-screens; its mobile order is sponsored launch, Carbon, then the live launch
-board. Product-detail pages show Carbon after the
-partner spotlight, when present, and above You may also like. These placements
-can sit below the initial desktop fold;
-Carbon's published policy calls for visibility at 1366x768, so placement approval
-remains a separate consideration from the single-ad and standard-format fixes.
+## Lifecycle and document isolation
 
-## Lifecycle and network isolation
-
-Public sidebar slots are disabled below 1280px; the homepage, member overview,
-and member product detail units are responsive and available on mobile. The overview ad follows Launch
+Public Carbon units, member overview, and member product detail units are
+responsive and available on mobile. The overview ad follows Launch
 Activity in the content column with the existing 24px spacing. It is outside the
 navigation sidebar and reserves at least 155px while loading. Member product
 details center the same responsive unit below Public Listing Preview, with the
 existing section spacing. A hidden slot makes
-no ad request and does not claim the document. Resizing a public sidebar slot to
-desktop loads the embed once. React Strict Mode, rerenders, query filters, and
+no ad request and does not claim the document. Resizing between inline and
+right-margin layouts retains the same embed. React Strict Mode, rerenders, query filters, and
 pagination do not reload the embed.
 
 A document-level `carbonAdRequested` claim permits only one Carbon embed for the
@@ -93,29 +91,32 @@ failed request or an unmount/remount. No application retry or refresh occurs.
 Blocked scripts and no-fill leave the reserved 155px container in place. The vendor
 handles its own serving lifecycle. No fallback network is added by Shipyard.
 
-`AdDocumentBoundary` and `lib/ads/document.ts` retain network isolation across
-public, auth, and member transitions. Once an ad network claims the document,
+`AdDocumentBoundary` and `lib/ads/document.ts` retain document isolation across
+public, auth, and member transitions. Once Carbon claims the document,
 pathname changes use full document navigation, including browser history. This
 also isolates member ads when leaving for another member page. Member pages
 without an ad claim retain their normal client navigation.
 Same-path query and hash changes keep their existing behavior.
 
-AdSense remains restricted to the guide allowlist in
-`lib/adsense/placement.ts`. The CSP permits the hosted Carbon runtime.
-`public/ads.txt` is unchanged.
+Guides contain no third-party ad placements. The CSP permits the hosted Carbon
+runtime. The obsolete Google publisher entry and its `public/ads.txt` file have
+been removed.
 No database schema changes or migrations are required.
 
 ## Validation
 
 Run unit tests, ESLint, TypeScript, scoped Prettier checks, and a production
 build. Regression checks cover duplicate mounts, remounts, failed loads, mobile
-resizing, route exclusions, network isolation, and paginated product feeds.
+resizing, route exclusions, document isolation, and paginated product feeds.
 
 Browser checks must use the unmodified vendor script with intercepted synthetic
 campaign responses and assets. Verify one embed and one served creative,
 complete text and attribution, template asset sizing, and no overflow on the
-homepage, Browse, taxonomy, leaderboard, and product pages. Check mobile shows one homepage banner and no sidebar
-Carbon requests, and that filters, pagination, and Back navigation do not create
+homepage, Browse, taxonomy, leaderboard, and product pages. Check each public
+Carbon page at mobile, 1887px, 1888px, and wide desktop widths. Verify centered
+content, an inline ad below the breakpoint, right-margin placement above it,
+sticky scrolling in both directions, and clearance above the footer and partner
+bar. Check mobile shows one responsive unit, and that filters, pagination, and Back navigation do not create
 extra ads in one document. Do not click tracked campaign links.
 
 For a real serving check, use `?bsaignore=yes` to enable Carbon's non-counting
@@ -126,18 +127,33 @@ check complete assets, standard image dimensions, one unit per document, mobile
 layout, and stable sidebar counters with delayed ad responses. Production-zone
 checks use non-counting preview requests only.
 
-Homepage layout checks cover 1536px and wider right-column placement, the 24px
-bottom offset while scrolling in both directions and extending the feed, stopping before the footer,
-inline order on smaller screens, and disabling sticky positioning on short
-viewports. Seven browser fixture scenarios passed for the bottom positioning,
-including rich creatives, feed growth, reverse scrolling, footer boundaries, and
-responsive layouts. Resizing retains the same embed without another ad request.
+Shared public layout checks cover 1888px and wider right-margin placement,
+bottom offsets while scrolling in both directions and extending the feed,
+footer and partner-bar clearance, inline order on smaller screens, and disabling
+sticky positioning on short viewports. Resizing must retain the same embed
+without another ad request. Use both standard and rich synthetic creatives.
 
 Member placement checks cover the overview ad directly after Launch Activity,
 the member product detail ad directly after Public Listing Preview, no ad in the
 navigation sidebar or other member pages, responsive layout, and one request per
 document. Use an isolated fixture with the real page and sidebar components when no signed-in browser session is available; keep authentication
 enforced in the application itself.
+
+### Shared public layout validation
+
+The public ad cleanup passed all 457 unit tests, ESLint, scoped formatting,
+and the production build including TypeScript. Chromium checks covered nine
+representative pages at 375, 768, 1280, 1536, 1887, 1888, 1920, and 2560px.
+Content stayed centered, with no horizontal overflow and exactly one runtime
+and creative request per document across resizes. Both scrolling directions,
+footer boundaries, and short viewports passed. Additional rich-creative checks
+covered the homepage and Browse, including a partner bar and extended feed.
+Campaign responses and assets were synthetic; the hosted runtime was unmodified.
+The three guide pages render their content without ad elements or ad requests.
+Built assets contain no obsolete Google ad integration, and `/ads.txt` returns
+404 after removing the former publisher entry.
+
+### Earlier release validation
 
 Local validation passed: 107 focused ad regression checks, ESLint, scoped
 formatting, TypeScript, and the production build. Six overview browser fixture

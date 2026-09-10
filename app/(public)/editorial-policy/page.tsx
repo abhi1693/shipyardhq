@@ -186,12 +186,10 @@ export default function EditorialPolicyPage() {
           <div className="mt-5 space-y-4 text-base leading-8 text-[#43474c]">
             <p>
               Carbon Ads appears in dedicated placements on our homepage,
-              browse, taxonomy directory, product, and leaderboard pages. Google
-              AdSense is limited to eligible publisher-authored guides. These
-              networks do not run together on the same page. Our own sponsored
-              launch placements remain clearly identified. Ads do not determine
-              which products are accepted, verified, ranked, or selected by
-              editors.
+              browse, taxonomy directory, product, and leaderboard pages. Our
+              own sponsored launch placements remain clearly identified. Ads do
+              not determine which products are accepted, verified, ranked, or
+              selected by editors.
             </p>
             <p>
               {BRAND_NAME} is independent and is not affiliated with Product

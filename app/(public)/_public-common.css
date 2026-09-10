@@ -29,11 +29,17 @@
 @source "../../components/molecules/empty-state.tsx";
 @source "../../components/organisms/PartnerSpotlight*.tsx";
 @source "../../components/templates/public/common/PartnerSpotlight.tsx";
+@source "../../components/templates/public/common/PublicAdLayout.tsx";
 @source "../../lib/ui/**/*.{js,ts,jsx,tsx}";
 @source "../../components/atoms/product-logo-image.tsx";
 @source "../../components/atoms/resilient-image.tsx";
 
+[data-public-layout]:has([data-partner-spotlight]) {
+  --public-ad-bottom: 5.5rem;
+}
+
 [data-public-layout]:has([data-homepage]) {
+  --public-ad-bottom: 1.5rem;
   padding-bottom: 0;
 }
 

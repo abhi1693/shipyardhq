@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { CarbonAd } from "@/components/molecules/CarbonAd"
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import { ANALYTICS_REPORTING_WINDOW_LABEL } from "@/lib/analytics/reportingWindow"
 import Link from "next/link"
 import { BarChart3, ChevronRight, Hash, TrendingUp } from "lucide-react"
@@ -319,91 +319,95 @@ export function TaxonomyIndexPage({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-6 md:px-6 lg:grid-cols-12">
-        <div className="space-y-8 lg:col-span-8">
-          {topItems.length > 0 ? (
+      <PublicAdLayout pathname={carbonPathname}>
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-6 md:px-6 lg:grid-cols-12">
+          <div className="space-y-8 lg:col-span-8">
+            {topItems.length > 0 ? (
+              <section>
+                <div className="mb-3 flex items-center justify-between gap-4">
+                  <h2 className="flex items-center gap-2 text-lg font-semibold">
+                    <TrendingUp
+                      className="h-5 w-5 text-[#b45309]"
+                      aria-hidden
+                    />
+                    Trending Now
+                  </h2>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#43474c]">
+                    {trendingWindowLabel}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {topItems.map((item, index) => (
+                    <TrendCard
+                      key={item.key}
+                      item={item}
+                      index={index}
+                      itemUnit={itemUnit}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
             <section>
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
-                  <TrendingUp className="h-5 w-5 text-[#b45309]" aria-hidden />
-                  Trending Now
-                </h2>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#43474c]">
-                  {trendingWindowLabel}
+              <div className="mb-4 flex items-center justify-between border-b border-[#e2e8f0] pb-4">
+                <h2 className="text-lg font-semibold">{itemsHeading}</h2>
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#43474c]">
+                  {formatCount(totalItems ?? items.length)} total
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {topItems.map((item, index) => (
-                  <TrendCard
-                    key={item.key}
-                    item={item}
-                    index={index}
-                    itemUnit={itemUnit}
-                  />
-                ))}
-              </div>
+              {items.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                  {items.map((item, index) => (
+                    <DirectoryCard
+                      key={item.key}
+                      item={item}
+                      index={index}
+                      itemUnit={itemUnit}
+                      accessory={directoryAccessory}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-[#c4c6cd] bg-white px-6 py-10 text-center">
+                  <h3 className="text-lg font-semibold">{emptyTitle}</h3>
+                  <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#43474c]">
+                    {emptyDescription}
+                  </p>
+                </div>
+              )}
             </section>
-          ) : null}
+          </div>
 
-          <section>
-            <div className="mb-4 flex items-center justify-between border-b border-[#e2e8f0] pb-4">
-              <h2 className="text-lg font-semibold">{itemsHeading}</h2>
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#43474c]">
-                {formatCount(totalItems ?? items.length)} total
-              </span>
-            </div>
-            {items.length > 0 ? (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-                {items.map((item, index) => (
-                  <DirectoryCard
-                    key={item.key}
-                    item={item}
-                    index={index}
-                    itemUnit={itemUnit}
-                    accessory={directoryAccessory}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-[#c4c6cd] bg-white px-6 py-10 text-center">
-                <h3 className="text-lg font-semibold">{emptyTitle}</h3>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#43474c]">
-                  {emptyDescription}
-                </p>
-              </div>
-            )}
-          </section>
+          <aside className="space-y-6 lg:col-span-4">
+            <PulsePanel
+              title={pulseTitle}
+              stats={stats}
+              topItems={sortedItems}
+              totalProducts={totalProductCount}
+            />
+
+            {quickLinks.length > 0 ? (
+              <section className="rounded-xl border border-[#e2e8f0] bg-white p-5">
+                <h2 className="mb-4 text-lg font-semibold text-[#0b1c30]">
+                  {quickLinksTitle}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {quickLinks.map((item) => (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className="rounded bg-[#f8faff] px-3 py-1.5 text-sm font-medium text-[#43474c] transition-colors hover:bg-[#0051d5]/10 hover:text-[#0051d5]"
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </aside>
         </div>
-
-        <aside className="space-y-6 lg:col-span-4">
-          <PulsePanel
-            title={pulseTitle}
-            stats={stats}
-            topItems={sortedItems}
-            totalProducts={totalProductCount}
-          />
-          <CarbonAd pathname={carbonPathname} />
-
-          {quickLinks.length > 0 ? (
-            <section className="rounded-xl border border-[#e2e8f0] bg-white p-5">
-              <h2 className="mb-4 text-lg font-semibold text-[#0b1c30]">
-                {quickLinksTitle}
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {quickLinks.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="rounded bg-[#f8faff] px-3 py-1.5 text-sm font-medium text-[#43474c] transition-colors hover:bg-[#0051d5]/10 hover:text-[#0051d5]"
-                  >
-                    {item.title}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ) : null}
-        </aside>
-      </div>
+      </PublicAdLayout>
     </main>
   )
 }

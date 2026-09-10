@@ -1,3 +1,4 @@
+import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { type ComponentType, type ComponentPropsWithoutRef } from "react"
@@ -1312,254 +1313,256 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         />
       ) : null}
       <ScrollReset triggerKey={product.slug} />
-      <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
-        <header className="mb-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-          <div className="flex min-w-0 items-center gap-6">
-            {product.logo ? (
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
-                <ProductLogoImage
-                  src={product.logo}
-                  name={product.name}
-                  width={80}
-                  height={80}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#061d31] text-lg font-semibold uppercase text-white md:h-20 md:w-20">
-                {product.name.slice(0, 2)}
-              </div>
-            )}
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-[32px] md:leading-10">
-                  {product.name}
-                </h1>
-                {isVerified ? (
-                  <BadgeCheck
-                    className="h-5 w-5 fill-[#0051d5] text-white"
-                    aria-label="Verified"
+      <PublicAdLayout pathname={`/products/${product.slug}`}>
+        <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
+          <header className="mb-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+            <div className="flex min-w-0 items-center gap-6">
+              {product.logo ? (
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
+                  <ProductLogoImage
+                    src={product.logo}
+                    name={product.name}
+                    width={80}
+                    height={80}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
                   />
+                </div>
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#061d31] text-lg font-semibold uppercase text-white md:h-20 md:w-20">
+                  {product.name.slice(0, 2)}
+                </div>
+              )}
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-[32px] md:leading-10">
+                    {product.name}
+                  </h1>
+                  {isVerified ? (
+                    <BadgeCheck
+                      className="h-5 w-5 fill-[#0051d5] text-white"
+                      aria-label="Verified"
+                    />
+                  ) : null}
+                </div>
+                {product.tagline ? (
+                  <p className="mt-1 max-w-2xl text-base leading-6 text-muted-foreground">
+                    {product.tagline}
+                  </p>
                 ) : null}
-              </div>
-              {product.tagline ? (
-                <p className="mt-1 max-w-2xl text-base leading-6 text-muted-foreground">
-                  {product.tagline}
-                </p>
-              ) : null}
-              <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground">
-                <ProductShareMenu
-                  productName={product.name}
-                  productTagline={product.tagline}
-                  shareUrl={shareUrl}
-                />
-                {publishedLabel ? (
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" aria-hidden />
-                    <time
-                      dateTime={publishedDateIso ?? undefined}
-                      aria-label={`Published on ${publishedLabel}`}
-                    >
-                      Published on {publishedLabel}
-                    </time>
-                  </span>
-                ) : null}
+                <div className="mt-2 flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground">
+                  <ProductShareMenu
+                    productName={product.name}
+                    productTagline={product.tagline}
+                    shareUrl={shareUrl}
+                  />
+                  {publishedLabel ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Calendar className="h-3.5 w-3.5" aria-hidden />
+                      <time
+                        dateTime={publishedDateIso ?? undefined}
+                        aria-label={`Published on ${publishedLabel}`}
+                      >
+                        Published on {publishedLabel}
+                      </time>
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex w-full flex-wrap gap-3 md:ml-auto md:w-auto md:justify-end">
-            {websiteHref ? (
-              <ProductWebsiteLink
-                href={websiteHref}
-                productSlug={product.slug}
-                trackWithBeacon={hasDirectWebsiteLink}
-                rel={websiteRel}
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden />
-                Visit website
-              </ProductWebsiteLink>
-            ) : null}
-            {videoHref ? (
-              <a
-                href={videoHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
-              >
-                <PlayCircle className="h-4 w-4" aria-hidden />
-                Video
-              </a>
-            ) : null}
-            <ProductUpvoteBadgeServer
-              productSlug={product.slug}
-              upvoteCount={upvoteCount}
-              leaderboard={leaderboardPayload}
-              variant="inline"
-            />
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
-            <ProductMediaGallery
-              bannerImage={product.bannerImage}
-              directInitialImage={directInitialGalleryImage}
-              media={galleryMedia}
-              productName={product.name}
-            />
-            <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
-              <h2 className="mb-3 text-lg font-semibold text-foreground">
-                The modern way to build with {product.name}.
-              </h2>
-              <ProductDescriptionCard description={product.description} />
-              {keywordTagItems.length ? (
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {keywordTagItems.map((tag) => (
-                    <Link
-                      key={tag.slug}
-                      href={tagPath(tag.slug)}
-                      className="rounded-sm border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-medium uppercase text-muted-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
-                    >
-                      #{tag.label}
-                    </Link>
-                  ))}
-                </div>
+            <div className="flex w-full flex-wrap gap-3 md:ml-auto md:w-auto md:justify-end">
+              {websiteHref ? (
+                <ProductWebsiteLink
+                  href={websiteHref}
+                  productSlug={product.slug}
+                  trackWithBeacon={hasDirectWebsiteLink}
+                  rel={websiteRel}
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
+                >
+                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  Visit website
+                </ProductWebsiteLink>
               ) : null}
-            </section>
-            {visibleInternalLinks.length ? (
-              <nav
-                aria-label={`Research paths related to ${product.name}`}
-                className="rounded-xl border border-border bg-white p-4 shadow-sm"
-              >
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <h2 className="text-sm font-semibold text-foreground">
-                      Continue researching {product.name}
-                    </h2>
-                    <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
-                      Compare {product.name} by category, use case, maker,
-                      pricing, platform support, alternatives, and launch
-                      context.
-                    </p>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {visibleInternalLinks.map((link) => (
+              {videoHref ? (
+                <a
+                  href={videoHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:bg-muted/60 sm:flex-none"
+                >
+                  <PlayCircle className="h-4 w-4" aria-hidden />
+                  Video
+                </a>
+              ) : null}
+              <ProductUpvoteBadgeServer
+                productSlug={product.slug}
+                upvoteCount={upvoteCount}
+                leaderboard={leaderboardPayload}
+                variant="inline"
+              />
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
+              <ProductMediaGallery
+                bannerImage={product.bannerImage}
+                directInitialImage={directInitialGalleryImage}
+                media={galleryMedia}
+                productName={product.name}
+              />
+              <section className="rounded-xl border border-border bg-white p-6 shadow-sm">
+                <h2 className="mb-3 text-lg font-semibold text-foreground">
+                  The modern way to build with {product.name}.
+                </h2>
+                <ProductDescriptionCard description={product.description} />
+                {keywordTagItems.length ? (
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {keywordTagItems.map((tag) => (
                       <Link
-                        key={link.href}
-                        href={link.href}
-                        title={link.description}
-                        className="group flex min-w-0 items-start justify-between gap-3 rounded-lg border border-border bg-[#f8fafc] px-3 py-3 transition hover:border-[#0051d5]/30 hover:bg-white"
+                        key={tag.slug}
+                        href={tagPath(tag.slug)}
+                        className="rounded-sm border border-border bg-[#f8fafc] px-3 py-1 text-[11px] font-medium uppercase text-muted-foreground transition hover:border-[#0051d5]/40 hover:text-[#0051d5]"
                       >
-                        <span className="min-w-0">
-                          <span className="line-clamp-1 block text-sm font-semibold text-foreground group-hover:text-[#0051d5]">
-                            {link.label}
-                          </span>
-                          <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
-                            {link.description}
-                          </span>
-                        </span>
-                        <ArrowRight
-                          className="mt-1 size-3.5 shrink-0 text-muted-foreground transition group-hover:text-[#0051d5]"
-                          aria-hidden
-                        />
+                        #{tag.label}
                       </Link>
                     ))}
                   </div>
-                </div>
-
-                {overflowInternalLinkGroups.length ? (
-                  <details className="group mt-3">
-                    <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-[#0051d5]">
-                      <span>
-                        {`Show all research paths (${overflowInternalLinkCount})`}
-                      </span>
-                      <ArrowRight
-                        className="size-3 transition group-open:rotate-90"
-                        aria-hidden
-                      />
-                    </summary>
-                    <div className="mt-3 grid gap-x-6 gap-y-4 border-t border-border pt-3 sm:grid-cols-2">
-                      {overflowInternalLinkGroups.map((group) => (
-                        <section key={group.title} aria-label={group.title}>
-                          <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                            {group.title}
-                          </h3>
-                          <ul className="mt-2 space-y-2">
-                            {group.links.map((link) => (
-                              <li key={link.href}>
-                                <Link
-                                  href={link.href}
-                                  title={link.description}
-                                  className="group/link block rounded-md px-1 py-0.5 transition hover:bg-[#f8fafc]"
-                                >
-                                  <span className="block text-xs font-semibold text-foreground underline-offset-4 group-hover/link:text-[#0051d5] group-hover/link:underline">
-                                    {link.label}
-                                  </span>
-                                  <span className="mt-0.5 line-clamp-2 block text-[11px] leading-4 text-muted-foreground">
-                                    {link.description}
-                                  </span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
+                ) : null}
+              </section>
+              {visibleInternalLinks.length ? (
+                <nav
+                  aria-label={`Research paths related to ${product.name}`}
+                  className="rounded-xl border border-border bg-white p-4 shadow-sm"
+                >
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">
+                        Continue researching {product.name}
+                      </h2>
+                      <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
+                        Compare {product.name} by category, use case, maker,
+                        pricing, platform support, alternatives, and launch
+                        context.
+                      </p>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {visibleInternalLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          title={link.description}
+                          className="group flex min-w-0 items-start justify-between gap-3 rounded-lg border border-border bg-[#f8fafc] px-3 py-3 transition hover:border-[#0051d5]/30 hover:bg-white"
+                        >
+                          <span className="min-w-0">
+                            <span className="line-clamp-1 block text-sm font-semibold text-foreground group-hover:text-[#0051d5]">
+                              {link.label}
+                            </span>
+                            <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                              {link.description}
+                            </span>
+                          </span>
+                          <ArrowRight
+                            className="mt-1 size-3.5 shrink-0 text-muted-foreground transition group-hover:text-[#0051d5]"
+                            aria-hidden
+                          />
+                        </Link>
                       ))}
                     </div>
-                  </details>
-                ) : null}
-              </nav>
-            ) : null}
-          </div>
+                  </div>
 
-          <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
-            {hasMeaningfulLeaderboardMetrics ? (
-              <section
-                className={cn(
-                  "grid gap-3",
-                  leaderboardRank !== null ? "grid-cols-2" : "grid-cols-1",
-                )}
-              >
-                {leaderboardRank !== null ? (
+                  {overflowInternalLinkGroups.length ? (
+                    <details className="group mt-3">
+                      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-[#0051d5]">
+                        <span>
+                          {`Show all research paths (${overflowInternalLinkCount})`}
+                        </span>
+                        <ArrowRight
+                          className="size-3 transition group-open:rotate-90"
+                          aria-hidden
+                        />
+                      </summary>
+                      <div className="mt-3 grid gap-x-6 gap-y-4 border-t border-border pt-3 sm:grid-cols-2">
+                        {overflowInternalLinkGroups.map((group) => (
+                          <section key={group.title} aria-label={group.title}>
+                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              {group.title}
+                            </h3>
+                            <ul className="mt-2 space-y-2">
+                              {group.links.map((link) => (
+                                <li key={link.href}>
+                                  <Link
+                                    href={link.href}
+                                    title={link.description}
+                                    className="group/link block rounded-md px-1 py-0.5 transition hover:bg-[#f8fafc]"
+                                  >
+                                    <span className="block text-xs font-semibold text-foreground underline-offset-4 group-hover/link:text-[#0051d5] group-hover/link:underline">
+                                      {link.label}
+                                    </span>
+                                    <span className="mt-0.5 line-clamp-2 block text-[11px] leading-4 text-muted-foreground">
+                                      {link.description}
+                                    </span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        ))}
+                      </div>
+                    </details>
+                  ) : null}
+                </nav>
+              ) : null}
+            </div>
+
+            <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
+              {hasMeaningfulLeaderboardMetrics ? (
+                <section
+                  className={cn(
+                    "grid gap-3",
+                    leaderboardRank !== null ? "grid-cols-2" : "grid-cols-1",
+                  )}
+                >
+                  {leaderboardRank !== null ? (
+                    <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
+                      <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
+                        Global rank
+                      </span>
+                      <span className="text-lg font-semibold text-foreground">
+                        #{numberFormatter.format(leaderboardRank)}
+                      </span>
+                    </div>
+                  ) : null}
                   <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
                     <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
-                      Global rank
+                      Shipyard points
                     </span>
-                    <span className="text-lg font-semibold text-foreground">
-                      #{numberFormatter.format(leaderboardRank)}
+                    <span className="text-lg font-semibold text-emerald-700">
+                      {numberFormatter.format(leaderboardPoints)}
                     </span>
                   </div>
-                ) : null}
-                <div className="rounded-xl border border-border bg-white p-4 text-center shadow-sm">
-                  <span className="mb-1 block text-[11px] font-medium uppercase text-muted-foreground">
-                    Shipyard points
-                  </span>
-                  <span className="text-lg font-semibold text-emerald-700">
-                    {numberFormatter.format(leaderboardPoints)}
-                  </span>
-                </div>
+                </section>
+              ) : null}
+              {productDetailsCard}
+              {productPromotionSlot}
+              <section>
+                <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  You may also like
+                </h2>
+                {primaryUseCaseSlug || primaryCategorySlug ? (
+                  similarProductsContent
+                ) : (
+                  <p className="rounded-lg border border-border bg-white p-4 text-sm text-muted-foreground">
+                    Related launches will appear as soon as this product has a
+                    category or use case.
+                  </p>
+                )}
               </section>
-            ) : null}
-            {productDetailsCard}
-            {productPromotionSlot}
-            <section>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                You may also like
-              </h2>
-              {primaryUseCaseSlug || primaryCategorySlug ? (
-                similarProductsContent
-              ) : (
-                <p className="rounded-lg border border-border bg-white p-4 text-sm text-muted-foreground">
-                  Related launches will appear as soon as this product has a
-                  category or use case.
-                </p>
-              )}
-            </section>
-          </aside>
+            </aside>
+          </div>
         </div>
-      </div>
+      </PublicAdLayout>
     </main>
   )
 }
