@@ -140,7 +140,7 @@ export async function BrowsePageContent({
       />
 
       <PublicAdLayout pathname={BROWSE_PATH}>
-        <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-10 px-4 py-12 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:py-6">
+        <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-10 px-4 py-12 md:px-6 @[1024px]/public-ad:grid-cols-[minmax(0,1fr)_320px] xl:py-6">
           <div className="min-w-0 space-y-12">
             <BrowseRisingStars products={products} />
 

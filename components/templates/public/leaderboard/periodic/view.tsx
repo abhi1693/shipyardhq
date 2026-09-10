@@ -1393,8 +1393,8 @@ export async function PeriodicLeaderboardView({
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
         <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
-          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-            <section className="space-y-6 lg:col-span-8">
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 @[1024px]/public-ad:grid-cols-12">
+            <section className="space-y-6 @[1024px]/public-ad:col-span-8">
               <div className="space-y-3">
                 <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                   <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
@@ -1454,7 +1454,7 @@ export async function PeriodicLeaderboardView({
               )}
             </section>
 
-            <aside className="space-y-6 lg:col-span-4">
+            <aside className="space-y-6 @[1024px]/public-ad:col-span-4">
               <PeriodicArchiveSidebar
                 groups={groupedArchive}
                 buildSidebarPath={buildSidebarPath}
@@ -1484,8 +1484,8 @@ export async function PeriodicLeaderboardView({
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
         <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
-          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-            <section className="space-y-6 lg:col-span-8">
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 @[1024px]/public-ad:grid-cols-12">
+            <section className="space-y-6 @[1024px]/public-ad:col-span-8">
               <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                 <div className="space-y-1">
                   <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
@@ -1561,7 +1561,7 @@ export async function PeriodicLeaderboardView({
               )}
             </section>
 
-            <aside className="space-y-6 lg:col-span-4">
+            <aside className="space-y-6 @[1024px]/public-ad:col-span-4">
               <PeriodicArchiveSidebar
                 groups={groupedArchive}
                 buildSidebarPath={buildSidebarPath}
@@ -1595,8 +1595,8 @@ export async function PeriodicLeaderboardView({
       <main className="bg-[#F8FAFC] px-6 pb-16 pt-8 text-[#0b1c30]">
         {structuredData}
         <PublicAdLayout pathname={buildPath(leaderboard.period, start)}>
-          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 lg:grid-cols-12">
-            <section className="lg:col-span-8">
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 @[1024px]/public-ad:grid-cols-12">
+            <section className="@[1024px]/public-ad:col-span-8">
               <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                 <div>
                   <h1 className="text-[32px] font-bold leading-10 tracking-[-0.02em] text-black">
@@ -1684,7 +1684,7 @@ export async function PeriodicLeaderboardView({
               )}
             </section>
 
-            <aside className="flex flex-col gap-6 lg:col-span-4">
+            <aside className="flex flex-col gap-6 @[1024px]/public-ad:col-span-4">
               <PeriodicArchiveSidebar
                 groups={groupedArchive}
                 buildSidebarPath={buildSidebarPath}

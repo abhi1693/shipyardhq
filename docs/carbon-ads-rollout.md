@@ -32,25 +32,28 @@ and campaign color fields that this zone does not always return. A non-counting
 preview returned an image/text creative without those fields. Using the hosted
 renderer avoids broken images, blank sponsor labels, omitted assets, and a second
 fallback ad request. It also supports rich creatives when the zone returns them.
-Public Carbon pages share `PublicAdLayout`. Existing 1200px and 1240px content
-containers stay centered independently of the ad. At 1888px viewport width and
-up, a single 300px unit sits in the unused right margin, with at least 24px to
-the viewport edge. Its wrapper stays 24px above the viewport bottom while
-scrolling through the page content, or 88px above it when the fixed partner bar
-is present. It stops at the end of the content before the footer. Sticky
-positioning is disabled below 480px viewport height.
+Public Carbon pages share `PublicAdLayout`. The main content stays centered in
+the viewport at every width. From 1200px, its width shrinks symmetrically to
+reserve equal margins on both sides; only the right margin contains Carbon.
+The ad grows from 240px to 300px (`clamp(240px, 20vw, 300px)`). The content width
+is the available parent width minus twice the ad width and 24px edge spacing,
+capped at 1240px. It reaches the original maximum on wide screens.
 
-On narrower screens, the same responsive unit appears centered before the page
-content, below the hero where present. The homepage keeps its sponsored launch,
-Carbon, live launch board order. The vendor retains its 400px maximum width.
-CSS moves the single placement without remounting or requesting another ad.
-Filters, statistics, product details, and partner spotlights remain in their
-existing sidebars; those sidebars no longer contain Carbon ads. Taxonomy pages
-without sidebar content use the full content width. Member placements keep their
-existing layout. Each visible slot
-reserves at least 155px, as in the supplied embed, during
-loading, no-fill, and blocked loads. The supplied 960px custom template would
-require compatible inventory from Carbon before use.
+The ad wrapper stays 24px above the viewport bottom while scrolling through the
+page content, or 88px above it when the fixed partner bar is present. It stops
+at the end of the content before the footer. Sticky positioning is disabled
+below 480px viewport height. Internal page columns use the named `public-ad`
+container's available width: filters, statistics, and product details stack when
+the centered content is too narrow for their desktop columns. The homepage's
+sponsored launch and traffic chart also stack based on available content width.
+
+Below 1200px, the same responsive unit appears centered before the page content,
+below the hero where present. The homepage keeps its sponsored launch, Carbon,
+live launch board order on those screens. The vendor retains its 400px maximum
+width. CSS moves the single placement without remounting or requesting another
+ad. Each visible slot reserves at least 155px during loading, no-fill, and
+blocked loads. Member placements keep their existing layout. The supplied
+960px custom template would require compatible inventory from Carbon before use.
 
 ## Placements
 
@@ -113,7 +116,7 @@ Browser checks must use the unmodified vendor script with intercepted synthetic
 campaign responses and assets. Verify one embed and one served creative,
 complete text and attribution, template asset sizing, and no overflow on the
 homepage, Browse, taxonomy, leaderboard, and product pages. Check each public
-Carbon page at mobile, 1887px, 1888px, and wide desktop widths. Verify centered
+Carbon page at mobile, 1199px, 1200px, 1258px, and wide desktop widths. Verify centered
 content, an inline ad below the breakpoint, right-margin placement above it,
 sticky scrolling in both directions, and clearance above the footer and partner
 bar. Check mobile shows one responsive unit, and that filters, pagination, and Back navigation do not create
@@ -127,7 +130,7 @@ check complete assets, standard image dimensions, one unit per document, mobile
 layout, and stable sidebar counters with delayed ad responses. Production-zone
 checks use non-counting preview requests only.
 
-Shared public layout checks cover 1888px and wider right-margin placement,
+Shared public layout checks cover 1200px and wider right-margin placement,
 bottom offsets while scrolling in both directions and extending the feed,
 footer and partner-bar clearance, inline order on smaller screens, and disabling
 sticky positioning on short viewports. Resizing must retain the same embed
@@ -139,7 +142,29 @@ navigation sidebar or other member pages, responsive layout, and one request per
 document. Use an isolated fixture with the real page and sidebar components when no signed-in browser session is available; keep authentication
 enforced in the application itself.
 
-### Shared public layout validation
+### Centered desktop sidebar validation
+
+The 1200px layout passed all 457 unit tests, ESLint, scoped formatting, and the
+production build including TypeScript. Chromium checked 31 routes covering every
+public page type that mounts this layout, with both standard and rich synthetic
+creatives through the unmodified Carbon runtime. All 62 scenarios passed at
+375, 768, 1024, 1199, 1200, 1258, 1280, 1366, 1440, 1536, 1888, 1920, and 2560px.
+
+Checks measured main content centering within one pixel of the viewport center,
+right-margin placement from 1200px, inline placement below it, no horizontal
+overflow or content overlap, and one runtime and creative request per document
+across all resizes. Scrolling in both directions, footer clearance, and disabling
+sticky positioning at 400px height passed. Additional homepage and Browse checks
+covered delayed, blocked, and no-fill responses without horizontal movement,
+155px empty-slot reservations, and 24px/88px bottom offsets with the partner bar.
+
+Coverage includes homepage, Browse, all six taxonomy indexes, each taxonomy
+detail type, pricing models, all seven filtered-directory patterns, verified
+and editor-pick directories, category trends, product detail, leaderboard, and
+daily, weekly, and monthly archives, including the legacy monthly redirect.
+The previous 1888px layout is recorded below for release history.
+
+### Earlier shared public layout validation (1888px breakpoint)
 
 The public ad cleanup passed all 457 unit tests, ESLint, scoped formatting,
 and the production build including TypeScript. Chromium checks covered nine

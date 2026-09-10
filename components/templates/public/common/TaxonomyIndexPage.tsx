@@ -320,8 +320,8 @@ export function TaxonomyIndexPage({
       </section>
 
       <PublicAdLayout pathname={carbonPathname}>
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-6 md:px-6 lg:grid-cols-12">
-          <div className="space-y-8 lg:col-span-8">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-6 md:px-6 @[1024px]/public-ad:grid-cols-12">
+          <div className="space-y-8 @[1024px]/public-ad:col-span-8">
             {topItems.length > 0 ? (
               <section>
                 <div className="mb-3 flex items-center justify-between gap-4">
@@ -336,7 +336,7 @@ export function TaxonomyIndexPage({
                     {trendingWindowLabel}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 @[768px]/public-ad:grid-cols-2">
                   {topItems.map((item, index) => (
                     <TrendCard
                       key={item.key}
@@ -357,7 +357,7 @@ export function TaxonomyIndexPage({
                 </span>
               </div>
               {items.length > 0 ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 @[640px]/public-ad:grid-cols-2 @[768px]/public-ad:grid-cols-3">
                   {items.map((item, index) => (
                     <DirectoryCard
                       key={item.key}
@@ -379,7 +379,7 @@ export function TaxonomyIndexPage({
             </section>
           </div>
 
-          <aside className="space-y-6 lg:col-span-4">
+          <aside className="space-y-6 @[1024px]/public-ad:col-span-4">
             <PulsePanel
               title={pulseTitle}
               stats={stats}

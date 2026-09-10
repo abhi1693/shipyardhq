@@ -344,8 +344,8 @@ export async function LeaderboardPageContent({
             categoryName={categoryName}
             dailyArchivePath={getDailyArchivePath(now)}
           />
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-            <section className="space-y-3 lg:col-span-8">
+          <div className="grid grid-cols-1 gap-6 @[1024px]/public-ad:grid-cols-12">
+            <section className="space-y-3 @[1024px]/public-ad:col-span-8">
               <h2 className="sr-only">Ranked products</h2>
               {leaderboardItems.length > 0 ? (
                 <>
@@ -366,7 +366,7 @@ export async function LeaderboardPageContent({
                 <EmptyLeaderboard />
               )}
             </section>
-            <aside className="space-y-6 lg:col-span-4">
+            <aside className="space-y-6 @[1024px]/public-ad:col-span-4">
               <LazyTrafficStatsPanel initialStats={stats} />
               <PromotedShips products={partnerSpotlightProducts} />
             </aside>

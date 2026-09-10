@@ -144,9 +144,15 @@ describe("Single Carbon placement with sponsored products", () => {
     expect(
       container.querySelector("[data-page-content] [data-carbon-placement]"),
     ).toBeNull()
-    expect(
-      container.querySelector("[data-before-ad]")?.nextElementSibling,
-    ).toBe(container.querySelector("[data-public-ad-slot]"))
+    const introduction = container.querySelector("[data-before-ad]")!
+    const slot = container.querySelector("[data-public-ad-slot]")!
+    const content = container.querySelector("[data-page-content]")!
+    expect(introduction.compareDocumentPosition(slot)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(slot.compareDocumentPosition(content)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
     await render(layout(true))
     expect(container.querySelectorAll("[data-carbon-placement]")).toHaveLength(
       1,

@@ -1315,7 +1315,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <ScrollReset triggerKey={product.slug} />
       <PublicAdLayout pathname={`/products/${product.slug}`}>
         <div className="mx-auto w-full max-w-[1200px] px-4 py-6 md:px-6">
-          <header className="mb-6 grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <header className="mb-6 grid grid-cols-1 items-start gap-6 @[768px]/public-ad:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div className="flex min-w-0 items-center gap-6">
               {product.logo ? (
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#061d31] text-white md:h-20 md:w-20">
@@ -1404,8 +1404,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </header>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-            <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
+          <div className="grid grid-cols-1 gap-6 @[1024px]/public-ad:grid-cols-12">
+            <div className="flex min-w-0 flex-col gap-6 @[1024px]/public-ad:col-span-8">
               <ProductMediaGallery
                 bannerImage={product.bannerImage}
                 directInitialImage={directInitialGalleryImage}
@@ -1516,7 +1516,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               ) : null}
             </div>
 
-            <aside className="flex min-w-0 flex-col gap-6 lg:col-span-4">
+            <aside className="flex min-w-0 flex-col gap-6 @[1024px]/public-ad:col-span-4">
               {hasMeaningfulLeaderboardMetrics ? (
                 <section
                   className={cn(

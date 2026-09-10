@@ -159,12 +159,12 @@ export function TaxonomyDetailPage({
       </section>
 
       <PublicAdLayout pathname={carbonPathname}>
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 lg:grid-cols-12 xl:py-4">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-4 py-12 md:px-6 @[1024px]/public-ad:grid-cols-12 xl:py-4">
           <div
             className={
               hasSidebarContent
-                ? "space-y-12 lg:col-span-8"
-                : "space-y-12 lg:col-span-12"
+                ? "space-y-12 @[1024px]/public-ad:col-span-8"
+                : "space-y-12 @[1024px]/public-ad:col-span-12"
             }
           >
             {intro ? (
@@ -182,7 +182,7 @@ export function TaxonomyDetailPage({
           </div>
 
           {hasSidebarContent ? (
-            <aside className="space-y-6 lg:col-span-4">
+            <aside className="space-y-6 @[1024px]/public-ad:col-span-4">
               {trafficStats}
               <TaxonomySponsorsSidebar products={sponsorProducts} />
             </aside>

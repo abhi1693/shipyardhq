@@ -482,7 +482,7 @@ async function HomepageDataSections() {
               </Link>
             </div>
 
-            <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm lg:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
+            <div className="grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm @[1024px]/public-ad:grid-cols-[minmax(0,1fr)_minmax(520px,1fr)]">
               <article
                 className={cn(
                   "relative min-w-0 overflow-hidden",
@@ -611,7 +611,7 @@ async function HomepageDataSections() {
                 )}
               </article>
 
-              <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 lg:border-l lg:border-t-0">
+              <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 @[1024px]/public-ad:border-l @[1024px]/public-ad:border-t-0">
                 <div className="grid grid-cols-3 gap-3 border-b border-[#D7DEE8] pb-3 sm:gap-8">
                   {platformMetrics.map((metric) => (
                     <div
@@ -700,8 +700,8 @@ async function HomepageDataSections() {
 function HomepageWhyExistsSection() {
   return (
     <section className="overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm">
-      <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="border-b border-[#E2E8F0] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+      <div className="grid @[1024px]/public-ad:grid-cols-[0.9fr_1.1fr]">
+        <div className="border-b border-[#E2E8F0] p-6 sm:p-8 @[1024px]/public-ad:border-b-0 @[1024px]/public-ad:border-r @[1024px]/public-ad:p-10">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0051d5]">
             Built for buyer action
           </span>
@@ -729,7 +729,7 @@ function HomepageWhyExistsSection() {
           </Link>
         </div>
 
-        <div className="grid bg-[#F8FAFC] md:grid-cols-2">
+        <div className="grid bg-[#F8FAFC] @[768px]/public-ad:grid-cols-2">
           {HOMEPAGE_VALUE_POINTS.map((point, index) => {
             const Icon = point.icon
 
@@ -738,8 +738,10 @@ function HomepageWhyExistsSection() {
                 key={point.title}
                 className={cn(
                   "min-h-[190px] p-6 sm:p-8",
-                  index % 2 === 0 && "md:border-r md:border-[#E2E8F0]",
-                  index < 2 && "md:border-b md:border-[#E2E8F0]",
+                  index % 2 === 0 &&
+                    "@[768px]/public-ad:border-r @[768px]/public-ad:border-[#E2E8F0]",
+                  index < 2 &&
+                    "@[768px]/public-ad:border-b @[768px]/public-ad:border-[#E2E8F0]",
                 )}
               >
                 <div className="flex size-10 items-center justify-center rounded-lg bg-white text-[#0051d5] shadow-sm ring-1 ring-[#E2E8F0]">
@@ -763,8 +765,8 @@ function HomepageWhyExistsSection() {
 function HomepageVisibilityOptionsSection() {
   return (
     <section className="overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm">
-      <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="bg-[#061D31] p-6 text-white sm:p-8 lg:p-10">
+      <div className="grid @[1024px]/public-ad:grid-cols-[0.85fr_1.15fr]">
+        <div className="bg-[#061D31] p-6 text-white sm:p-8 @[1024px]/public-ad:p-10">
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#9FE6B8]">
             Keep the launch moving
           </span>
@@ -795,7 +797,7 @@ function HomepageVisibilityOptionsSection() {
           </div>
         </div>
 
-        <div className="grid divide-y divide-[#E2E8F0] md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div className="grid divide-y divide-[#E2E8F0] @[768px]/public-ad:grid-cols-3 @[768px]/public-ad:divide-x @[768px]/public-ad:divide-y-0">
           {HOMEPAGE_VISIBILITY_OPTIONS.map((option) => {
             const Icon = option.icon
 
