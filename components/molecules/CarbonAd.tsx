@@ -69,7 +69,6 @@ export function CarbonAd({
     preload(CARBON_SCRIPT_URL, {
       as: "script",
       fetchPriority: "low",
-      media: variant === "standard" ? "(min-width: 1280px)" : undefined,
     })
   }
 
@@ -79,7 +78,7 @@ export function CarbonAd({
       style={{ minHeight: 155 }}
       className={cn(
         "w-full max-w-[400px] text-left",
-        variant === "standard" && "hidden xl:block",
+        variant === "standard" && "mx-auto lg:mx-0",
         className,
       )}
       data-carbon-placement

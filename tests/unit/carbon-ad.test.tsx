@@ -71,6 +71,22 @@ describe("Standard Carbon embed", () => {
     expect(document.documentElement.dataset.carbonAdRequested).toBeUndefined()
   })
 
+  it.each([320, 768, 1024, 1366])(
+    "loads the default placement at %ipx without refreshing on resize",
+    async (width) => {
+      vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue(
+        new DOMRect(0, 0, width, 155),
+      )
+      await render()
+      const script = container.querySelector("script")
+      expect(script).not.toBeNull()
+      expect(container.firstElementChild).not.toHaveClass("hidden")
+      act(() => resize())
+      expect(container.querySelectorAll("script")).toHaveLength(1)
+      expect(container.querySelector("script")).toBe(script)
+    },
+  )
+
   it("loads the hosted standard embed once in Strict Mode", async () => {
     const appended = vi.spyOn(HTMLElement.prototype, "appendChild")
     await render()
@@ -116,7 +132,7 @@ describe("Standard Carbon embed", () => {
     expect(container.querySelector("script")).toBe(script)
   })
 
-  it("makes no request on mobile and loads once when visible", async () => {
+  it("makes no request in a hidden container and loads once when visible", async () => {
     vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue(
       new DOMRect(),
     )

@@ -17,8 +17,9 @@ The initial server HTML includes a low-priority preload for that exact script
 and an anonymous preconnect to Carbon's serving host. This overlaps the script
 download and connection setup with application loading. Preloading does not
 execute the script or request a creative; the existing client effect still owns
-execution, visibility checks, and the one-ad document claim. Desktop-only slots
-use a `(min-width: 1280px)` preload media condition. Client-side transitions use
+execution, visibility checks, and the one-ad document claim. Both placement
+variants preload and display on every screen size; the default variant has no
+desktop-only visibility restriction. Client-side transitions use
 the existing guarded loader instead of issuing speculative ad requests.
 
 This follows the [placement policy](https://www.carbonads.net/placement-policy):
@@ -190,8 +191,8 @@ tablet, mobile, and blocked script. Each ad followed Public Listing Preview with
 24px spacing and no navigation sidebar ad or horizontal overflow.
 Loading checks on the local production build confirmed script downloads start
 before hydration and reuse one response, including on the mobile homepage.
-Mobile sidebar downloads wait for the desktop breakpoint; blocked preloads do
-not trigger retries. Controlled script and application delays isolate this
+All placements now preload on every screen size; blocked preloads do not
+trigger retries. Controlled script and application delays isolate this
 loading behavior from changes in Carbon serving latency.
 Release `1.5.25` also packages `public` and `.next/static` into the standalone
 output from `npm run build`; the Docker entrypoint uses that shared build step.

@@ -26,9 +26,11 @@ describe("Carbon loading hints in server HTML", () => {
     },
   )
 
-  it("limits sidebar downloads to their visible desktop breakpoint", () => {
+  it("preloads the default placement on every screen", () => {
     const html = renderToStaticMarkup(<CarbonAd pathname="/browse" />)
-    expect(html).toContain('media="(min-width: 1280px)"')
+    expect(html).toContain('rel="preload"')
+    expect(html).not.toContain('media="')
+    expect(html).not.toContain("hidden")
   })
 
   it.each(["/guides/product-launch-checklist", "/member/products"])(
