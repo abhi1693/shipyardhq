@@ -1,40 +1,28 @@
 name: Container Image
-
 on:
   release:
-    types: [published]
+    types:
+      - published
   workflow_dispatch:
     inputs:
       version:
         description: Semver image version without a leading v
         required: true
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ github.actor }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   packages: write
-
 jobs:
-  build:
-    name: Build linux/arm64
-    uses: abhi1693/actions/.github/workflows/docker-build-push.yml@master
+  images:
+    uses: abhi1693/actions/.github/workflows/container-images.yml@34e92ba1eee6a47e9b10f13e2180114fc01b6027
     with:
-      runs-on: ubuntu-24.04-arm
-      image: ghcr.io/abhi1693/shipyardhq
-      context: .
-      file: Dockerfile
-      platforms: linux/arm64
-      cache-scope: shipyardhq-arm64
-      build-args: |
-        APP_VERSION=${{ github.event.release.tag_name || inputs.version }}
-      tags: |
-        type=semver,pattern={{version}}
-        type=raw,value=${{ inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
-      labels: |
-        org.opencontainers.image.source=https://github.com/abhi1693/shipyardhq
-        org.opencontainers.image.title=shipyardhq
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      manifest: .github/images.json
+      publish: true
+      version: ${{ inputs.version }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
