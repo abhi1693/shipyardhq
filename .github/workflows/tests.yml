@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   unit:
-    uses: abhi1693/actions/.github/workflows/node-ci.yml@34e92ba1eee6a47e9b10f13e2180114fc01b6027
+    uses: abhi1693/actions/.github/workflows/node-ci.yml@2e99f8c45aeb1df32579cf960c3f0faab8ce16a5
     with:
       checks: '["test"]'
       scripts: '{"test": "test:ci"}'
