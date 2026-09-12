@@ -1,0 +1,15 @@
+{
+  "schema-version": 1,
+  "images": [
+    {
+      "id": "app",
+      "image": "ghcr.io/abhi1693/shipyardhq",
+      "context": ".",
+      "file": "Dockerfile",
+      "platforms": ["linux/arm64"],
+      "build-args": {
+        "APP_VERSION": "{version}"
+      }
+    }
+  ]
+}

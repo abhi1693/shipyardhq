@@ -1,51 +1,24 @@
 name: Security Checks
-
 on:
-  pull_request:
+  pull_request: null
   push:
-    branches: [master]
-
+    branches:
+      - master
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}-${{ github.actor }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   pull-requests: read
-
 jobs:
-  secret-scan:
-    name: Secret Scan (gitleaks)
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 10
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_CONFIG: .gitleaks.toml
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
-
-  dependency-audit:
-    name: Dependency Audit (npm audit)
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          package-manager-cache: false
-
-      - name: Install deps (ignore scripts)
-        run: npm ci --ignore-scripts --legacy-peer-deps
-
-      - name: npm audit (high+; omit dev)
-        run: npm audit --audit-level=high --omit=dev
+  security:
+    uses: abhi1693/actions/.github/workflows/security.yml@v1
+    with:
+      runs-on: ubuntu-24.04-arm
+      node-version: "22"
+      workflow-lint: false
+      secret-scan-scope: event
+      gitleaks-config: .gitleaks.toml
+      npm-audit: true
+      npm-severity: high
+      npm-include-dev: false
