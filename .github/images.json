@@ -6,9 +6,7 @@
       "image": "ghcr.io/abhi1693/shipyardhq",
       "context": ".",
       "file": "Dockerfile",
-      "platforms": [
-        "linux/arm64"
-      ],
+      "platforms": ["linux/arm64"],
       "build-args": {
         "APP_VERSION": "{version}"
       }
