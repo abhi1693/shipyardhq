@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   unit:
-    uses: abhi1693/actions/.github/workflows/node-ci.yml@2e99f8c45aeb1df32579cf960c3f0faab8ce16a5
+    uses: abhi1693/actions/.github/workflows/node-ci.yml@59178a1adfb1547da9ba94fdd46962c510b8eb1f
     with:
       checks: '["test"]'
       scripts: '{"test": "test:ci"}'
@@ -20,4 +20,3 @@ jobs:
       node-version: "22"
       enable-cache: false
       ignore-scripts: true
-      legacy-peer-deps: true
