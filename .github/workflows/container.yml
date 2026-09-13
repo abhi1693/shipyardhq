@@ -20,6 +20,9 @@ jobs:
     with:
       manifest: .github/images.json
       publish: true
+      # GitHub attestation storage does not support user-owned private repos.
+      # BuildKit provenance, SBOM, image scanning and smoke checks stay enabled.
+      attest: false
       version: ${{ inputs.version }}
     permissions:
       contents: read

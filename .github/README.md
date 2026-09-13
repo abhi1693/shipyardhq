@@ -11,3 +11,8 @@ The image manifest runs `scripts/ci/smoke-image.sh` on the native ARM64 runner
 after the security scan. It checks native modules, Prisma generation, cache
 retention, and the GNU tar flags used by Fleet. Image scans continue to block
 high and critical findings, including those without fixes.
+
+GitHub attestation storage is disabled because this is a user-owned private
+repository, which GitHub does not support for that feature. BuildKit provenance
+and SBOM attestations remain attached to the image; vulnerability/secret scans
+and native smoke tests remain blocking publication gates.
