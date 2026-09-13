@@ -72,6 +72,9 @@ const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_PREFIX = [
   "v2",
 ] as const
 const HISTORICAL_PERIODIC_LEADERBOARD_WARM_DAYS = 14
+// Version invalidation leaves older generations unreachable. Bound their
+// lifetime even when they are never requested again.
+const HISTORICAL_PERIODIC_LEADERBOARD_CACHE_TTL_SECONDS = 24 * 60 * 60
 
 const startOfUtcDay = (date: Date) =>
   new Date(
@@ -965,6 +968,7 @@ async function getHistoricalPeriodicLeaderboard(
   const key = await getHistoricalPeriodicLeaderboardCacheKey(args)
   return cacheGetOrSet({
     key,
+    ttlSeconds: HISTORICAL_PERIODIC_LEADERBOARD_CACHE_TTL_SECONDS,
     serialize: serializePeriodicLeaderboardPayload,
     deserialize: deserializePeriodicLeaderboardPayload,
     onError: (error) => {

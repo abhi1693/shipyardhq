@@ -187,6 +187,15 @@ Development seed overrides:
 
 The public homepage uses both Next.js revalidation and Redis-backed cache helpers. Product, plan, placement, billing, vote, analytics-ingestion, and cron refresh paths are expected to invalidate or refresh dependent homepage and analytics caches.
 
+Historical leaderboard results expire 24 hours after they are cached. Reads do
+not extend that lifetime, so obsolete generations expire even after version-based
+invalidation. The active version marker remains persistent. When upgrading from
+an older release, apply a one-time 24-hour expiration to historical leaderboard
+payload keys that have no TTL, preserving their values and the version marker.
+Scope that migration to the environment's `leaderboard:periodic:historical:v1:`
+and `leaderboard:periodic:historical:v2:` namespaces; queues and other caches are
+outside this policy.
+
 Protected homepage refresh endpoint:
 
 ```bash
