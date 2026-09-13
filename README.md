@@ -249,6 +249,16 @@ The repository includes:
 - `.github/workflows/security.yml` for gitleaks and npm audit.
 - `.github/workflows/container.yml` for release-triggered container image builds.
 
+The release image uses Node.js 22.23.2 on Alpine 3.24, pinned by digest, with
+npm 11.19.1 and current Alpine security updates. Local Clerk state and caches
+are excluded from the Docker context. GNU tar is included for Fleet's
+standalone artifact packaging and extraction. CI scans the complete image with
+high/critical findings blocking publication, including findings without a fix.
+The native ARM64 smoke check verifies Prisma generation, Sharp, the profiler,
+Next.js SWC, Tailwind, cache retention, and artifact round-tripping before release.
+Run it locally against a built image with
+`bash scripts/ci/smoke-image.sh <image> <platform> <version>`.
+
 Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
 
 `npm run build` also copies `public` and `.next/static` into the standalone output,

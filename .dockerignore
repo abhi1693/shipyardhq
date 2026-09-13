@@ -3,6 +3,9 @@
 .idea
 .next
 .vercel
+.clerk
+.cache
+.ruff_cache
 coverage
 backend
 node_modules

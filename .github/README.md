@@ -6,3 +6,8 @@ See the [shared release history](https://github.com/abhi1693/actions/releases) f
 Repository-owned scripts, triggers, scanner exceptions and application smoke checks
 remain alongside the application. Image manifests declare components rather than
 copying workflow steps.
+
+The image manifest runs `scripts/ci/smoke-image.sh` on the native ARM64 runner
+after the security scan. It checks native modules, Prisma generation, cache
+retention, and the GNU tar flags used by Fleet. Image scans continue to block
+high and critical findings, including those without fixes.
