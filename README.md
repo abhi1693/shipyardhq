@@ -261,6 +261,14 @@ Run it locally against a built image with
 
 Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
 
+Next.js is locked to 16.3.5, including the upstream fix for `use cache` prerender
+signal retention ([Next.js #98448](https://github.com/vercel/next.js/pull/98448)).
+The previous 16.3.4 runtime exhausted its 3 GiB JavaScript heap even with
+`cacheMaxMemorySize: 0`. Keep that cache setting and the existing heap/container
+limits; verify the bundled Next.js version, fresh restart counts, and memory trend
+under traffic after rebuilding the standalone artifact. Rollback uses the previous
+image and matching build artifact, but restores the known memory-growth risk.
+
 `npm run build` also copies `public` and `.next/static` into the standalone output,
 after moving browser source maps into the private Faro directory. This makes the
 standalone server ready to serve CSS, JavaScript, fonts, and public assets locally
