@@ -1,325 +1,74 @@
-# Shipyard HQ
-
-Shipyard HQ is a launch intelligence network for independent builders. Makers can submit products, publish launches, collect upvotes, track analytics, and buy placement plans. Public users can browse launches, leaderboards, categories, tags, use cases, platforms, pricing models, alternatives, and maker profiles.
-
-## Stack
-
-- Next.js App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Prisma 7 with PostgreSQL
-- Clerk authentication
-- Dodo Payments
-- Redis and BullMQ for cache and background work
-- Cloudflare Web Analytics and GraphQL Analytics API for traffic reporting
-- Google Analytics for internal event and conversion collection
-- Cloudflare R2-compatible object storage for product media
-
-## Project Layout
-
-- `app/` - App Router routes, layouts, API handlers, and route-local components.
-- `actions/` - server actions for member, public, catalog, and product workflows.
-- `components/` - shared UI organized by atoms, molecules, templates, pages, and layout.
-- `lib/` - shared runtime logic, data access, cache helpers, analytics, billing, jobs, and utilities.
-- `prisma/` - Prisma schema, migrations, and seed files.
-- `bin/` - long-running worker entrypoints.
-- `docs/` - operational setup notes.
-- `scripts/` - manual utility scripts.
-- `tests/` - Vitest coverage.
-
-Public, auth, and member routes compile separate Tailwind stylesheets. Shared
-animation utilities live in `app/tailwind-animations.css`, imported through
-`app/tailwind-theme.css` by each entrypoint. Keep Tailwind `@utility` definitions
-there so state variants are generated. `app/globals.css` contains browser CSS
-and shared keyframes; it does not compile route utilities.
+<div align="center">
 
-## Requirements
+<h1><a href="https://shipyardhq.dev"><img src="public/brand.png" alt="" width="48" height="48" align="absmiddle" /> Shipyard HQ</a></h1>
 
-- Node.js 22 or newer
-- npm
-- PostgreSQL
-- Redis for production-like caching, scheduled work, and BullMQ jobs
-
-## Local Setup
+### Launch your product. Stay discoverable beyond launch day.
 
-1. Install dependencies:
+A product launch directory for apps, SaaS, AI tools, APIs, and independent builders.
 
-```bash
-npm install
-```
+[![Tests](https://github.com/abhi1693/shipyardhq/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/abhi1693/shipyardhq/actions/workflows/tests.yml)
+[![Security](https://github.com/abhi1693/shipyardhq/actions/workflows/security.yml/badge.svg?branch=master)](https://github.com/abhi1693/shipyardhq/actions/workflows/security.yml)
+[![Latest release](https://img.shields.io/github/v/release/abhi1693/shipyardhq?style=flat-square&color=6366f1)](https://github.com/abhi1693/shipyardhq/releases/latest)
 
-2. Create `.env.local` with at least the core app secrets:
+**[Explore products](https://shipyardhq.dev/browse)** · **[Launch your product](https://shipyardhq.dev/member/products/add)** · **[Free SEO tools](https://shipyardhq.dev/tools)**
 
-```bash
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="..."
-CLERK_SECRET_KEY="..."
-DODO_API_KEY="..."
-```
+[Website](https://shipyardhq.dev) · [Leaderboard](https://shipyardhq.dev/leaderboard) · [Guides](https://shipyardhq.dev/guides) · [Plans](https://shipyardhq.dev/pricing)
 
-3. Apply Prisma migrations and generate the client:
+</div>
 
-```bash
-npm run prisma:deploy
-npm run prisma:generate
-```
+---
 
-4. Seed local data when needed:
+Shipyard HQ helps founders give their products a lasting home and helps people
+find software worth trying. Publish a product page, reach visitors through
+relevant directories, and learn what brings people to your launch.
 
-```bash
-npm run prisma:seed:dev
-```
-
-5. Start the development server:
-
-```bash
-npm run dev
-```
-
-The app runs at `http://localhost:3000` by default.
-
-## Environment Variables
-
-Core:
-
-- `DATABASE_URL` - primary PostgreSQL connection string.
-- `DIRECT_DATABASE_URL` - optional direct database URL override.
-- `NEXT_PUBLIC_APP_URL` - canonical, client-facing app URL. Production must use
-  an absolute HTTPS origin such as `https://shipyardhq.dev`; container bind
-  addresses such as `0.0.0.0` are invalid.
-- `CACHE_ENV_PREFIX` - optional cache namespace prefix.
-- `CRON_SECRET` - bearer token for protected cron/refresh endpoints.
-
-Auth:
-
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-- `CLERK_SECRET_KEY`
-- `CLERK_WEBHOOK_SIGNING_SECRET`
-- `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
-- `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
-- `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
-- `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
-
-Payments:
-
-- `DODO_API_KEY`
-- `DODO_ENV`
-- `DODO_WEBHOOK_SECRET`
-- `MONTHLY_WINNER_PLAN_SLUG`
-
-Redis and jobs:
-
-- `REDIS_URL` or `REDIS_TLS_URL`
-- `REDIS_DB`
-- `REDIS_CONNECT_TIMEOUT_MS`
-- `REDIS_SENTINEL_NODES`
-- `REDIS_SENTINEL_NAME`
-- `BULLMQ_PREFIX`
-
-Analytics:
-
-- `GOOGLE_ANALYTICS_ID` - GA4 measurement ID used by the production gtag and Measurement Protocol events.
-- `GOOGLE_ANALYTICS_API_SECRET` - GA4 Measurement Protocol secret for server-side events.
-- `GA_EXCLUDED_HOSTNAMES` - optional comma-separated hostnames that must not send browser events.
-- `CLOUDFLARE_ZONE_ID`
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ANALYTICS_START_DATE` - optional earliest reporting date.
-- `CLOUDFLARE_ANALYTICS_RETENTION_DAYS` - optional raw HTTP retention window.
-- `CLOUDFLARE_ANALYTICS_TIMEOUT_MS` - optional GraphQL request timeout.
+Browse without an account, or sign in to submit your own product.
 
-Public SEO tools:
+## Give your next launch a home
 
-- `GOOGLE_PAGESPEED_API_KEY` - optional but recommended for dependable Core Web Vitals checks; without it, requests use Google's limited anonymous quota.
+- **Start for free.** Create a public product page with your description, screenshots,
+  website, pricing model, and supported platforms.
+- **Stay discoverable.** Eligible products appear across launch feeds, categories,
+  use cases, tags, and other directories, so discovery can continue after launch day.
+- **See what gets attention.** Track product visits, website clicks, votes, and
+  rankings from your dashboard, with analytics depth depending on your plan.
+- **Add visibility when you need it.** Optional paid plans offer promoted placements.
+  Sponsored visibility is labelled and does not buy an editorial recommendation.
 
-Storage:
+[Submit your product →](https://shipyardhq.dev/member/products/add)
 
-- `R2_ACCESS_KEY_ID`
-- `R2_SECRET_ACCESS_KEY`
-- `R2_BUCKET`
-- `R2_ENDPOINT`
-- `R2_PUBLIC_BASE_URL`
+## Find the right tool for the job
 
-Media optimization:
+Explore apps, SaaS products, developer tools, APIs, and AI products by what you need
+and how you work. Browse by [category](https://shipyardhq.dev/categories),
+[use case](https://shipyardhq.dev/use-cases), or
+[platform](https://shipyardhq.dev/platforms), and compare
+[alternatives](https://shipyardhq.dev/alternatives) to tools you already know.
 
-- `IMGPROXY_ENDPOINT` - public HTTPS imgproxy endpoint, for example `https://img.shipyardhq.dev`.
-- `IMGPROXY_KEY` - hex-encoded imgproxy signing key.
-- `IMGPROXY_SALT` - hex-encoded imgproxy signing salt.
+Follow the [leaderboards](https://shipyardhq.dev/leaderboard) to discover ranked
+launches and meet the [makers](https://shipyardhq.dev/users) behind them.
 
-AI:
+## Prepare your launch
 
-- `OPENAI_API_KEY`
+Use the [free SEO tools](https://shipyardhq.dev/tools) to work on metadata, social
+previews, structured data, sitemaps, and more. The
+[launch guides](https://shipyardhq.dev/guides) cover product submissions,
+discovery, and getting your listing ready.
 
-Development seed overrides:
+## Explore the code
 
-- `DEV_ADMIN_CLERK_ID`
-- `DEV_ADMIN_EMAIL`
-- `DEV_MEMBER_CLERK_ID`
-- `DEV_MEMBER_EMAIL`
-- `DEV_GENERATED_PRODUCT_COUNT`
+This repository contains the application behind [shipyardhq.dev](https://shipyardhq.dev).
+It uses **Next.js, React, and TypeScript**, with **PostgreSQL and Prisma**,
+**Redis and BullMQ**, **Clerk** for authentication, and **Dodo Payments** for billing.
 
-## npm Scripts
+For local setup, configuration, background workers, and deployment, start with the
+[technical guide](docs/technical-guide.md). See [TESTING.md](TESTING.md) for the
+test suite and [SECURITY.md](SECURITY.md) for security checks.
 
-- `npm run dev` - start the Next.js dev server.
-- `npm run build` - build the production app and package standalone static assets.
-- `npm run build:ci` - build and run the main Prisma seed.
-- `npm start` - serve a built app.
-- `npm run worker` - start the Shipyard background worker.
-- `npm run lint` - run ESLint.
-- `npm run format` - run Prettier over the repo.
-- `npm run test` - run Vitest.
-- `npm run test:watch` - run Vitest in watch mode.
-- `npm run test:ci` - run Vitest once for CI.
-- `npm run prisma:deploy` - apply deployed Prisma migrations.
-- `npm run prisma:generate` - regenerate the Prisma client.
-- `npm run prisma:migrate:reset` - reset the database with Prisma.
-- `npm run prisma:seed` - run the main seed.
-- `npm run prisma:seed:dev` - seed local development data.
-- `npm run prisma:seed:categories` - seed categories.
-- `npm run prisma:seed:usecases` - seed use cases.
-- `npm run prisma:seed:plan-features` - seed plan features.
-- `npm run prisma:seed:plans` - seed plans.
-- `npm run prisma:seed:alternatives` - seed alternatives.
-- `npm run prisma:seed:prod` - seed production taxonomy and plan-feature data.
+## Help improve Shipyard HQ
 
-## Data, Cache, and Background Work
+Found a bug or have an idea? [Open an issue](https://github.com/abhi1693/shipyardhq/issues).
+Include what you were trying to do and what you expected to happen. For account or
+billing help, contact [support@shipyardhq.dev](mailto:support@shipyardhq.dev).
 
-The public homepage uses both Next.js revalidation and Redis-backed cache helpers. Product, plan, placement, billing, vote, analytics-ingestion, and cron refresh paths are expected to invalidate or refresh dependent homepage and analytics caches.
-
-Historical leaderboard results expire 24 hours after they are cached. Reads do
-not extend that lifetime, so obsolete generations expire even after version-based
-invalidation. The active version marker remains persistent. When upgrading from
-an older release, apply a one-time 24-hour expiration to historical leaderboard
-payload keys that have no TTL, preserving their values and the version marker.
-Scope that migration to the environment's `leaderboard:periodic:historical:v1:`
-and `leaderboard:periodic:historical:v2:` namespaces; queues and other caches are
-outside this policy.
-
-Protected homepage refresh endpoint:
-
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" \
-  "$NEXT_PUBLIC_APP_URL/api/homepage/refresh"
-```
-
-The worker entrypoint is:
-
-```bash
-npm run worker
-```
-
-Use it in production when scheduled jobs, BullMQ queues, cache refresh tasks, and placement/plan expiration work should run outside web requests.
-
-## Analytics
-
-Cloudflare Web Analytics is used for public traffic, product analytics reporting,
-and scoring. Google Analytics remains enabled independently for internal event
-and conversion collection. Cloudflare beacon and GraphQL API access are
-documented in:
-
-```text
-docs/cloudflare-web-analytics.md
-```
-
-## Media Storage
-
-Uploaded product media is stored through an S3-compatible R2 client. Configure the R2 environment variables listed above before enabling uploads in production.
-
-Managed media served from `media.shipyardhq.dev` is routed through the first-party Next image optimizer URL and redirected to signed imgproxy URLs by the app proxy. Configure `IMGPROXY_ENDPOINT`, `IMGPROXY_KEY`, and `IMGPROXY_SALT` in the web runtime so signing stays server-side.
-
-## Quality Checks
-
-Run these before shipping application changes:
-
-```bash
-npm run lint
-npm run test:ci
-npm run build
-```
-
-Use `npm run format` when formatting drift is expected.
-
-## Deployment
-
-The repository includes:
-
-- `Dockerfile` for container images.
-- `.github/workflows/tests.yml` for Vitest CI.
-- `.github/workflows/security.yml` for gitleaks and npm audit.
-- `.github/workflows/container.yml` for release-triggered container image builds.
-
-The release image uses Node.js 22.23.2 on Alpine 3.24, pinned by digest, with
-npm 11.19.1 and current Alpine security updates. Local Clerk state and caches
-are excluded from the Docker context. GNU tar is included for Fleet's
-standalone artifact packaging and extraction. CI scans the complete image with
-high/critical findings blocking publication, including findings without a fix.
-The native ARM64 smoke check verifies Prisma generation, Sharp, the profiler,
-Next.js SWC, Tailwind, cache retention, and artifact round-tripping before release.
-Run it locally against a built image with
-`bash scripts/ci/smoke-image.sh <image> <platform> <version>`.
-
-Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
-
-Next.js is locked to 16.3.5, including the upstream fix for `use cache` prerender
-signal retention ([Next.js #98448](https://github.com/vercel/next.js/pull/98448)).
-The previous 16.3.4 runtime exhausted its 3 GiB JavaScript heap even with
-`cacheMaxMemorySize: 0`. Keep that cache setting and the existing heap/container
-limits; verify the bundled Next.js version, fresh restart counts, and memory trend
-under traffic after rebuilding the standalone artifact. Rollback uses the previous
-image and matching build artifact, but restores the known memory-growth risk.
-
-`npm run build` also copies `public` and `.next/static` into the standalone output,
-after moving browser source maps into the private Faro directory. This makes the
-standalone server ready to serve CSS, JavaScript, fonts, and public assets locally
-as well as in Docker:
-
-```bash
-npm run build
-node .next/standalone/server.js
-```
-
-Use `npm run build` for this workflow; bare `next build` does not run the asset
-packaging steps. Restart an existing server after rebuilding.
-
-The web container needs a writable `/app` directory at startup because it writes `.next` and generated Prisma client files. If a deployment uses `readOnlyRootFilesystem`, mount a writable volume for `/app` or keep the root filesystem writable for this image.
-
-Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install cache layer.
-
-When GitHub Actions runners are unavailable, build and push the release image locally:
-
-```bash
-gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
-npm run release:image -- v1.4.69
-```
-
-The script mirrors `.github/workflows/container.yml`: it checks out the release tag into a temporary git worktree, builds `linux/arm64`, sets `APP_VERSION` to the release tag, and pushes `ghcr.io/abhi1693/shipyardhq:<version>` plus `ghcr.io/abhi1693/shipyardhq:latest`.
-
-## Security
-
-- Keep secrets in `.env.local` locally and in your deployment secret manager in production.
-- Do not log Clerk, Dodo, database, Redis, R2, OpenAI, or GA credentials.
-- Webhook routes require their configured signing secrets.
-- Cron-style endpoints require `CRON_SECRET`.
-
-Additional security notes live in:
-
-```text
-SECURITY.md
-```
-
-## Useful Public Routes
-
-- `/` - homepage and latest launches
-- `/browse` - product discovery
-- `/leaderboard` - current leaderboard
-- `/categories` - category index
-- `/tags` - tag index
-- `/use-cases` - use-case index
-- `/platforms` - platform index
-- `/pricing` - pricing model index
-- `/alternatives` - alternatives index
-- `/users` - maker directory
-- `/analytics` - public analytics view
-- `/member/products` - member product management
-- `/admin` - admin area
+[About Shipyard HQ](https://shipyardhq.dev/about) · [Editorial policy](https://shipyardhq.dev/editorial-policy) · [Terms](https://shipyardhq.dev/legal/terms) · [Privacy](https://shipyardhq.dev/legal/privacy-policy)
