@@ -7,9 +7,19 @@ WORKDIR /app
 
 # Keep the shared build/runtime tools patched. Fleet requires GNU tar when
 # creating and extracting its standalone build artifacts.
+# Patch npm's bundled dependencies separately from the application lockfile.
 RUN apk upgrade --no-cache \
   && apk add --no-cache ca-certificates openssl tar \
   && npm install --global npm@11.19.1 \
+  && npm install --prefix /tmp/npm-security-patches \
+    --no-save --ignore-scripts --package-lock=false \
+    brace-expansion@5.0.12 undici@6.28.1 \
+  && for package in brace-expansion undici balanced-match; do \
+    rm -rf "/usr/local/lib/node_modules/npm/node_modules/$package" && \
+    cp -a "/tmp/npm-security-patches/node_modules/$package" \
+      "/usr/local/lib/node_modules/npm/node_modules/$package" || exit 1; \
+  done \
+  && rm -rf /tmp/npm-security-patches \
   && npm cache clean --force \
   && rm -rf /opt/yarn-* /usr/local/bin/yarn /usr/local/bin/yarnpkg
 

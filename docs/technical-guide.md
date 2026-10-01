@@ -250,7 +250,8 @@ The repository includes:
 - `.github/workflows/container.yml` for release-triggered container image builds.
 
 The release image uses Node.js 22.23.2 on Alpine 3.24, pinned by digest, with
-npm 11.19.1 and current Alpine security updates. Local Clerk state and caches
+npm 11.19.1 with patched bundled brace-expansion 5.0.12 and undici 6.28.1,
+plus current Alpine security updates. Local Clerk state and caches
 are excluded from the Docker context. GNU tar is included for Fleet's
 standalone artifact packaging and extraction. CI scans the complete image with
 high/critical findings blocking publication, including findings without a fix.

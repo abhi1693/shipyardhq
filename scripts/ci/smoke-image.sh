@@ -19,6 +19,8 @@ docker run --rm --platform "$platform" --entrypoint /bin/sh \
       const assert = require("node:assert/strict");
       (async () => {
         const sharp = require("sharp");
+        assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json").version, "5.0.12");
+        assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/undici/package.json").version, "6.28.1");
         const png = await sharp({create: {width: 1, height: 1, channels: 3, background: "white"}}).png().toBuffer();
         assert.equal((await sharp(png).metadata()).width, 1);
         assert.equal(typeof require("react-is").isFragment, "function");
