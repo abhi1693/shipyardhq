@@ -25,6 +25,7 @@ export function CarbonAd({
     const container = containerRef.current
     if (!container || !eligible) return
     let started = false
+    let animationFrame: number | undefined
     let script: HTMLScriptElement | undefined
     const load = () => {
       if (started || !container.getBoundingClientRect().width) return
@@ -48,12 +49,22 @@ export function CarbonAd({
       script.src = CARBON_SCRIPT_URL
       container.appendChild(script)
     }
-    const observer = new ResizeObserver(load)
+    const observer = new ResizeObserver(() => {
+      if (started || animationFrame !== undefined) return
+      // DOM changes must happen outside ResizeObserver's delivery cycle.
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = undefined
+        load()
+      })
+    })
     observer.observe(container)
     // Strict Mode's first setup is cleaned up before this task can request ads.
     const timer = window.setTimeout(load, 0)
     return () => {
       window.clearTimeout(timer)
+      if (animationFrame !== undefined) {
+        window.cancelAnimationFrame(animationFrame)
+      }
       observer.disconnect()
       script?.remove()
       container.replaceChildren()

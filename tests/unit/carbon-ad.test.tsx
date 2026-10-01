@@ -144,7 +144,28 @@ describe("Standard Carbon embed", () => {
     )
     act(() => resize())
     act(() => resize())
+    expect(container.querySelector("script")).toBeNull()
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(16)
+    })
     expect(container.querySelectorAll("script")).toHaveLength(1)
+  })
+
+  it("cancels a queued resize load when the placement unmounts", async () => {
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue(
+      new DOMRect(),
+    )
+    await render()
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue(
+      new DOMRect(0, 0, 360, 155),
+    )
+    act(() => resize())
+    await render(null)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(16)
+    })
+    expect(document.documentElement.dataset.carbonAdRequested).toBeUndefined()
+    expect(document.documentElement.dataset.adDocumentPath).toBeUndefined()
   })
 
   it("rejects guides, tools, and stale discovery paths", async () => {
