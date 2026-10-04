@@ -73,8 +73,8 @@ export const buildSiteSeo = () => {
       images: [
         {
           url: absoluteOgImageUrl,
-          width: 1733,
-          height: 907,
+          width: 1774,
+          height: 887,
           type: "image/png",
           alt: `${siteConfig.name} brand mark`,
         },
