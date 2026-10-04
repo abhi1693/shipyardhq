@@ -21,6 +21,10 @@ docker run --rm --platform "$platform" --entrypoint /bin/sh \
         const sharp = require("sharp");
         assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json").version, "5.0.12");
         assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/undici/package.json").version, "6.28.1");
+        assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/http-cache-semantics/package.json").version, "4.3.0");
+        for (const packageName of ["eslint-config-next", "@next/eslint-plugin-next", "fast-glob", "micromatch", "braces"]) {
+          assert.throws(() => require.resolve(`${packageName}/package.json`), { code: "MODULE_NOT_FOUND" });
+        }
         const png = await sharp({create: {width: 1, height: 1, channels: 3, background: "white"}}).png().toBuffer();
         assert.equal((await sharp(png).metadata()).width, 1);
         assert.equal(typeof require("react-is").isFragment, "function");

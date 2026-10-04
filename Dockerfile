@@ -13,8 +13,8 @@ RUN apk upgrade --no-cache \
   && npm install --global npm@11.19.1 \
   && npm install --prefix /tmp/npm-security-patches \
     --no-save --ignore-scripts --package-lock=false \
-    brace-expansion@5.0.12 undici@6.28.1 \
-  && for package in brace-expansion undici balanced-match; do \
+    brace-expansion@5.0.12 undici@6.28.1 http-cache-semantics@4.3.0 \
+  && for package in brace-expansion undici balanced-match http-cache-semantics; do \
     rm -rf "/usr/local/lib/node_modules/npm/node_modules/$package" && \
     cp -a "/tmp/npm-security-patches/node_modules/$package" \
       "/usr/local/lib/node_modules/npm/node_modules/$package" || exit 1; \
@@ -26,7 +26,11 @@ RUN apk upgrade --no-cache \
 FROM base AS deps
 
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci --ignore-scripts
+# Fleet builds Next.js in this image but does not run ESLint. Keep build/test
+# tooling while excluding the lint-only chain containing unpatched braces.
+RUN npm ci --ignore-scripts \
+  && rm -rf node_modules/eslint-config-next node_modules/@next/eslint-plugin-next \
+    node_modules/fast-glob node_modules/micromatch node_modules/braces
 
 FROM base AS runner
 
