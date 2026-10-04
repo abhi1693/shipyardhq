@@ -24,10 +24,16 @@ export const metadata: Metadata = {
   creator: siteConfig.name,
   publisher: siteConfig.name,
   category: "technology",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: siteConfig.icon,
+    icon: [
+      { url: siteConfig.icon },
+      { url: "/brand-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/brand-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand-512.png", sizes: "512x512", type: "image/png" },
+    ],
     shortcut: siteConfig.icon,
-    apple: siteConfig.icon,
+    apple: { url: "/brand-180.png", sizes: "180x180", type: "image/png" },
   },
   openGraph: siteSeo.openGraph,
   twitter: siteSeo.twitter,
