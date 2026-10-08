@@ -6,8 +6,8 @@ Shipyard HQ is a launch intelligence network for independent builders. Makers ca
 
 ## Stack
 
-- Next.js App Router
-- React 19
+- Next.js 16.4 App Router with Cache Components and Partial Prefetching
+- React 19.3
 - TypeScript
 - Tailwind CSS 4
 - Prisma 7 with PostgreSQL
@@ -35,6 +35,28 @@ animation utilities live in `app/tailwind-animations.css`, imported through
 `app/tailwind-theme.css` by each entrypoint. Keep Tailwind `@utility` definitions
 there so state variants are generated. `app/globals.css` contains browser CSS
 and shared keyframes; it does not compile route utilities.
+
+## Next.js 16.4 features
+
+Partial Prefetching shares route shells across links. The public layout exports
+`ensureStatic = "prefetch"` so both shells and explicit link prefetches use static
+output; database and session work streams when the visitor navigates. Partner
+Spotlight runs behind its own Suspense boundary and `navigation()` gate, allowing
+the header, footer, and page to render independently of placement lookup.
+Existing Valkey caches, tag invalidation, and the disabled per-process cache
+remain in place.
+
+Turbopack garbage collection, lazy client dynamic imports, and worker threads are
+enabled. Next.js falls back to child processes on Node versions affected by the
+upstream worker-thread issue. Security upgrade reminders are enabled. The existing
+`npm run analyze` command uses the improved Turbopack bundle analyzer.
+
+The experimental native Rust React Compiler is available with
+`NEXT_RUST_REACT_COMPILER=1 npm run dev` or
+`NEXT_RUST_REACT_COMPILER=1 npm run build`. Enable it consistently in build
+environments when adopting it; omit the variable to roll back to normal
+compilation. Agent feedback and additional dependency roots are not enabled.
+No database migration is required for this upgrade.
 
 ## Requirements
 

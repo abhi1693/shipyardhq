@@ -58,7 +58,7 @@ discovery, and getting your listing ready.
 ## Explore the code
 
 This repository contains the application behind [shipyardhq.dev](https://shipyardhq.dev).
-It uses **Next.js, React, and TypeScript**, with **PostgreSQL and Prisma**,
+It uses **Next.js 16.4, React 19.3, and TypeScript**, with **PostgreSQL and Prisma**,
 **Redis and BullMQ**, **Clerk** for authentication, and **Dodo Payments** for billing.
 
 For local setup, configuration, background workers, and deployment, start with the

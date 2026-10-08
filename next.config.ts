@@ -118,6 +118,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: true,
   cacheComponents: true,
+  partialPrefetching: true,
+  // Keep the experimental native compiler opt-in for production builds.
+  reactCompiler: process.env.NEXT_RUST_REACT_COMPILER === "1",
   // Hot mutable paths use the explicit Valkey-backed helpers. Next's separate
   // per-process Cache Components LRU retains one streamed render graph per
   // high-cardinality key and causes web pods to grow until V8 aborts.
@@ -125,6 +128,11 @@ const nextConfig: NextConfig = {
   htmlLimitedBots,
   staticPageGenerationTimeout: 600,
   experimental: {
+    agentUpgrade: "security",
+    turbopackRustReactCompiler: process.env.NEXT_RUST_REACT_COMPILER === "1",
+    turbopackGc: true,
+    turbopackLazyDynamicImports: true,
+    turbopackPluginRuntimeStrategy: "workerThreads",
     // Static generation imports Prisma in each worker. Keep build concurrency
     // below the shared pooler's client ceiling instead of bypassing PgBouncer.
     cpus: 2,
