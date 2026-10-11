@@ -144,7 +144,6 @@ describe("products API", () => {
       limit: 20,
       hasMore: false,
       nextCursor: null,
-      nextUrl: null,
     })
     const select = findMany.mock.calls[0][0].select
     for (const field of ["userId", "subscriptionId", "planGrants"]) {
@@ -159,7 +158,6 @@ describe("products API", () => {
       limit: 20,
       hasMore: false,
       nextCursor: null,
-      nextUrl: null,
     })
   })
 
@@ -201,17 +199,11 @@ describe("products API", () => {
       createdAt: "2026-10-01T12:00:00.000Z",
       id: "p2",
     })
-    const nextUrl = new URL(firstPage.nextUrl)
-    expect(nextUrl.origin).toBe(BASE_URL)
-    expect(nextUrl.searchParams.get("limit")).toBe("2")
-    expect(nextUrl.searchParams.get("cursor")).toBe(firstPage.nextCursor)
-    expect(nextUrl.searchParams.has("token")).toBe(false)
+    expect(firstPage).not.toHaveProperty("nextUrl")
 
     findMany.mockResolvedValueOnce([product("p1")])
     const nextResponse = await GET(
-      new Request(nextUrl, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
-      }),
+      request(`?limit=2&cursor=${encodeURIComponent(firstPage.nextCursor)}`),
     )
     expect(findMany).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -235,10 +227,10 @@ describe("products API", () => {
     ])
     expect(lastPage.hasMore).toBe(false)
     expect(lastPage.nextCursor).toBeNull()
-    expect(lastPage.nextUrl).toBeNull()
+    expect(lastPage).not.toHaveProperty("nextUrl")
   })
 
-  it("builds continuation links from the configured origin without copying request secrets", async () => {
+  it("builds listing URLs from the configured origin without copying request secrets", async () => {
     findMany.mockResolvedValueOnce([product("p2"), product("p1")])
     const response = await GET(
       new Request(
@@ -249,8 +241,7 @@ describe("products API", () => {
       ),
     )
     const page = await response.json()
-    expect(page.nextUrl).toMatch(/^https:\/\/shipyardhq.dev\/api\/products\?/)
-    expect(page.nextUrl).not.toContain("secret")
+    expect(page).not.toHaveProperty("nextUrl")
     expect(page.items[0].url).toBe(`${BASE_URL}/products/example-p2`)
   })
 

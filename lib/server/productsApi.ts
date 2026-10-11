@@ -107,11 +107,6 @@ export async function listProductsForApi({
         ).toString("base64url")
       : null
   const baseUrl = getAppBaseUrl()
-  const nextUrl = nextCursor ? new URL("/api/products", baseUrl) : null
-  if (nextUrl && nextCursor) {
-    nextUrl.searchParams.set("limit", String(limit))
-    nextUrl.searchParams.set("cursor", nextCursor)
-  }
 
   return {
     items: products.map((product) => ({
@@ -133,6 +128,5 @@ export async function listProductsForApi({
     limit,
     hasMore,
     nextCursor,
-    nextUrl: nextUrl?.href ?? null,
   }
 }

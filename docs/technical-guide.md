@@ -252,7 +252,7 @@ curl --fail-with-body \
   "$NEXT_PUBLIC_APP_URL/api/products?limit=20"
 ```
 
-Send the bearer header on every request, including requests to `nextUrl`.
+Send the bearer header on every request, including subsequent pages.
 Clerk sessions are not used for this endpoint. Missing or incorrect bearer tokens
 return `401`. Responses are private and must not be cached.
 
@@ -280,8 +280,7 @@ The response shape is:
   ],
   "limit": 20,
   "hasMore": false,
-  "nextCursor": null,
-  "nextUrl": null
+  "nextCursor": null
 }
 ```
 
@@ -292,9 +291,8 @@ are `free`, `freemium`, `subscription`, `one_time`, or `custom`.
 
 `limit` defaults to 20 and accepts integers from 1 through 100. Products are
 ordered by creation time descending, then ID descending. When another page
-exists, `nextCursor` contains an opaque continuation token and `nextUrl` contains
-an absolute URL using `NEXT_PUBLIC_APP_URL`. Follow that URL or pass the cursor
-as `?limit=20&cursor=...`; treat cursors as opaque. Both are `null` on the last
+exists, `nextCursor` contains an opaque continuation token. Pass it as
+`?limit=20&cursor=...`; treat cursors as opaque. `nextCursor` is `null` on the last
 page, including an empty result. Invalid limits or cursors return `400`. Restart
 pagination after changing `PRODUCTS_API_PLAN_ID`. Database failures return `500`.
 
