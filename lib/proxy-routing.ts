@@ -20,6 +20,12 @@ export function isMemberPath(pathname: string) {
 }
 
 export function shouldRunClerkMiddleware(pathname: string) {
+  // This endpoint authenticates its own opaque bearer token. Clerk must not
+  // attempt to interpret it as a session JWT.
+  if (pathname === "/api/products" || pathname === "/api/products/") {
+    return false
+  }
+
   return (
     isMemberPath(pathname) ||
     CLERK_HANDLED_PATH_PREFIXES.some((prefix) =>

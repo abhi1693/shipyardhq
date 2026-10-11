@@ -115,6 +115,9 @@ Core:
   addresses such as `0.0.0.0` are invalid.
 - `CACHE_ENV_PREFIX` - optional cache namespace prefix.
 - `CRON_SECRET` - bearer token for protected cron/refresh endpoints.
+- `PRODUCTS_API_TOKEN` - private bearer token for `GET /api/products`.
+- `PRODUCTS_API_PLAN_ID` - Shipyard pricing `Plan.id` used by the products API
+  (for example, the Pro plan's ID). This is not a Dodo product ID.
 
 Auth:
 
@@ -234,6 +237,69 @@ npm run worker
 ```
 
 Use it in production when scheduled jobs, BullMQ queues, cache refresh tasks, and placement/plan expiration work should run outside web requests.
+
+## Authenticated Products API
+
+`GET /api/products` lists published products whose assigned `Product.planId`
+matches `PRODUCTS_API_PLAN_ID`. Configure both `PRODUCTS_API_TOKEN` and
+`PRODUCTS_API_PLAN_ID` in `.env.local` or the server environment. The endpoint
+returns `503` when either value is missing; it never falls back to all products.
+No database migration is needed.
+
+```bash
+curl --fail-with-body \
+  -H "Authorization: Bearer $PRODUCTS_API_TOKEN" \
+  "$NEXT_PUBLIC_APP_URL/api/products?limit=20"
+```
+
+Send the bearer header on every request, including subsequent pages.
+Clerk sessions are not used for this endpoint. Missing or incorrect bearer tokens
+return `401`. Responses are private and must not be cached.
+
+The response shape is:
+
+```json
+{
+  "items": [
+    {
+      "id": "product_example",
+      "slug": "example",
+      "name": "Example",
+      "url": "https://shipyardhq.dev/products/example",
+      "productUrl": "https://example.com",
+      "tagline": "An example product",
+      "description": "Full product description",
+      "logo": "https://media.shipyardhq.dev/example.webp",
+      "pricing": {
+        "model": "subscription",
+        "startingPriceCents": 1200,
+        "currencyCode": "USD"
+      },
+      "plan": { "id": "plan_pro", "slug": "pro", "name": "Pro" }
+    }
+  ],
+  "limit": 20,
+  "hasMore": false,
+  "nextCursor": null
+}
+```
+
+`url` is the Shipyard listing; `productUrl` is the product's external website.
+`pricing` describes the listed product, while `plan` describes its Shipyard
+pricing plan. Unknown starting prices and currencies are `null`. Pricing models
+are `free`, `freemium`, `subscription`, `one_time`, or `custom`.
+
+`limit` defaults to 20 and accepts integers from 1 through 100. Products are
+ordered by creation time descending, then ID descending. When another page
+exists, `nextCursor` contains an opaque continuation token. Pass it as
+`?limit=20&cursor=...`; treat cursors as opaque. `nextCursor` is `null` on the last
+page, including an empty result. Invalid limits or cursors return `400`. Restart
+pagination after changing `PRODUCTS_API_PLAN_ID`. Database failures return `500`.
+
+Pagination tolerates a deleted boundary product. Each page reads current data;
+products can enter or leave the result as their plan or publication status
+changes. The filter uses the assigned plan projection maintained by billing;
+it does not independently reconcile grants with Dodo.
 
 ## Analytics
 

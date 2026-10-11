@@ -23,6 +23,14 @@ describe("proxy routing", () => {
     expect(shouldRunClerkMiddleware("/api/products/savefbs/upvote")).toBe(true)
   })
 
+  it("leaves only the product listing endpoint to its own bearer authentication", () => {
+    expect(shouldRunClerkMiddleware("/api/products")).toBe(false)
+    expect(shouldRunClerkMiddleware("/api/products/")).toBe(false)
+    expect(shouldRunClerkMiddleware("/api/products/autofill")).toBe(true)
+    expect(shouldRunClerkMiddleware("/api/products/example/media")).toBe(true)
+    expect(shouldRunClerkMiddleware("/api/products-other")).toBe(true)
+  })
+
   it("rewrites sitemap chunk urls without Clerk middleware", () => {
     expect(resolveSitemapChunkRewritePath("/sitemap-products/2.xml")).toBe(
       "/sitemap-products/2",
@@ -41,9 +49,9 @@ describe("proxy routing", () => {
       hasSeoQueryNoindexParams(new URLSearchParams("page=1&sort=az")),
     ).toBe(true)
     expect(hasSeoQueryNoindexParams(new URLSearchParams("q=crm"))).toBe(true)
-    expect(
-      hasSeoQueryNoindexParams(new URLSearchParams("verified=true")),
-    ).toBe(true)
+    expect(hasSeoQueryNoindexParams(new URLSearchParams("verified=true"))).toBe(
+      true,
+    )
     expect(hasSeoQueryNoindexParams(new URLSearchParams("utm_source=x"))).toBe(
       false,
     )
