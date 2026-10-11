@@ -27,9 +27,7 @@ afterEach(() => {
 
 describe("resolveTxtRecords", () => {
   it("inherits the runtime DNS servers instead of forcing public resolvers", async () => {
-    dnsMocks.resolveTxt.mockResolvedValue([
-      ["prod-verif-shipyard-example"],
-    ])
+    dnsMocks.resolveTxt.mockResolvedValue([["prod-verif-shipyard-example"]])
 
     await expect(resolveTxtRecords("example.com")).resolves.toEqual([
       ["prod-verif-shipyard-example"],
@@ -75,9 +73,12 @@ describe("resolveTxtRecords", () => {
   })
 
   it("preserves DNS errors returned before the timeout", async () => {
-    const dnsError = Object.assign(new Error("queryTxt ENOTFOUND example.com"), {
-      code: "ENOTFOUND",
-    })
+    const dnsError = Object.assign(
+      new Error("queryTxt ENOTFOUND example.com"),
+      {
+        code: "ENOTFOUND",
+      },
+    )
     const resolveTxt = vi.fn().mockRejectedValue(dnsError)
     const cancel = vi.fn()
 
