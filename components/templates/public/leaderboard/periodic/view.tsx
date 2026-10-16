@@ -1,3 +1,4 @@
+import { io } from "next/cache"
 import Link from "next/link"
 import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 
@@ -1119,6 +1120,7 @@ export async function PeriodicLeaderboardView({
   leaderboard: PeriodicLeaderboardPayload
   categorySlug?: string | null
 }) {
+  await io()
   const archive = leaderboard.archive ?? { months: [], weeks: [] }
   const start = new Date(leaderboard.periodStart)
   const filters: PeriodicLeaderboardFilters = {

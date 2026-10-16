@@ -1,3 +1,4 @@
+import { io } from "next/cache"
 import prisma from "@/lib/prisma"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { cacheGetOrSet, cacheHit, cacheMiss } from "@/lib/server/cache"
@@ -229,6 +230,7 @@ export async function resolvePeriodWindowFromParts(args: {
   day?: number
   week?: number
 }): Promise<{ periodStart: Date; periodEnd: Date; label: string } | null> {
+  await io()
   const year = Number(args.year)
   if (!Number.isFinite(year) || year < 1970 || year > 3000) return null
   const earliestAllowedMs = ANALYTICS_MIN_LEADERBOARD_DATE.getTime()

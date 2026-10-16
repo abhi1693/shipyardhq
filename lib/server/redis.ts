@@ -1,4 +1,5 @@
 import { createClient, createSentinel } from "redis"
+import { io } from "next/cache"
 
 export type RedisClient =
   ReturnType<typeof createClient> | ReturnType<typeof createSentinel>
@@ -114,6 +115,7 @@ export async function getRedisClient(): Promise<RedisClient | null> {
     return null
   }
 
+  await io()
   const disabledUntil = globalForRedis.__redisDisabledUntil ?? 0
   if (disabledUntil > Date.now()) {
     return null

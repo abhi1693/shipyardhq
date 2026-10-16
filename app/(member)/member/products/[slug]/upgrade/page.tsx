@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import { redirect } from "next/navigation"
@@ -67,6 +68,7 @@ export default async function ProductUpgradePage({
 }: {
   params: Promise<{ slug: string }>
 }) {
+  await connection()
   await auth.protect()
 
   const { slug } = await params

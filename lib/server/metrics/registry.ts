@@ -47,6 +47,8 @@ export function normalizeMetricRoute(url: string | undefined) {
     return "/member/products/:slug/upgrade"
   }
   if (pathname.startsWith("/member/products/")) return "/member/products/:slug"
+  if (pathname === "/member/products") return pathname
+  if (pathname === "/member/account/profile") return pathname
   if (pathname.startsWith("/member/")) return "/member/:path"
   if (pathname.startsWith("/products/")) return "/products/:slug"
   if (pathname.startsWith("/categories/")) return "/categories/:slug"
@@ -59,6 +61,16 @@ export function normalizeMetricRoute(url: string | undefined) {
   }
   if (pathname.startsWith("/pricing/")) return "/pricing/:pricingModel"
   if (pathname.startsWith("/use-cases/")) return "/use-cases/:slug"
+  if (pathname.startsWith("/guides/")) return "/guides/:slug"
+  if (pathname.startsWith("/leaderboard/daily/")) {
+    return "/leaderboard/daily/:year/:month/:day"
+  }
+  if (pathname.startsWith("/leaderboard/weekly/")) {
+    return "/leaderboard/weekly/:year/:week"
+  }
+  if (pathname.startsWith("/leaderboard/monthly/")) {
+    return "/leaderboard/monthly/:year/:month"
+  }
   if (pathname.startsWith("/leaderboard/")) return "/leaderboard/:path"
   if (pathname.startsWith("/sitemap-")) return "/sitemap/:path"
   if (pathname.startsWith("/r/")) return "/r/:slug"

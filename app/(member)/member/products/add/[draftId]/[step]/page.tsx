@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import { notFound, redirect } from "next/navigation"
@@ -16,6 +17,7 @@ export default async function MemberProductDraftStepPage({
 }: {
   params: Promise<{ draftId: string; step: string }>
 }) {
+  await connection()
   await auth.protect()
 
   const { draftId, step: rawStep } = await params

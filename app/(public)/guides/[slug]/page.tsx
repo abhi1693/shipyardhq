@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 
 import { GuidePage } from "@/components/templates/public/guides/GuidePage"
@@ -40,7 +41,15 @@ export async function generateMetadata({
   })
 }
 
-export default async function FounderGuidePage({ params }: GuidePageProps) {
+export default function FounderGuidePage({ params }: GuidePageProps) {
+  return (
+    <Suspense fallback={null}>
+      <FounderGuideContent params={params} />
+    </Suspense>
+  )
+}
+
+async function FounderGuideContent({ params }: GuidePageProps) {
   const { slug } = await params
   const guide = getGuide(slug)
   if (!guide) notFound()

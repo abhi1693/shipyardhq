@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import { notFound, redirect } from "next/navigation"
@@ -84,6 +85,7 @@ export default async function ViewUserProductPage({
   params: Promise<{ slug: string }>
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
+  await connection()
   await auth.protect()
 
   const { slug } = await params

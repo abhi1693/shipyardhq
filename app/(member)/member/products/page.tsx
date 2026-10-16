@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import { Suspense } from "react"
@@ -11,6 +12,7 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function MemberProductsPage() {
+  await connection()
   await auth.protect()
 
   return (

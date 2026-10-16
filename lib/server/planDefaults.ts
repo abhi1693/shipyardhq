@@ -1,4 +1,6 @@
 import prisma from "@/lib/prisma"
+import { io } from "next/cache"
+import { unstable_rethrow } from "next/navigation"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
@@ -37,9 +39,11 @@ async function getCachedDefaultPlanWithFeatures(): Promise<PlanFeatureSummary | 
  * metadata and detail reads do not repeat the same plan query.
  */
 export async function getDefaultPlanWithFeatures(): Promise<PlanFeatureSummary | null> {
+  await io()
   try {
     return (await getCachedDefaultPlanWithFeatures()) ?? null
   } catch (error) {
+    unstable_rethrow(error)
     console.error("[plans] failed to load default plan with features", error)
     return null
   }
