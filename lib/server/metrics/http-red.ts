@@ -1,4 +1,5 @@
 import http from "node:http"
+import { randomUUID } from "node:crypto"
 import { performance } from "node:perf_hooks"
 import type { IncomingMessage, ServerResponse } from "node:http"
 
@@ -13,6 +14,7 @@ import {
 import { normalizeMetricRoute } from "@/lib/server/metrics/registry"
 
 const INSTRUMENTED_KEY = Symbol.for("shipyard.metrics.http-red.instrumented")
+const OBSERVED_RESPONSES = new WeakSet<ServerResponse>()
 
 type InstrumentedGlobal = typeof globalThis & {
   [INSTRUMENTED_KEY]?: boolean
@@ -84,30 +86,73 @@ export function registerHttpRedMetrics() {
     event: string | symbol,
     ...args: unknown[]
   ) {
-    if (event === "request" && isRequestArgs(args)) {
+    if (
+      event === "request" &&
+      isRequestArgs(args) &&
+      !OBSERVED_RESPONSES.has(args[1])
+    ) {
       const [req, res] = args
+      OBSERVED_RESPONSES.add(res)
       const startedAt = performance.now()
+      const suppliedId = req.headers["x-request-id"]
+      const requestId =
+        typeof suppliedId === "string" &&
+        /^[a-zA-Z0-9._-]{1,128}$/.test(suppliedId)
+          ? suppliedId
+          : randomUUID()
+      req.headers["x-request-id"] = requestId
+      res.setHeader("X-Request-ID", requestId)
+      const route = normalizeMetricRoute(req.url)
+      const method = req.method
+      const ray = req.headers["cf-ray"]
+      const cfRay =
+        typeof ray === "string" && /^[a-zA-Z0-9-]{1,128}$/.test(ray)
+          ? ray
+          : undefined
       let recorded = false
 
-      const finish = (statusCode: number) => {
+      const finish = (statusCode: number, outcome: string, error?: Error) => {
         if (recorded) return
         recorded = true
+        res.removeListener("finish", onFinish)
+        res.removeListener("close", onClose)
+        res.removeListener("error", onError)
+        const durationSeconds = (performance.now() - startedAt) / 1000
         record({
-          durationSeconds: (performance.now() - startedAt) / 1000,
-          method: req.method,
+          durationSeconds,
+          method,
           statusCode,
           url: req.url,
         })
+        if (statusCode >= 500 || outcome !== "finish") {
+          console.warn(
+            "[http] response failed",
+            JSON.stringify({
+              requestId,
+              cfRay,
+              method,
+              route,
+              statusCode,
+              outcome,
+              durationMs: Math.round(durationSeconds * 1000),
+              errorCode: (error as NodeJS.ErrnoException | undefined)?.code,
+            }),
+          )
+        }
       }
 
-      res.once("finish", () => {
-        finish(res.statusCode)
-      })
-      res.once("close", () => {
-        if (!res.writableEnded) {
-          finish(499)
-        }
-      })
+      const onFinish = () => finish(res.statusCode, "finish")
+      // end() can be called before the bytes are flushed. writableFinished
+      // distinguishes a completed response from a disconnect during that gap.
+      const onClose = () =>
+        finish(
+          res.writableFinished ? res.statusCode : 499,
+          res.writableFinished ? "finish" : "close",
+        )
+      const onError = (error: Error) => finish(500, "error", error)
+      res.once("finish", onFinish)
+      res.once("close", onClose)
+      res.once("error", onError)
     }
 
     return originalEmit.call(this, event, ...args)

@@ -7,7 +7,12 @@ const mocks = vi.hoisted(() => ({
   connection: vi.fn(),
   findFirst: vi.fn(),
   productFindUnique: vi.fn(),
+  io: vi.fn().mockResolvedValue(undefined),
+  rethrow: vi.fn(),
 }))
+
+vi.mock("next/cache", () => ({ io: mocks.io }))
+vi.mock("next/navigation", () => ({ unstable_rethrow: mocks.rethrow }))
 
 vi.mock("@/lib/cache", () => ({
   applyCache: mocks.applyCache,
@@ -88,6 +93,23 @@ describe("default plan cache", () => {
       "[plans] failed to load default plan with features",
       error,
     )
+  })
+
+  it("does not start plan loading if the prerender boundary has not resolved", async () => {
+    const abort = new Error("prerender ended")
+    mocks.io.mockRejectedValueOnce(abort)
+    await expect(getDefaultPlanWithFeatures()).rejects.toBe(abort)
+    expect(mocks.findFirst).not.toHaveBeenCalled()
+  })
+
+  it("lets Next.js control-flow errors escape the database fallback", async () => {
+    const abort = new Error("framework abort")
+    mocks.findFirst.mockRejectedValueOnce(abort)
+    mocks.rethrow.mockImplementationOnce((error) => {
+      throw error
+    })
+    await expect(getDefaultPlanWithFeatures()).rejects.toBe(abort)
+    expect(mocks.rethrow).toHaveBeenCalledWith(abort)
   })
 })
 

@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 import MemberAccountProfile from "@/components/pages/MemberAccountProfile"
@@ -9,6 +10,7 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function Page() {
+  await connection()
   const { userId } = await auth.protect()
   const profile = userId ? await getActiveUserByClerkId(userId) : null
 

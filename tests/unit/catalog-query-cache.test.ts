@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
   cacheGetOrSet: vi.fn(),
+  io: vi.fn().mockResolvedValue(undefined),
 }))
+
+vi.mock("next/cache", () => ({ io: mocks.io }))
 
 vi.mock("@/lib/server/cache", () => ({
   buildCacheKey: (...parts: string[]) => parts.join(":"),
@@ -68,5 +71,32 @@ describe("catalog query cache", () => {
 
     expect(value.updatedAt).toBeInstanceOf(Date)
     expect(value.updatedAt.toISOString()).toBe("2026-07-22T00:00:00.000Z")
+  })
+
+  it("defers TTL reads on both cold and warm hits until I/O is allowed", async () => {
+    const key = buildCatalogQueryCacheKey("prerender-boundary")
+    const loader = vi.fn().mockResolvedValue("cached")
+    await cacheCatalogQuery({ key, ttlSeconds: 300, loader })
+
+    let release!: () => void
+    mocks.io.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve
+        }),
+    )
+    let completed = false
+    const hit = cacheCatalogQuery({ key, ttlSeconds: 300, loader }).then(
+      (value) => {
+        completed = true
+        return value
+      },
+    )
+    await Promise.resolve()
+    expect(completed).toBe(false)
+    release()
+    await expect(hit).resolves.toBe("cached")
+    expect(loader).toHaveBeenCalledTimes(1)
+    expect(mocks.io).toHaveBeenCalledTimes(2)
   })
 })

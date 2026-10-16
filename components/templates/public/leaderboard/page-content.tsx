@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { io } from "next/cache"
 import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import {
   Archive,
@@ -264,6 +265,7 @@ export async function LeaderboardPageContent({
 }: {
   searchParams: Promise<{ category?: string; limit?: string }>
 }) {
+  await io()
   const sp = await searchParams
   const filters = {
     categorySlug: sp?.category,

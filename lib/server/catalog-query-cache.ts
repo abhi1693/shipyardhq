@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto"
+import { io } from "next/cache"
 
 import { buildCacheKey, cacheGetOrSet } from "@/lib/server/cache"
 
@@ -106,6 +107,9 @@ export async function cacheCatalogQuery<T>({
   ttlSeconds: number
   loader: () => Promise<T>
 }): Promise<T> {
+  // A warm in-process cache can resolve without any asynchronous I/O. Declare
+  // the boundary before reading its TTL so prerenders cannot capture the clock.
+  await io()
   const now = Date.now()
   const memoryEntry = catalogCache.entries.get(key)
 
