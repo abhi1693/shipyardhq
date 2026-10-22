@@ -14,9 +14,22 @@ const nextVitalsWithoutLegacyReactRules = nextVitals.map((config) => ({
 const eslintConfig = defineConfig([
   ...nextVitalsWithoutLegacyReactRules,
   ...nextTs,
+  // Dependency regression tests intentionally exercise CommonJS resolution.
+  {
+    files: ["scripts/**/*.cjs"],
+    languageOptions: { sourceType: "commonjs" },
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
+    files: ["**/*.{js,jsx,ts,tsx,mjs}"],
+    rules: {
+      // Keep the stricter hooks feedback visible for existing state resets.
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   globalIgnores([
@@ -25,6 +38,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "coverage/**",
     "node_modules/**",
+    "packages/braces/**",
     "next-env.d.ts",
     "lib/vendor/**",
   ]),

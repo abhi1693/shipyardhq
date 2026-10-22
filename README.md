@@ -1,5 +1,7 @@
 <div align="center">
 
+Prepared patch release: **1.5.41**. See [CHANGELOG.md](CHANGELOG.md) for the dependency refresh, upstream compatibility constraints, and release boundary.
+
 <h1><a href="https://shipyardhq.dev"><img src="public/brand.png" alt="" width="48" height="48" align="absmiddle" /> Shipyard HQ</a></h1>
 
 ### Launch your product. Stay discoverable beyond launch day.
