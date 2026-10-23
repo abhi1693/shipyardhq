@@ -13,10 +13,27 @@ jobs:
   unit:
     uses: abhi1693/actions/.github/workflows/node-ci.yml@v1
     with:
-      checks: '["test"]'
-      scripts: '{"test": "test:ci"}'
-      timeout-minutes: 10
+      checks: '["generate","lint","typecheck","test"]'
+      scripts: '{"generate":"prisma:generate","lint":"lint","typecheck":"typecheck:all","test":"test:ci"}'
+      project-env: '{"DATABASE_URL":"postgresql://ci:ci@127.0.0.1:1/shipyard_ci"}'
+      timeout-minutes: 20
       runs-on: ubuntu-24.04-arm
-      node-version: "22"
+      node-version: "26.12.1"
       enable-cache: false
       ignore-scripts: true
+  images:
+    needs: unit
+    uses: abhi1693/actions/.github/workflows/container-images.yml@v1
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    with:
+      manifest: .github/images.json
+      version-file: release.json
+      publish: false
+      arm64-runner: ubuntu-24.04-arm
+      changed-only: false
+      scan: true
+      scan-ignore-unfixed: false

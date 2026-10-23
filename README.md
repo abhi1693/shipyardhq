@@ -1,5 +1,9 @@
 <div align="center">
 
+Prepared patch release: **1.5.41**. See [CHANGELOG.md](CHANGELOG.md) for the dependency refresh, upstream compatibility constraints, and release boundary.
+The [release guide](docs/technical-guide.md#deployment) describes the native image,
+database/API smoke, version-parity, and GitOps rollout gates.
+
 <h1><a href="https://shipyardhq.dev"><img src="public/brand.png" alt="" width="48" height="48" align="absmiddle" /> Shipyard HQ</a></h1>
 
 ### Launch your product. Stay discoverable beyond launch day.
@@ -72,3 +76,8 @@ Include what you were trying to do and what you expected to happen. For account 
 billing help, contact [support@shipyardhq.dev](mailto:support@shipyardhq.dev).
 
 [About Shipyard HQ](https://shipyardhq.dev/about) · [Editorial policy](https://shipyardhq.dev/editorial-policy) · [Terms](https://shipyardhq.dev/legal/terms) · [Privacy](https://shipyardhq.dev/legal/privacy-policy)
+
+The source repository is public, so signed GitHub artifact attestations remain
+enabled and must verify against the exact release source and reusable signer
+before GitOps deployment. Private GHCR package visibility does not disable this
+source-repository capability.

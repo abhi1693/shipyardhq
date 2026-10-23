@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22.23.2-alpine3.24@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS base
+FROM node:26.12.1-alpine3.24@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797 AS base
 
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
@@ -27,7 +27,9 @@ FROM base AS deps
 
 COPY package.json package-lock.json .npmrc ./
 # Fleet builds Next.js in this image but does not run ESLint. Keep build/test
-# tooling while excluding the lint-only chain containing unpatched braces.
+# tooling while excluding lint-only packages. The normal source CI separately
+# checks the complete lockfile and the maintained bounded braces implementation.
+COPY packages/braces ./packages/braces
 RUN npm ci --ignore-scripts \
   && rm -rf node_modules/eslint-config-next node_modules/@next/eslint-plugin-next \
     node_modules/fast-glob node_modules/micromatch node_modules/braces
@@ -53,6 +55,11 @@ ENV APP_VERSION=$APP_VERSION
 LABEL org.opencontainers.image.version=$APP_VERSION
 
 USER nextjs
+
+# Fetch the checksum-verified native Prisma CLI engine while building. Runtime
+# generation/migration must not depend on reaching the Prisma download service.
+# Generation reads this synthetic URL but does not connect to a database.
+RUN DATABASE_URL=postgresql://build:build@127.0.0.1:1/shipyard_build npm run prisma:generate
 
 EXPOSE 3000
 

@@ -15,7 +15,7 @@ jobs:
     uses: abhi1693/actions/.github/workflows/security.yml@v1
     with:
       runs-on: ubuntu-24.04-arm
-      node-version: "22"
+      node-version: "26.12.1"
       workflow-lint: false
       secret-scan-scope: event
       gitleaks-config: .gitleaks.toml

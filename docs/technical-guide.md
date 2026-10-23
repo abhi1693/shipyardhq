@@ -333,24 +333,37 @@ Use `npm run format` when formatting drift is expected.
 The repository includes:
 
 - `Dockerfile` for container images.
-- `.github/workflows/tests.yml` for Vitest CI.
+- `.github/workflows/tests.yml` for generation, lint, type checks, Vitest, and native ARM64 image validation.
 - `.github/workflows/security.yml` for gitleaks and npm audit.
 - `.github/workflows/container.yml` for release-triggered container image builds.
 
-The release image uses Node.js 22.23.2 on Alpine 3.24, pinned by digest, with
+The release image uses Node.js 26.12.1 on Alpine 3.24, pinned by digest, with
 npm 11.19.1 with patched bundled brace-expansion 5.0.12 and undici 6.28.1,
 plus current Alpine security updates. Local Clerk state and caches
 are excluded from the Docker context. GNU tar is included for Fleet's
 standalone artifact packaging and extraction. CI scans the complete image with
 high/critical findings blocking publication, including findings without a fix.
-The native ARM64 smoke check verifies Prisma generation, Sharp, the profiler,
-Next.js SWC, Tailwind, cache retention, and artifact round-tripping before release.
+The image generates Prisma's client and fetches its checksum-verified native CLI
+engine during Docker build using an unused synthetic database URL. Runtime
+generation and migration therefore need no external engine download.
+The same native ARM64 image gate runs on every PR and release. It verifies Prisma
+generation, Sharp, the profiler, Next.js SWC, Tailwind, cache retention, and GNU tar
+artifact round-tripping. It then applies migrations to a disposable PostgreSQL 17
+container, inserts synthetic fixtures, and builds and serves the real application.
+HTTP checks cover the homepage, every referenced JS/CSS asset, authenticated
+products pagination and plan isolation, unauthenticated rejection, private field
+exclusion, and local image delivery. Native Sharp PNG/WebP conversion is checked
+separately; the configured external media/CDN transformations need a separate
+authorized integration check. The fixture network has no external egress;
+no production credentials or data are used. Fixture containers and volumes are
+removed on success or failure. The image retains npm and GNU tar because Fleet
+builds standalone artifacts and runs workers from this full-source image.
 Run it locally against a built image with
 `bash scripts/ci/smoke-image.sh <image> <platform> <version>`.
 
 Production deployments should provide database, Clerk, Dodo, Redis, analytics, storage, and cron secrets through the hosting environment. The image no longer builds the Next.js bundle during the GitHub container workflow. Instead, the container entrypoint runs `npm run prisma:generate` and `npm run build` at pod startup, then launches `.next/standalone/server.js`. This lets `NEXT_PUBLIC_*` values and server secrets come from the cluster only.
 
-Next.js is locked to 16.3.5, including the upstream fix for `use cache` prerender
+Next.js is locked to 16.4.2, including the upstream fix for `use cache` prerender
 signal retention ([Next.js #98448](https://github.com/vercel/next.js/pull/98448)).
 The previous 16.3.4 runtime exhausted its 3 GiB JavaScript heap even with
 `cacheMaxMemorySize: 0`. Keep that cache setting and the existing heap/container
@@ -373,16 +386,41 @@ packaging steps. Restart an existing server after rebuilding.
 
 The web container needs a writable `/app` directory at startup because it writes `.next` and generated Prisma client files. If a deployment uses `readOnlyRootFilesystem`, mount a writable volume for `/app` or keep the root filesystem writable for this image.
 
-Keep the root `package.json` and `package-lock.json` package version pinned to `0.0.0`. Release versions come from GitHub release tags and image tags, with `APP_VERSION` applied only in the final Docker stage. This keeps version-only releases from invalidating the dependency install cache layer.
+Keep the root `package.json` and `package-lock.json` package version pinned to
+`0.0.0`. Update `release.json` for a release. Both PR and release image workflows
+read that file; a release tag or manual version that disagrees fails before the
+image build. `APP_VERSION` is applied only in the final Docker stage, preserving
+the dependency install cache across version-only releases.
 
-When GitHub Actions runners are unavailable, build and push the release image locally:
+Publish only after the exact source has passed PR checks, through the approved
+`Container Image` workflow. A published GitHub release triggers it automatically;
+the explicit equivalent is:
 
 ```bash
-gh auth token | docker login ghcr.io -u "$(gh api user --jq .login)" --password-stdin
-npm run release:image -- v1.4.69
+gh workflow run container.yml --repo abhi1693/shipyardhq --ref 1.5.41 -f version=1.5.41
 ```
 
-The script mirrors `.github/workflows/container.yml`: it checks out the release tag into a temporary git worktree, builds `linux/arm64`, sets `APP_VERSION` to the release tag, and pushes `ghcr.io/abhi1693/shipyardhq:<version>` plus `ghcr.io/abhi1693/shipyardhq:latest`.
+Direct publishing through `scripts/release-image.sh` fails closed so it cannot
+bypass SBOM, strict HIGH/CRITICAL and secret scanning (including unfixed findings),
+native smoke, provenance, and final tag promotion.
+
+Before dispatch, verify that the release tag resolves to the exact validated
+source commit. `gh workflow run --ref` accepts a branch or tag; use the immutable
+release tag rather than a moving branch.
+
+The script still supports local builds:
+
+```bash
+npm run release:image -- 1.5.41 --no-push --load
+```
+
+That command checks out the release tag into a temporary worktree, verifies its
+version, and builds Linux/ARM64 without registry writes. Use `--no-checkout` only
+for a local source-tree build. Historical tags without `release.json` remain
+locally buildable. Publishing and GitOps deployment remain separate gates. A
+Shipyard deployment must update web/init, worker, builder Job, cleanup CronJob,
+and scheduled CronJob pins together; the Fleet builder applies migrations and
+builds the standalone artifact before web/worker readiness is assessed.
 
 ## Security
 
@@ -410,3 +448,8 @@ Additional security notes live in:
 - `/analytics` - public analytics view
 - `/member/products` - member product management
 - `/admin` - admin area
+
+The source repository is public, so signed GitHub artifact attestations remain
+enabled and must verify against the exact release source and reusable signer
+before GitOps deployment. Private GHCR package visibility does not disable this
+source-repository capability.
