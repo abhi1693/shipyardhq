@@ -22,8 +22,6 @@ Usage:
   scripts/release-image.sh <release-tag> [options]
 
 Examples:
-  scripts/release-image.sh v1.4.69
-  scripts/release-image.sh v1.4.69 --image ghcr.io/abhi1693/shipyardhq
   scripts/release-image.sh v1.4.69 --no-push --load
 
 Options:
@@ -32,7 +30,7 @@ Options:
   --image-tag <tag>    Image version tag. Defaults to release tag without leading "v".
   --no-latest          Do not tag/push the image as "${LATEST_TAG}".
   --latest-tag <tag>   Latest tag name. Default: ${LATEST_TAG}
-  --no-push            Build without pushing.
+  --no-push            Required: build locally without publishing.
   --load               Load the image into the local Docker daemon. Only valid with --no-push.
   --no-checkout        Build the current working tree instead of the release tag.
   --builder <name>     buildx builder name to use.
@@ -49,8 +47,10 @@ Environment overrides:
   CHECKOUT_RELEASE     Build from the release git tag. Default: ${CHECKOUT_RELEASE}.
   BUILDER              buildx builder name.
 
-Before pushing to GHCR:
-  gh auth token | docker login ghcr.io -u "\$(gh api user --jq .login)" --password-stdin
+Publishing:
+  Direct publication is disabled. Use the approved Container Image workflow,
+  whose native SBOM, strict runtime scan and application smoke precede promotion:
+  gh workflow run container.yml --repo abhi1693/shipyardhq --ref <validated-release-tag> -f version=<release.json-version>
 EOF
 }
 
@@ -145,6 +145,13 @@ done
 
 LOAD_IMAGE="${LOAD_IMAGE:-false}"
 
+if [[ "$PUSH" != "false" ]]; then
+  echo 'Direct publication is disabled; pass --no-push for a local build.' >&2
+  echo 'Publish the exact validated source through Container Image:' >&2
+  echo 'gh workflow run container.yml --repo abhi1693/shipyardhq --ref <validated-release-tag> -f version=<release.json-version>' >&2
+  exit 1
+fi
+
 if [[ -z "$release_tag" ]]; then
   echo "Missing release tag." >&2
   print_usage >&2
@@ -229,14 +236,27 @@ if ! "$DOCKER_BIN" buildx version >/dev/null 2>&1; then
   exit 1
 fi
 
+require_command python3
+if [[ -f "$context_dir/release.json" ]]; then
+  source_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$context_dir/release.json")
+else
+  # Historical tags predate the version file. They remain locally buildable;
+  # this script cannot publish them or advance any registry tags.
+  source_version="${release_tag#v}"
+fi
+if [[ "$source_version" != "${release_tag#v}" || "$image_tag" != "$source_version" ]]; then
+  echo 'Release tag, image tag and release.json version must agree.' >&2
+  exit 1
+fi
+
 build_args=(
   buildx
   build
   --platform "$PLATFORM"
-  --build-arg "APP_VERSION=$release_tag"
+  --build-arg "APP_VERSION=$source_version"
   --label "org.opencontainers.image.source=https://github.com/abhi1693/shipyardhq"
   --label "org.opencontainers.image.title=shipyardhq"
-  --label "org.opencontainers.image.version=$release_tag"
+  --label "org.opencontainers.image.version=$source_version"
   --tag "$IMAGE:$image_tag"
 )
 
@@ -252,9 +272,7 @@ if [[ -n "$BUILDER" ]]; then
   build_args+=(--builder "$BUILDER")
 fi
 
-if [[ "$PUSH" == "true" ]]; then
-  build_args+=(--push)
-elif [[ "$LOAD_IMAGE" == "true" ]]; then
+if [[ "$LOAD_IMAGE" == "true" ]]; then
   build_args+=(--load)
 fi
 

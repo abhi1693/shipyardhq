@@ -15,14 +15,41 @@ permissions:
   contents: read
   packages: write
 jobs:
+  release-identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the exact source release tag
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF_TYPE" != tag ]]; then
+            echo 'Publish only from the immutable validated release tag.' >&2
+            exit 1
+          fi
+          version=$(python3 -c 'import json; print(json.load(open("release.json"))["version"])')
+          [[ "${GITHUB_REF_NAME#v}" == "$version" ]]
+          [[ -z "$REQUESTED_VERSION" || "${REQUESTED_VERSION#v}" == "$version" ]]
+          tag_commit=$(git rev-parse --verify "refs/tags/$GITHUB_REF_NAME^{commit}")
+          [[ "$tag_commit" == "$GITHUB_SHA" ]]
+          [[ "$(git rev-parse HEAD)" == "$GITHUB_SHA" ]]
   images:
+    needs: release-identity
     uses: abhi1693/actions/.github/workflows/container-images.yml@v1
     with:
       manifest: .github/images.json
+      version-file: release.json
       publish: true
-      # GitHub attestation storage does not support user-owned private repos.
-      # BuildKit provenance, SBOM, image scanning and smoke checks stay enabled.
-      attest: false
+      arm64-runner: ubuntu-24.04-arm
+      scan: true
+      scan-ignore-unfixed: false
       version: ${{ inputs.version }}
     permissions:
       contents: read

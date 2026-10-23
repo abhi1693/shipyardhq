@@ -71,7 +71,8 @@
     "postinstall": "npm run prisma:deploy",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:ci": "vitest run && npm run test:dependency-security",
+    "test:ci": "vitest run && npm run test:dependency-security && npm run test:release-contract",
+    "test:release-contract": "python3 scripts/ci/test-release-contract.py",
     "test:dependency-security": "node --test scripts/check-braces.cjs"
   },
   "dependencies": {
