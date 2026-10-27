@@ -81,3 +81,10 @@ The source repository is public, so signed GitHub artifact attestations remain
 enabled and must verify against the exact release source and reusable signer
 before GitOps deployment. Private GHCR package visibility does not disable this
 source-repository capability.
+
+## Browser telemetry
+
+Faro browser monitoring has been retired. The browser SDK, collector credentials,
+private source-map endpoint, and source-map build stage are no longer required.
+Production browser source maps remain disabled. Existing application analytics
+and backend observability are preserved.

@@ -25,7 +25,6 @@ const cloudflareInsightsHosts = [
   "https://cloudflareinsights.com",
   "https://*.cloudflareinsights.com",
 ] as const
-const faroCollectorOrigin = normalizeCspOrigin(process.env.NEXT_PUBLIC_FARO_URL)
 
 function normalizeCspOrigin(value: string | undefined) {
   const trimmed = value?.trim()
@@ -89,7 +88,6 @@ function buildContentSecurityPolicy() {
       ...carbonConnectHosts,
       ...cloudflareInsightsHosts,
       ...clerkConnectHosts,
-      ...(faroCollectorOrigin ? [faroCollectorOrigin] : []),
     ],
     ["style-src", "'self'", "'unsafe-inline'"],
     ["img-src", "'self'", "blob:", "data:", "https:"],
@@ -116,7 +114,6 @@ const htmlLimitedBots =
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  productionBrowserSourceMaps: true,
   cacheComponents: true,
   partialPrefetching: true,
   // Keep the experimental native compiler opt-in for production builds.
