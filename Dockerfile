@@ -13,7 +13,7 @@ RUN apk upgrade --no-cache \
   && npm install --global npm@11.19.1 \
   && npm install --prefix /tmp/npm-security-patches \
     --no-save --ignore-scripts --package-lock=false \
-    brace-expansion@5.0.12 undici@6.28.1 http-cache-semantics@4.3.0 \
+    brace-expansion@5.0.12 undici@6.29.1 http-cache-semantics@4.3.0 \
   && for package in brace-expansion undici balanced-match http-cache-semantics; do \
     rm -rf "/usr/local/lib/node_modules/npm/node_modules/$package" && \
     cp -a "/tmp/npm-security-patches/node_modules/$package" \

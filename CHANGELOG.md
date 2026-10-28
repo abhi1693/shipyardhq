@@ -1,5 +1,10 @@
 # Release notes
 
+## 1.5.42 — 2026-10-28
+
+- Remove retired Faro browser monitoring and private source-map collection.
+- Patch the runtime HTTP client dependency.
+
 ## 1.5.41 (prepared, unreleased)
 
 - Refresh runtime and development dependencies and regenerate the npm lockfile. Upgrade the React Hooks lint plugin to 7.1.1. Its stricter effect analysis reports 14 existing prop-reset patterns as warnings; a separate state-flow refactor can promote that feedback to errors without changing pagination or optimistic voting in this dependency release.

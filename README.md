@@ -1,6 +1,6 @@
 <div align="center">
 
-Prepared patch release: **1.5.41**. See [CHANGELOG.md](CHANGELOG.md) for the dependency refresh, upstream compatibility constraints, and release boundary.
+Prepared patch release: **1.5.42**. See [CHANGELOG.md](CHANGELOG.md) for the dependency refresh, upstream compatibility constraints, and release boundary.
 The [release guide](docs/technical-guide.md#deployment) describes the native image,
 database/API smoke, version-parity, and GitOps rollout gates.
 
@@ -88,3 +88,5 @@ Faro browser monitoring has been retired. The browser SDK, collector credentials
 private source-map endpoint, and source-map build stage are no longer required.
 Production browser source maps remain disabled. Existing application analytics
 and backend observability are preserved.
+
+The runtime patches npm's bundled Undici to 6.29.1 so the native image security scan includes its HTTP client fixes.
