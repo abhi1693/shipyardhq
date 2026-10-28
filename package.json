@@ -37,7 +37,7 @@
   },
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build && node scripts/prepare-faro-sourcemaps.mjs && node scripts/prepare-standalone-assets.mjs",
+    "build": "next build && node scripts/prepare-standalone-assets.mjs",
     "analyze": "next experimental-analyze --output",
     "build:ci": "npm run build && npm run prisma:seed",
     "start": "next start",
@@ -81,8 +81,6 @@
     "@dualmark/converters": "^0.11.0",
     "@dualmark/core": "^0.11.0",
     "@dualmark/nextjs": "^0.11.0",
-    "@grafana/faro-web-sdk": "^2.13.0",
-    "@grafana/faro-web-tracing": "^2.13.0",
     "@hookform/resolvers": "^6.0.0",
     "@next/env": "^16.4.2",
     "@opentelemetry/api": "~1.9.1",
