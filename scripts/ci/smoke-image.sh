@@ -34,7 +34,7 @@ docker run --rm --platform "$platform" --network none --entrypoint /bin/sh \
         assert.equal(process.versions.node, "26.12.1");
         assert.equal(require("next/package.json").version, process.env.EXPECTED_NEXT_VERSION);
         assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json").version, "5.0.12");
-        assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/undici/package.json").version, "6.28.1");
+        assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/undici/package.json").version, "6.29.1");
         assert.equal(require("/usr/local/lib/node_modules/npm/node_modules/http-cache-semantics/package.json").version, "4.3.0");
         for (const packageName of ["eslint-config-next", "@next/eslint-plugin-next", "fast-glob", "micromatch", "braces"]) {
           assert.throws(() => require.resolve(`${packageName}/package.json`), { code: "MODULE_NOT_FOUND" });
