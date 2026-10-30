@@ -105,6 +105,10 @@ export async function getBrowseProducts({
       where: { slug: categorySlug },
     })
     if (!category) return { products: [], hasMore: false }
+    // A category narrows the selected use-case set; it must not replace it.
+    if (categoryIds && !categoryIds.includes(category.id)) {
+      return { products: [], hasMore: false }
+    }
     categoryIds = [category.id]
   }
 
