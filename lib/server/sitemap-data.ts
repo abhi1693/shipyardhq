@@ -1,3 +1,4 @@
+import { getIndexableAlternativeRecords } from "@/lib/server/alternative-indexing"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { applyCache, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import prisma from "@/lib/prisma"
@@ -72,20 +73,9 @@ export async function getProductSitemapChunk(offset: number, limit: number) {
 
 export async function getAlternativeSitemapStats() {
   "use cache"
-  applyCache([TAGS.alternativeProducts], SITEMAP_DATA_TTL)
-
-  const [total, latest] = await Promise.all([
-    prisma.alternativeProduct.count(),
-    prisma.alternativeProduct.findFirst({
-      orderBy: { updatedAt: "desc" },
-      select: { updatedAt: true },
-    }),
-  ])
-
-  return {
-    total,
-    lastUpdated: latest?.updatedAt ?? null,
-  }
+  applyCache([TAGS.alternativeProducts, TAGS.products], SITEMAP_DATA_TTL)
+  const records = await getIndexableAlternativeRecords()
+  return { total: records.length, lastUpdated: records[0]?.updatedAt ?? null }
 }
 
 export async function getAlternativeSitemapChunk(
@@ -93,15 +83,9 @@ export async function getAlternativeSitemapChunk(
   limit: number,
 ) {
   "use cache"
-  applyCache([TAGS.alternativeProducts], SITEMAP_DATA_TTL)
-
+  applyCache([TAGS.alternativeProducts, TAGS.products], SITEMAP_DATA_TTL)
   const safeOffset = Math.max(0, Math.trunc(offset))
   const safeLimit = Math.max(1, Math.trunc(limit))
-
-  return prisma.alternativeProduct.findMany({
-    orderBy: { updatedAt: "desc" },
-    select: { slug: true, updatedAt: true, createdAt: true },
-    skip: safeOffset,
-    take: safeLimit,
-  })
+  const records = await getIndexableAlternativeRecords()
+  return records.slice(safeOffset, safeOffset + safeLimit)
 }
