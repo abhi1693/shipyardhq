@@ -1,0 +1,9 @@
+{
+  "localFixtureData": true,
+  "persistentPage": 2,
+  "initialProducts": 12,
+  "afterScrollProducts": 24,
+  "includesExactlyPage3": true,
+  "noLostInitialProducts": true,
+  "uniqueProductLinks": true
+}

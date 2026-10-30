@@ -2,11 +2,36 @@ import { describe, expect, it } from "vitest"
 
 import {
   hasSeoQueryNoindexParams,
+  isNegotiableDocumentRequest,
   resolveSitemapChunkRewritePath,
   shouldRunClerkMiddleware,
 } from "@/lib/proxy-routing"
 
 describe("proxy routing", () => {
+  it("keeps Markdown negotiation off action and RSC requests without exempting private paths from auth", () => {
+    expect(
+      isNegotiableDocumentRequest(
+        "POST",
+        new Headers({ accept: "text/x-component", "next-action": "action" }),
+      ),
+    ).toBe(false)
+    expect(
+      isNegotiableDocumentRequest(
+        "GET",
+        new Headers({ accept: "text/x-component", rsc: "1" }),
+      ),
+    ).toBe(false)
+    expect(
+      isNegotiableDocumentRequest("GET", new Headers({ accept: "text/html" })),
+    ).toBe(true)
+    expect(
+      isNegotiableDocumentRequest(
+        "HEAD",
+        new Headers({ accept: "text/markdown" }),
+      ),
+    ).toBe(true)
+    expect(shouldRunClerkMiddleware("/member/products/add")).toBe(true)
+  })
   it("does not run Clerk middleware for public SEO pages", () => {
     expect(shouldRunClerkMiddleware("/")).toBe(false)
     expect(shouldRunClerkMiddleware("/products/savefbs")).toBe(false)

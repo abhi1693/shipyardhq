@@ -1,3 +1,9 @@
+import { notFound } from "next/navigation"
+import { DirectoryPagination } from "@/components/molecules/DirectoryPagination"
+import {
+  parseDirectoryPage,
+  directoryPagePath,
+} from "@/lib/directory/pagination"
 import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import Link from "next/link"
 import { ListFilter } from "lucide-react"
@@ -24,6 +30,7 @@ import { resolveSiteUrl } from "@/lib/siteConfig"
 type StrOrArr = string | string[] | undefined
 
 interface BrowseSearchParams {
+  page?: StrOrArr
   useCase?: StrOrArr
   category?: StrOrArr
   sort?: StrOrArr
@@ -65,7 +72,7 @@ const parseSearchParams = (params: BrowseSearchParams): BrowsePageFilters => {
     category:
       categoryRaw && categoryRaw !== "__all__" ? categoryRaw.trim() : undefined,
     sort: isBrowseSort(sortRaw) ? sortRaw : "new",
-    page: 1,
+    page: parseDirectoryPage(params.page) ?? 1,
     query: queryRaw && queryRaw.length ? queryRaw : undefined,
     platform: getPlatformMeta(platformRaw)?.slug,
     pricingModel: getPricingModelMeta(pricingModelRaw)?.slug,
@@ -84,6 +91,7 @@ export async function BrowsePageContent({
   searchParams: Promise<BrowseSearchParams>
 }) {
   const params = await searchParams
+  if (parseDirectoryPage(params.page) === null) notFound()
   const parsedFilters = parseSearchParams(params)
 
   const {
@@ -97,6 +105,8 @@ export async function BrowsePageContent({
     hasActiveFilters,
   } = await getBrowsePagePayload(parsedFilters)
 
+  if (parsedFilters.page > 1 && products.length === 0) notFound()
+  const pagePath = directoryPagePath(BROWSE_PATH, parsedFilters.page)
   const launchedCount = categories.reduce(
     (total, category) => total + (category._count?.products ?? 0),
     0,
@@ -105,7 +115,7 @@ export async function BrowsePageContent({
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "@id": `${siteUrl}${BROWSE_PATH}#itemlist`,
+    "@id": `${siteUrl}${pagePath}#itemlist`,
     name: hasActiveFilters
       ? `Shipyard products matching ${filterSummary.join(", ")}`
       : "Shipyard product launches",
@@ -119,7 +129,8 @@ export async function BrowsePageContent({
     itemListElement: products.slice(0, 20).map((product, index) =>
       buildProductListItem({
         product,
-        position: index + 1,
+        position:
+          (parsedFilters.page - 1) * BROWSE_INITIAL_PAGE_SIZE + index + 1,
         siteUrl,
       }),
     ),
@@ -184,7 +195,7 @@ export async function BrowsePageContent({
                   <BrowseProductRowsClient
                     initialProducts={products}
                     initialHasMore={hasMore}
-                    initialPage={2}
+                    initialPage={parsedFilters.page + 1}
                     pageSize={BROWSE_INITIAL_PAGE_SIZE}
                     searchParams={{
                       useCase: normalizedFilters.useCase,
@@ -201,6 +212,12 @@ export async function BrowsePageContent({
                   />
                 </div>
               )}
+              <DirectoryPagination
+                path={BROWSE_PATH}
+                page={parsedFilters.page}
+                hasMore={hasMore}
+                params={params as Record<string, StrOrArr>}
+              />
             </section>
           </div>
 

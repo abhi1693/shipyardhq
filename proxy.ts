@@ -11,6 +11,7 @@ import { MEMBER_BASE_PATH } from "@/lib/routes"
 import {
   hasSeoQueryNoindexParams,
   isMemberPath,
+  isNegotiableDocumentRequest,
   resolveSitemapChunkRewritePath,
   shouldRunClerkMiddleware,
 } from "@/lib/proxy-routing"
@@ -141,9 +142,7 @@ async function rewriteMissingProductRequest(req: NextRequest) {
 }
 
 function isPublicDocumentRequest(req: NextRequest) {
-  if (req.method !== "GET" && req.method !== "HEAD") {
-    return false
-  }
+  if (!isNegotiableDocumentRequest(req.method, req.headers)) return false
 
   const url = new URL(req.url)
   return (
@@ -183,7 +182,7 @@ function addAgentDiscoveryHeaders(req: NextRequest, response: NextResponse) {
   }
 
   const url = new URL(req.url)
-  if (hasSeoQueryNoindexParams(url.searchParams)) {
+  if (hasSeoQueryNoindexParams(url.searchParams, url.pathname)) {
     appendHeaderValue(response, "X-Robots-Tag", "noindex, follow")
   }
 
@@ -221,7 +220,9 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   }
 
   const url = new URL(req.url)
-  const dualmarkResponse = await handleDualmarkMiddleware(req)
+  const dualmarkResponse = isNegotiableDocumentRequest(req.method, req.headers)
+    ? await handleDualmarkMiddleware(req)
+    : NextResponse.next()
   if (
     dualmarkResponse.status !== 200 ||
     dualmarkResponse.headers.has("x-middleware-rewrite")

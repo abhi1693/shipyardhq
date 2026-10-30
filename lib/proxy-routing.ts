@@ -1,3 +1,7 @@
+import {
+  parseDirectoryPage,
+  supportsDirectoryPagination,
+} from "@/lib/directory/pagination"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 const CLERK_HANDLED_PATH_PREFIXES = [
@@ -55,8 +59,27 @@ export function resolveSitemapChunkRewritePath(pathname: string) {
   return null
 }
 
-export function hasSeoQueryNoindexParams(searchParams: URLSearchParams) {
-  return SEO_QUERY_NOINDEX_PARAMS.some((key) =>
-    searchParams.getAll(key).some((value) => value.trim().length > 0),
+export function hasSeoQueryNoindexParams(
+  searchParams: URLSearchParams,
+  pathname?: string,
+) {
+  return SEO_QUERY_NOINDEX_PARAMS.some((key) => {
+    if (key === "page" && pathname && supportsDirectoryPagination(pathname)) {
+      const values = searchParams.getAll(key)
+      return (
+        values.length > 0 &&
+        parseDirectoryPage(values.length === 1 ? values[0] : values) === null
+      )
+    }
+    return searchParams.getAll(key).some((value) => value.trim().length > 0)
+  })
+}
+
+// Negotiation is for browser/crawler documents, not Next's action/RSC protocol.
+export function isNegotiableDocumentRequest(method: string, headers: Headers) {
+  return (
+    (method === "GET" || method === "HEAD") &&
+    !headers.has("rsc") &&
+    !headers.has("next-action")
   )
 }

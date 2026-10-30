@@ -119,6 +119,7 @@ const buildCategoryMetrics = async (
 
 export async function getCategoryDetailPayload(
   slug: string,
+  page: number = 1,
 ): Promise<CategoryDetailPayload | null> {
   "use cache"
   applyCache(
@@ -134,7 +135,7 @@ export async function getCategoryDetailPayload(
   )
 
   const [categoryData, featured] = await Promise.all([
-    getCategoryWithProducts(slug, 1, CATEGORY_DETAIL_INITIAL_PAGE_SIZE),
+    getCategoryWithProducts(slug, page, CATEGORY_DETAIL_INITIAL_PAGE_SIZE),
     getFeaturedByCategorySlug(slug, 7),
   ])
 

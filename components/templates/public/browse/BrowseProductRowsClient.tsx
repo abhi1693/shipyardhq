@@ -50,6 +50,8 @@ export function BrowseProductRowsClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(initialPage)
   const [isLoading, setIsLoading] = useState(false)
+  const loadingRef = useRef(false)
+  const generationRef = useRef(0)
 
   const normalizedSearch = useMemo(
     () => ({
@@ -101,17 +103,23 @@ export function BrowseProductRowsClient({
   )
 
   useEffect(() => {
+    generationRef.current += 1
+    loadingRef.current = false
+    setIsLoading(false)
     setItems(initialProducts)
     setHasMore(initialHasMore)
     setPage(initialPage)
   }, [initialHasMore, initialPage, initialProducts, resetKey])
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || isLoading) return
+    if (!hasMore || loadingRef.current) return
+    loadingRef.current = true
+    const generation = generationRef.current
 
     setIsLoading(true)
     try {
       const result = await loadPage(page)
+      if (generation !== generationRef.current) return
       setItems((previous) => {
         const previousIds = new Set(previous.map((item) => item.id))
         const nextItems = result.items.filter(
@@ -122,11 +130,14 @@ export function BrowseProductRowsClient({
       setHasMore(result.hasMore)
       setPage((current) => current + 1)
     } catch {
-      setHasMore(false)
+      if (generation === generationRef.current) setHasMore(false)
     } finally {
-      setIsLoading(false)
+      if (generation === generationRef.current) {
+        loadingRef.current = false
+        setIsLoading(false)
+      }
     }
-  }, [hasMore, isLoading, loadPage, page])
+  }, [hasMore, loadPage, page])
 
   useEffect(() => {
     if (!hasMore) return

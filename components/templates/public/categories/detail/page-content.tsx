@@ -1,3 +1,8 @@
+import { DirectoryPagination } from "@/components/molecules/DirectoryPagination"
+import {
+  parseDirectoryPage,
+  type DirectorySearchParams,
+} from "@/lib/directory/pagination"
 import { notFound } from "next/navigation"
 
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
@@ -11,6 +16,7 @@ import { MEMBER_PRODUCTS_ADD_PATH, PRICING_PATH } from "@/lib/routes"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
+  searchParams?: Promise<DirectorySearchParams>
 }
 
 function categoryDescription(name: string, description?: string | null) {
@@ -22,10 +28,16 @@ function categoryDescription(name: string, description?: string | null) {
   return `Discover the newest ${name.toLowerCase()} products from makers shipping practical tools, launch experiments, and production-ready software.`
 }
 
-export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
+export async function CategoryDetailPageContent({
+  params,
+  searchParams,
+}: CategoryPageProps) {
   const { slug } = await params
+  const query = (await searchParams) ?? {}
+  const page = parseDirectoryPage(query.page)
+  if (page === null) notFound()
   const [data, taxonomySponsors] = await Promise.all([
-    getCategoryDetailPayload(slug),
+    getCategoryDetailPayload(slug, page),
     getTaxonomySponsorProducts(),
   ])
 
@@ -34,6 +46,7 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
   }
 
   const { category, productsPage, metrics } = data
+  if (page > 1 && !productsPage.products.length) notFound()
   const initialPage = productsPage.nextPage ?? productsPage.page + 1
   const categorySlug = category.slug ?? slug
   const referenceDateIso = resolveTaxonomyReferenceDateIso(
@@ -72,14 +85,28 @@ export async function CategoryDetailPageContent({ params }: CategoryPageProps) {
         },
       ]}
       feed={
-        <CategoryFeedClient
-          slug={categorySlug}
-          initialProducts={productsPage.products}
-          initialPage={initialPage}
-          pageSize={productsPage.pageSize}
-          referenceDateIso={referenceDateIso}
-          initialHasMore={productsPage.hasMore}
-        />
+        <>
+          <DirectoryPagination
+            path={`/categories/${categorySlug}`}
+            page={page}
+            hasMore={productsPage.hasMore}
+            params={query}
+          />
+          <CategoryFeedClient
+            slug={categorySlug}
+            initialProducts={productsPage.products}
+            initialPage={initialPage}
+            pageSize={productsPage.pageSize}
+            referenceDateIso={referenceDateIso}
+            initialHasMore={productsPage.hasMore}
+          />
+          <DirectoryPagination
+            path={`/categories/${categorySlug}`}
+            page={page}
+            hasMore={productsPage.hasMore}
+            params={query}
+          />
+        </>
       }
       feedTestId="category-feed-section"
       sponsorProducts={taxonomySponsors}

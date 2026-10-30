@@ -278,7 +278,7 @@ export async function getCategoryWithProducts(
     prisma.product.findMany({
       where,
       select: categoryProductSelect,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       skip,
       take: safePageSize,
     }),
