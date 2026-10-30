@@ -408,13 +408,15 @@ export function buildProductMarkdownDocument(
 
   if (hasAiSearchReadyProfile) {
     sections.push(
-      `## AI Search Profile\n\n${markdownList([
-        "Structured product facts: enabled",
-        "Markdown retrieval: enabled",
-        "Product schema: enabled",
-        "Sitemap inclusion: enabled",
-        "Internal discovery links: category, pricing model, product type, and tags when available",
-      ])}`,
+      `## AI Search Profile\n\nOrdinary listings already expose product facts, descriptions, and Markdown. This plan adds a readiness badge and the additional checklist below; it does not guarantee rankings or AI citations.\n\n${markdownList(
+        [
+          `Description: ${description ? "present" : "not provided"}`,
+          `Tagline: ${tagline ? "present" : "not provided"}`,
+          `Media items: ${media.length}`,
+          `Keyword and tag labels: ${tags.length}`,
+          "Check that all claims match the public product before sharing this profile.",
+        ],
+      )}`,
     )
   }
 

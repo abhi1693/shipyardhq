@@ -1,3 +1,7 @@
+import {
+  renderFounderMarkdown,
+  type FounderMarkdownPath,
+} from "@/lib/founder/markdown"
 import type { DualmarkNextConfig } from "@dualmark/nextjs"
 import { slugToTitle, type LlmsTxtSection } from "@dualmark/core"
 
@@ -67,6 +71,23 @@ function titleFromPath(path: string) {
 
   const lastSegment = path.split("/").filter(Boolean).at(-1) ?? siteConfig.name
   return slugToTitle(lastSegment)
+}
+
+function founderPage(path: FounderMarkdownPath) {
+  return {
+    pattern: path,
+    render: async () => {
+      const needsPlans = path === PRICING_PATH || path === WHY_SHIPYARD_PATH
+      const plans = needsPlans
+        ? await (
+            await import("@/actions/public/plans/actions")
+          )
+            .getPublicPlans()
+            .catch(() => [])
+        : []
+      return renderFounderMarkdown(path, plans)
+    },
+  }
 }
 
 function staticPage(path: string, description: string) {
@@ -668,19 +689,13 @@ export const dualmarkConfig = {
     staticPage("/product-types", "Explore products by product type."),
     staticPage("/use-cases", "Explore products by use case."),
     staticPage("/users", "Explore Shipyard makers and their launches."),
-    staticPage(
-      PRICING_PATH,
-      "Plans for listing and promoting product launches.",
-    ),
+    founderPage(PRICING_PATH),
     staticPage(LEADERBOARD_PATH, "Ranked product launches and archives."),
     staticPage("/leaderboard/about", "How Shipyard leaderboard rankings work."),
     staticPage("/leaderboard/monthly", "Monthly product launch rankings."),
-    staticPage("/why-shipyard", "Shipyard positioning and product overview."),
-    staticPage(ABOUT_PATH, "About Shipyard HQ and its publishing model."),
-    staticPage(
-      EDITORIAL_POLICY_PATH,
-      "Shipyard editorial, listing, advertising, and link standards.",
-    ),
+    founderPage(WHY_SHIPYARD_PATH),
+    founderPage(ABOUT_PATH),
+    founderPage(EDITORIAL_POLICY_PATH),
     staticPage("/legal/privacy-policy", "Shipyard privacy policy."),
     staticPage("/legal/terms", "Shipyard terms."),
     staticPage("/auth/suspended", "Account suspended notice."),

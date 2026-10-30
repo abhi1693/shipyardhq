@@ -1,3 +1,4 @@
+import { PUBLISHING_PRINCIPLES } from "@/lib/founder/content"
 import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
@@ -22,21 +23,6 @@ export const metadata = buildPageMetadata({
   description: PAGE_DESCRIPTION,
   canonical: ABOUT_PATH,
 })
-
-const PUBLISHING_PRINCIPLES = [
-  {
-    title: "Useful product detail",
-    body: "Listings should explain what a product does, who it serves, its pricing model, supported platforms, and the people behind it. A name and link alone are not enough.",
-  },
-  {
-    title: "Clear commercial labels",
-    body: "Paid visibility is labelled as sponsored or promoted. A payment can improve placement where the plan says it will, but it does not buy an editorial opinion or a guaranteed search result.",
-  },
-  {
-    title: "Lasting discovery",
-    body: "Shipyard connects products to useful category, use-case, platform, pricing, alternative, and leaderboard paths so discovery can continue after launch day.",
-  },
-]
 
 export default function AboutPage() {
   return (

@@ -1,3 +1,4 @@
+export { PRICING_FAQS } from "@/lib/founder/content"
 import clsx from "clsx"
 
 import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
@@ -6,34 +7,6 @@ import { Skeleton } from "@/components/atoms/skeleton"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PricingTable } from "@/components/organisms/PricingTable"
-
-export const PRICING_FAQS = [
-  {
-    question: "Can I start for free and upgrade later?",
-    answer:
-      "Yes. Free includes a public product page, a standard card in the homepage launch feed, standard directory discovery, basic analytics, and sitemap inclusion. You can add a paid placement later.",
-  },
-  {
-    question: "Do plans renew automatically?",
-    answer:
-      "One-time boosts never auto-renew. Subscription plans stay active on the billing cadence you choose until you cancel, so perks keep running without manual re-ups.",
-  },
-  {
-    question: "Where do paid placements appear?",
-    answer:
-      "Featured adds a sponsored card to the homepage launch feed, priority position in Browse, alternatives, use-case, platform, pricing-model, and product-type results, plus audience insights and an AI-readable profile. Pro also adds eligibility for Launch of the Day and the sitewide Partner Spotlight bar plus product, leaderboard, and directory sponsor panels.",
-  },
-  {
-    question: "What does AI-search ready profile mean?",
-    answer:
-      "Featured and Pro add an AI-search ready badge and a dedicated profile section to the Markdown version of your listing. It helps retrieval systems interpret the page, but it does not guarantee rankings or citations.",
-  },
-  {
-    question: "Can my team collaborate on launches?",
-    answer:
-      "Today, launches are managed per account. If you need multi-user access, reach out and we’ll help you plan a workflow.",
-  },
-]
 
 export async function PricingPlansList({
   disableSectionWrapper = false,

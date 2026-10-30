@@ -208,7 +208,7 @@ describe("pricing offer packaging", () => {
     expect(proOffer.items.map((item) => item.label)).toEqual(
       expect.arrayContaining([
         "AI crawler, device, browser & location insights",
-        "AI-search ready badge + dedicated Markdown profile",
+        "AI-search readiness badge + listing-readiness checklist",
         "Launch of the Day homepage slot eligibility",
       ]),
     )
