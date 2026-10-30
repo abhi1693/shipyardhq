@@ -1,3 +1,7 @@
+import {
+  alternativeCollectionTitle,
+  robotsForAlternative,
+} from "@/lib/seo/alternative-eligibility"
 import { LaunchPlatformRoundup } from "@/components/organisms/LaunchChannelComparison"
 import { isReviewedLaunchComparison } from "@/lib/launch-channels/catalog"
 import { getAlternativeSeoDescription } from "@/lib/seo/editorial-metadata"
@@ -72,10 +76,7 @@ export async function generateMetadata({
   })
 
   const linkedCount = productsSummary.total
-  const title =
-    linkedCount > 0
-      ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors`
-      : `Best ${alternative.name} Alternatives & Competitors`
+  const title = alternativeCollectionTitle(alternative.name, linkedCount)
 
   const description = getAlternativeSeoDescription({
     slug,
@@ -112,6 +113,7 @@ export async function generateMetadata({
   return {
     ...metadata,
     keywords: keywordPhrases,
+    robots: robotsForAlternative(slug, linkedCount),
   }
 }
 
@@ -227,13 +229,13 @@ async function AlternativeDetailPageContent({
     "@id": `${alternativeUrl}#collection`,
     name:
       productsPage.total > 0
-        ? `Top ${productsPage.total} ${alternative.name} Alternatives & Competitors`
-        : `Best ${alternative.name} Alternatives & Competitors`,
+        ? alternativeCollectionTitle(alternative.name, productsPage.total)
+        : alternativeCollectionTitle(alternative.name, 0),
     url: alternativeUrl,
     description: structuredDescription,
     inLanguage: "en-US",
     keywords: seoKeywords.join(", "),
-    alternateName: `Best ${alternative.name} alternatives and competitors`,
+    alternateName: `${alternative.name} alternatives and competitors`,
     about: {
       "@type": "Thing",
       name: alternative.name,
@@ -265,7 +267,7 @@ async function AlternativeDetailPageContent({
   return (
     <TaxonomyDetailPage
       carbonPathname={alternativePath(alternative.slug)}
-      title={`Best ${alternative.name} alternatives`}
+      title={alternativeCollectionTitle(alternative.name, productsPage.total)}
       description={description}
       icon={
         <AlternativeIcon
@@ -326,8 +328,11 @@ async function AlternativeDetailPageContent({
               path: alternativePath(alternative.slug),
               name:
                 productsPage.total > 0
-                  ? `Top ${productsPage.total} ${alternative.name} Alternatives & Competitors`
-                  : `Best ${alternative.name} Alternatives & Competitors`,
+                  ? alternativeCollectionTitle(
+                      alternative.name,
+                      productsPage.total,
+                    )
+                  : alternativeCollectionTitle(alternative.name, 0),
               description: structuredDescription,
               keywords: seoKeywords,
             }}
