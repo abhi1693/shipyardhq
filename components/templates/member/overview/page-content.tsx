@@ -1,3 +1,5 @@
+import { ANALYTICS_METRICS } from "@/lib/analytics/metric-definitions"
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import { Suspense, type ReactNode } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -114,7 +116,7 @@ async function MemberOverviewDashboard() {
   const stats: StatDefinition[] = [
     {
       id: "views",
-      label: "Total views",
+      label: ANALYTICS_METRICS.requests.label,
       value: summary.totalViews,
       icon: Eye,
       tint: "blue",
@@ -122,11 +124,11 @@ async function MemberOverviewDashboard() {
     },
     {
       id: "visits",
-      label: "Visitors",
+      label: ANALYTICS_METRICS.visits.label,
       value: summary.uniqueVisitors,
       icon: Users,
       tint: "green",
-      meta: "Product visits",
+      meta: `${summary.rangeDays}D window`,
     },
     {
       id: "upvotes",
@@ -138,11 +140,11 @@ async function MemberOverviewDashboard() {
     },
     {
       id: "website-clicks",
-      label: "Website clicks",
+      label: ANALYTICS_METRICS.websiteClicks.label,
       value: summary.websiteClicks,
       icon: MousePointerClick,
       tint: "violet",
-      meta: "Tracked outbound",
+      meta: "Since tracking began",
     },
   ]
 
@@ -165,6 +167,9 @@ async function MemberOverviewDashboard() {
   return (
     <div className="space-y-6">
       <AnalyticsStatRow stats={stats} />
+      <AnalyticsMetricDefinitions
+        windowLabel={`Last ${summary.rangeDays} days`}
+      />
 
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 space-y-6 lg:col-span-8">

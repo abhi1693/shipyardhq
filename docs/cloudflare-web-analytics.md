@@ -44,8 +44,8 @@ timeout from its 10 second default.
 ## Data model
 
 The integration reads `httpRequestsAdaptiveGroups`. Site totals have no path,
-host, bot, device, or request-source filter: `count` supplies Views and
-`sum.visits` supplies Visitors. Product analytics add only the product URL path
+host, bot, device, or request-source filter: `count` supplies HTTP requests and
+`sum.visits` supplies Cloudflare visits. Neither metric counts unique people. Product analytics add only the product URL path
 needed to attribute traffic and scoring to the correct product. Browser,
 operating-system, device, and country breakdowns use raw request counts.
 Referrer and derived channel data are not queried or stored because the
@@ -63,3 +63,7 @@ Application requests read historical analytics through the Redis cache and
 PostgreSQL provider only. The request path calls Cloudflare directly only for
 the one-minute realtime visitor counter; scheduled ingestion remains the sole
 writer of historical Cloudflare data.
+
+## Display definitions
+
+`lib/analytics/metric-definitions.ts` defines shared reporting labels and limitations. Public site traffic is unfiltered zone data; listing traffic uses only listing-path filters. Both can include automated/repeated activity. Website clicks are a lifetime aggregate since tracking began, independent of the traffic reporting window; no historical daily click distribution is inferred. They include recorded free redirect clicks and eligible paid direct-link clicks, and do not establish registrations or customers. Existing storage fields and leaderboard inputs retain their historical names and values.

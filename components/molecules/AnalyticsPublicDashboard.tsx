@@ -1,5 +1,6 @@
 "use client"
 
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import Link from "next/link"
 import { useMemo, useState, type ReactNode } from "react"
 import { createPortal } from "react-dom"
@@ -754,6 +755,11 @@ export function AnalyticsPublicDashboard({
             Updated {updatedAt}
           </span>
         </header>
+        <AnalyticsMetricDefinitions
+          windowLabel={rangeLabel}
+          scope="site"
+          includeClicks={false}
+        />
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <MetricPanel

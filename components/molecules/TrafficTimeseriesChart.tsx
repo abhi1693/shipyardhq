@@ -15,7 +15,7 @@ type TrafficTimeseriesPoint = {
 
 const TRAFFIC_CHART_CONFIG: ChartConfig = {
   pageViews: { label: "Page views", color: "#0ea5e9" },
-  uniqueVisitors: { label: "Visitors", color: "#a855f7" },
+  uniqueVisitors: { label: "Cloudflare visits", color: "#a855f7" },
 }
 
 const TRAFFIC_LINES: AnalyticsLineDefinition<TrafficTimeseriesPoint>[] = [
