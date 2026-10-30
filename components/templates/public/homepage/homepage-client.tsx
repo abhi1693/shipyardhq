@@ -562,9 +562,11 @@ function DropProductLogo({
         <ProductLogoImage
           src={product.logo}
           name={product.name}
-          width={56}
-          height={56}
-          sizes={sponsored ? "56px" : "40px"}
+          optimizationWidth={96}
+          width={96}
+          height={96}
+          sizes="48px"
+          loading="lazy"
           className={cn(
             "h-full w-full object-cover",
             sponsored ? "contrast-125" : "h-10 w-10",
@@ -594,15 +596,22 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
           : "border-[#E2E8F0] bg-white hover:shadow-sm",
       )}
     >
-      <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap sm:gap-6 sm:p-5">
+      <CardContent
+        className={cn(
+          "flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap sm:gap-6 sm:p-5",
+          (sponsored || editorPick) && "pt-12 sm:pt-12",
+        )}
+      >
         {sponsored || editorPick ? (
           <div
             className={cn(
-              "absolute right-2 top-2 flex items-center gap-1",
-              sponsored ? "text-white/60" : "text-[#7C3AED]",
+              "absolute right-3 top-3 flex w-fit items-center gap-1 rounded border px-2 py-1",
+              sponsored
+                ? "border-white/70 text-white"
+                : "border-[#7C3AED] text-[#7C3AED]",
             )}
           >
-            <span className="text-[9px] font-extrabold uppercase leading-[10px] tracking-widest">
+            <span className="text-xs font-semibold leading-4">
               {sponsored ? "Sponsored" : "Editor's Pick"}
             </span>
             <BadgeCheck className="size-3" aria-hidden />
@@ -636,7 +645,7 @@ function HomepageDropRow({ product }: { product: HomepageDropListItem }) {
             emptyLabel="New Tool"
             className="mt-2 gap-1.5"
             pillClassName={cn(
-              "rounded border-0 px-2 py-0.5 text-[9px] font-extrabold uppercase leading-[10px]",
+              "rounded border-0 px-2 py-1 text-xs font-semibold normal-case leading-4",
               sponsored
                 ? "bg-[#C0FF00] text-black"
                 : "bg-[#F8FAFC] text-[#334155]",
