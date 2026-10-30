@@ -1,3 +1,4 @@
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import Link from "next/link"
 import { type ComponentType } from "react"
 import {
@@ -358,6 +359,9 @@ export default function WhyShipyardPage() {
             </div>
           </div>
         </section>
+        <div className="mx-auto max-w-[1200px] px-4 pb-10 sm:px-6">
+          <AnalyticsMetricDefinitions windowLabel="the reporting window shown in your dashboard" />
+        </div>
       </div>
     </>
   )

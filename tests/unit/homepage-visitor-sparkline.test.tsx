@@ -64,7 +64,7 @@ describe("VisitorSparkline", () => {
 
     const tooltip = container.querySelector('[role="tooltip"]')
     expect(tooltip).toHaveTextContent("Jul 20, 2026")
-    expect(tooltip).toHaveTextContent("250 visitors")
+    expect(tooltip).toHaveTextContent("250 visits")
   })
 
   it("lets keyboard users inspect each day without a floating popup", () => {
@@ -98,6 +98,6 @@ describe("VisitorSparkline", () => {
 
     const tooltip = container.querySelector('[role="tooltip"]')
     expect(tooltip).toHaveTextContent("Jul 19, 2026")
-    expect(tooltip).toHaveTextContent("120 visitors")
+    expect(tooltip).toHaveTextContent("120 visits")
   })
 })

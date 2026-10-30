@@ -1,3 +1,5 @@
+import { ANALYTICS_METRICS } from "@/lib/analytics/metric-definitions"
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import {
   formatPricingOfferPrice,
@@ -362,7 +364,7 @@ async function HomepageDataSections() {
       value: homepageStats.totalCreators,
     },
     {
-      label: "Tracked clicks",
+      label: ANALYTICS_METRICS.websiteClicks.label,
       value: homepageStats.websiteClicks,
     },
   ] as const
@@ -528,10 +530,13 @@ async function HomepageDataSections() {
                 <h3 className="mb-3 text-sm font-semibold text-[#0b1c30]">
                   Across Shipyard
                 </h3>
-                <p className="mb-4 text-xs leading-5 text-[#43474c]">
-                  Visitors and tracked website clicks across Shipyard over{" "}
-                  {trafficWindowLabel.toLowerCase()}. Products and builders are
-                  platform totals, not this launch’s results.
+                <AnalyticsMetricDefinitions
+                  windowLabel={trafficWindowLabel}
+                  scope="site"
+                />
+                <p className="mb-4 mt-2 text-xs leading-5 text-[#43474c]">
+                  Products and builders are platform totals, not this launch’s
+                  results.
                 </p>
                 {/* TODO: Add a verified Pro launch case study with product-level
                     visitors, website clicks, reporting dates, and a listing link.

@@ -1,5 +1,6 @@
 "use client"
 
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import { useState, type ReactNode } from "react"
 import clsx from "clsx"
 import { PricingCard } from "@/components/molecules/PricingCard"
@@ -162,6 +163,7 @@ export function PricingTable({
           No {emptyStateLabel} available yet.
         </div>
       )}
+      <AnalyticsMetricDefinitions windowLabel="the reporting window shown in your dashboard" />
     </div>
   )
 

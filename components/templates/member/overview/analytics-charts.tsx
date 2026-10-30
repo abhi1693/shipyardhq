@@ -21,7 +21,7 @@ interface MemberAnalyticsChartsProps {
 }
 
 const trafficChartConfig: ChartConfig = {
-  views: { label: "Total views", color: "#c0ff00" },
+  views: { label: "HTTP requests", color: "#c0ff00" },
   upvotes: { label: "Upvotes", color: "#0051d5" },
 }
 

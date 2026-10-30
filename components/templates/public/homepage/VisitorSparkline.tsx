@@ -1,5 +1,7 @@
 "use client"
 
+import { ANALYTICS_METRICS } from "@/lib/analytics/metric-definitions"
+
 import { useMemo, useState, type KeyboardEvent, type PointerEvent } from "react"
 
 import { ANALYTICS_REPORTING_WINDOW_DAYS } from "@/lib/analytics/reportingWindow"
@@ -133,14 +135,14 @@ export function VisitorSparkline({
     <div className="w-full">
       <div className="flex items-end justify-between gap-6">
         <div>
-          <div className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            Visitors
+          <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+            {ANALYTICS_METRICS.visits.label}
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-2xl font-bold leading-none text-black">
               {compactVisitorFormatter.format(totalVisitors)}
             </span>
-            <span className="text-[9px] text-[#64748B]">{label}</span>
+            <span className="text-xs text-[#64748B]">{label}</span>
           </div>
         </div>
         {latestPoint ? (
@@ -149,16 +151,16 @@ export function VisitorSparkline({
             className="min-w-32 text-right"
             role={activePoint ? "tooltip" : undefined}
           >
-            <div className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+            <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
               {activePoint ? formatTooltipDate(activePoint.date) : "Latest day"}
             </div>
             <div className="mt-1 text-sm font-bold leading-none text-[#0051d5]">
               {activePoint ? (
                 <>
                   {visitorFormatter.format(activePoint.visitors)}
-                  <span className="ml-1 text-[9px] font-medium text-[#64748B]">
+                  <span className="ml-1 text-xs font-medium text-[#64748B]">
                     {" "}
-                    visitors
+                    visits
                   </span>
                 </>
               ) : (
@@ -170,7 +172,7 @@ export function VisitorSparkline({
       </div>
 
       <div
-        aria-label={`Interactive daily visitor chart for ${label.toLowerCase()}. Use the left and right arrow keys to inspect each day.`}
+        aria-label={`Interactive daily Cloudflare visit chart for ${label.toLowerCase()}. Use the left and right arrow keys to inspect each day.`}
         className="relative mt-1 h-14 w-full cursor-crosshair outline-none focus-visible:ring-1 focus-visible:ring-[#0051d5]/40"
         onBlur={() => setActiveIndex(null)}
         onFocus={() =>
@@ -182,7 +184,7 @@ export function VisitorSparkline({
         tabIndex={points.length > 0 ? 0 : -1}
       >
         <svg
-          aria-label={`Daily visitors over ${label.toLowerCase()}`}
+          aria-label={`Daily Cloudflare visits over ${label.toLowerCase()}`}
           className="h-14 w-full overflow-visible"
           preserveAspectRatio="none"
           role="img"
@@ -250,7 +252,7 @@ export function VisitorSparkline({
       </div>
 
       {firstPoint && latestPoint ? (
-        <div className="mt-1 flex items-center justify-between text-[9px] leading-none text-[#64748B]">
+        <div className="mt-1 flex items-center justify-between text-xs leading-none text-[#64748B]">
           <span>{formatAxisDate(firstPoint.date)}</span>
           <span>{formatAxisDate(latestPoint.date)}</span>
         </div>

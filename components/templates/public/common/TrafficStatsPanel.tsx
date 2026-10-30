@@ -1,5 +1,7 @@
 "use client"
 
+import { ANALYTICS_METRICS } from "@/lib/analytics/metric-definitions"
+import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import { Activity, Users } from "lucide-react"
 import type { TooltipContentProps } from "recharts"
 import {
@@ -120,7 +122,10 @@ function MetricSparkline({
   data: TrafficMetricPoint[]
   dataKey: "pageViews" | "visitors"
 }) {
-  const label = dataKey === "pageViews" ? "Views" : "Visitors"
+  const label =
+    dataKey === "pageViews"
+      ? ANALYTICS_METRICS.requests.label
+      : ANALYTICS_METRICS.visits.label
 
   return (
     <div
@@ -257,7 +262,7 @@ export function TrafficStatsPanel({
     <div className={cn("@container", className)}>
       <div className="grid grid-cols-1 gap-3 @[20rem]:grid-cols-2">
         <TrafficMetricCard
-          label="Views"
+          label={ANALYTICS_METRICS.requests.label}
           value={views}
           delta={viewsDelta}
           windowDays={windowDays}
@@ -267,7 +272,7 @@ export function TrafficStatsPanel({
           Icon={Activity}
         />
         <TrafficMetricCard
-          label="Visitors"
+          label={ANALYTICS_METRICS.visits.label}
           value={visitors}
           delta={visitorsDelta}
           windowDays={windowDays}
@@ -277,6 +282,11 @@ export function TrafficStatsPanel({
           Icon={Users}
         />
       </div>
+      <AnalyticsMetricDefinitions
+        windowLabel={`Last ${windowDays} days`}
+        scope="site"
+        includeClicks={false}
+      />
     </div>
   )
 }
