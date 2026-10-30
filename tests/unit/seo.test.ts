@@ -139,9 +139,10 @@ describe("product detail structured data", () => {
     expect(
       resolveProductOfferFromPricing({
         pricingModel: "free",
+        startingPriceCents: 0,
         currencyCode: "usd",
       }),
-    ).toEqual({ price: "0", priceCurrency: "USD" })
+    ).toEqual({ price: "0.00", priceCurrency: "USD" })
     expect(
       resolveProductOfferFromPricing({
         pricingModel: "subscription",

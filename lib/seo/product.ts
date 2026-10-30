@@ -120,41 +120,30 @@ export type BuildProductStructuredDataOptions = {
   offers?: ProductOffer
 }
 
-const ZERO_PRICE_PRICING_MODELS = new Set(["free", "freemium"])
+const KNOWN_CURRENCIES = new Set(Intl.supportedValuesOf("currency"))
 
-const normalizeOfferCurrency = (value?: string | null) => {
+export function normalizeOfferCurrency(value?: string | null) {
   const normalized = value?.trim().toUpperCase()
-  return normalized && /^[A-Z]{3}$/.test(normalized) ? normalized : "USD"
+  return normalized && KNOWN_CURRENCIES.has(normalized) ? normalized : undefined
 }
 
 export function resolveProductOfferFromPricing({
-  pricingModel,
   startingPriceCents,
   currencyCode,
 }: ProductOfferPricingSource): ProductOffer | undefined {
+  const currency = normalizeOfferCurrency(currencyCode)
   if (
-    typeof startingPriceCents === "number" &&
-    Number.isFinite(startingPriceCents) &&
-    startingPriceCents >= 0
-  ) {
-    return {
-      price: (startingPriceCents / 100).toFixed(2),
-      priceCurrency: normalizeOfferCurrency(currencyCode),
-    }
+    typeof startingPriceCents !== "number" ||
+    !Number.isFinite(startingPriceCents) ||
+    startingPriceCents < 0 ||
+    !currency
+  )
+    return undefined
+  // A free/freemium model alone is not a verified monetary offer.
+  return {
+    price: (startingPriceCents / 100).toFixed(2),
+    priceCurrency: currency,
   }
-
-  const normalizedPricingModel = pricingModel?.trim().toLowerCase()
-  if (
-    normalizedPricingModel &&
-    ZERO_PRICE_PRICING_MODELS.has(normalizedPricingModel)
-  ) {
-    return {
-      price: "0",
-      priceCurrency: normalizeOfferCurrency(currencyCode),
-    }
-  }
-
-  return undefined
 }
 
 const normalizePath = (value: string) => {
