@@ -82,13 +82,16 @@ describe("DeferredGoogleAnalytics", () => {
     expect(script?.async).toBe(true)
 
     const analyticsWindow = window as AnalyticsTestWindow
-    expect(analyticsWindow.dataLayer).toHaveLength(2)
+    expect(analyticsWindow.dataLayer).toHaveLength(3)
     expect(Object.prototype.toString.call(analyticsWindow.dataLayer?.[0])).toBe(
       "[object Arguments]",
     )
     expect(analyticsWindow.dataLayer?.[0]?.[0]).toBe("js")
     expect(analyticsWindow.dataLayer?.[1]?.[0]).toBe("config")
     expect(analyticsWindow.dataLayer?.[1]?.[1]).toBe(GA_ID)
+    expect(
+      Array.from(analyticsWindow.dataLayer?.[2] ?? []).slice(0, 3),
+    ).toEqual(["get", GA_ID, "client_id"])
   })
 
   it("loads on pagehide even without prior interaction", () => {

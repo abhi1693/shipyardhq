@@ -1,3 +1,8 @@
+import {
+  readAcquisitionContext,
+  saveUserAcquisition,
+} from "@/lib/server/analytics/acquisitionContext"
+import { trackSignupInGa } from "@/lib/server/analytics/loginTracking"
 import "server-only"
 
 import { type User as ClerkUser } from "@clerk/backend"
@@ -13,7 +18,11 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
     throw new Error("Clerk user email is required but missing.")
   }
 
-  await prisma.user.upsert({
+  const existed = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  })
+  const user = await prisma.user.upsert({
     where: { email },
     update: {
       clerkId: clerkUser.id,
@@ -32,5 +41,11 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
     },
   })
 
+  const context = await saveUserAcquisition(
+    user.id,
+    await readAcquisitionContext(),
+  )
+  if (!existed)
+    await trackSignupInGa({ userId: user.id, method: "account", context })
   await invalidateActiveUserCache(clerkUser.id)
 }

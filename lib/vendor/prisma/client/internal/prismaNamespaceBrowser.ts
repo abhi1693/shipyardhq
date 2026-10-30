@@ -99,7 +99,8 @@ export const ModelName = {
   FeatureEntitlement: 'FeatureEntitlement',
   PlacementSchedule: 'PlacementSchedule',
   EventEnvelope: 'EventEnvelope',
-  EventAttempt: 'EventAttempt'
+  EventAttempt: 'EventAttempt',
+  AnalyticsConversion: 'AnalyticsConversion'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -589,6 +590,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   roleIntent: 'roleIntent',
   heardFrom: 'heardFrom',
+  acquisitionContext: 'acquisitionContext',
   status: 'status',
   onboardedAt: 'onboardedAt',
   suspendedAt: 'suspendedAt',
@@ -927,6 +929,19 @@ export const EventAttemptScalarFieldEnum = {
 } as const
 
 export type EventAttemptScalarFieldEnum = (typeof EventAttemptScalarFieldEnum)[keyof typeof EventAttemptScalarFieldEnum]
+
+
+export const AnalyticsConversionScalarFieldEnum = {
+  key: 'key',
+  userId: 'userId',
+  eventName: 'eventName',
+  payload: 'payload',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AnalyticsConversionScalarFieldEnum = (typeof AnalyticsConversionScalarFieldEnum)[keyof typeof AnalyticsConversionScalarFieldEnum]
 
 
 export const SortOrder = {

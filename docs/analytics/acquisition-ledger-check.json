@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-30T19:12:07.760Z",
+  "isolatedDatabase": true,
+  "syntheticContext": true,
+  "firstTouchPreservedUnderConcurrentUpdates": true,
+  "duplicateResults": [
+    "duplicate",
+    "validated"
+  ],
+  "sameClientId": true,
+  "sameSessionId": true,
+  "accountDeletionCascades": true,
+  "businessCountsUnchanged": true,
+  "note": "Uses Google's non-recording debug endpoint; does not certify a production property or a real auth/payment journey."
+}

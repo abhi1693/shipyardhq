@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-30T19:05:23.855Z",
+  "endpoint": "Google Measurement Protocol debug (does not record events)",
+  "syntheticContext": true,
+  "accepted": true,
+  "validationMessages": [],
+  "eventNames": [
+    "sign_up",
+    "purchase"
+  ]
+}

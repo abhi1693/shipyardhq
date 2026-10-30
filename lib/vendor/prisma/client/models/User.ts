@@ -67,6 +67,7 @@ export type UserCountAggregateOutputType = {
   role: number
   roleIntent: number
   heardFrom: number
+  acquisitionContext: number
   status: number
   onboardedAt: number
   suspendedAt: number
@@ -120,6 +121,7 @@ export type UserCountAggregateInputType = {
   role?: true
   roleIntent?: true
   heardFrom?: true
+  acquisitionContext?: true
   status?: true
   onboardedAt?: true
   suspendedAt?: true
@@ -210,6 +212,7 @@ export type UserGroupByOutputType = {
   role: string
   roleIntent: string | null
   heardFrom: string | null
+  acquisitionContext: runtime.JsonValue | null
   status: $Enums.UserStatus
   onboardedAt: Date | null
   suspendedAt: Date | null
@@ -248,12 +251,14 @@ export type UserWhereInput = {
   role?: Prisma.StringFilter<"User"> | string
   roleIntent?: Prisma.StringNullableFilter<"User"> | string | null
   heardFrom?: Prisma.StringNullableFilter<"User"> | string | null
+  acquisitionContext?: Prisma.JsonNullableFilter<"User">
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   onboardedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   terminatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productDrafts?: Prisma.ProductDraftListRelationFilter
   ProductUpvote?: Prisma.ProductUpvoteListRelationFilter
@@ -274,12 +279,14 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   roleIntent?: Prisma.SortOrderInput | Prisma.SortOrder
   heardFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionContext?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   onboardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   terminatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  analyticsConversions?: Prisma.AnalyticsConversionOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
   productDrafts?: Prisma.ProductDraftOrderByRelationAggregateInput
   ProductUpvote?: Prisma.ProductUpvoteOrderByRelationAggregateInput
@@ -303,12 +310,14 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.StringFilter<"User"> | string
   roleIntent?: Prisma.StringNullableFilter<"User"> | string | null
   heardFrom?: Prisma.StringNullableFilter<"User"> | string | null
+  acquisitionContext?: Prisma.JsonNullableFilter<"User">
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   onboardedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   suspendedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   terminatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productDrafts?: Prisma.ProductDraftListRelationFilter
   ProductUpvote?: Prisma.ProductUpvoteListRelationFilter
@@ -329,6 +338,7 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   roleIntent?: Prisma.SortOrderInput | Prisma.SortOrder
   heardFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionContext?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   onboardedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   suspendedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -352,6 +362,7 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   roleIntent?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   heardFrom?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  acquisitionContext?: Prisma.JsonNullableWithAggregatesFilter<"User">
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   onboardedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   suspendedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -369,12 +380,14 @@ export type UserCreateInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -395,12 +408,14 @@ export type UserUncheckedCreateInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -421,12 +436,14 @@ export type UserUpdateInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -447,12 +464,14 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -473,6 +492,7 @@ export type UserCreateManyInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
@@ -490,6 +510,7 @@ export type UserUpdateManyMutationInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -507,6 +528,7 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -529,6 +551,7 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   roleIntent?: Prisma.SortOrder
   heardFrom?: Prisma.SortOrder
+  acquisitionContext?: Prisma.SortOrder
   status?: Prisma.SortOrder
   onboardedAt?: Prisma.SortOrder
   suspendedAt?: Prisma.SortOrder
@@ -708,6 +731,20 @@ export type UserUpdateOneRequiredWithoutFeatureEntitlementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFeatureEntitlementsInput, Prisma.UserUpdateWithoutFeatureEntitlementsInput>, Prisma.UserUncheckedUpdateWithoutFeatureEntitlementsInput>
 }
 
+export type UserCreateNestedOneWithoutAnalyticsConversionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedCreateWithoutAnalyticsConversionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnalyticsConversionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAnalyticsConversionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedCreateWithoutAnalyticsConversionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnalyticsConversionsInput
+  upsert?: Prisma.UserUpsertWithoutAnalyticsConversionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAnalyticsConversionsInput, Prisma.UserUpdateWithoutAnalyticsConversionsInput>, Prisma.UserUncheckedUpdateWithoutAnalyticsConversionsInput>
+}
+
 export type UserCreateWithoutProductsInput = {
   id?: string
   clerkId: string
@@ -717,12 +754,14 @@ export type UserCreateWithoutProductsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
@@ -742,12 +781,14 @@ export type UserUncheckedCreateWithoutProductsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
@@ -783,12 +824,14 @@ export type UserUpdateWithoutProductsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
@@ -808,12 +851,14 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
@@ -833,12 +878,14 @@ export type UserCreateWithoutProductDraftsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
@@ -858,12 +905,14 @@ export type UserUncheckedCreateWithoutProductDraftsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
@@ -899,12 +948,14 @@ export type UserUpdateWithoutProductDraftsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
@@ -924,12 +975,14 @@ export type UserUncheckedUpdateWithoutProductDraftsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
@@ -949,12 +1002,14 @@ export type UserCreateWithoutProductUpvoteInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
@@ -974,12 +1029,14 @@ export type UserUncheckedCreateWithoutProductUpvoteInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
@@ -1015,12 +1072,14 @@ export type UserUpdateWithoutProductUpvoteInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
@@ -1040,12 +1099,14 @@ export type UserUncheckedUpdateWithoutProductUpvoteInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
@@ -1065,12 +1126,14 @@ export type UserCreateWithoutPurchasesInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1090,12 +1153,14 @@ export type UserUncheckedCreateWithoutPurchasesInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1131,12 +1196,14 @@ export type UserUpdateWithoutPurchasesInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1156,12 +1223,14 @@ export type UserUncheckedUpdateWithoutPurchasesInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1181,12 +1250,14 @@ export type UserCreateWithoutRewardBalanceInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1206,12 +1277,14 @@ export type UserUncheckedCreateWithoutRewardBalanceInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1247,12 +1320,14 @@ export type UserUpdateWithoutRewardBalanceInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1272,12 +1347,14 @@ export type UserUncheckedUpdateWithoutRewardBalanceInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1297,12 +1374,14 @@ export type UserCreateWithoutRewardTransactionsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1322,12 +1401,14 @@ export type UserUncheckedCreateWithoutRewardTransactionsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1352,12 +1433,14 @@ export type UserCreateWithoutRewardTransactionsActedInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1377,12 +1460,14 @@ export type UserUncheckedCreateWithoutRewardTransactionsActedInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1418,12 +1503,14 @@ export type UserUpdateWithoutRewardTransactionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1443,12 +1530,14 @@ export type UserUncheckedUpdateWithoutRewardTransactionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1479,12 +1568,14 @@ export type UserUpdateWithoutRewardTransactionsActedInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1504,12 +1595,14 @@ export type UserUncheckedUpdateWithoutRewardTransactionsActedInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1529,12 +1622,14 @@ export type UserCreateWithoutRedemptionsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1554,12 +1649,14 @@ export type UserUncheckedCreateWithoutRedemptionsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1595,12 +1692,14 @@ export type UserUpdateWithoutRedemptionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1620,12 +1719,14 @@ export type UserUncheckedUpdateWithoutRedemptionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1645,12 +1746,14 @@ export type UserCreateWithoutFeatureEntitlementsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1670,12 +1773,14 @@ export type UserUncheckedCreateWithoutFeatureEntitlementsInput = {
   role?: string
   roleIntent?: string | null
   heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: $Enums.UserStatus
   onboardedAt?: Date | string | null
   suspendedAt?: Date | string | null
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1711,12 +1816,14 @@ export type UserUpdateWithoutFeatureEntitlementsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1736,6 +1843,131 @@ export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
+  productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
+  rewardBalance?: Prisma.RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
+  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAnalyticsConversionsInput = {
+  id?: string
+  clerkId: string
+  email: string
+  firstName: string
+  lastName: string
+  role?: string
+  roleIntent?: string | null
+  heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.UserStatus
+  onboardedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  terminatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  products?: Prisma.ProductCreateNestedManyWithoutUserInput
+  productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
+  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
+  purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
+  rewardBalance?: Prisma.RewardBalanceCreateNestedOneWithoutUserInput
+  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
+  rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
+  redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
+  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAnalyticsConversionsInput = {
+  id?: string
+  clerkId: string
+  email: string
+  firstName: string
+  lastName: string
+  role?: string
+  roleIntent?: string | null
+  heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.UserStatus
+  onboardedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  terminatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
+  productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
+  rewardBalance?: Prisma.RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
+  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAnalyticsConversionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedCreateWithoutAnalyticsConversionsInput>
+}
+
+export type UserUpsertWithoutAnalyticsConversionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedUpdateWithoutAnalyticsConversionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedCreateWithoutAnalyticsConversionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAnalyticsConversionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAnalyticsConversionsInput, Prisma.UserUncheckedUpdateWithoutAnalyticsConversionsInput>
+}
+
+export type UserUpdateWithoutAnalyticsConversionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  products?: Prisma.ProductUpdateManyWithoutUserNestedInput
+  productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
+  purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
+  rewardBalance?: Prisma.RewardBalanceUpdateOneWithoutUserNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
+  redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAnalyticsConversionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1750,6 +1982,7 @@ export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
   rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
   rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
   redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1758,6 +1991,7 @@ export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
  */
 
 export type UserCountOutputType = {
+  analyticsConversions: number
   products: number
   productDrafts: number
   ProductUpvote: number
@@ -1769,6 +2003,7 @@ export type UserCountOutputType = {
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  analyticsConversions?: boolean | UserCountOutputTypeCountAnalyticsConversionsArgs
   products?: boolean | UserCountOutputTypeCountProductsArgs
   productDrafts?: boolean | UserCountOutputTypeCountProductDraftsArgs
   ProductUpvote?: boolean | UserCountOutputTypeCountProductUpvoteArgs
@@ -1787,6 +2022,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAnalyticsConversionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AnalyticsConversionWhereInput
 }
 
 /**
@@ -1855,12 +2097,14 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   roleIntent?: boolean
   heardFrom?: boolean
+  acquisitionContext?: boolean
   status?: boolean
   onboardedAt?: boolean
   suspendedAt?: boolean
   terminatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  analyticsConversions?: boolean | Prisma.User$analyticsConversionsArgs<ExtArgs>
   products?: boolean | Prisma.User$productsArgs<ExtArgs>
   productDrafts?: boolean | Prisma.User$productDraftsArgs<ExtArgs>
   ProductUpvote?: boolean | Prisma.User$ProductUpvoteArgs<ExtArgs>
@@ -1882,6 +2126,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   roleIntent?: boolean
   heardFrom?: boolean
+  acquisitionContext?: boolean
   status?: boolean
   onboardedAt?: boolean
   suspendedAt?: boolean
@@ -1899,6 +2144,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   roleIntent?: boolean
   heardFrom?: boolean
+  acquisitionContext?: boolean
   status?: boolean
   onboardedAt?: boolean
   suspendedAt?: boolean
@@ -1916,6 +2162,7 @@ export type UserSelectScalar = {
   role?: boolean
   roleIntent?: boolean
   heardFrom?: boolean
+  acquisitionContext?: boolean
   status?: boolean
   onboardedAt?: boolean
   suspendedAt?: boolean
@@ -1924,8 +2171,9 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "status" | "onboardedAt" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "acquisitionContext" | "status" | "onboardedAt" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  analyticsConversions?: boolean | Prisma.User$analyticsConversionsArgs<ExtArgs>
   products?: boolean | Prisma.User$productsArgs<ExtArgs>
   productDrafts?: boolean | Prisma.User$productDraftsArgs<ExtArgs>
   ProductUpvote?: boolean | Prisma.User$ProductUpvoteArgs<ExtArgs>
@@ -1943,6 +2191,7 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    analyticsConversions: Prisma.$AnalyticsConversionPayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
     productDrafts: Prisma.$ProductDraftPayload<ExtArgs>[]
     ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
@@ -1962,6 +2211,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: string
     roleIntent: string | null
     heardFrom: string | null
+    acquisitionContext: runtime.JsonValue | null
     status: $Enums.UserStatus
     onboardedAt: Date | null
     suspendedAt: Date | null
@@ -2362,6 +2612,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  analyticsConversions<T extends Prisma.User$analyticsConversionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$analyticsConversionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalyticsConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.User$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productDrafts<T extends Prisma.User$productDraftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productDraftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductUpvote<T extends Prisma.User$ProductUpvoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2408,6 +2659,7 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly roleIntent: Prisma.FieldRef<"User", 'String'>
   readonly heardFrom: Prisma.FieldRef<"User", 'String'>
+  readonly acquisitionContext: Prisma.FieldRef<"User", 'Json'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly onboardedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly suspendedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2804,6 +3056,30 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
+}
+
+/**
+ * User.analyticsConversions
+ */
+export type User$analyticsConversionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnalyticsConversion
+   */
+  select?: Prisma.AnalyticsConversionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AnalyticsConversion
+   */
+  omit?: Prisma.AnalyticsConversionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnalyticsConversionInclude<ExtArgs> | null
+  where?: Prisma.AnalyticsConversionWhereInput
+  orderBy?: Prisma.AnalyticsConversionOrderByWithRelationInput | Prisma.AnalyticsConversionOrderByWithRelationInput[]
+  cursor?: Prisma.AnalyticsConversionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AnalyticsConversionScalarFieldEnum | Prisma.AnalyticsConversionScalarFieldEnum[]
 }
 
 /**

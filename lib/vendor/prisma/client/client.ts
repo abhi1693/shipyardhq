@@ -286,3 +286,8 @@ export type EventEnvelope = Prisma.EventEnvelopeModel
  * 
  */
 export type EventAttempt = Prisma.EventAttemptModel
+/**
+ * Model AnalyticsConversion
+ * 
+ */
+export type AnalyticsConversion = Prisma.AnalyticsConversionModel
