@@ -156,7 +156,7 @@ const nextConfig: NextConfig = {
     "redis",
   ],
   async redirects() {
-    return [
+    const pathRedirects = [
       {
         source: "/rank-in-public",
         destination: "/browse",
@@ -188,6 +188,22 @@ const nextConfig: NextConfig = {
         destination: "/leaderboard/monthly/:year/:month",
         permanent: true,
       },
+    ]
+    const wwwHost = [{ type: "host" as const, value: "www.shipyardhq.dev" }]
+    return [
+      // Resolve legacy paths on www directly to their final apex URL.
+      ...pathRedirects.map((rule) => ({
+        ...rule,
+        has: wwwHost,
+        destination: `https://shipyardhq.dev${rule.destination}`,
+      })),
+      {
+        source: "/:path*",
+        has: wwwHost,
+        destination: "https://shipyardhq.dev/:path*",
+        permanent: true,
+      },
+      ...pathRedirects,
     ]
   },
   async headers() {
