@@ -1,3 +1,4 @@
+import { getProductSeoTitle } from "@/lib/seo/editorial-metadata"
 import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import type { Metadata } from "next"
 import Link from "next/link"
@@ -121,10 +122,9 @@ export async function generateMetadata(
   if (!product) return {}
 
   const canonicalPath = productPath(slug)
-  const tagline = product.tagline?.trim() ?? ""
   const description = buildProductDetailMetaDescription(product)
 
-  const pageTitle = tagline ? `${product.name} · ${tagline}` : product.name
+  const pageTitle = getProductSeoTitle({ slug, name: product.name })
 
   const toAbsoluteImageUrl = (value?: string | null) => {
     if (!value) return null
@@ -158,15 +158,16 @@ export async function generateMetadata(
 
   const metadata = buildPageMetadata({
     title: pageTitle,
-    section: "Products",
     description: description || undefined,
     canonical: canonicalPath,
     openGraph: {
+      title: pageTitle,
       url: canonicalPath,
       description,
       ...(openGraphImages.length ? { images: openGraphImages } : {}),
     },
     twitter: {
+      title: pageTitle,
       card: "summary_large_image",
       description,
       ...(twitterImages.length ? { images: twitterImages } : {}),
