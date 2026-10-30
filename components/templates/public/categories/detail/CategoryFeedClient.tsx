@@ -36,6 +36,8 @@ export function CategoryFeedClient({
   const [page, setPage] = useState<number>(normalizedInitialPage)
   const [hasMore, setHasMore] = useState<boolean>(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
+  const loadingRef = useRef(false)
+  const generationRef = useRef(0)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const resetKey = useMemo(
@@ -58,13 +60,18 @@ export function CategoryFeedClient({
   }, [products, referenceDateIso])
 
   useEffect(() => {
+    generationRef.current += 1
+    loadingRef.current = false
+    setIsLoading(false)
     setProducts(initialProducts)
     setPage(normalizedInitialPage)
     setHasMore(initialHasMore)
   }, [initialHasMore, initialProducts, normalizedInitialPage, resetKey])
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || isLoading) return
+    if (!hasMore || loadingRef.current) return
+    loadingRef.current = true
+    const generation = generationRef.current
 
     setIsLoading(true)
     try {
@@ -74,6 +81,7 @@ export function CategoryFeedClient({
         pageSize: normalizedPageSize,
       })
 
+      if (generation !== generationRef.current) return
       setProducts((previous) => {
         const existingIds = new Set(previous.map((item) => item.id))
         const nextItems = result.products.filter(
@@ -91,11 +99,14 @@ export function CategoryFeedClient({
         return current
       })
     } catch {
-      setHasMore(false)
+      if (generation === generationRef.current) setHasMore(false)
     } finally {
-      setIsLoading(false)
+      if (generation === generationRef.current) {
+        loadingRef.current = false
+        setIsLoading(false)
+      }
     }
-  }, [hasMore, isLoading, normalizedPageSize, page, slug])
+  }, [hasMore, normalizedPageSize, page, slug])
 
   useEffect(() => {
     const node = sentinelRef.current

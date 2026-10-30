@@ -1,3 +1,7 @@
+import {
+  directoryPagePath,
+  parseDirectoryPage,
+} from "@/lib/directory/pagination"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
@@ -30,9 +34,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.searchParams
   const useCaseSlug = resolveSingle(params.useCase)
-  const robots = hasBrowseSearchParams(params)
-    ? FILTERED_BROWSE_ROBOTS
-    : undefined
+  const page = parseDirectoryPage(params.page)
+  const nonPageParams = Object.fromEntries(
+    Object.entries(params).filter(([key]) => key !== "page"),
+  )
+  const robots =
+    page === null || hasBrowseSearchParams(nonPageParams)
+      ? FILTERED_BROWSE_ROBOTS
+      : undefined
 
   if (
     useCaseSlug &&
@@ -55,6 +64,14 @@ export async function generateMetadata(
 
   return {
     ...baseMetadata,
+    ...(page && page > 1
+      ? buildPageMetadata({
+          title: PAGE_TITLE,
+          description:
+            "Browse product launches, SaaS tools, mobile apps, APIs, AI products, and startup projects by use case or category.",
+          canonical: directoryPagePath(BROWSE_PATH, page),
+        })
+      : {}),
     robots,
   }
 }
@@ -64,19 +81,31 @@ export default function BrowsePage(
 ) {
   return (
     <>
-      <CoreStructuredData
-        scriptKeyPrefix="browse"
-        webPage={{ path: BROWSE_PATH, name: PAGE_TITLE }}
-        breadcrumbs={{
-          items: [
-            { name: "Home", path: HOME_PATH },
-            { name: PAGE_TITLE, path: BROWSE_PATH },
-          ],
-        }}
-      />
       <Suspense fallback={<BrowsePageSkeleton />}>
+        <BrowseStructuredData searchParams={props.searchParams} />
         <BrowsePageContent {...props} />
       </Suspense>
     </>
+  )
+}
+
+async function BrowseStructuredData({
+  searchParams,
+}: Parameters<typeof BrowsePageContent>[0]) {
+  const params = await searchParams
+  const page = parseDirectoryPage(params.page)
+  if (page === null) return null
+  const path = directoryPagePath(BROWSE_PATH, page)
+  return (
+    <CoreStructuredData
+      scriptKeyPrefix="browse"
+      webPage={{ path, name: PAGE_TITLE }}
+      breadcrumbs={{
+        items: [
+          { name: "Home", path: HOME_PATH },
+          { name: PAGE_TITLE, path: BROWSE_PATH },
+        ],
+      }}
+    />
   )
 }

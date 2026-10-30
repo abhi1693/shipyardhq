@@ -1,3 +1,10 @@
+import {
+  directoryPagePath,
+  parseDirectoryPage,
+  hasDirectoryFilters,
+  type DirectorySearchParams,
+} from "@/lib/directory/pagination"
+import { NOINDEX_FOLLOW_ROBOTS } from "@/lib/seo/indexing"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { JsonLdScript } from "next-seo"
@@ -28,10 +35,13 @@ export async function generateMetadata(
   props: Parameters<typeof CategoryDetailPageContent>[0],
 ): Promise<Metadata> {
   const { slug } = await props.params
+  const query = (await props.searchParams) ?? {}
+  const page = parseDirectoryPage(query.page)
   const category = await getCategoryMeta(slug)
   if (!category) return {}
 
-  const productCount = category._count.products
+  const data = page ? await getCategoryDetailPayload(slug, page) : null
+  const productCount = data?.productsPage.total ?? category._count.products
   const fallbackDescription = `Explore ${productCount.toLocaleString("en-US")} ${pluralize(
     productCount,
     "product",
@@ -48,7 +58,7 @@ export async function generateMetadata(
       fallbackDescription,
     ) ?? fallbackDescription
   const canonical = pseoCanonicalForTotal(
-    categoryPath(slug),
+    directoryPagePath(categoryPath(slug), page ?? 1),
     CATEGORIES_PATH,
     productCount,
   )
@@ -69,7 +79,12 @@ export async function generateMetadata(
 
   return {
     ...metadata,
-    robots: pseoRobotsForTotal(productCount),
+    robots:
+      page === null ||
+      hasDirectoryFilters(query) ||
+      (page > 1 && !data?.productsPage.products.length)
+        ? NOINDEX_FOLLOW_ROBOTS
+        : pseoRobotsForTotal(productCount),
   }
 }
 
@@ -79,7 +94,10 @@ export default function CategoryPage(
   const paramsPromise = props.params
   return (
     <Suspense fallback={<TaxonomyDetailSkeleton />}>
-      <CategoryStructuredData params={paramsPromise} />
+      <CategoryStructuredData
+        params={paramsPromise}
+        searchParams={props.searchParams}
+      />
       <CategoryDetailPageContent {...props} />
     </Suspense>
   )
@@ -87,14 +105,19 @@ export default function CategoryPage(
 
 async function CategoryStructuredData({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams?: Promise<DirectorySearchParams>
 }) {
   const { slug } = await params
-  const payload = await getCategoryDetailPayload(slug)
+  const query = (await searchParams) ?? {}
+  const page = parseDirectoryPage(query.page)
+  if (page === null) return null
+  const payload = await getCategoryDetailPayload(slug, page)
   if (!payload) return null
 
-  const path = categoryPath(slug)
+  const path = directoryPagePath(categoryPath(slug), page)
   const siteUrl = resolveSiteUrl()
   const pageUrl = `${siteUrl}${path}`
   const categoryName = payload.category.name || "Category"
@@ -119,7 +142,7 @@ async function CategoryStructuredData({
       .map((product, index) =>
         buildProductListItem({
           product,
-          position: index + 1,
+          position: (page - 1) * payload.productsPage.pageSize + index + 1,
           siteUrl,
           categoryName,
         }),

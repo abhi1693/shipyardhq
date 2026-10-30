@@ -207,7 +207,7 @@ export async function getBrowseProducts({
   }
   const baseWhere = buildPublicDiscoveryProductWhere(productFilters)
 
-  const orderBy: Prisma.ProductOrderByWithRelationInput =
+  const primaryOrder: Prisma.ProductOrderByWithRelationInput =
     sort === "votes"
       ? { analytics: { upvotes: "desc" } }
       : sort === "trending"
@@ -216,6 +216,7 @@ export async function getBrowseProducts({
           ? { name: "asc" }
           : { createdAt: "desc" }
 
+  const orderBy = [primaryOrder, { id: "asc" as const }]
   const priorityPlanIds = await getPriorityPlacementPlanIds()
 
   const priorityWhere: Prisma.ProductWhereInput = {

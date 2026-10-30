@@ -1,0 +1,107 @@
+{
+  "localFixtureData": true,
+  "checks": [
+    {
+      "path": "/browse",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/browse",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/browse?page=2",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/browse?page=2",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/browse?page=3",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/browse?page=3",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/browse?page=0",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/browse?page=2&page=3",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/browse?page=100000",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/categories/developer-tools",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/categories/developer-tools",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/categories/developer-tools?page=2",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/categories/developer-tools?page=2",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/categories/developer-tools?page=3",
+      "status": 200,
+      "products": 12,
+      "canonical": "http://localhost:3000/categories/developer-tools?page=3",
+      "robotsHeader": null,
+      "distinct": true,
+      "anchors": true
+    },
+    {
+      "path": "/categories/developer-tools?page=0",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/categories/developer-tools?page=2&page=3",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/categories/developer-tools?page=100000",
+      "status": 200,
+      "noRepeatedListing": true,
+      "noindex": true
+    },
+    {
+      "path": "/browse?page=2&q=email",
+      "noindexHeaderAndMetadata": true
+    },
+    {
+      "path": "/browse?page=2&sort=votes",
+      "noindexHeaderAndMetadata": true
+    },
+    {
+      "path": "/categories/developer-tools?page=2&sort=votes",
+      "noindexHeaderAndMetadata": true
+    }
+  ]
+}
