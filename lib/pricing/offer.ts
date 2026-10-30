@@ -261,3 +261,29 @@ export function getPricingOfferPresentation(
     items: featureItemsForPlan(plan, freePlan),
   }
 }
+
+/** Keep the first-screen summary tied to the same plan facts as pricing. */
+export function getFreeLaunchSummary(plans: OfferPlan[]) {
+  const plan = chooseFreePlan(plans)
+  if (!plan) return null
+  const measurementIds = plan.features
+    .filter(
+      (feature) =>
+        feature.enabled &&
+        ["analytics.basic", "backlink"].includes(feature.key),
+    )
+    .map((feature) => feature.id)
+  const placementIds = new Set([
+    "free-product-page",
+    "free-homepage-feed",
+    "free-directory-results",
+  ])
+  return {
+    plan,
+    items: getPricingOfferPresentation(plan, plans).items.filter(
+      (item) =>
+        placementIds.has(item.id) ||
+        measurementIds.some((id) => item.id.startsWith(`${id}-`)),
+    ),
+  }
+}

@@ -1,9 +1,12 @@
+import { ApprovedLaunchResults } from "@/components/organisms/ApprovedLaunchResults"
 import { ANALYTICS_METRICS } from "@/lib/analytics/metric-definitions"
 import { AnalyticsMetricDefinitions } from "@/components/molecules/AnalyticsMetricDefinitions"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import {
   formatPricingOfferPrice,
   getDiscountedPriceCents,
+  getFreeLaunchSummary,
+  getPricingOfferPresentation,
 } from "@/lib/pricing/offer"
 import Link from "next/link"
 import {
@@ -36,6 +39,7 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
+  EDITORIAL_POLICY_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
@@ -234,6 +238,63 @@ function HomepageHero() {
             <Link href={BROWSE_PATH}>Browse products</Link>
           </Button>
         </div>
+
+        <HomepageFreeLaunchFacts />
+      </div>
+    </section>
+  )
+}
+
+async function HomepageFreeLaunchFacts() {
+  const plans = await getPublicPlans().catch(() => [])
+  const summary = getFreeLaunchSummary(plans)
+  if (!summary) return null
+  return (
+    <ul
+      aria-label="Included in a free launch"
+      className="mt-8 grid max-w-[900px] gap-x-6 gap-y-3 text-sm leading-6 text-[#43474c] sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {summary.items.map((item) => (
+        <li key={item.id}>{item.label}</li>
+      ))}
+    </ul>
+  )
+}
+
+function HomepageSubmissionSteps() {
+  return (
+    <section className="border-b border-[#E2E8F0] bg-white px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-[1200px]">
+        <h2 className="text-xl font-bold text-black">
+          From draft to public launch
+        </h2>
+        <ol className="mt-4 grid gap-4 text-sm leading-6 text-[#43474c] md:grid-cols-3">
+          <li>
+            <strong className="text-[#0b1c30]">1. Prepare your listing.</strong>{" "}
+            Add a live website, clear product details, categories, pricing, and
+            launch assets. Saved drafts stay private.
+          </li>
+          <li>
+            <strong className="text-[#0b1c30]">2. Choose how to launch.</strong>{" "}
+            Free publication needs no checkout. Paid promotion starts after
+            payment is verified. Listings must follow our{" "}
+            <Link
+              href={EDITORIAL_POLICY_PATH}
+              className="text-[#0051d5] underline underline-offset-4"
+            >
+              editorial standards
+            </Link>
+            .
+          </li>
+          <li>
+            <strong className="text-[#0b1c30]">
+              3. Keep the product page.
+            </strong>{" "}
+            When a paid placement ends, the listing can remain public on the
+            free plan, subject to our listing rules. Use its traffic and
+            lifetime-click totals to decide what to try next.
+          </li>
+        </ol>
       </div>
     </section>
   )
@@ -254,6 +315,8 @@ export default function HomePage() {
       />
 
       <HomepageHero />
+      <HomepageSubmissionSteps />
+      <ApprovedLaunchResults />
       {/* TODO: Add 2–3 approved maker testimonials here, including unpaid
           listings. Each needs the maker name, product, listing URL, exact quote,
           verified website clicks, and reporting dates. Do not use sample quotes. */}
@@ -755,6 +818,7 @@ function HomepageVisibilityOptionsSection() {
 
 async function HomepagePlanComparison() {
   const plans = await getPublicPlans().catch(() => [])
+  const free = getFreeLaunchSummary(plans)
   const pro = plans.find(
     (plan) =>
       plan.name.toLowerCase() === "pro" && plan.type === "one_time_price",
@@ -768,9 +832,13 @@ async function HomepagePlanComparison() {
         <h3 className="text-2xl font-bold text-black">Free</h3>
         <p className="mt-2 text-lg font-semibold text-black">$0</p>
         <ul className="my-6 space-y-3 text-sm text-[#43474c]">
-          <li>Public product listing</li>
-          <li>Placement in the launch feed</li>
-          <li>Basic votes, visits, and website clicks</li>
+          {free ? (
+            getPricingOfferPresentation(free.plan, plans).items.map((item) => (
+              <li key={item.id}>{item.label}</li>
+            ))
+          ) : (
+            <li>See current free-plan inclusions on pricing.</li>
+          )}
         </ul>
         <Button asChild className="bg-black text-white hover:bg-black/90">
           <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>

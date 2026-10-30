@@ -28,8 +28,18 @@ export const sanitizeRedirectUrl = (
   const trimmedUrl = rawUrl.trim()
   if (!trimmedUrl) return undefined
 
+  let decoded: string
+  try {
+    decoded = decodeURIComponent(trimmedUrl)
+  } catch {
+    return undefined
+  }
+  if (/[\\\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("//"))
+    return undefined
+
   if (trimmedUrl.startsWith("/")) {
-    return trimmedUrl
+    const parsed = new URL(trimmedUrl, "https://internal.invalid")
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`
   }
 
   try {
@@ -44,10 +54,14 @@ export const sanitizeRedirectUrl = (
     const configuredHost = getConfiguredHost()
     if (configuredHost) allowedHosts.add(configuredHost)
 
-    if (allowedHosts.size > 0 && !allowedHosts.has(parsed.host.toLowerCase())) {
+    if (
+      allowedHosts.size === 0 ||
+      !allowedHosts.has(parsed.host.toLowerCase())
+    ) {
       return undefined
     }
 
+    if (parsed.pathname.startsWith("//")) return undefined
     return `${parsed.pathname}${parsed.search}${parsed.hash}`
   } catch {
     return undefined
