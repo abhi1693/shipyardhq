@@ -14,6 +14,11 @@ import {
   guidePath,
 } from "@/lib/routes"
 import { buildFaqStructuredData } from "@/lib/seo/faq"
+import {
+  buildGuideArticle,
+  formatGuideDate,
+  getGuideAuthor,
+} from "@/lib/guides/provenance"
 import { siteConfig } from "@/lib/siteConfig"
 
 export function GuidePage({ guide }: { guide: GuideDefinition }) {
@@ -23,30 +28,8 @@ export function GuidePage({ guide }: { guide: GuideDefinition }) {
     .map((slug) => getGuide(slug))
     .filter((item) => item !== undefined)
   const faq = buildFaqStructuredData(guide.faqs, { pageUrl: path })
-  const article = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "@id": `${pageUrl}#article`,
-    headline: guide.title,
-    description: guide.metaDescription,
-    datePublished: guide.updatedAt,
-    dateModified: guide.updatedAt,
-    mainEntityOfPage: pageUrl,
-    author: {
-      "@type": "Organization",
-      name: "Shipyard HQ Editorial Team",
-      url: new URL(EDITORIAL_POLICY_PATH, siteConfig.url).toString(),
-    },
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
-      logo: {
-        "@type": "ImageObject",
-        url: new URL(siteConfig.logo, siteConfig.url).toString(),
-      },
-    },
-  }
+  const article = buildGuideArticle(guide, pageUrl)
+  const author = getGuideAuthor(guide)
 
   return (
     <main className="min-h-screen bg-[#f8fafc] text-[#0b1c30]">
@@ -86,8 +69,23 @@ export function GuidePage({ guide }: { guide: GuideDefinition }) {
             {guide.lede}
           </p>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#d0e4ff]/70">
-            <span>By Shipyard HQ Editorial Team</span>
-            <time dateTime={guide.updatedAt}>Updated July 22, 2026</time>
+            <span>By {author.name}</span>
+            {guide.publishedAt ? (
+              <time dateTime={guide.publishedAt}>
+                Published {formatGuideDate(guide.publishedAt)}
+              </time>
+            ) : null}
+            <time dateTime={guide.updatedAt}>
+              Updated {formatGuideDate(guide.updatedAt)}
+            </time>
+            {guide.factCheckedAt ? (
+              <time dateTime={guide.factCheckedAt}>
+                Fact-checked {formatGuideDate(guide.factCheckedAt)}
+              </time>
+            ) : null}
+            {guide.reviewer ? (
+              <span>Reviewed by {guide.reviewer.name}</span>
+            ) : null}
             <span>{guide.readingTime}</span>
           </div>
         </div>
@@ -155,6 +153,32 @@ export function GuidePage({ guide }: { guide: GuideDefinition }) {
               </div>
             ))}
           </div>
+
+          {guide.sources?.length ? (
+            <section
+              className="mt-12 rounded-xl border border-[#e2e8f0] bg-white p-6"
+              aria-label="Sources and evidence"
+            >
+              <h2 className="text-2xl font-bold text-black">
+                Sources and evidence
+              </h2>
+              <ul className="mt-5 space-y-4">
+                {guide.sources.map((source) => (
+                  <li key={source.url}>
+                    <a
+                      href={source.url}
+                      className="text-sm font-semibold text-[#0051d5] underline underline-offset-4"
+                    >
+                      {source.title}
+                    </a>
+                    <p className="mt-1 text-sm leading-6 text-[#43474c]">
+                      {source.supports}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           <section className="mt-14 border-t border-[#e2e8f0] pt-12">
             <h2 className="text-3xl font-bold text-black">

@@ -10,6 +10,18 @@ export type GuideFaq = {
   answer: string
 }
 
+export type GuideContributor = {
+  name: string
+  type: "Person" | "Organization"
+  url?: string
+}
+
+export type GuideSource = {
+  title: string
+  url: string
+  supports: string
+}
+
 export type GuideDefinition = {
   slug: string
   title: string
@@ -18,7 +30,13 @@ export type GuideDefinition = {
   lede: string
   directAnswer: string
   readingTime: string
+  // Historical publication dates must remain absent until verified.
+  publishedAt?: string
   updatedAt: string
+  factCheckedAt?: string
+  author?: GuideContributor
+  reviewer?: GuideContributor
+  sources?: readonly GuideSource[]
   sections: readonly GuideSection[]
   faqs: readonly GuideFaq[]
   relatedSlugs: readonly string[]
@@ -35,7 +53,22 @@ export const GUIDES = [
     directAnswer:
       "To submit a product to directories, prepare a clear one-line description, a detailed product summary, accurate category and pricing details, a logo, screenshots, your website URL, and maker information. Start with directories that match your audience, publish complete listings, and track visits and sign-ups instead of submitting the same thin copy everywhere.",
     readingTime: "9 min read",
-    updatedAt: "2026-07-22",
+    updatedAt: "2026-10-30",
+    factCheckedAt: "2026-10-30",
+    sources: [
+      {
+        title: "Google: Qualify outbound links",
+        url: "https://developers.google.com/search/docs/crawling-indexing/qualify-outbound-links",
+        supports:
+          "How ordinary, sponsored, and user-generated links should be identified.",
+      },
+      {
+        title: "Google Analytics: Campaign URL parameters",
+        url: "https://support.google.com/analytics/answer/10917952",
+        supports:
+          "Use source, medium, and campaign labels to measure directory referrals.",
+      },
+    ],
     sections: [
       {
         id: "prepare",
@@ -51,6 +84,7 @@ export const GUIDES = [
           "Square logo, clear screenshots, and descriptive image text",
           "Category, product type, pricing model, platforms, and use cases",
           "A tracked link or analytics note so you can measure each directory",
+          "Example: use /?utm_source=shipyard&utm_medium=directory&utm_campaign=launch in your own campaign reporting. Keep names and email addresses out of campaign labels.",
         ],
       },
       {
@@ -100,6 +134,7 @@ export const GUIDES = [
         ],
         bullets: [
           "Day 1: publish and test your own landing page and analytics",
+          "Example: for a small scheduling app, assign one maker to reply to launch comments and one to check the signup flow. Record visits and completed registrations separately; a click is not a customer.",
           "Day 2–3: submit to one primary launch platform and answer feedback",
           "Day 4–7: add relevant product, startup, and app directories",
           "Week 2: approach niche communities, newsletters, and resource pages",
@@ -152,7 +187,22 @@ export const GUIDES = [
     directAnswer:
       "Before launching, define the audience and promise, test the full sign-up path, prepare screenshots and answers, and choose a small set of relevant launch channels. On launch day, talk with users and fix friction quickly. After launch, follow up, publish what you learned, refresh directory listings, and keep the channels that produce engaged visitors or customers.",
     readingTime: "10 min read",
-    updatedAt: "2026-07-22",
+    updatedAt: "2026-10-30",
+    factCheckedAt: "2026-10-30",
+    sources: [
+      {
+        title: "Product Hunt: Launch guide",
+        url: "https://www.producthunt.com/launch",
+        supports:
+          "Preparation, submission, and community follow-up for a Product Hunt launch.",
+      },
+      {
+        title: "Google Analytics: Campaign URL parameters",
+        url: "https://support.google.com/analytics/answer/10917952",
+        supports:
+          "Consistent campaign labels help distinguish launch channels.",
+      },
+    ],
     sections: [
       {
         id: "positioning",
@@ -267,7 +317,22 @@ export const GUIDES = [
     directAnswer:
       "A startup improves its backlink profile by publishing something worth citing, getting listed on relevant directories, building partner and customer relationships, and earning editorial mentions. An ordinary link can pass ranking signals, while paid links should be marked as sponsored. Domain Rating can help compare link profiles, but it is not a Google score and no single listing can guarantee a boost.",
     readingTime: "9 min read",
-    updatedAt: "2026-07-22",
+    updatedAt: "2026-10-30",
+    factCheckedAt: "2026-10-30",
+    sources: [
+      {
+        title: "Google: Qualify outbound links",
+        url: "https://developers.google.com/search/docs/crawling-indexing/qualify-outbound-links",
+        supports:
+          "Paid links should be qualified as sponsored; ordinary links need no special dofollow attribute.",
+      },
+      {
+        title: "Ahrefs: What Domain Rating measures",
+        url: "https://ahrefs.com/seo/glossary/domain-rating",
+        supports:
+          "Domain Rating is Ahrefs’ proprietary measure of backlink-profile strength.",
+      },
+    ],
     sections: [
       {
         id: "basics",
@@ -281,6 +346,7 @@ export const GUIDES = [
         id: "dofollow",
         title: "Do-follow, nofollow, and sponsored links in plain English",
         paragraphs: [
+          'Example: a paid placement link can use <a href="https://example.com" rel="sponsored">Example product</a>. An unpaid editorial link needs no rel="dofollow" attribute. These labels describe the relationship; they do not promise ranking credit.',
           "“Do-follow” is a popular name for an ordinary web link. There is no special dofollow setting that a publisher has to add. A publisher may instead label a link nofollow when it does not want to endorse the destination, or sponsored when payment or another commercial arrangement influenced the link.",
           "A paid placement should not be sold as guaranteed search authority. Google asks publishers to qualify paid links, and responsible directories follow that rule. Shipyard marks paid direct website links as sponsored. The placement is designed to create relevant visibility and referral visits, not to sell a secret ranking shortcut.",
         ],
