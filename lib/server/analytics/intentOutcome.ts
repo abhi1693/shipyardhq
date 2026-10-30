@@ -1,3 +1,4 @@
+import { normalizeAcquisitionContext } from "@/lib/analytics/acquisition"
 import { differenceInCalendarDays, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
@@ -53,9 +54,23 @@ const STAGE_CONFIG: ReadonlyArray<{
   source: "product" | "upvote" | "purchase"
 }> = [
   {
+    key: "submissionStarted",
+    label: "Started a submission",
+    description:
+      "Successfully created a private submission draft; new history only.",
+    source: "product",
+  },
+  {
+    key: "submissionCompleted",
+    label: "Completed a submission",
+    description: "Validated and saved a product record; may still be private.",
+    source: "product",
+  },
+  {
     key: "shippedProduct",
-    label: "Shipped a product",
-    description: "Created at least one product in Shipyard.",
+    label: "Published a listing",
+    description:
+      "Recorded first public publication; excludes legacy products with unknown history.",
     source: "product",
   },
   {
@@ -84,6 +99,8 @@ type CohortAccumulator = {
   roleIntentLabel: string
   heardFrom: string | null
   heardFromLabel: string
+  acquisitionLanding: string | null
+  acquisitionSource: string | null
   totalUsers: number
   stages: StageState
   retentionCounts: Record<(typeof RETENTION_THRESHOLDS)[number], number>
@@ -135,8 +152,14 @@ function ensureCohort(
   map: Map<string, CohortAccumulator>,
   roleIntent: string | null,
   heardFrom: string | null,
+  acquisitionLanding: string | null,
+  acquisitionSource: string | null,
 ): CohortAccumulator {
-  const key = cohortKey(roleIntent, heardFrom)
+  const key = JSON.stringify([
+    cohortKey(roleIntent, heardFrom),
+    acquisitionLanding,
+    acquisitionSource,
+  ])
   const existing = map.get(key)
   if (existing) {
     return existing
@@ -147,6 +170,8 @@ function ensureCohort(
 
   const cohort: CohortAccumulator = {
     id: key,
+    acquisitionLanding,
+    acquisitionSource,
     roleIntent,
     roleIntentLabel: labelForIntent,
     heardFrom,
@@ -193,6 +218,7 @@ function buildStageMetrics(
       description: stage.description,
       count: baseCount,
       percentage: basePercentage,
+      timingSampleSize: accumulator?.dayDiffs.length ?? 0,
       medianDaysToComplete: calcMedian(accumulator?.dayDiffs ?? []),
       speedBuckets,
     }
@@ -229,7 +255,7 @@ export async function getIntentOutcomeAnalytics(
 
   const cacheKey = buildCacheKey(
     "analytics",
-    "intentOutcome",
+    "intentOutcome-lifecycle-v2",
     `range:${windowDays}`,
   )
   const cacheTtlSeconds = resolveCacheTtl("slowest")
@@ -259,6 +285,7 @@ export async function getIntentOutcomeAnalytics(
       createdAt: true,
       roleIntent: true,
       heardFrom: true,
+      acquisitionContext: true,
     },
   })
 
@@ -267,6 +294,7 @@ export async function getIntentOutcomeAnalytics(
       rangeDays: windowDays,
       generatedAt: new Date().toISOString(),
       summary: {
+        legacyProductsWithUnknownHistory: 0,
         totalUsers: 0,
         totalCohorts: 0,
         stageMetrics: buildStageMetrics(createStageState(), 0),
@@ -297,7 +325,16 @@ export async function getIntentOutcomeAnalytics(
   type UserEntry = (typeof users)[number] & { cohort: CohortAccumulator }
   const userMap = new Map<string, UserEntry>(
     users.map((user: (typeof users)[number]) => {
-      const cohort = ensureCohort(cohorts, user.roleIntent, user.heardFrom)
+      const firstTouch = normalizeAcquisitionContext(
+        user.acquisitionContext,
+      )?.firstTouch
+      const cohort = ensureCohort(
+        cohorts,
+        user.roleIntent,
+        user.heardFrom,
+        firstTouch?.path ?? null,
+        firstTouch?.source ?? null,
+      )
       cohort.totalUsers += 1
       return [
         user.id,
@@ -320,6 +357,9 @@ export async function getIntentOutcomeAnalytics(
   const userIds = Array.from(userMap.keys())
 
   let productRows: StageRow[] = []
+  let startedRows: StageRow[] = []
+  let completedRows: StageRow[] = []
+  let legacyProductsWithUnknownHistory = 0
   let upvoteRows: StageRow[] = []
   let purchaseRows: StageRow[] = []
   let upvoteEvents: UpvoteEvent[] = []
@@ -328,10 +368,11 @@ export async function getIntentOutcomeAnalytics(
   if (userIds.length) {
     ;[productRows, upvoteRows, purchaseRows, upvoteEvents, purchaseEvents] =
       await Promise.all([
-        prisma.product.groupBy({
+        prisma.launchLifecycleEvent.groupBy({
           by: ["userId"],
           where: {
             userId: { in: userIds },
+            kind: "first_published",
           },
           _count: { _all: true },
           _min: { createdAt: true },
@@ -375,7 +416,28 @@ export async function getIntentOutcomeAnalytics(
       ])
   }
 
+  ;[startedRows, completedRows, legacyProductsWithUnknownHistory] =
+    await Promise.all([
+      prisma.launchLifecycleEvent.groupBy({
+        by: ["userId"],
+        where: { userId: { in: userIds }, kind: "submission_started" },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }),
+      prisma.launchLifecycleEvent.groupBy({
+        by: ["userId"],
+        where: { userId: { in: userIds }, kind: "submission_completed" },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }),
+      prisma.launchLifecycleEvent.count({
+        where: { userId: { in: userIds }, kind: "legacy_history_unknown" },
+      }),
+    ])
+
   const stageRowMap: Record<StageKey, StageRow[]> = {
+    submissionStarted: startedRows,
+    submissionCompleted: completedRows,
     shippedProduct: productRows,
     upvotedProduct: upvoteRows,
     purchasedPlan: purchaseRows,
@@ -393,7 +455,8 @@ export async function getIntentOutcomeAnalytics(
       stageAccumulator.count += 1
       globalAccumulator.count += 1
 
-      const firstEventAt = row._min.createdAt ?? user.createdAt
+      const firstEventAt = row._min.createdAt
+      if (!firstEventAt) continue
       const diffDays = Math.max(
         differenceInCalendarDays(firstEventAt, user.createdAt),
         0,
@@ -448,6 +511,8 @@ export async function getIntentOutcomeAnalytics(
   const cohortList: IntentOutcomeCohort[] = Array.from(cohorts.values())
     .map<IntentOutcomeCohort>((cohort) => ({
       id: cohort.id,
+      acquisitionLanding: cohort.acquisitionLanding,
+      acquisitionSource: cohort.acquisitionSource,
       roleIntent: cohort.roleIntent,
       roleIntentLabel: cohort.roleIntentLabel,
       heardFrom: cohort.heardFrom,
@@ -462,6 +527,7 @@ export async function getIntentOutcomeAnalytics(
     .sort((a, b) => b.totalUsers - a.totalUsers)
 
   const summary: IntentOutcomeSummary = {
+    legacyProductsWithUnknownHistory,
     totalUsers: users.length,
     totalCohorts: cohortList.length,
     stageMetrics: buildStageMetrics(globalStages, users.length),

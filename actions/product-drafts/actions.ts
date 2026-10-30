@@ -4,6 +4,11 @@ import { auth } from "@clerk/nextjs/server"
 
 import { createProductAction } from "@/actions/products/actions"
 import prisma from "@/lib/prisma"
+import { recordLaunchLifecycle } from "@/lib/server/analytics/launchLifecycle"
+import {
+  readAcquisitionContext,
+  saveUserAcquisition,
+} from "@/lib/server/analytics/acquisitionContext"
 import {
   mergeDraftPayload,
   productDraftStepSchemas,
@@ -54,15 +59,25 @@ export async function createProductDraft(mode: ProductDraftMode) {
   const { error, user } = await getCurrentDraftUser()
   if (error || !user) return { error }
 
-  const draft = await prisma.productDraft.create({
-    data: {
+  await saveUserAcquisition(user.id, await readAcquisitionContext())
+  const draft = await prisma.$transaction(async (tx) => {
+    const created = await tx.productDraft.create({
+      data: {
+        userId: user.id,
+        mode,
+        productId: makeDraftProductId(),
+        currentStep: "configuration",
+        payload: {},
+      },
+      select: { id: true },
+    })
+
+    await recordLaunchLifecycle(tx, {
       userId: user.id,
-      mode,
-      productId: makeDraftProductId(),
-      currentStep: "configuration",
-      payload: {},
-    },
-    select: { id: true },
+      entityId: created.id,
+      kind: "submission_started",
+    })
+    return created
   })
 
   return { draftId: draft.id }

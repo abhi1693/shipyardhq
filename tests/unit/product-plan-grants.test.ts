@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const { enqueueBoundaryJob, prismaMock, txMock } = vi.hoisted(() => {
   const tx = {
+    user: { findUnique: vi.fn().mockResolvedValue(null) },
+    launchLifecycleEvent: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
+    },
     plan: {
       findFirst: vi.fn(),
       findUnique: vi.fn(),
@@ -148,6 +153,7 @@ describe("product plan grant boundary projection", () => {
     txMock.productPlanGrant.updateMany.mockResolvedValueOnce({ count: 0 })
     txMock.product.findUnique.mockResolvedValueOnce({
       id: PRODUCT_ID,
+      userId: "user_1",
       planId: "plan_free",
       planAssignedAt: null,
       subscriptionId: null,
@@ -173,6 +179,19 @@ describe("product plan grant boundary projection", () => {
       NOW,
     )
 
+    expect(txMock.launchLifecycleEvent.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: [
+          expect.objectContaining({
+            kind: "first_published",
+            userId: "user_1",
+            entityId: PRODUCT_ID,
+            createdAt: NOW,
+          }),
+        ],
+        skipDuplicates: true,
+      }),
+    )
     expect(projection).toEqual({
       productId: PRODUCT_ID,
       grantsExpired: 0,
@@ -287,6 +306,7 @@ describe("product plan grant boundary projection", () => {
     expect(projection.grantsExpired).toBe(1)
     expect(projection.projectionChanged).toBe(false)
     expect(txMock.product.update).not.toHaveBeenCalled()
+    expect(txMock.launchLifecycleEvent.createMany).not.toHaveBeenCalled()
   })
 
   it("deduplicates a simultaneous grant expiry and start into one product wake-up", async () => {

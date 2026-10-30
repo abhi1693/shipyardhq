@@ -1,5 +1,6 @@
 "use server"
 
+import { recordFirstPublication } from "@/lib/server/analytics/launchLifecycle"
 import { acquisitionCheckoutMetadata } from "@/lib/analytics/acquisition"
 import {
   readAcquisitionContext,
@@ -292,6 +293,8 @@ async function setProductPlanAction(
     select: {
       id: true,
       status: true,
+      userId: true,
+      publishedAt: true,
     },
   })
   if (!product) return { error: "Product not found or not owned by user" }
@@ -305,6 +308,7 @@ async function setProductPlanAction(
     return { error: "Paid plans require verified checkout" }
   }
 
+  await saveUserAcquisition(user.id, await readAcquisitionContext())
   const now = new Date()
   const projection = await prisma.$transaction(async (tx) => {
     const projectedPlan = await projectEffectiveProductPlanGrant(
@@ -315,8 +319,14 @@ async function setProductPlanAction(
     if (options.publish && product.status === ProductStatus.draft) {
       await tx.product.update({
         where: { id: productId },
-        data: { status: ProductStatus.published, publishedAt: now },
+        data: {
+          status: ProductStatus.published,
+          publishedAt: product.publishedAt ?? now,
+        },
       })
+    }
+    if (options.publish && product.status === ProductStatus.draft) {
+      await recordFirstPublication(tx, product, now)
     }
     return projectedPlan
   })

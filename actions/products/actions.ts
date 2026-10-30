@@ -1,5 +1,10 @@
 "use server"
 
+import { recordLaunchLifecycle } from "@/lib/server/analytics/launchLifecycle"
+import {
+  readAcquisitionContext,
+  saveUserAcquisition,
+} from "@/lib/server/analytics/acquisitionContext"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -321,63 +326,72 @@ export async function createProductAction(formData: FormData) {
       6,
     )
 
-    const created = await prisma.product.create({
-      data: {
-        id: providedId || undefined,
-        name,
-        slug: finalSlug,
-        tagline,
-        description,
-        websiteUrl,
-        logo,
-        categoryId: uniqueCategoryIds[0] ?? categoryId,
+    await saveUserAcquisition(userId, await readAcquisitionContext())
+    const created = await prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          id: providedId || undefined,
+          name,
+          slug: finalSlug,
+          tagline,
+          description,
+          websiteUrl,
+          logo,
+          categoryId: uniqueCategoryIds[0] ?? categoryId,
+          userId,
+          type,
+          pricingModel,
+          status: "draft",
+          publishedAt: null,
+          startingPriceCents,
+          currencyCode,
+          bannerImage,
+          keywords,
+          platforms: (platforms as any) ?? undefined,
+          categories: {
+            create: uniqueCategoryIds.map((nextCategoryId) => ({
+              categoryId: nextCategoryId,
+            })),
+          },
+          ProductMedia: uniqueGalleryMediaUrls.length
+            ? {
+                create: uniqueGalleryMediaUrls.map((imageUrl) => ({
+                  imageUrl,
+                })),
+              }
+            : undefined,
+          metadata: {
+            create: {
+              githubUrl,
+              twitterUrl,
+              videoUrl,
+              contactEmail,
+              utmCampaign: utmCampaign || undefined,
+            },
+          },
+          analytics: {
+            create: {},
+          },
+          verification: {
+            create: {
+              verificationTxt,
+              isVerified: initialVerified,
+              verifiedAt: initialVerified ? new Date() : null,
+            },
+          },
+          alternatives: uniqueAlternativeIds.length
+            ? {
+                connect: uniqueAlternativeIds.map((altId) => ({ id: altId })),
+              }
+            : undefined,
+        },
+      })
+      await recordLaunchLifecycle(tx, {
         userId,
-        type,
-        pricingModel,
-        status: "draft",
-        publishedAt: null,
-        startingPriceCents,
-        currencyCode,
-        bannerImage,
-        keywords,
-        platforms: (platforms as any) ?? undefined,
-        categories: {
-          create: uniqueCategoryIds.map((nextCategoryId) => ({
-            categoryId: nextCategoryId,
-          })),
-        },
-        ProductMedia: uniqueGalleryMediaUrls.length
-          ? {
-              create: uniqueGalleryMediaUrls.map((imageUrl) => ({
-                imageUrl,
-              })),
-            }
-          : undefined,
-        metadata: {
-          create: {
-            githubUrl,
-            twitterUrl,
-            videoUrl,
-            contactEmail,
-            utmCampaign: utmCampaign || undefined,
-          },
-        },
-        analytics: {
-          create: {},
-        },
-        verification: {
-          create: {
-            verificationTxt,
-            isVerified: initialVerified,
-            verifiedAt: initialVerified ? new Date() : null,
-          },
-        },
-        alternatives: uniqueAlternativeIds.length
-          ? {
-              connect: uniqueAlternativeIds.map((altId) => ({ id: altId })),
-            }
-          : undefined,
-      },
+        entityId: product.id,
+        kind: "submission_completed",
+      })
+      return product
     })
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
     dispatchEventAsync(
