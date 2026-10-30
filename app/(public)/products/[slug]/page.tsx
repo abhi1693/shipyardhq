@@ -1,3 +1,4 @@
+import { listingSchemaClassification } from "@/lib/seo/listing-classification"
 import { getProductSeoTitle } from "@/lib/seo/editorial-metadata"
 import { PublicAdLayout } from "@/components/templates/public/common/PublicAdLayout"
 import type { Metadata } from "next"
@@ -86,6 +87,7 @@ import { buildMobileApplicationStructuredData } from "@/lib/seo/mobile-applicati
 import {
   buildProductStructuredData,
   resolveProductOfferFromPricing,
+  normalizeOfferCurrency,
 } from "@/lib/seo/product"
 import { getPlatformMetaByValue } from "@/lib/platforms/config"
 import { pricingModelSlugFromValue } from "@/lib/pricing/models"
@@ -258,14 +260,16 @@ function formatCurrency(
   amountCents: number,
   currencyCode: string | null | undefined,
 ) {
+  const currency = normalizeOfferCurrency(currencyCode)
+  if (!currency) return null
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currencyCode || "USD",
+      currency,
       maximumFractionDigits: 2,
     }).format(amountCents / 100)
   } catch {
-    return `$${(amountCents / 100).toFixed(2)}`
+    return null
   }
 }
 
@@ -491,7 +495,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     normalizedWebsiteUrl &&
     hasPlanFeature(sidebarProduct.plan, BACKLINK_PLAN_FEATURE_KEY),
   )
-  const hasWebPlatform = platformValues.includes("web")
+  const schemaClassification = listingSchemaClassification(
+    sidebarProduct.type,
+    platformValues,
+  )
   const mobilePlatforms = platformValues.filter((platform: string) =>
     ["ios", "android"].includes(platform),
   )
@@ -505,7 +512,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     siteConfig.url,
   ).toString()
 
-  const webApplicationStructuredData = hasWebPlatform
+  const webApplicationStructuredData = schemaClassification.webApplication
     ? buildWebApplicationStructuredData({
         path: canonicalPath,
         id: webApplicationStructuredDataId,
@@ -524,19 +531,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     platform === "ios" ? "iOS" : "Android",
   )
 
-  const mobileApplicationStructuredData = mobileOperatingSystems.length
-    ? buildMobileApplicationStructuredData({
-        path: canonicalPath,
-        id: mobileApplicationStructuredDataId,
-        name: product.name,
-        description: productMetaDescription,
-        datePublished: schemaPublishedDateIso,
-        dateModified: updatedDateIso,
-        operatingSystem: mobileOperatingSystems,
-        screenshots: screenshotSources,
-        offers: offer,
-      })
-    : null
+  const mobileApplicationStructuredData =
+    schemaClassification.mobileApplication && mobileOperatingSystems.length
+      ? buildMobileApplicationStructuredData({
+          path: canonicalPath,
+          id: mobileApplicationStructuredDataId,
+          name: product.name,
+          description: productMetaDescription,
+          datePublished: schemaPublishedDateIso,
+          dateModified: updatedDateIso,
+          operatingSystem: mobileOperatingSystems,
+          screenshots: screenshotSources,
+          offers: offer,
+        })
+      : null
 
   const productOwner = sidebarProduct.user
   const ownerDisplayName = [productOwner?.firstName, productOwner?.lastName]
@@ -597,78 +605,68 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     `${canonicalPath}#webpage`,
     siteConfig.url,
   ).toString()
-  const makerEntity = makerName
-    ? {
-        type: "Person" as const,
-        name: makerName,
-        ...(productOwner?.id ? { url: userPath(productOwner.id) } : {}),
-      }
-    : undefined
-  const productStructuredData = offer
-    ? buildProductStructuredData({
-        path: canonicalPath,
-        id: productStructuredDataId,
-        name: product.name,
-        description: productMetaDescription,
-        image: productImageSources,
-        logo: product.logo ?? undefined,
-        category: categoryLabel ?? undefined,
-        keywords: productKeywords,
-        releaseDate: schemaPublishedDateIso,
-        datePublished: schemaPublishedDateIso,
-        dateModified: updatedDateIso,
-        mainEntityOfPage: productWebPageId,
-        creator: makerEntity,
-        manufacturer: makerEntity,
-        brand: makerEntity,
-        sameAs: normalizedWebsiteUrl ? [normalizedWebsiteUrl] : undefined,
-        isSimilarTo: productAlternatives,
-        additionalProperty: [
-          ...(makerName ? [{ name: "Maker", value: makerName }] : []),
-          ...(categoryLabel
-            ? [{ name: "Category", value: categoryLabel }]
-            : []),
-          ...(pricingModelLabel
-            ? [{ name: "Pricing model", value: pricingModelLabel }]
-            : []),
-          ...(platformFactLabels.length
-            ? [
-                {
-                  name: "Supported platforms",
-                  value: platformFactLabels.join(", "),
-                },
-              ]
-            : []),
-          ...(schemaPublishedDateIso
-            ? [{ name: "Launch date", value: schemaPublishedDateIso }]
-            : []),
-          {
-            name: "Verified status",
-            value: isVerified ? "Verified" : "Not verified",
-          },
-          ...(hasDirectWebsiteLink
-            ? [{ name: "Direct website link", value: "Enabled" }]
-            : []),
-          ...(hasAiSearchReadyProfile
-            ? [{ name: "AI-search ready profile", value: "Enabled" }]
-            : []),
-          ...(productAlternatives.length
-            ? [
-                {
-                  name: "Alternatives",
-                  value: productAlternatives
-                    .map((alternative) => alternative.name)
-                    .join(", "),
-                },
-              ]
-            : []),
-          ...(productKeywords.length
-            ? [{ name: "Tags", value: productKeywords.join(", ") }]
-            : []),
-        ],
-        offers: offer,
-      })
-    : null
+  const productStructuredData =
+    schemaClassification.softwareProduct && offer
+      ? buildProductStructuredData({
+          path: canonicalPath,
+          id: productStructuredDataId,
+          name: product.name,
+          description: productMetaDescription,
+          image: productImageSources,
+          logo: product.logo ?? undefined,
+          category: categoryLabel ?? undefined,
+          keywords: productKeywords,
+          datePublished: schemaPublishedDateIso,
+          dateModified: updatedDateIso,
+          mainEntityOfPage: productWebPageId,
+          sameAs: normalizedWebsiteUrl ? [normalizedWebsiteUrl] : undefined,
+          isSimilarTo: productAlternatives,
+          additionalProperty: [
+            ...(makerName ? [{ name: "Listing owner", value: makerName }] : []),
+            ...(categoryLabel
+              ? [{ name: "Category", value: categoryLabel }]
+              : []),
+            ...(pricingModelLabel
+              ? [{ name: "Pricing model", value: pricingModelLabel }]
+              : []),
+            ...(platformFactLabels.length
+              ? [
+                  {
+                    name: "Supported platforms",
+                    value: platformFactLabels.join(", "),
+                  },
+                ]
+              : []),
+            ...(schemaPublishedDateIso
+              ? [{ name: "Launch date", value: schemaPublishedDateIso }]
+              : []),
+            {
+              name: "Verified status",
+              value: isVerified ? "Verified" : "Not verified",
+            },
+            ...(hasDirectWebsiteLink
+              ? [{ name: "Direct website link", value: "Enabled" }]
+              : []),
+            ...(hasAiSearchReadyProfile
+              ? [{ name: "AI-search ready profile", value: "Enabled" }]
+              : []),
+            ...(productAlternatives.length
+              ? [
+                  {
+                    name: "Alternatives",
+                    value: productAlternatives
+                      .map((alternative) => alternative.name)
+                      .join(", "),
+                  },
+                ]
+              : []),
+            ...(productKeywords.length
+              ? [{ name: "Tags", value: productKeywords.join(", ") }]
+              : []),
+          ],
+          offers: offer,
+        })
+      : null
   const pageMainEntity = productStructuredData
     ? {
         id: productStructuredDataId,

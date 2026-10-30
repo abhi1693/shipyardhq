@@ -1,3 +1,4 @@
+import { normalizeOfferCurrency } from "@/lib/seo/product"
 import {
   alternativePath,
   categoryPath,
@@ -155,7 +156,8 @@ function formatCurrency(
     return null
   }
 
-  const currency = currencyCode || "USD"
+  const currency = normalizeOfferCurrency(currencyCode)
+  if (!currency) return null
 
   try {
     return new Intl.NumberFormat("en-US", {
@@ -164,7 +166,7 @@ function formatCurrency(
       maximumFractionDigits: 2,
     }).format(amountCents / 100)
   } catch {
-    return `${currency} ${(amountCents / 100).toFixed(2)}`
+    return null
   }
 }
 
