@@ -33,9 +33,9 @@ const FEATURES = [
   {
     key: "product.aiSearchReady",
     name: "AI Search Readiness",
-    displayName: "AI-readable product profile",
+    displayName: "Readiness badge and checklist",
     description:
-      "Adds structured metadata, schema, sitemap inclusion, and crawler-readable product facts.",
+      "Adds a public readiness badge and an extra listing-readiness checklist. Ordinary listings already expose product facts, descriptions, and Markdown; no ranking or citation result is guaranteed.",
   },
   {
     key: "analytics.advanced",

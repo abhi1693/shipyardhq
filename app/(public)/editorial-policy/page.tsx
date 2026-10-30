@@ -1,3 +1,4 @@
+import { EDITORIAL_STANDARDS } from "@/lib/founder/content"
 import Link from "next/link"
 
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
@@ -19,25 +20,6 @@ export const metadata = buildPageMetadata({
   description: PAGE_DESCRIPTION,
   canonical: EDITORIAL_POLICY_PATH,
 })
-
-const STANDARDS = [
-  {
-    title: "Complete and specific",
-    body: "A useful listing identifies the product, intended audience, main outcome, pricing model, platforms, and maker. Thin, misleading, copied, or unfinished submissions may be limited, corrected, or removed.",
-  },
-  {
-    title: "Accurate over promotional",
-    body: "Claims should match the product's public website or information supplied by its maker. Unsupported superlatives, fake customer claims, and misleading category assignments are not editorial facts.",
-  },
-  {
-    title: "Commercial influence disclosed",
-    body: "Sponsored cards, priority placement, direct paid links, and partner panels are labelled or described as paid features. Payment does not buy a positive review or hidden endorsement.",
-  },
-  {
-    title: "Corrections are welcome",
-    body: "Makers can update listings, and readers can report a specific inaccurate fact or broken page. Shipyard reviews the cited evidence and updates public information when a correction is justified.",
-  },
-]
 
 export default function EditorialPolicyPage() {
   return (
@@ -100,7 +82,7 @@ export default function EditorialPolicyPage() {
         </section>
 
         <section className="grid gap-5 md:grid-cols-2">
-          {STANDARDS.map((standard) => (
+          {EDITORIAL_STANDARDS.map((standard) => (
             <div
               key={standard.title}
               className="rounded-xl border border-[#e2e8f0] bg-white p-6"

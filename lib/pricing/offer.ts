@@ -41,7 +41,7 @@ const FEATURE_COPY: Record<string, string[]> = {
   backlink: ["Direct website link with aggregate click tracking"],
   "product.sitemap": ["Included in Shipyard’s product sitemap"],
   "product.aiSearchReady": [
-    "AI-search ready badge + dedicated Markdown profile",
+    "AI-search readiness badge + listing-readiness checklist",
   ],
   priorityPlacement: [
     "Priority position in Browse, alternatives, use-case, platform, pricing-model & product-type results",
