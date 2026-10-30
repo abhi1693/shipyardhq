@@ -1,3 +1,5 @@
+import { LaunchPlatformRoundup } from "@/components/organisms/LaunchChannelComparison"
+import { isReviewedLaunchComparison } from "@/lib/launch-channels/catalog"
 import { getAlternativeSeoDescription } from "@/lib/seo/editorial-metadata"
 import type { Metadata } from "next"
 import { Suspense } from "react"
@@ -38,15 +40,25 @@ interface AlternativeDetailPageProps {
 export async function generateStaticParams() {
   const alternatives = await getAlternativesWithCounts()
 
-  return alternatives.map((alternative) => ({
-    slug: alternative.slug,
-  }))
+  return Array.from(
+    new Set([
+      "product-hunt",
+      ...alternatives.map((alternative) => alternative.slug),
+    ]),
+  ).map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({
   params,
 }: AlternativeDetailPageProps): Promise<Metadata> {
   const { slug } = await params
+  if (isReviewedLaunchComparison(slug))
+    return buildPageMetadata({
+      title: "Product Hunt alternatives for indie launches",
+      description:
+        "Compare Shipyard HQ, BetaList, and Uneed with Product Hunt using sourced submission facts, known plan options, and explicit limitations.",
+      canonical: alternativePath(slug),
+    })
   const alternative = await getAlternativeDetail(slug)
 
   if (!alternative) {
@@ -117,6 +129,7 @@ async function AlternativeDetailPageContent({
   params,
 }: AlternativeDetailPageProps) {
   const { slug } = await params
+  if (isReviewedLaunchComparison(slug)) return <LaunchPlatformRoundup />
 
   const alternative = await getAlternativeDetail(slug)
   if (!alternative) {
