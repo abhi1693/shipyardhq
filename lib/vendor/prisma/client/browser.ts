@@ -267,3 +267,8 @@ export type EventAttempt = Prisma.EventAttemptModel
  * 
  */
 export type AnalyticsConversion = Prisma.AnalyticsConversionModel
+/**
+ * Model LaunchLifecycleEvent
+ * 
+ */
+export type LaunchLifecycleEvent = Prisma.LaunchLifecycleEventModel

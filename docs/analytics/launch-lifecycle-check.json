@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-30T19:21:32.453Z",
+  "isolatedDatabase": true,
+  "privateSubmissionNotPublication": true,
+  "rollbackLeavesNoPublication": true,
+  "concurrentPublicationCount": 1,
+  "actualPublicationTime": true,
+  "productDeletionPreservesHistory": true,
+  "accountDeletionCascades": true,
+  "syntheticOperations": true
+}

@@ -100,7 +100,8 @@ export const ModelName = {
   PlacementSchedule: 'PlacementSchedule',
   EventEnvelope: 'EventEnvelope',
   EventAttempt: 'EventAttempt',
-  AnalyticsConversion: 'AnalyticsConversion'
+  AnalyticsConversion: 'AnalyticsConversion',
+  LaunchLifecycleEvent: 'LaunchLifecycleEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -942,6 +943,18 @@ export const AnalyticsConversionScalarFieldEnum = {
 } as const
 
 export type AnalyticsConversionScalarFieldEnum = (typeof AnalyticsConversionScalarFieldEnum)[keyof typeof AnalyticsConversionScalarFieldEnum]
+
+
+export const LaunchLifecycleEventScalarFieldEnum = {
+  key: 'key',
+  userId: 'userId',
+  entityId: 'entityId',
+  kind: 'kind',
+  acquisitionContext: 'acquisitionContext',
+  createdAt: 'createdAt'
+} as const
+
+export type LaunchLifecycleEventScalarFieldEnum = (typeof LaunchLifecycleEventScalarFieldEnum)[keyof typeof LaunchLifecycleEventScalarFieldEnum]
 
 
 export const SortOrder = {

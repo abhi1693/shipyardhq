@@ -446,7 +446,8 @@ export const ModelName = {
   PlacementSchedule: 'PlacementSchedule',
   EventEnvelope: 'EventEnvelope',
   EventAttempt: 'EventAttempt',
-  AnalyticsConversion: 'AnalyticsConversion'
+  AnalyticsConversion: 'AnalyticsConversion',
+  LaunchLifecycleEvent: 'LaunchLifecycleEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -462,7 +463,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficHourly" | "siteTrafficCompositionDaily" | "siteAiCrawlerStatusDaily" | "siteAiCrawlerEndpointDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productPlanGrant" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt" | "analyticsConversion"
+    modelProps: "product" | "productKeyword" | "productDraft" | "alternativeProduct" | "leaderboardRun" | "productLeaderboardScore" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "analyticsIngestionRun" | "productTrafficDaily" | "productTrafficBrowserDaily" | "productTrafficOperatingSystemDaily" | "productTrafficDeviceDaily" | "productTrafficCountryDaily" | "productTrafficCityDaily" | "siteTrafficDaily" | "siteTrafficHourly" | "siteTrafficCompositionDaily" | "siteAiCrawlerStatusDaily" | "siteAiCrawlerEndpointDaily" | "siteTrafficBrowserDaily" | "siteTrafficOperatingSystemDaily" | "siteTrafficDeviceDaily" | "siteTrafficCountryDaily" | "siteTrafficRegionDaily" | "siteTrafficCityDaily" | "productUpvote" | "user" | "category" | "productCategory" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productPlanGrant" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt" | "analyticsConversion" | "launchLifecycleEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4166,6 +4167,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LaunchLifecycleEvent: {
+      payload: Prisma.$LaunchLifecycleEventPayload<ExtArgs>
+      fields: Prisma.LaunchLifecycleEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LaunchLifecycleEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LaunchLifecycleEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        findFirst: {
+          args: Prisma.LaunchLifecycleEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LaunchLifecycleEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        findMany: {
+          args: Prisma.LaunchLifecycleEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>[]
+        }
+        create: {
+          args: Prisma.LaunchLifecycleEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        createMany: {
+          args: Prisma.LaunchLifecycleEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LaunchLifecycleEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>[]
+        }
+        delete: {
+          args: Prisma.LaunchLifecycleEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        update: {
+          args: Prisma.LaunchLifecycleEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.LaunchLifecycleEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LaunchLifecycleEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LaunchLifecycleEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.LaunchLifecycleEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaunchLifecycleEventPayload>
+        }
+        aggregate: {
+          args: Prisma.LaunchLifecycleEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLaunchLifecycleEvent>
+        }
+        groupBy: {
+          args: Prisma.LaunchLifecycleEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LaunchLifecycleEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LaunchLifecycleEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LaunchLifecycleEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5030,6 +5105,18 @@ export const AnalyticsConversionScalarFieldEnum = {
 export type AnalyticsConversionScalarFieldEnum = (typeof AnalyticsConversionScalarFieldEnum)[keyof typeof AnalyticsConversionScalarFieldEnum]
 
 
+export const LaunchLifecycleEventScalarFieldEnum = {
+  key: 'key',
+  userId: 'userId',
+  entityId: 'entityId',
+  kind: 'kind',
+  acquisitionContext: 'acquisitionContext',
+  createdAt: 'createdAt'
+} as const
+
+export type LaunchLifecycleEventScalarFieldEnum = (typeof LaunchLifecycleEventScalarFieldEnum)[keyof typeof LaunchLifecycleEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5669,6 +5756,7 @@ export type GlobalOmitConfig = {
   eventEnvelope?: Prisma.EventEnvelopeOmit
   eventAttempt?: Prisma.EventAttemptOmit
   analyticsConversion?: Prisma.AnalyticsConversionOmit
+  launchLifecycleEvent?: Prisma.LaunchLifecycleEventOmit
 }
 
 /* Types for Logging */

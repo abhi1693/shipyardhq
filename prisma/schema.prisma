@@ -695,14 +695,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  launchLifecycleEvents   LaunchLifecycleEvent[]
   analyticsConversions    AnalyticsConversion[]
   products                Product[]
   productDrafts           ProductDraft[]
   ProductUpvote           ProductUpvote[]
   purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
-  rewardTransactions      RewardTransaction[]   @relation("RewardUserTransactions")
-  rewardTransactionsActed RewardTransaction[]   @relation("RewardTransactionActor")
+  rewardTransactions      RewardTransaction[]    @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]    @relation("RewardTransactionActor")
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
 
@@ -1259,4 +1260,19 @@ model AnalyticsConversion {
 
   @@index([userId, createdAt])
   @@index([createdAt])
+}
+
+// Business operations, independent of optional analytics delivery. entityId is
+// deliberately not a draft FK: completing/deleting a draft preserves history.
+model LaunchLifecycleEvent {
+  key                String   @id
+  userId             String
+  entityId           String
+  kind               String
+  acquisitionContext Json?
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([kind, createdAt])
+  @@index([userId, kind, createdAt])
 }

@@ -258,6 +258,7 @@ export type UserWhereInput = {
   terminatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventListRelationFilter
   analyticsConversions?: Prisma.AnalyticsConversionListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productDrafts?: Prisma.ProductDraftListRelationFilter
@@ -286,6 +287,7 @@ export type UserOrderByWithRelationInput = {
   terminatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventOrderByRelationAggregateInput
   analyticsConversions?: Prisma.AnalyticsConversionOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
   productDrafts?: Prisma.ProductDraftOrderByRelationAggregateInput
@@ -317,6 +319,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   terminatedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventListRelationFilter
   analyticsConversions?: Prisma.AnalyticsConversionListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productDrafts?: Prisma.ProductDraftListRelationFilter
@@ -387,6 +390,7 @@ export type UserCreateInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -415,6 +419,7 @@ export type UserUncheckedCreateInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -443,6 +448,7 @@ export type UserUpdateInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -471,6 +477,7 @@ export type UserUncheckedUpdateInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -745,6 +752,20 @@ export type UserUpdateOneRequiredWithoutAnalyticsConversionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAnalyticsConversionsInput, Prisma.UserUpdateWithoutAnalyticsConversionsInput>, Prisma.UserUncheckedUpdateWithoutAnalyticsConversionsInput>
 }
 
+export type UserCreateNestedOneWithoutLaunchLifecycleEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedCreateWithoutLaunchLifecycleEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLaunchLifecycleEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutLaunchLifecycleEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedCreateWithoutLaunchLifecycleEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutLaunchLifecycleEventsInput
+  upsert?: Prisma.UserUpsertWithoutLaunchLifecycleEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLaunchLifecycleEventsInput, Prisma.UserUpdateWithoutLaunchLifecycleEventsInput>, Prisma.UserUncheckedUpdateWithoutLaunchLifecycleEventsInput>
+}
+
 export type UserCreateWithoutProductsInput = {
   id?: string
   clerkId: string
@@ -761,6 +782,7 @@ export type UserCreateWithoutProductsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -788,6 +810,7 @@ export type UserUncheckedCreateWithoutProductsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -831,6 +854,7 @@ export type UserUpdateWithoutProductsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -858,6 +882,7 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -885,6 +910,7 @@ export type UserCreateWithoutProductDraftsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -912,6 +938,7 @@ export type UserUncheckedCreateWithoutProductDraftsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -955,6 +982,7 @@ export type UserUpdateWithoutProductDraftsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -982,6 +1010,7 @@ export type UserUncheckedUpdateWithoutProductDraftsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1009,6 +1038,7 @@ export type UserCreateWithoutProductUpvoteInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1036,6 +1066,7 @@ export type UserUncheckedCreateWithoutProductUpvoteInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1079,6 +1110,7 @@ export type UserUpdateWithoutProductUpvoteInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1106,6 +1138,7 @@ export type UserUncheckedUpdateWithoutProductUpvoteInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1133,6 +1166,7 @@ export type UserCreateWithoutPurchasesInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1160,6 +1194,7 @@ export type UserUncheckedCreateWithoutPurchasesInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1203,6 +1238,7 @@ export type UserUpdateWithoutPurchasesInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1230,6 +1266,7 @@ export type UserUncheckedUpdateWithoutPurchasesInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1257,6 +1294,7 @@ export type UserCreateWithoutRewardBalanceInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1284,6 +1322,7 @@ export type UserUncheckedCreateWithoutRewardBalanceInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1327,6 +1366,7 @@ export type UserUpdateWithoutRewardBalanceInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1354,6 +1394,7 @@ export type UserUncheckedUpdateWithoutRewardBalanceInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1381,6 +1422,7 @@ export type UserCreateWithoutRewardTransactionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1408,6 +1450,7 @@ export type UserUncheckedCreateWithoutRewardTransactionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1440,6 +1483,7 @@ export type UserCreateWithoutRewardTransactionsActedInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1467,6 +1511,7 @@ export type UserUncheckedCreateWithoutRewardTransactionsActedInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1510,6 +1555,7 @@ export type UserUpdateWithoutRewardTransactionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1537,6 +1583,7 @@ export type UserUncheckedUpdateWithoutRewardTransactionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1575,6 +1622,7 @@ export type UserUpdateWithoutRewardTransactionsActedInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1602,6 +1650,7 @@ export type UserUncheckedUpdateWithoutRewardTransactionsActedInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1629,6 +1678,7 @@ export type UserCreateWithoutRedemptionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1656,6 +1706,7 @@ export type UserUncheckedCreateWithoutRedemptionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1699,6 +1750,7 @@ export type UserUpdateWithoutRedemptionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1726,6 +1778,7 @@ export type UserUncheckedUpdateWithoutRedemptionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1753,6 +1806,7 @@ export type UserCreateWithoutFeatureEntitlementsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
@@ -1780,6 +1834,7 @@ export type UserUncheckedCreateWithoutFeatureEntitlementsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
@@ -1823,6 +1878,7 @@ export type UserUpdateWithoutFeatureEntitlementsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
@@ -1850,6 +1906,7 @@ export type UserUncheckedUpdateWithoutFeatureEntitlementsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
   analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
@@ -1877,6 +1934,7 @@ export type UserCreateWithoutAnalyticsConversionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventCreateNestedManyWithoutUserInput
   products?: Prisma.ProductCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
@@ -1904,6 +1962,7 @@ export type UserUncheckedCreateWithoutAnalyticsConversionsInput = {
   terminatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedCreateNestedManyWithoutUserInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
   productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
@@ -1947,6 +2006,7 @@ export type UserUpdateWithoutAnalyticsConversionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
@@ -1974,6 +2034,135 @@ export type UserUncheckedUpdateWithoutAnalyticsConversionsInput = {
   terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  launchLifecycleEvents?: Prisma.LaunchLifecycleEventUncheckedUpdateManyWithoutUserNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
+  productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
+  rewardBalance?: Prisma.RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
+  redemptions?: Prisma.RedemptionUncheckedUpdateManyWithoutUserNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutLaunchLifecycleEventsInput = {
+  id?: string
+  clerkId: string
+  email: string
+  firstName: string
+  lastName: string
+  role?: string
+  roleIntent?: string | null
+  heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.UserStatus
+  onboardedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  terminatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionCreateNestedManyWithoutUserInput
+  products?: Prisma.ProductCreateNestedManyWithoutUserInput
+  productDrafts?: Prisma.ProductDraftCreateNestedManyWithoutUserInput
+  ProductUpvote?: Prisma.ProductUpvoteCreateNestedManyWithoutUserInput
+  purchases?: Prisma.UserPlanPurchaseCreateNestedManyWithoutUserInput
+  rewardBalance?: Prisma.RewardBalanceCreateNestedOneWithoutUserInput
+  rewardTransactions?: Prisma.RewardTransactionCreateNestedManyWithoutUserInput
+  rewardTransactionsActed?: Prisma.RewardTransactionCreateNestedManyWithoutActedByInput
+  redemptions?: Prisma.RedemptionCreateNestedManyWithoutUserInput
+  featureEntitlements?: Prisma.FeatureEntitlementCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutLaunchLifecycleEventsInput = {
+  id?: string
+  clerkId: string
+  email: string
+  firstName: string
+  lastName: string
+  role?: string
+  roleIntent?: string | null
+  heardFrom?: string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: $Enums.UserStatus
+  onboardedAt?: Date | string | null
+  suspendedAt?: Date | string | null
+  terminatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedCreateNestedManyWithoutUserInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutUserInput
+  productDrafts?: Prisma.ProductDraftUncheckedCreateNestedManyWithoutUserInput
+  ProductUpvote?: Prisma.ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+  purchases?: Prisma.UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
+  rewardBalance?: Prisma.RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+  rewardTransactions?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
+  redemptions?: Prisma.RedemptionUncheckedCreateNestedManyWithoutUserInput
+  featureEntitlements?: Prisma.FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutLaunchLifecycleEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedCreateWithoutLaunchLifecycleEventsInput>
+}
+
+export type UserUpsertWithoutLaunchLifecycleEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedUpdateWithoutLaunchLifecycleEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedCreateWithoutLaunchLifecycleEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutLaunchLifecycleEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutLaunchLifecycleEventsInput, Prisma.UserUncheckedUpdateWithoutLaunchLifecycleEventsInput>
+}
+
+export type UserUpdateWithoutLaunchLifecycleEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUpdateManyWithoutUserNestedInput
+  products?: Prisma.ProductUpdateManyWithoutUserNestedInput
+  productDrafts?: Prisma.ProductDraftUpdateManyWithoutUserNestedInput
+  ProductUpvote?: Prisma.ProductUpvoteUpdateManyWithoutUserNestedInput
+  purchases?: Prisma.UserPlanPurchaseUpdateManyWithoutUserNestedInput
+  rewardBalance?: Prisma.RewardBalanceUpdateOneWithoutUserNestedInput
+  rewardTransactions?: Prisma.RewardTransactionUpdateManyWithoutUserNestedInput
+  rewardTransactionsActed?: Prisma.RewardTransactionUpdateManyWithoutActedByNestedInput
+  redemptions?: Prisma.RedemptionUpdateManyWithoutUserNestedInput
+  featureEntitlements?: Prisma.FeatureEntitlementUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutLaunchLifecycleEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clerkId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  roleIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heardFrom?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  suspendedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  terminatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  analyticsConversions?: Prisma.AnalyticsConversionUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   productDrafts?: Prisma.ProductDraftUncheckedUpdateManyWithoutUserNestedInput
   ProductUpvote?: Prisma.ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
@@ -1991,6 +2180,7 @@ export type UserUncheckedUpdateWithoutAnalyticsConversionsInput = {
  */
 
 export type UserCountOutputType = {
+  launchLifecycleEvents: number
   analyticsConversions: number
   products: number
   productDrafts: number
@@ -2003,6 +2193,7 @@ export type UserCountOutputType = {
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  launchLifecycleEvents?: boolean | UserCountOutputTypeCountLaunchLifecycleEventsArgs
   analyticsConversions?: boolean | UserCountOutputTypeCountAnalyticsConversionsArgs
   products?: boolean | UserCountOutputTypeCountProductsArgs
   productDrafts?: boolean | UserCountOutputTypeCountProductDraftsArgs
@@ -2022,6 +2213,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountLaunchLifecycleEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LaunchLifecycleEventWhereInput
 }
 
 /**
@@ -2104,6 +2302,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   terminatedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  launchLifecycleEvents?: boolean | Prisma.User$launchLifecycleEventsArgs<ExtArgs>
   analyticsConversions?: boolean | Prisma.User$analyticsConversionsArgs<ExtArgs>
   products?: boolean | Prisma.User$productsArgs<ExtArgs>
   productDrafts?: boolean | Prisma.User$productDraftsArgs<ExtArgs>
@@ -2173,6 +2372,7 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "acquisitionContext" | "status" | "onboardedAt" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  launchLifecycleEvents?: boolean | Prisma.User$launchLifecycleEventsArgs<ExtArgs>
   analyticsConversions?: boolean | Prisma.User$analyticsConversionsArgs<ExtArgs>
   products?: boolean | Prisma.User$productsArgs<ExtArgs>
   productDrafts?: boolean | Prisma.User$productDraftsArgs<ExtArgs>
@@ -2191,6 +2391,7 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    launchLifecycleEvents: Prisma.$LaunchLifecycleEventPayload<ExtArgs>[]
     analyticsConversions: Prisma.$AnalyticsConversionPayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
     productDrafts: Prisma.$ProductDraftPayload<ExtArgs>[]
@@ -2612,6 +2813,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  launchLifecycleEvents<T extends Prisma.User$launchLifecycleEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$launchLifecycleEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LaunchLifecycleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   analyticsConversions<T extends Prisma.User$analyticsConversionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$analyticsConversionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalyticsConversionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.User$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productDrafts<T extends Prisma.User$productDraftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productDraftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3056,6 +3258,30 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
+}
+
+/**
+ * User.launchLifecycleEvents
+ */
+export type User$launchLifecycleEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LaunchLifecycleEvent
+   */
+  select?: Prisma.LaunchLifecycleEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LaunchLifecycleEvent
+   */
+  omit?: Prisma.LaunchLifecycleEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LaunchLifecycleEventInclude<ExtArgs> | null
+  where?: Prisma.LaunchLifecycleEventWhereInput
+  orderBy?: Prisma.LaunchLifecycleEventOrderByWithRelationInput | Prisma.LaunchLifecycleEventOrderByWithRelationInput[]
+  cursor?: Prisma.LaunchLifecycleEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LaunchLifecycleEventScalarFieldEnum | Prisma.LaunchLifecycleEventScalarFieldEnum[]
 }
 
 /**

@@ -1,3 +1,4 @@
+import { recordFirstPublication } from "@/lib/server/analytics/launchLifecycle"
 import prisma from "@/lib/prisma"
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 import {
@@ -240,6 +241,7 @@ export async function projectEffectiveProductPlanGrant(
         subscriptionId: true,
         status: true,
         publishedAt: true,
+        userId: true,
       },
     }),
     tx.productPlanGrant.findMany({
@@ -322,6 +324,8 @@ export async function projectEffectiveProductPlanGrant(
       },
     })
   }
+
+  if (shouldPublish) await recordFirstPublication(tx, product, now)
 
   const boundarySchedule = await ensureProductPlanGrantBoundaryEvents(tx, {
     productId,

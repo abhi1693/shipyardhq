@@ -165,7 +165,11 @@ export interface OnboardingOutcomeDeltaItem {
 }
 
 export type IntentOutcomeStageKey =
-  "shippedProduct" | "upvotedProduct" | "purchasedPlan"
+  | "submissionStarted"
+  | "submissionCompleted"
+  | "shippedProduct"
+  | "upvotedProduct"
+  | "purchasedPlan"
 
 export interface IntentOutcomeStageSpeedBucket {
   label: string
@@ -180,6 +184,7 @@ export interface IntentOutcomeStageMetrics {
   description: string
   count: number
   percentage: number
+  timingSampleSize: number
   medianDaysToComplete: number | null
   speedBuckets: IntentOutcomeStageSpeedBucket[]
 }
@@ -196,6 +201,8 @@ export interface IntentOutcomeRetentionMetrics {
 }
 
 export interface IntentOutcomeCohort {
+  acquisitionLanding: string | null
+  acquisitionSource: string | null
   id: string
   roleIntent: string | null
   roleIntentLabel: string
@@ -262,6 +269,7 @@ export interface LeaderboardRangeAnalytics {
 }
 
 export interface IntentOutcomeSummary {
+  legacyProductsWithUnknownHistory: number
   totalUsers: number
   totalCohorts: number
   stageMetrics: IntentOutcomeStageMetrics[]
