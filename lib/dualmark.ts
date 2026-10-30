@@ -1,6 +1,7 @@
 import type { DualmarkNextConfig } from "@dualmark/nextjs"
 import { slugToTitle, type LlmsTxtSection } from "@dualmark/core"
 
+import { guideProvenanceMarkdown } from "@/lib/guides/provenance"
 import { GUIDES, type GuideDefinition } from "@/lib/guides/catalog"
 import { PUBLIC_CONTENT_CACHE_CONTROL } from "@/lib/public-cache"
 import {
@@ -156,6 +157,8 @@ function guideMarkdownPage(guide: GuideDefinition) {
     render: () =>
       [
         `# ${guide.title}`,
+        "",
+        ...guideProvenanceMarkdown(guide),
         "",
         guide.lede,
         "",
