@@ -1,3 +1,4 @@
+import { LaunchChannelComparison } from "@/components/organisms/LaunchChannelComparison"
 import Link from "next/link"
 import { type ComponentType } from "react"
 import {
@@ -110,37 +111,6 @@ const MAKER_SWITCH_REASONS: MakerSwitchReason[] = [
       label: "Shipyard Analytics",
       href: ANALYTICS_PATH,
     },
-  },
-]
-
-const COMPARISON_POINTS = [
-  {
-    feature: "Standard listing",
-    shipyard:
-      "A free public product page plus standard directory and launch-feed eligibility.",
-    others:
-      "Launch access, review rules, and free-listing benefits vary by platform.",
-  },
-  {
-    feature: "Discovery window",
-    shipyard:
-      "Listings remain connected to product, category, use-case, alternative, and leaderboard pages.",
-    others:
-      "A leaderboard-first launch can concentrate most attention into a short ranking window.",
-  },
-  {
-    feature: "Search footprint",
-    shipyard:
-      "Canonical product data, structured markup, sitemap inclusion, and related discovery pages that help buyers understand each product.",
-    others:
-      "Search visibility depends on each platform's product-page and indexing model.",
-  },
-  {
-    feature: "Measurement",
-    shipyard:
-      "Product visits, website clicks, votes, rankings, traffic trends, and crawler attention live beside the launch.",
-    others:
-      "Available analytics and attribution differ across launch platforms.",
   },
 ]
 
@@ -289,31 +259,8 @@ export default function WhyShipyardPage() {
             title="Shipyard compared with a launch-day-only model"
             description="The useful difference is not a bigger claim. It is whether the listing stays discoverable, measurable, and free to start after launch day."
           />
-          <div className="mt-12 overflow-x-auto rounded-xl border border-[#e2e8f0] bg-white shadow-sm">
-            <table className="w-full min-w-[760px] border-collapse">
-              <thead>
-                <tr className="bg-[#f8fafc]">
-                  <TableHead>Focus</TableHead>
-                  <TableHead className="text-[#0051d5]">Shipyard</TableHead>
-                  <TableHead>Single-day launch model</TableHead>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e2e8f0]">
-                {COMPARISON_POINTS.map((row) => (
-                  <tr key={row.feature}>
-                    <td className="p-6 text-xs font-semibold uppercase text-[#43474c]">
-                      {row.feature}
-                    </td>
-                    <td className="p-6 text-sm font-bold leading-6 text-[#0051d5]">
-                      {row.shipyard}
-                    </td>
-                    <td className="p-6 text-sm leading-6 text-[#43474c]">
-                      {row.others}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-10">
+            <LaunchChannelComparison />
           </div>
         </section>
 
@@ -461,25 +408,6 @@ function MakerReasonTile({ reason }: { reason: MakerSwitchReason }) {
         )}
       </p>
     </article>
-  )
-}
-
-function TableHead({
-  children,
-  className,
-}: {
-  children: React.ReactNode
-  className?: string
-}) {
-  return (
-    <th
-      className={cn(
-        "border-b border-[#e2e8f0] p-6 text-left text-xs font-semibold uppercase text-[#43474c]",
-        className,
-      )}
-    >
-      {children}
-    </th>
   )
 }
 
