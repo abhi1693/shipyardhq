@@ -1,3 +1,4 @@
+import { acquisitionFromCheckoutMetadata } from "@/lib/analytics/acquisition"
 import { NextResponse } from "next/server"
 
 import { dodoClient } from "@/lib/dodo"
@@ -92,10 +93,13 @@ export async function POST(req: Request) {
           reason: grantResult.reason,
         })
 
-        const customerId = payment.customer?.customer_id
-        if (customerId) {
+        const localUserId =
+          typeof payment.metadata?.userId === "string"
+            ? payment.metadata.userId
+            : undefined
+        if (localUserId) {
           await trackPlanPurchaseInGa({
-            userId: customerId,
+            userId: localUserId,
             paymentId: payment.payment_id,
             payment,
           })
@@ -122,7 +126,12 @@ export async function POST(req: Request) {
         })
 
         await trackRefundInGa({
-          userId: refund.customer?.customer_id,
+          userId:
+            typeof payment.metadata?.userId === "string"
+              ? payment.metadata.userId
+              : undefined,
+          refundId: refund.refund_id,
+          context: acquisitionFromCheckoutMetadata(payment.metadata),
           transactionId: refund.payment_id || refund.refund_id,
           amountCents: typeof refund.amount === "number" ? refund.amount : null,
           currency: refund.currency,

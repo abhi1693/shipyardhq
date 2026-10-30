@@ -1,21 +1,15 @@
-import { randomUUID } from "crypto"
-
 import type { Payments } from "dodopayments/resources/payments"
 import type { Subscription as DodoSubscription } from "dodopayments/resources/subscriptions"
-
-import { IS_PROD } from "@/lib/constants"
 import { dodoClient } from "@/lib/dodo"
-
-const MEASUREMENT_ID = process.env.GOOGLE_ANALYTICS_ID?.trim()
-const API_SECRET = process.env.GOOGLE_ANALYTICS_API_SECRET?.trim()
-const GA_ENDPOINT = IS_PROD
-  ? "https://www.google-analytics.com/mp/collect"
-  : "https://www.google-analytics.com/debug/mp/collect"
-
-const hasGaConfig = () => Boolean(MEASUREMENT_ID && API_SECRET)
+import {
+  acquisitionFromCheckoutMetadata,
+  type AcquisitionContext,
+} from "@/lib/analytics/acquisition"
+import { sendAttributedGaEvent } from "@/lib/server/analytics/attributedEvents"
 
 type TrackInput = {
   userId: string
+  context?: AcquisitionContext
   paymentId?: string
   payment?: Payments.Payment
   subscriptionId?: string
@@ -23,122 +17,51 @@ type TrackInput = {
 }
 
 export async function trackPlanPurchaseInGa(input: TrackInput) {
-  if (!hasGaConfig()) return
-  if (!input.paymentId?.trim() && !input.subscriptionId?.trim()) return
-
-  const measurementId = MEASUREMENT_ID!
-  const apiSecret = API_SECRET!
-
+  if (!input.paymentId?.trim()) return
   try {
     const payload = await buildPurchasePayload(input)
     if (!payload) return
-
-    const body = {
-      client_id: randomUUID(),
-      user_id: input.userId,
-      events: [
-        {
-          name: "purchase",
-          params: payload,
-        },
-      ],
-    }
-
-    console.info(
-      "[analytics] GA purchase request body",
-      JSON.stringify(body, null, 2),
-    )
-
-    const response = await fetch(
-      `${GA_ENDPOINT}?measurement_id=${encodeURIComponent(measurementId)}&api_secret=${encodeURIComponent(apiSecret)}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      },
-    )
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "")
-      console.error("[analytics] failed to record GA plan purchase", {
-        status: response.status,
-        body: errorText?.slice?.(0, 256),
-      })
-    }
-  } catch (error) {
-    console.error("[analytics] GA plan purchase request threw", error)
+    return await sendAttributedGaEvent({
+      key: `purchase:${input.paymentId}`,
+      userId: input.userId,
+      name: "purchase",
+      context:
+        input.context ??
+        acquisitionFromCheckoutMetadata(input.payment?.metadata),
+      params: payload,
+    })
+  } catch {
+    return
   }
 }
 
 export async function trackRefundInGa(input: {
   userId?: string
   transactionId: string
+  refundId?: string
   amountCents?: number | null
   currency?: string | null
   coupon?: string | null
   shippingCents?: number | null
+  context?: AcquisitionContext
 }) {
-  if (!hasGaConfig()) return
-  if (!input.transactionId?.trim()) return
-
-  const measurementId = MEASUREMENT_ID!
-  const apiSecret = API_SECRET!
-  const currency = (input.currency || "USD").toUpperCase()
-  const valueCents =
-    typeof input.amountCents === "number" && input.amountCents > 0
-      ? input.amountCents
-      : undefined
-  const shipping =
-    typeof input.shippingCents === "number" && input.shippingCents > 0
-      ? input.shippingCents / 100
-      : undefined
-
-  const params: Record<string, any> = {
-    transaction_id: input.transactionId,
-    currency,
-    ...(typeof valueCents === "number" && valueCents > 0
-      ? { value: valueCents / 100 }
-      : {}),
-    ...(typeof shipping === "number" ? { shipping } : {}),
-    ...(input.coupon ? { coupon: input.coupon } : {}),
-  }
-
-  const body: Record<string, any> = {
-    client_id: randomUUID(),
-    ...(input.userId ? { user_id: input.userId } : {}),
-    events: [
-      {
-        name: "refund",
-        params,
-      },
-    ],
-  }
-
-  console.info(
-    "[analytics] GA refund request body",
-    JSON.stringify(body, null, 2),
-  )
-
-  try {
-    const response = await fetch(
-      `${GA_ENDPOINT}?measurement_id=${encodeURIComponent(measurementId)}&api_secret=${encodeURIComponent(apiSecret)}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      },
-    )
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "")
-      console.error("[analytics] failed to record GA refund", {
-        status: response.status,
-        body: errorText?.slice?.(0, 256),
-      })
-    }
-  } catch (error) {
-    console.error("[analytics] GA refund request threw", error)
-  }
+  if (!input.userId || !input.refundId || !input.transactionId.trim()) return
+  return sendAttributedGaEvent({
+    key: `refund:${input.refundId}`,
+    userId: input.userId,
+    name: "refund",
+    context: input.context,
+    params: {
+      transaction_id: input.transactionId,
+      ...(input.currency ? { currency: input.currency.toUpperCase() } : {}),
+      ...(typeof input.amountCents === "number"
+        ? { value: input.amountCents / 100 }
+        : {}),
+      ...(typeof input.shippingCents === "number"
+        ? { shipping: input.shippingCents / 100 }
+        : {}),
+    },
+  })
 }
 
 async function buildPurchasePayload(input: TrackInput) {
@@ -151,6 +74,14 @@ async function buildPurchasePayload(input: TrackInput) {
   }
 
   return null
+}
+
+function safeCoupon(value?: string) {
+  return value &&
+    /^[a-z0-9_-]{1,40}$/i.test(value) &&
+    !/(?:secret|token|password|^sk[-_])/i.test(value)
+    ? value
+    : undefined
 }
 
 function textValue(value: unknown): string | undefined {
@@ -180,21 +111,29 @@ async function buildFromPayment(input: TrackInput) {
     }
   }
   if (!payment) return null
-  if (payment.status && payment.status !== "succeeded") return null
+  if (payment.status !== "succeeded") return null
 
-  const coupon =
+  const candidateCoupon =
     metadataTextValue(payment.metadata, "discount_code") ||
     metadataTextValue(payment.metadata, "coupon") ||
     textValue(payment.discounts?.[0]?.code) ||
     textValue(payment.discounts?.[0]?.discount_id) ||
     undefined
+  const coupon = safeCoupon(candidateCoupon)
 
   const lineItems = await dodoClient.payments
     .retrieveLineItems(payment.payment_id)
     .catch(() => null)
 
-  const currency = (payment.currency || "USD").toUpperCase()
-  const totalAmountCents = Number(payment.total_amount ?? 0)
+  if (
+    !payment.currency ||
+    typeof payment.total_amount !== "number" ||
+    !Number.isFinite(payment.total_amount) ||
+    payment.total_amount < 0
+  )
+    return null
+  const currency = payment.currency.toUpperCase()
+  const totalAmountCents = payment.total_amount
   const taxCents =
     typeof payment.tax === "number" ? Math.max(0, payment.tax) : undefined
   const shippingCents =
@@ -285,11 +224,7 @@ async function buildFromPayment(input: TrackInput) {
         try {
           const product = await dodoClient.products.retrieve(id)
           productNameById.set(id, product?.name || undefined)
-        } catch (error) {
-          console.error(
-            `[analytics] failed to lookup product ${id} for GA`,
-            error,
-          )
+        } catch {
           productNameById.set(id, undefined)
         }
       }),
@@ -359,11 +294,12 @@ async function buildFromSubscription(input: TrackInput) {
   const quantity = subscription.quantity > 0 ? subscription.quantity : 1
   const totalAmountCents = perUnitCents * quantity
 
-  const coupon =
+  const candidateCoupon =
     metadataTextValue(subscription.metadata, "discount_code") ||
     metadataTextValue(subscription.metadata, "coupon") ||
     undefined
   const planSlug = metadataTextValue(subscription.metadata, "planSlug")
+  const coupon = safeCoupon(candidateCoupon)
 
   let productName: string | undefined
   if (subscription.product_id) {

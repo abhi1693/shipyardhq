@@ -1174,7 +1174,14 @@ export async function getMonthlyTopRankedProducts(args?: {
               category: true,
               analytics: true,
               ProductBadge: true,
-              user: true,
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  clerkId: true,
+                },
+              },
             },
           },
         },

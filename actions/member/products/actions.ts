@@ -1,5 +1,11 @@
 "use server"
 
+import { acquisitionCheckoutMetadata } from "@/lib/analytics/acquisition"
+import {
+  readAcquisitionContext,
+  saveUserAcquisition,
+} from "@/lib/server/analytics/acquisitionContext"
+
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
@@ -379,7 +385,14 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
         email: user.email,
         name: `${user.firstName} ${user.lastName}`.trim(),
       },
-      metadata: { productId, planId, userId: user.id },
+      metadata: {
+        productId,
+        planId,
+        userId: user.id,
+        ...acquisitionCheckoutMetadata(
+          await saveUserAcquisition(user.id, await readAcquisitionContext()),
+        ),
+      },
       returnUrl: returnUrl.toString(),
     })
     return { redirectUrl: checkout.url }

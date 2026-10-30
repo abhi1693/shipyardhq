@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
             subtitle={`Learn how ${BRAND_NAME} collects, uses, and protects your personal information.`}
           />
           <div className="mt-6 space-y-6">
-            <p className="text-muted-foreground">Last updated: Sep 8, 2026</p>
+            <p className="text-muted-foreground">Last updated: Oct 31, 2026</p>
 
             <p>
               {BRAND_NAME} builds tools that help independent founders and
@@ -90,6 +90,17 @@ export default function PrivacyPolicyPage() {
                     actions. Traffic events record device type, browser,
                     operating system, referrer, and coarse geolocation (country,
                     region, and city) derived from request headers.
+                  </li>
+                  <li id="conversion-attribution">
+                    <strong>Conversion attribution:</strong> When available, we
+                    use analytics browser and session identifiers, the public
+                    landing page, and coarse acquisition source to connect a
+                    visit to a successful Shipyard signup or purchase. We keep
+                    first-touch attribution separate from the conversion visit.
+                    These server-side events do not include account email
+                    addresses, authentication credentials, or raw URL query
+                    strings. The first-party attribution cookie expires after
+                    180 days.
                   </li>
                   <li>
                     <strong>Network data:</strong> We hash IP addresses using a

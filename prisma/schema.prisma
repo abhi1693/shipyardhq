@@ -678,29 +678,31 @@ model ProductUpvote {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  clerkId      String     @unique
-  email        String     @unique
-  firstName    String
-  lastName     String
-  role         String     @default("member")
-  roleIntent   String? // Why they signed up
-  heardFrom    String? // How they heard about us
-  status       UserStatus @default(active)
-  onboardedAt  DateTime?
-  suspendedAt  DateTime?
-  terminatedAt DateTime?
+  id                 String     @id @default(cuid())
+  clerkId            String     @unique
+  email              String     @unique
+  firstName          String
+  lastName           String
+  role               String     @default("member")
+  roleIntent         String? // Why they signed up
+  heardFrom          String? // How they heard about us
+  acquisitionContext Json? // First touch and conversion visit; no raw query strings or personal profile data
+  status             UserStatus @default(active)
+  onboardedAt        DateTime?
+  suspendedAt        DateTime?
+  terminatedAt       DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  analyticsConversions    AnalyticsConversion[]
   products                Product[]
   productDrafts           ProductDraft[]
   ProductUpvote           ProductUpvote[]
   purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
-  rewardTransactions      RewardTransaction[]  @relation("RewardUserTransactions")
-  rewardTransactionsActed RewardTransaction[]  @relation("RewardTransactionActor")
+  rewardTransactions      RewardTransaction[]   @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]   @relation("RewardTransactionActor")
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
 
@@ -1243,4 +1245,18 @@ enum EventAttemptStatus {
   succeeded
   failed
   timed_out
+}
+
+model AnalyticsConversion {
+  key       String   @id
+  userId    String
+  eventName String
+  payload   Json
+  status    String   @default("attempting")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
 }
