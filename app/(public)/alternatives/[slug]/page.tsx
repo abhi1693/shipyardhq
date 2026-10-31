@@ -1,3 +1,4 @@
+import { getAlternativeSeoDescription } from "@/lib/seo/editorial-metadata"
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
@@ -18,7 +19,7 @@ import { TaxonomyDetailPage } from "@/components/templates/public/common/Taxonom
 import { TaxonomyTrafficStatsSidebar } from "@/components/templates/public/common/TaxonomyTrafficStatsSidebar"
 import { getTaxonomySponsorProducts } from "@/components/templates/public/common/taxonomy-sponsors"
 import { resolveTaxonomyReferenceDateIso } from "@/components/templates/public/common/TaxonomyProductRows"
-import { buildMetaDescription, buildPageMetadata } from "@/lib/metadata"
+import { buildPageMetadata } from "@/lib/metadata"
 import {
   ALTERNATIVES_PATH,
   HOME_PATH,
@@ -64,20 +65,11 @@ export async function generateMetadata({
       ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors`
       : `Best ${alternative.name} Alternatives & Competitors`
 
-  const fallbackDescription =
-    linkedCount > 0
-      ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders.`
-      : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders.`
-  const generatedDescription =
-    linkedCount > 0
-      ? `Compare ${linkedCount} ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard.`
-      : `Compare ${alternative.name} alternatives, competitors, and replacement products curated for founders on Shipyard.`
-  const description =
-    buildMetaDescription(
-      alternative.description,
-      generatedDescription,
-      fallbackDescription,
-    ) ?? fallbackDescription
+  const description = getAlternativeSeoDescription({
+    slug,
+    name: alternative.name,
+    count: linkedCount,
+  })
   const canonical = alternativePath(slug)
 
   const keywordPhrases = [
