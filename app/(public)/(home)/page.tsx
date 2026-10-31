@@ -4,6 +4,7 @@ import {
   getDiscountedPriceCents,
 } from "@/lib/pricing/offer"
 import Link from "next/link"
+import { Suspense } from "react"
 import {
   ArrowRight,
   BarChart3,
@@ -255,7 +256,18 @@ export default function HomePage() {
       {/* TODO: Add 2–3 approved maker testimonials here, including unpaid
           listings. Each needs the maker name, product, listing URL, exact quote,
           verified website clicks, and reporting dates. Do not use sample quotes. */}
-      <HomepageDataSections />
+      <Suspense
+        fallback={
+          <div
+            role="status"
+            className="mx-auto max-w-7xl px-4 py-12 text-sm text-slate-600 sm:px-6 lg:px-8"
+          >
+            Loading products and launch highlights…
+          </div>
+        }
+      >
+        <HomepageDataSections />
+      </Suspense>
     </div>
   )
 }
