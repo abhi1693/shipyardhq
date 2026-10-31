@@ -3,10 +3,13 @@
 import Image, { type ImageProps } from "next/image"
 import { useState } from "react"
 
+import shipyardImageLoader from "@/imageLoader"
+
 import { cn } from "@/lib/utils"
 
 type ProductLogoImageProps = Omit<ImageProps, "alt" | "src"> & {
   name: string
+  optimizationWidth?: number
   src?: string | null
   fallbackClassName?: string
 }
@@ -47,6 +50,7 @@ export function ProductLogoImage({
   name,
   src,
   fallbackClassName,
+  optimizationWidth,
   onError,
   ...props
 }: ProductLogoImageProps) {
@@ -72,6 +76,12 @@ export function ProductLogoImage({
   return (
     <Image
       {...props}
+      loader={
+        optimizationWidth
+          ? ({ src, quality }) =>
+              shipyardImageLoader({ src, width: optimizationWidth, quality })
+          : props.loader
+      }
       src={resolvedSrc}
       alt={`${name} logo`}
       onError={(event) => {

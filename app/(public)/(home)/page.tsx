@@ -1,4 +1,10 @@
+import { getPublicPlans } from "@/actions/public/plans/actions"
+import {
+  formatPricingOfferPrice,
+  getDiscountedPriceCents,
+} from "@/lib/pricing/offer"
 import Link from "next/link"
+import { Suspense } from "react"
 import {
   ArrowRight,
   BarChart3,
@@ -6,11 +12,8 @@ import {
   Compass,
   Megaphone,
   MousePointerClick,
-  Rocket,
-  Search,
   TrendingUp,
   Trophy,
-  Wrench,
 } from "lucide-react"
 
 import {
@@ -32,13 +35,10 @@ import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
-  GUIDES_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_ADD_PATH,
   PRICING_PATH,
-  TOOLS_PATH,
-  WHY_SHIPYARD_PATH,
   guidePath,
   productCardPath,
 } from "@/lib/routes"
@@ -106,38 +106,6 @@ const HOMEPAGE_VALUE_POINTS = [
     icon: BookOpen,
     title: "Use the founder playbook",
     body: "Plain-English launch guides and free tools help you prepare the page, message, and follow-up before you promote.",
-  },
-] as const
-
-const HOMEPAGE_EXPLORE_LINKS = [
-  {
-    icon: Compass,
-    label: "Discover",
-    title: "Browse new products",
-    body: "Fresh launches, useful categories, and independent tools.",
-    href: BROWSE_PATH,
-  },
-  {
-    icon: Rocket,
-    label: "Launch",
-    title: "Submit your product",
-    body: "Start with a free public listing and join the live feed.",
-    href: MEMBER_PRODUCTS_ADD_PATH,
-    prefetch: false,
-  },
-  {
-    icon: BookOpen,
-    label: "Learn",
-    title: "Follow founder guides",
-    body: "Plan launch day, directory outreach, and durable discovery.",
-    href: GUIDES_PATH,
-  },
-  {
-    icon: Wrench,
-    label: "Improve",
-    title: "Use free launch tools",
-    body: "Polish search previews, social cards, and launch assets.",
-    href: TOOLS_PATH,
   },
 ] as const
 
@@ -215,9 +183,11 @@ function ProductLogo({
       <ProductLogoImage
         src={shouldRenderLogo ? logo : null}
         name={product.name}
-        width={80}
-        height={80}
-        loading="eager"
+        optimizationWidth={96}
+        width={96}
+        height={96}
+        sizes="48px"
+        loading="lazy"
         className="h-full w-full object-cover"
         fallbackClassName="bg-transparent text-white"
       />
@@ -242,83 +212,27 @@ function HomepageHero() {
         </h1>
 
         <p className="mt-6 max-w-[760px] text-base leading-7 text-[#43474c]">
-          Shipyard turns a launch into ongoing discovery with live product
-          feeds, useful browse paths, public rankings, and analytics that follow
-          attention from the first page view to the website click.
+          List your product free, get in front of people actively looking for
+          new tools, and see exactly how many visits and website clicks you
+          earn.
         </p>
-
-        <Link
-          href={WHY_SHIPYARD_PATH}
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#0051d5] underline decoration-[#0051d5]/30 underline-offset-4 hover:text-[#0048bf]"
-        >
-          See how Shipyard drives discovery
-          <ArrowRight className="size-4" aria-hidden />
-        </Link>
-
-        <form
-          action={BROWSE_PATH}
-          className="mt-9 flex w-full max-w-[720px] flex-col gap-2 rounded-xl border border-[#c4c6cd] bg-white p-1.5 shadow-sm focus-within:border-[#0051d5] focus-within:ring-2 focus-within:ring-[#0051d5]/10 sm:flex-row sm:items-center sm:gap-0"
-          method="get"
-        >
-          <div className="flex min-w-0 flex-1 items-center">
-            <Search
-              className="ml-3 size-5 shrink-0 text-[#64748B]"
-              aria-hidden
-            />
-            <label className="sr-only" htmlFor="homepage-product-search">
-              Search products, categories, and tools
-            </label>
-            <input
-              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-base text-[#0b1c30] outline-none placeholder:text-[#74777d]"
-              id="homepage-product-search"
-              name="q"
-              placeholder="Search products, categories, and tools"
-              type="search"
-            />
-          </div>
-          <Button
-            className="h-11 w-full rounded-lg border-0 bg-black px-5 text-sm font-semibold text-white shadow-none hover:bg-black/90 sm:h-10 sm:w-auto"
-            type="submit"
-          >
-            Search
-          </Button>
-        </form>
 
         <div className="mt-6 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center">
           <Button
             asChild
             className="h-12 w-full rounded-lg border-0 bg-black px-7 text-sm font-semibold text-white shadow-none hover:bg-black/90 sm:w-auto"
           >
-            <Link href={BROWSE_PATH}>Browse products</Link>
+            <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+              Submit your product free
+            </Link>
           </Button>
           <Button
             asChild
             className="h-12 w-full rounded-lg border border-[#c4c6cd] bg-white px-7 text-sm font-semibold text-black shadow-none hover:bg-[#F8FAFC] sm:w-auto"
           >
-            <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
-              Submit your product
-            </Link>
+            <Link href={BROWSE_PATH}>Browse products</Link>
           </Button>
         </div>
-
-        <nav
-          aria-label="Explore Shipyard"
-          className="mt-9 grid w-full max-w-sm grid-cols-2 gap-x-4 gap-y-3 border-t border-[#E2E8F0] pt-5 text-xs text-[#43474c] sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-6 sm:gap-y-2"
-        >
-          {HOMEPAGE_EXPLORE_LINKS.map((item, index) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              prefetch={"prefetch" in item ? item.prefetch : undefined}
-              className="inline-flex items-center justify-center gap-2 font-medium hover:text-black"
-            >
-              {index > 0 ? (
-                <span className="mr-4 hidden size-1 rounded-full bg-[#CBD5E1] sm:inline-block" />
-              ) : null}
-              {item.title}
-            </Link>
-          ))}
-        </nav>
       </div>
     </section>
   )
@@ -339,7 +253,21 @@ export default function HomePage() {
       />
 
       <HomepageHero />
-      <HomepageDataSections />
+      {/* TODO: Add 2–3 approved maker testimonials here, including unpaid
+          listings. Each needs the maker name, product, listing URL, exact quote,
+          verified website clicks, and reporting dates. Do not use sample quotes. */}
+      <Suspense
+        fallback={
+          <div
+            role="status"
+            className="mx-auto max-w-7xl px-4 py-12 text-sm text-slate-600 sm:px-6 lg:px-8"
+          >
+            Loading products and launch highlights…
+          </div>
+        }
+      >
+        <HomepageDataSections />
+      </Suspense>
     </div>
   )
 }
@@ -491,12 +419,9 @@ async function HomepageDataSections() {
               >
                 {launch ? (
                   <>
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-[#D7DEE8]/70 bg-white/30"
-                    >
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex w-14 items-center justify-center border-r border-[#D7DEE8]/70 bg-white/30">
                       <span
-                        className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.22em] text-[#64748B]"
+                        className="rounded border border-[#9A3412] bg-white px-2 py-1 text-xs font-semibold text-[#9A3412]"
                         style={{
                           writingMode: "vertical-rl",
                           transform: "rotate(180deg)",
@@ -612,6 +537,17 @@ async function HomepageDataSections() {
               </article>
 
               <div className="border-t border-[#E2E8F0] bg-[#f8f9ff] p-4 @[1024px]/public-ad:border-l @[1024px]/public-ad:border-t-0">
+                <h3 className="mb-3 text-sm font-semibold text-[#0b1c30]">
+                  Across Shipyard
+                </h3>
+                <p className="mb-4 text-xs leading-5 text-[#43474c]">
+                  Visitors and tracked website clicks across Shipyard over{" "}
+                  {trafficWindowLabel.toLowerCase()}. Products and builders are
+                  platform totals, not this launch’s results.
+                </p>
+                {/* TODO: Add a verified Pro launch case study with product-level
+                    visitors, website clicks, reporting dates, and a listing link.
+                    Never attribute homepageStats to the sponsored product. */}
                 <div className="grid grid-cols-3 gap-3 border-b border-[#D7DEE8] pb-3 sm:gap-8">
                   {platformMetrics.map((metric) => (
                     <div
@@ -621,7 +557,7 @@ async function HomepageDataSections() {
                       <span className="text-lg font-bold leading-none text-black">
                         {formatPlatformMetric(metric.value)}
                       </span>
-                      <span className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#64748B]">
+                      <span className="text-xs font-semibold text-[#475569]">
                         {metric.label}
                       </span>
                     </div>
@@ -688,7 +624,12 @@ async function HomepageDataSections() {
               excludedSlug={launch?.slug}
               referenceDateIso={referenceDateIso}
               afterFirstSectionSlot={<HomepageWhyExistsSection />}
-              afterSecondSectionSlot={<HomepageVisibilityOptionsSection />}
+              afterSecondSectionSlot={
+                <>
+                  <HomepageVisibilityOptionsSection />
+                  <HomepagePlanComparison />
+                </>
+              }
             />
           </section>
         </div>
@@ -815,6 +756,58 @@ function HomepageVisibilityOptionsSection() {
           })}
         </div>
       </div>
+    </section>
+  )
+}
+
+async function HomepagePlanComparison() {
+  const plans = await getPublicPlans().catch(() => [])
+  const pro = plans.find(
+    (plan) =>
+      plan.name.toLowerCase() === "pro" && plan.type === "one_time_price",
+  )
+  return (
+    <section
+      aria-label="Free and Pro launch options"
+      className="mt-6 grid overflow-hidden rounded-2xl border border-[#D7DEE8] bg-white shadow-sm sm:grid-cols-2"
+    >
+      <article className="border-b border-[#E2E8F0] p-6 sm:border-b-0 sm:border-r sm:p-8">
+        <h3 className="text-2xl font-bold text-black">Free</h3>
+        <p className="mt-2 text-lg font-semibold text-black">$0</p>
+        <ul className="my-6 space-y-3 text-sm text-[#43474c]">
+          <li>Public product listing</li>
+          <li>Placement in the launch feed</li>
+          <li>Basic votes, visits, and website clicks</li>
+        </ul>
+        <Button asChild className="bg-black text-white hover:bg-black/90">
+          <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
+            Start free
+          </Link>
+        </Button>
+      </article>
+      <article className="bg-[#f8f9ff] p-6 sm:p-8">
+        <h3 className="text-2xl font-bold text-black">Pro</h3>
+        <p className="mt-2 text-lg font-semibold text-black">
+          {pro
+            ? `${formatPricingOfferPrice(getDiscountedPriceCents(pro))} one-time / product`
+            : "See current Pro pricing"}
+        </p>
+        {pro ? (
+          <p className="mt-1 text-sm text-[#43474c]">
+            Launch boost for {pro.boostForDays} days.
+          </p>
+        ) : null}
+        {/* TODO: Confirm the current Pro price if the public plan catalog is unavailable. */}
+        <ul className="my-6 space-y-3 text-sm text-[#43474c]">
+          <li>Everything in Free</li>
+          <li>Eligibility for the rotating homepage sponsored slot</li>
+          <li>AI crawler insights</li>
+          <li>Deeper launch analytics</li>
+        </ul>
+        <Button asChild variant="outline">
+          <Link href={PRICING_PLANS_PATH}>See Pro</Link>
+        </Button>
+      </article>
     </section>
   )
 }

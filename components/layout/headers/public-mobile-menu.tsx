@@ -115,7 +115,7 @@ export default function PublicMobileMenu() {
             >
               <Link href={MEMBER_PRODUCTS_ADD_PATH} prefetch={false}>
                 <PackagePlus className="size-4" aria-hidden />
-                Ship Product
+                Submit product
               </Link>
             </Button>
           </SheetClose>
