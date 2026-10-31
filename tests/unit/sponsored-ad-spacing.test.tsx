@@ -92,6 +92,20 @@ describe("Single Carbon placement with sponsored products", () => {
   })
   async function render(node: ReactNode) {
     await act(async () => root.render(node))
+    // Model the ad becoming visible; homepage ads intentionally wait for this.
+    await act(async () => {
+      for (const [target, callback] of intersections) {
+        if (
+          container.contains(target) &&
+          target.matches("[data-carbon-placement]")
+        ) {
+          callback(
+            [{ target, isIntersecting: true } as IntersectionObserverEntry],
+            {} as IntersectionObserver,
+          )
+        }
+      }
+    })
     await act(async () => {
       await vi.advanceTimersByTimeAsync(0)
     })

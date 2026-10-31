@@ -244,7 +244,7 @@ export default function PublicHeaderSearch() {
                     {item.image ? (
                       <Image
                         src={item.image}
-                        alt=""
+                        alt={`${item.label} logo`}
                         width={36}
                         height={36}
                         sizes="36px"

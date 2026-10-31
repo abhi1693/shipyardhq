@@ -7,7 +7,7 @@ import { CarbonAd } from "@/components/molecules/CarbonAd"
 import { CARBON_SERVING_ORIGIN } from "@/lib/ads/config"
 
 describe("Carbon loading hints in server HTML", () => {
-  it.each(["/", "/member/overview", "/member/products/example"])(
+  it.each(["/member/overview", "/member/products/example"])(
     "prepares %s before hydration without executing an ad",
     (pathname) => {
       const html = renderToStaticMarkup(
@@ -26,6 +26,15 @@ describe("Carbon loading hints in server HTML", () => {
     },
   )
 
+  it("does not fetch the homepage ad before it enters the viewport", () => {
+    const html = renderToStaticMarkup(
+      <CarbonAd pathname="/" variant="banner" />,
+    )
+    expect(html).not.toContain('rel="preload"')
+    expect(html).not.toContain('rel="preconnect"')
+    expect(html).toContain("data-carbon-placement")
+  })
+
   it("preloads the default placement on every screen", () => {
     const html = renderToStaticMarkup(<CarbonAd pathname="/browse" />)
     expect(html).toContain('rel="preload"')
@@ -43,8 +52,8 @@ describe("Carbon loading hints in server HTML", () => {
   it("deduplicates hints from multiple placements", () => {
     const html = renderToStaticMarkup(
       <>
-        <CarbonAd pathname="/" variant="banner" />
-        <CarbonAd pathname="/" variant="banner" />
+        <CarbonAd pathname="/browse" variant="banner" />
+        <CarbonAd pathname="/browse" variant="banner" />
       </>,
     )
     expect(html.match(/rel="preload"/g)).toHaveLength(1)

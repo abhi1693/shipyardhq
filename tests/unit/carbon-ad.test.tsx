@@ -14,9 +14,12 @@ describe("Standard Carbon embed", () => {
   let root: Root
   let container: HTMLDivElement
   let resize: () => void
+  let intersect: (entries: { isIntersecting: boolean }[]) => void
+  let intersections: (typeof intersect)[]
 
   beforeEach(() => {
     vi.useFakeTimers()
+    intersections = []
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(
       new DOMRect(0, 0, 360, 155),
     )
@@ -28,6 +31,23 @@ describe("Standard Carbon embed", () => {
         }
         observe() {}
         disconnect() {}
+      },
+    )
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        callback: typeof intersect
+        constructor(callback: typeof intersect) {
+          this.callback = callback
+          intersect = callback
+          intersections.push(callback)
+        }
+        observe() {}
+        disconnect() {
+          intersections = intersections.filter(
+            (callback) => callback !== this.callback,
+          )
+        }
       },
     )
     history.replaceState(null, "", "/browse")
@@ -53,6 +73,16 @@ describe("Standard Carbon embed", () => {
       await vi.advanceTimersByTimeAsync(0)
     })
   }
+
+  it("waits for the homepage placement to enter the viewport", async () => {
+    history.replaceState(null, "", "/")
+    await render(<CarbonAd pathname="/" variant="banner" />)
+    expect(container.querySelector("script")).toBeNull()
+    act(() => intersect([{ isIntersecting: true }]))
+    expect(container.querySelectorAll("script")).toHaveLength(1)
+    act(() => intersect([{ isIntersecting: true }]))
+    expect(container.querySelectorAll("script")).toHaveLength(1)
+  })
 
   it.each(["/member/overview", "/member/products/shipyard-hq"])(
     "loads one responsive ad on %s",
@@ -200,6 +230,7 @@ describe("Standard Carbon embed", () => {
   it("uses the production responsive embed for the mobile-enabled homepage slot", async () => {
     history.replaceState(null, "", "/")
     await render(<CarbonAd pathname="/" variant="banner" />)
+    act(() => intersect([{ isIntersecting: true }]))
     const script = container.querySelector("script")!
     expect(new URL(script.src).searchParams.get("serve")).toBe("CWBI4KJN")
     expect(new URL(script.src).searchParams.get("placement")).toBe(
@@ -218,6 +249,9 @@ describe("Standard Carbon embed", () => {
         <CarbonAd pathname="/" variant="banner" />
         <CarbonAd pathname="/" />
       </>,
+    )
+    act(() =>
+      intersections.forEach((callback) => callback([{ isIntersecting: true }])),
     )
     expect(container.querySelectorAll("[data-carbon-placement]")).toHaveLength(
       1,

@@ -24,14 +24,16 @@ export function CarbonAd({
   useEffect(() => {
     const container = containerRef.current
     if (!container || !eligible) return
+    let inView = pathname !== "/"
     let started = false
     let animationFrame: number | undefined
     let script: HTMLScriptElement | undefined
     const load = () => {
-      if (started || !container.getBoundingClientRect().width) return
+      if (started || !inView || !container.getBoundingClientRect().width) return
       if (!isCarbonAdPath(location.pathname) || !claimAdDocument()) return
       started = true
       observer.disconnect()
+      visibilityObserver?.disconnect()
       // Keep the claim for the document's lifetime, including no-fill, failure,
       // and remounts. A second component must never request another Carbon ad.
       if (
@@ -57,6 +59,14 @@ export function CarbonAd({
         load()
       })
     })
+    const visibilityObserver =
+      pathname === "/"
+        ? new IntersectionObserver((entries) => {
+            inView = entries.some((entry) => entry.isIntersecting)
+            if (inView) load()
+          })
+        : null
+    visibilityObserver?.observe(container)
     observer.observe(container)
     // Strict Mode's first setup is cleaned up before this task can request ads.
     const timer = window.setTimeout(load, 0)
@@ -66,6 +76,7 @@ export function CarbonAd({
         window.cancelAnimationFrame(animationFrame)
       }
       observer.disconnect()
+      visibilityObserver?.disconnect()
       script?.remove()
       container.replaceChildren()
     }
@@ -75,7 +86,7 @@ export function CarbonAd({
 
   // Fetch the runtime and warm its serving connection from the initial HTML.
   // Execution stays in the client effect, after visibility and document checks.
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" && pathname !== "/") {
     preconnect(CARBON_SERVING_ORIGIN, { crossOrigin: "anonymous" })
     preload(CARBON_SCRIPT_URL, {
       as: "script",
