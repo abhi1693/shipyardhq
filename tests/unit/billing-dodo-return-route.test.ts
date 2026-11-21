@@ -160,6 +160,28 @@ describe("Dodo billing return route", () => {
     error.mockRestore()
   })
 
+  it("correlates a recurring checkout returned with only a payment ID", async () => {
+    returnMocks.paymentRetrieve.mockResolvedValueOnce({
+      subscription_id: "sub_1",
+    })
+    returnMocks.subscriptionRetrieve.mockResolvedValueOnce({
+      subscription_id: "sub_1",
+      product_id: "dodo_pro",
+      metadata: { productId: PRODUCT_ID, planId: PLAN_ID },
+      status: "active",
+    })
+    returnMocks.syncSubscription.mockResolvedValueOnce({
+      outcome: "recorded",
+      productId: PRODUCT_ID,
+      grantId: "grant_1",
+    })
+    const response = await GET(returnRequest("enrollment=1&payment_id=pay_1"))
+    const params = new URL(response.headers.get("location")!).searchParams
+    expect(params.get("billingSubscription")).toMatch(/^[a-f0-9]{64}$/)
+    expect(params.has("billingOrder")).toBe(false)
+    expect(returnMocks.fulfillPayment).not.toHaveBeenCalled()
+  })
+
   it("keeps an unverified subscription change correlated to the provider target plan", async () => {
     returnMocks.subscriptionRetrieve.mockResolvedValueOnce({
       subscription_id: "sub_1",

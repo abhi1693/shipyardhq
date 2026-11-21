@@ -76,6 +76,7 @@ function buildContentSecurityPolicy() {
       "'unsafe-inline'",
       ...(isDev ? ["'unsafe-eval'"] : []),
       ...googleAnalyticsHosts,
+      "https://bzrcdn.openai.com",
       ...carbonScriptHosts,
       ...cloudflareInsightsHosts,
       ...clerkScriptHosts,
@@ -85,6 +86,8 @@ function buildContentSecurityPolicy() {
       "'self'",
       ...devConnectSources,
       ...googleAnalyticsHosts,
+      "https://bzr.openai.com",
+      "https://bzrcdn.openai.com",
       ...carbonConnectHosts,
       ...cloudflareInsightsHosts,
       ...clerkConnectHosts,
@@ -113,6 +116,15 @@ const htmlLimitedBots =
   /[\w-]+-Google|Google-[\w-]+|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight/i
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID:
+      process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID?.trim() ??
+      (process.env.NODE_ENV === "production" &&
+      process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, "") ===
+        "https://shipyardhq.dev"
+        ? "X8DjFaKVPmajGbjWgAw4AK"
+        : ""),
+  },
   output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,

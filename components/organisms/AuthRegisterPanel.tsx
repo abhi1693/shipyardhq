@@ -1,5 +1,6 @@
 "use client"
 
+import { measureRegistration } from "@/lib/analytics/openaiPixel"
 import Link from "next/link"
 import { useClerk, useSignUp } from "@clerk/nextjs"
 import type { OAuthStrategy } from "@clerk/nextjs/types"
@@ -163,6 +164,7 @@ export default function AuthRegisterPanel({
   const isBusy = pendingStrategy !== null
 
   async function completeSignUp() {
+    if (signUp.status === "complete") measureRegistration()
     let redirected = false
     let fallbackTimer: number | null = null
 

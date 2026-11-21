@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { Suspense } from "react"
 import { AdDocumentBoundary } from "@/components/molecules/AdDocumentBoundary"
+import { OpenAiAdsPixel } from "@/components/analytics/OpenAiAdsPixel"
 import { DeferredGoogleAnalytics } from "@/components/analytics/DeferredGoogleAnalytics"
 import { LazyToaster } from "@/components/atoms/lazy-toaster"
 import "./globals.css"
@@ -77,6 +78,9 @@ export default async function RootLayout({
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
         <Suspense fallback={null}>
           <AdDocumentBoundary />
+          {process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID?.trim() && (
+            <OpenAiAdsPixel />
+          )}
         </Suspense>
         <LazyToaster position="top-right" />
         {children}

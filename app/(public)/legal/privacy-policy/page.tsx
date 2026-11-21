@@ -1,3 +1,4 @@
+import { PixelPreference } from "@/components/analytics/OpenAiAdsPixel"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { CoreStructuredData } from "@/components/seo/CoreStructuredData"
 import { BRAND_NAME } from "@/lib/brand"
@@ -241,6 +242,9 @@ export default function PrivacyPolicyPage() {
                 for details. Our own sponsored launch placements are separate
                 from Carbon Ads.
               </p>
+              {process.env.NEXT_PUBLIC_OPENAI_ADS_PIXEL_ID?.trim() && (
+                <PixelPreference />
+              )}
               <p>
                 You can restrict cookies through your browser. Blocking
                 advertising cookies may change the ads you see but should not

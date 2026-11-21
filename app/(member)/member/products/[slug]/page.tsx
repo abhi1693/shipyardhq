@@ -11,7 +11,7 @@ import CopyButton from "@/components/molecules/CopyButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import { choosePlanAction } from "@/actions/member/products/actions"
+import { PlanCheckoutForm } from "@/components/molecules/PlanCheckoutForm"
 import {
   memberProductAnalyticsPath,
   memberProductDeletePath,
@@ -202,10 +202,10 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const choosePlan = choosePlanAction.bind(null, {
+  const checkoutContext = {
     productId,
     redirectPath: memberProductPath(productSlug),
-  })
+  }
   const upgradePath = memberProductUpgradePath(productSlug)
 
   const formatHost = (value?: string | null) => {
@@ -313,14 +313,6 @@ export default async function ViewUserProductPage({
     .filter((item) => item.key !== "publish")
     .every((item) => item.complete)
 
-  const publishAndBoost = async (formData: FormData) => {
-    "use server"
-    await choosePlanAction(
-      { productId, redirectPath: memberProductPath(productSlug) },
-      formData,
-    )
-  }
-
   const boostMode =
     product.status !== "published"
       ? publishPrereqsComplete
@@ -353,9 +345,6 @@ export default async function ViewUserProductPage({
     product.status === "published"
       ? "Starts immediately"
       : "Starts after publish"
-  const boostFormAction =
-    boostMode === "setup_before_publish" ? publishAndBoost : choosePlan
-
   const pageViews = trafficSummary?.totalViews ?? 0
   const visitors = trafficSummary?.uniqueVisitors ?? 0
   const viewsDelta = trafficSummary?.totalViewsChange ?? 0
@@ -659,7 +648,7 @@ export default async function ViewUserProductPage({
                           </Link>
                         </Button>
                       ) : (
-                        <form action={boostFormAction}>
+                        <PlanCheckoutForm context={checkoutContext}>
                           <input
                             type="hidden"
                             name="planId"
@@ -669,7 +658,7 @@ export default async function ViewUserProductPage({
                             <Sparkles className="size-4" aria-hidden />
                             {boostCtaLabel}
                           </Button>
-                        </form>
+                        </PlanCheckoutForm>
                       )}
                       {boostCtaHint ? (
                         <p className="mt-2 text-xs text-[#71869e]">

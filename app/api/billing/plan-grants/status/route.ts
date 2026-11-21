@@ -1,6 +1,10 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
+import {
+  orderMeasurementId,
+  subscriptionMeasurementId,
+} from "@/lib/server/orderMeasurement"
 import prisma from "@/lib/prisma"
 import { PAID_PLACEMENT_GRANT_SOURCES } from "@/lib/products/placement-grants"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
@@ -59,10 +63,25 @@ export async function GET(request: Request) {
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
       orderBy: [{ startsAt: "desc" }, { createdAt: "desc" }],
-      select: { id: true },
+      select: {
+        externalPaymentId: true,
+        externalSubscriptionId: true,
+        amountCents: true,
+      },
     })
 
-    return json({ state: activeGrant ? "active" : "processing" })
+    if (!activeGrant) return json({ state: "processing" })
+    const orderEventId =
+      activeGrant.externalPaymentId && (activeGrant.amountCents ?? 0) > 0
+        ? orderMeasurementId(activeGrant.externalPaymentId)
+        : undefined
+    return json({
+      state: "active",
+      orderEventId,
+      subscriptionEventId: activeGrant.externalSubscriptionId
+        ? subscriptionMeasurementId(activeGrant.externalSubscriptionId)
+        : undefined,
+    })
   } catch (error) {
     console.error("[billing-status] failed to read plan grant", {
       productId,

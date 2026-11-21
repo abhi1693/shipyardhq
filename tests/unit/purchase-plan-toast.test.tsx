@@ -3,6 +3,8 @@ import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const toastMocks = vi.hoisted(() => ({
+  measureSubscription: vi.fn(),
+  measureOrder: vi.fn(),
   pathname: "/member/products/shipyard",
   searchParams: new URLSearchParams(),
   replace: vi.fn(),
@@ -12,6 +14,11 @@ const toastMocks = vi.hoisted(() => ({
   error: vi.fn(),
   info: vi.fn(),
   fetch: vi.fn(),
+}))
+
+vi.mock("@/lib/analytics/openaiPixel", () => ({
+  measureSubscription: toastMocks.measureSubscription,
+  measureOrder: toastMocks.measureOrder,
 }))
 
 vi.mock("next/navigation", () => ({
@@ -115,6 +122,40 @@ describe("PurchasePlanToast billing return journey", () => {
     expect(toastMocks.refresh).not.toHaveBeenCalled()
     expect(toastMocks.fetch).toHaveBeenCalledTimes(1)
   })
+
+  it.each([
+    ["order_1", 1],
+    ["different_order", 0],
+  ])(
+    "correlates the verified purchase with return %s",
+    async (order, count) => {
+      toastMocks.fetch.mockResolvedValueOnce(
+        Response.json({ state: "active", orderEventId: "order_1" }),
+      )
+      await renderToast(
+        `billing=processing&billingToken=attempt&billingProductId=product_1&billingPlanId=plan_pro&billingOrder=${order}`,
+      )
+      await act(async () => vi.advanceTimersToNextTimerAsync())
+      expect(toastMocks.measureOrder).toHaveBeenCalledTimes(Number(count))
+    },
+  )
+
+  it.each(["sub_event", "other"])(
+    "matches subscription enrollment to the active grant: %s",
+    async (token) => {
+      toastMocks.fetch.mockResolvedValueOnce(
+        Response.json({ state: "active", subscriptionEventId: "sub_event" }),
+      )
+      await renderToast(
+        `billing=processing&billingToken=attempt&billingProductId=p&billingPlanId=pro&billingSubscription=${token}`,
+      )
+      await act(async () => vi.advanceTimersToNextTimerAsync())
+      expect(toastMocks.measureSubscription).toHaveBeenCalledTimes(
+        token === "sub_event" ? 1 : 0,
+      )
+      expect(toastMocks.measureOrder).not.toHaveBeenCalled()
+    },
+  )
 
   it("does not trust a forged success query without owned plan correlation", async () => {
     await renderToast("billing=success&billingToken=forged")

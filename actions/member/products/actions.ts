@@ -371,6 +371,8 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
   const returnUrl = new URL("/api/billing/dodo/return", getAppBaseUrl())
   returnUrl.searchParams.set("productId", product.id)
   returnUrl.searchParams.set("planId", plan.id)
+  if (plan.type === "recurring_price")
+    returnUrl.searchParams.set("enrollment", "1")
 
   try {
     const checkout = await createPlanCheckout({
@@ -392,7 +394,21 @@ async function startPlanCheckoutAction(productId: string, planId: string) {
 // Unified server action to choose/upgrade a plan for a product
 // Usage from a form: const action = choosePlanAction.bind(null, { productId, redirectPath })
 export async function choosePlanAction(
-  ctx: { productId: string; redirectPath: string; errorRedirectPath?: string },
+  ctx: PlanCheckoutContext,
+  formData: FormData,
+) {
+  const result = await choosePlanForCheckout(ctx, formData)
+  if (result) redirect(result.checkoutUrl)
+}
+
+type PlanCheckoutContext = {
+  productId: string
+  redirectPath: string
+  errorRedirectPath?: string
+}
+
+export async function choosePlanForCheckout(
+  ctx: PlanCheckoutContext,
   formData: FormData,
 ) {
   "use server"
@@ -466,10 +482,7 @@ export async function choosePlanAction(
 
   // Start hosted checkout for paid plans
   const session = await startPlanCheckoutAction(ctx.productId, planId)
-  const redirectUrl = (session as any)?.redirectUrl
-  if (redirectUrl) {
-    redirect(redirectUrl)
-  }
+  if (session.redirectUrl) return { checkoutUrl: session.redirectUrl }
 
   // If checkout couldn't be created, do NOT grant the plan
   redirect(errorRedirect("checkout_init_failed"))

@@ -1,6 +1,6 @@
 "use client"
 
-import { type KeyboardEvent, useMemo, useState, useTransition } from "react"
+import { type KeyboardEvent, useState, useTransition } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
@@ -15,7 +15,7 @@ import { toast } from "sonner"
 
 import type { PublicPlan } from "@/actions/public/plans/actions"
 import { createBillingPortalAction } from "@/actions/member/billing/portal"
-import { choosePlanAction } from "@/actions/member/products/actions"
+import { PlanCheckoutForm } from "@/components/molecules/PlanCheckoutForm"
 import { Button } from "@/components/atoms/button"
 import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
 import {
@@ -219,15 +219,6 @@ export function ProductUpgradeProvisioning({
   productPublicPath?: string
   performanceSnapshot?: ProductUpgradePerformanceSnapshot
 }) {
-  const choosePlan = useMemo(
-    () =>
-      choosePlanAction.bind(null, {
-        productId,
-        redirectPath,
-        errorRedirectPath,
-      }),
-    [productId, redirectPath, errorRedirectPath],
-  )
   const searchParams = useSearchParams()
   const [isPortalPending, startPortal] = useTransition()
   const requestedPlanId = searchParams.get("planId")
@@ -773,7 +764,9 @@ export function ProductUpgradeProvisioning({
                   This is your current plan
                 </div>
               ) : (
-                <form action={choosePlan}>
+                <PlanCheckoutForm
+                  context={{ productId, redirectPath, errorRedirectPath }}
+                >
                   <input type="hidden" name="planId" value={selectedPlan.id} />
                   <Button
                     type="submit"
@@ -786,7 +779,7 @@ export function ProductUpgradeProvisioning({
                         : "Publish on Free"
                       : "Select Plan"}
                   </Button>
-                </form>
+                </PlanCheckoutForm>
               )}
 
               <p className="text-center text-[10px] leading-relaxed text-[#43474c]">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { measureOrder, measureSubscription } from "@/lib/analytics/openaiPixel"
 import { toast } from "sonner"
 
 export const BILLING_STATUS_POLL_INTERVAL_MS = 2000
@@ -11,6 +12,8 @@ export const BILLING_STATUS_MAX_DURATION_MS = 90000
 const BILLING_TOAST_ID = "purchase-plan-billing"
 
 type BillingStatusResponse = {
+  subscriptionEventId?: string
+  orderEventId?: string
   state?: "active" | "processing"
 }
 
@@ -54,6 +57,8 @@ export default function PurchasePlanToast() {
   const error = params.get("error")
   const upgraded = params.get("upgraded")
   const billing = params.get("billing")
+  const subscriptionEventId = params.get("billingSubscription")
+  const orderEventId = params.get("billingOrder")
   const billingToken = params.get("billingToken")?.trim() ?? ""
   const billingProductId = params.get("billingProductId")?.trim() ?? ""
   const billingPlanId = params.get("billingPlanId")?.trim() ?? ""
@@ -107,6 +112,8 @@ export default function PurchasePlanToast() {
         cleanedUrl(pathname, search, [
           "billing",
           "billingToken",
+          "billingOrder",
+          "billingSubscription",
           "billingProductId",
           "billingPlanId",
         ]),
@@ -272,6 +279,14 @@ export default function PurchasePlanToast() {
           : null
         if (cancelled) return
         if (payload?.state === "active") {
+          if (
+            payload.subscriptionEventId &&
+            payload.subscriptionEventId === subscriptionEventId
+          )
+            measureSubscription(subscriptionEventId)
+          if (payload.orderEventId && payload.orderEventId === orderEventId) {
+            measureOrder(payload.orderEventId)
+          }
           complete()
           return
         }
@@ -316,6 +331,8 @@ export default function PurchasePlanToast() {
     billingPlanId,
     billingProductId,
     billingToken,
+    orderEventId,
+    subscriptionEventId,
     error,
     pathname,
     router,

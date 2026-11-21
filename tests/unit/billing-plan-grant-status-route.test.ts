@@ -110,8 +110,27 @@ describe("billing plan grant status route", () => {
         OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }],
       },
       orderBy: [{ startsAt: "desc" }, { createdAt: "desc" }],
-      select: { id: true },
+      select: {
+        externalPaymentId: true,
+        externalSubscriptionId: true,
+        amountCents: true,
+      },
     })
+  })
+
+  it("provides a stable order event ID only for a positive payment", async () => {
+    const grant = { externalPaymentId: "pay_123", amountCents: 2500 }
+    statusMocks.grantFindFirst
+      .mockResolvedValueOnce(grant)
+      .mockResolvedValueOnce(grant)
+    const first = await (await GET(request())).json()
+    expect(first.orderEventId).toMatch(/^[a-f0-9]{64}$/)
+    expect(await (await GET(request())).json()).toEqual(first)
+    statusMocks.grantFindFirst.mockResolvedValueOnce({
+      ...grant,
+      amountCents: 0,
+    })
+    expect(await (await GET(request())).json()).toEqual({ state: "active" })
   })
 
   it("keeps missing, wrong-plan, future, expired, or terminal grants processing", async () => {

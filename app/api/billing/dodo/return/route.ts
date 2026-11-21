@@ -2,6 +2,10 @@ import { auth } from "@clerk/nextjs/server"
 import { randomUUID } from "crypto"
 import { NextResponse } from "next/server"
 
+import {
+  orderMeasurementId,
+  subscriptionMeasurementId,
+} from "@/lib/server/orderMeasurement"
 import { getAppBaseUrl } from "@/lib/app-url"
 import { dodoClient } from "@/lib/dodo"
 import prisma from "@/lib/prisma"
@@ -22,6 +26,8 @@ import { hasVerifiedDodoSubscriptionPlanChangePayment } from "@/lib/server/dodoS
 import { readMetadataString } from "@/lib/server/subscriptionMetadata"
 
 type BillingRedirectCorrelation = {
+  subscriptionEventId?: string
+  orderEventId?: string
   token: string
   productId?: string
   planId?: string
@@ -35,6 +41,13 @@ function redirectUrl(
   const destination = new URL(path, getAppBaseUrl())
   destination.searchParams.set("billing", billing)
   destination.searchParams.set("billingToken", correlation.token)
+  if (correlation.subscriptionEventId)
+    destination.searchParams.set(
+      "billingSubscription",
+      correlation.subscriptionEventId,
+    )
+  if (correlation.orderEventId)
+    destination.searchParams.set("billingOrder", correlation.orderEventId)
   if (correlation.productId) {
     destination.searchParams.set("billingProductId", correlation.productId)
   }
@@ -103,7 +116,8 @@ export async function GET(request: Request) {
   const fallbackPlanId =
     requestUrl.searchParams.get("planId")?.trim() || undefined
   const paymentId = requestUrl.searchParams.get("payment_id")?.trim()
-  const subscriptionId = requestUrl.searchParams.get("subscription_id")?.trim()
+  const enrollment = requestUrl.searchParams.get("enrollment") === "1"
+  let subscriptionId = requestUrl.searchParams.get("subscription_id")?.trim()
 
   const { userId: clerkId } = await auth()
   if (!clerkId) {
@@ -120,7 +134,7 @@ export async function GET(request: Request) {
   let expectedPlanId = fallbackPlanId
   let provisioningFailed = false
   try {
-    if (paymentId) {
+    if (paymentId && !(enrollment && subscriptionId)) {
       const payment = await dodoClient.payments.retrieve(paymentId)
       const metadata = metadataRecord(payment.metadata)
       resolvedProductId =
@@ -128,11 +142,16 @@ export async function GET(request: Request) {
         resolvedProductId
       expectedPlanId =
         readMetadataString(metadata, "planId", "plan_id") ?? expectedPlanId
-      grantResult = await fulfillDodoOneTimePayment(payment, {
-        expectedUserId: user.id,
-      })
-      await refreshChangedProjection(grantResult, "dodo.return.payment")
-    } else if (subscriptionId) {
+      if (enrollment && payment.subscription_id) {
+        subscriptionId = payment.subscription_id
+      } else {
+        grantResult = await fulfillDodoOneTimePayment(payment, {
+          expectedUserId: user.id,
+        })
+        await refreshChangedProjection(grantResult, "dodo.return.payment")
+      }
+    }
+    if (subscriptionId && (enrollment || !paymentId)) {
       const subscription =
         await dodoClient.subscriptions.retrieve(subscriptionId)
       const metadata = metadataRecord(subscription.metadata)
@@ -208,6 +227,14 @@ export async function GET(request: Request) {
   return NextResponse.redirect(
     redirectUrl(destination.path, billing, {
       token: randomUUID(),
+      subscriptionEventId:
+        enrollment && subscriptionId && canPollOwnedGrant
+          ? subscriptionMeasurementId(subscriptionId)
+          : undefined,
+      orderEventId:
+        paymentId && !enrollment && canPollOwnedGrant
+          ? orderMeasurementId(paymentId)
+          : undefined,
       productId: canPollOwnedGrant ? destination.productId : undefined,
       planId: canPollOwnedGrant ? expectedPlanId : undefined,
     }),
