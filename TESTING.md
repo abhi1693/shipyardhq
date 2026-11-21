@@ -11,7 +11,7 @@ Goal: a **minimal, reliable** testing baseline so refactors/perf work don’t re
 
 ## Run locally
 
-Install deps:
+Install dependencies and generate the Prisma client. Apply database migrations separately with `npm run prisma:deploy` when setting up a database.
 
 ```bash
 npm ci
@@ -38,7 +38,7 @@ GitHub Actions runs tests on:
 
 CI uses:
 
-- `npm ci --ignore-scripts` (avoids Prisma `postinstall` DB requirement)
+- `npm ci --ignore-scripts` followed by an explicit `npm run prisma:generate`
 
 ## Adding tests (guidelines)
 
