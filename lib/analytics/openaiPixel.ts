@@ -24,7 +24,8 @@ declare global {
 
 export function hasPixelConsent() {
   try {
-    return localStorage.getItem(consentKey) === "granted"
+    const preference = localStorage.getItem(consentKey)
+    return preference === null || preference === "granted"
   } catch {
     return false
   }

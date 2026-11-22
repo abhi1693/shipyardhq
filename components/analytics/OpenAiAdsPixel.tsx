@@ -58,10 +58,10 @@ export function PixelPreference() {
         Allow ChatGPT Ads measurement on this browser
       </label>
       <p>
-        Allow OpenAI to use attribution cookies to measure page visits, paid
-        checkout starts, confirmed subscriptions and one-time purchases, and
-        completed email registrations from ChatGPT ads. You can withdraw consent
-        here at any time.
+        ChatGPT Ads measurement is on by default. OpenAI uses attribution
+        cookies to measure page visits, paid checkout starts, confirmed
+        subscriptions and one-time purchases, and completed email registrations
+        from ChatGPT ads. You can turn measurement off here at any time.
       </p>
       {error && (
         <p role="alert">Your browser could not save this preference.</p>
