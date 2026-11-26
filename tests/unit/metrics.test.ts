@@ -23,6 +23,25 @@ describe("metrics registry", () => {
       ),
     ).toBe("/member/products/add/:draftId/:step")
   })
+
+  it("bounds asset and unmatched labels independently of path and query", () => {
+    const labels = new Set<string>()
+    for (let i = 0; i < 1000; i++) {
+      for (const path of [
+        `/_next/static/chunks/${i}.js`,
+        `/images/${i}.png`,
+        `/probe-${i}?uid=${i}`,
+      ]) {
+        labels.add(normalizeMetricRoute(path))
+      }
+    }
+    expect(labels).toEqual(
+      new Set(["/_next/static/:path", "/assets/:path", "unmatched"]),
+    )
+    expect(normalizeMetricRoute("/pricing?q=plan")).toBe("/pricing")
+    expect(normalizeMetricRoute("/tools/example")).toBe("/tools/:slug")
+    expect(normalizeMetricRoute("http://[invalid")).toBe("unknown")
+  })
 })
 
 describe("OTel metrics configuration", () => {

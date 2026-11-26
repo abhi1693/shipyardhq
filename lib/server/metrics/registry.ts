@@ -1,3 +1,39 @@
+const staticRoutes = new Set([
+  "/",
+  "/_next/image",
+  "/about",
+  "/alternatives",
+  "/analytics",
+  "/auth/suspended",
+  "/browse",
+  "/categories",
+  "/editorial-policy",
+  "/favicon.ico",
+  "/guides",
+  "/leaderboard",
+  "/legal/privacy-policy",
+  "/legal/terms",
+  "/llms.txt",
+  "/login",
+  "/md",
+  "/member",
+  "/member/account/profile",
+  "/member/products",
+  "/metrics",
+  "/platforms",
+  "/pricing",
+  "/product-types",
+  "/register",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/sso-callback",
+  "/tags",
+  "/tools",
+  "/use-cases",
+  "/users",
+  "/why-shipyard",
+])
+
 export function normalizeMetricRoute(url: string | undefined) {
   if (!url) return "unknown"
 
@@ -5,13 +41,23 @@ export function normalizeMetricRoute(url: string | undefined) {
   try {
     pathname = new URL(url, "https://shipyard.local").pathname
   } catch {
-    pathname = url.split("?")[0] || "unknown"
+    return "unknown"
   }
 
-  if (pathname === "/") return "/"
-  if (pathname === "/metrics") return "/metrics"
-  if (pathname === "/_next/image") return "/_next/image"
-  if (pathname === "/md") return "/md"
+  if (staticRoutes.has(pathname)) return pathname
+  if (pathname.startsWith("/_next/static/")) return "/_next/static/:path"
+  if (
+    /^\/(assets|images|illustrations|affiliates|providers)\//.test(pathname)
+  ) {
+    return "/assets/:path"
+  }
+  if (pathname.startsWith("/tools/")) return "/tools/:slug"
+  if (pathname.startsWith("/editor-picks/")) return "/editor-picks/:category"
+  if (pathname.startsWith("/verified/")) return "/verified/:category"
+  if (pathname.startsWith("/trends/categories/"))
+    return "/trends/categories/:slug"
+  if (pathname.startsWith("/login/")) return "/login/:path"
+  if (pathname.startsWith("/register/")) return "/register/:path"
   if (pathname.startsWith("/md/")) {
     return "/md/:path"
   }
@@ -47,8 +93,6 @@ export function normalizeMetricRoute(url: string | undefined) {
     return "/member/products/:slug/upgrade"
   }
   if (pathname.startsWith("/member/products/")) return "/member/products/:slug"
-  if (pathname === "/member/products") return pathname
-  if (pathname === "/member/account/profile") return pathname
   if (pathname.startsWith("/member/")) return "/member/:path"
   if (pathname.startsWith("/products/")) return "/products/:slug"
   if (pathname.startsWith("/categories/")) return "/categories/:slug"
@@ -75,5 +119,5 @@ export function normalizeMetricRoute(url: string | undefined) {
   if (pathname.startsWith("/sitemap-")) return "/sitemap/:path"
   if (pathname.startsWith("/r/")) return "/r/:slug"
 
-  return pathname
+  return "unmatched"
 }
