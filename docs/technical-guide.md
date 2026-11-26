@@ -453,3 +453,11 @@ The source repository is public, so signed GitHub artifact attestations remain
 enabled and must verify against the exact release source and reusable signer
 before GitOps deployment. Private GHCR package visibility does not disable this
 source-repository capability.
+
+### HTTP request metrics
+
+The server records request duration, method, and status using a bounded HTTP route
+label. Known application paths use route templates, asset directories share
+stable labels, and other paths use `unmatched`. Add a constant route name or a
+template in `lib/server/metrics/registry.ts` when a new route needs its own
+latency breakdown.
