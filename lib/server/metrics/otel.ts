@@ -138,6 +138,7 @@ export function registerOpenTelemetry() {
   process.env.OTEL_SEMCONV_STABILITY_OPT_IN ??= "http"
 
   const sdk = new NodeSDK({
+    spanProcessors: [],
     instrumentations: [
       getNodeAutoInstrumentations({
         "@opentelemetry/instrumentation-http": {

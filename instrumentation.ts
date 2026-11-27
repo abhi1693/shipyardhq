@@ -39,13 +39,7 @@ export const onRequestError: Instrumentation.onRequestError = (
 
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "edge") {
-    const [{ registerOpenTelemetry }, { registerProfiling }] =
-      await Promise.all([
-        import("@/lib/server/metrics/otel"),
-        import("@/lib/server/metrics/profiling"),
-      ])
-
+    const { registerOpenTelemetry } = await import("@/lib/server/metrics/otel")
     registerOpenTelemetry()
-    await registerProfiling()
   }
 }
