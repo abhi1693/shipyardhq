@@ -5,10 +5,7 @@ async function main() {
 
   const { registerOpenTelemetry, shutdownOpenTelemetry } =
     await import("@/lib/server/metrics/otel")
-  const { registerProfiling, shutdownProfiling } =
-    await import("@/lib/server/metrics/profiling")
   registerOpenTelemetry()
-  await registerProfiling()
 
   const { startShipyardWorker } = await import("@/lib/server/jobs/worker")
   const worker = await startShipyardWorker()
@@ -21,7 +18,7 @@ async function main() {
 
     try {
       await worker.close()
-      await Promise.all([shutdownProfiling(), shutdownOpenTelemetry()])
+      await shutdownOpenTelemetry()
       console.info("[worker] shutdown complete")
       process.exit(0)
     } catch (error) {
